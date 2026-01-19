@@ -181,10 +181,8 @@ public struct UpdateManager: InternalUpdateManaging {
 
             var results: [Bool] = []
             var totalBytesWritten = 0
+            var totalProcessingDuration: TimeInterval = 0
             let dataTypes = DataManager.StoredDataType.dataTypes(for: datasetType, supportedThreats: supportedThreats)
-
-            // Measure total processing time for all threats
-            let aggregateStartTime = CFAbsoluteTimeGetCurrent()
 
             for dataType in dataTypes {
                 do {
@@ -195,6 +193,7 @@ public struct UpdateManager: InternalUpdateManaging {
                         // Fire single dataset events (performance + disk usage)
                         fireDataSetUpdatePerformanceEvents(for: dataType.dataKey, updateInfo: updateInfo)
                         totalBytesWritten += updateInfo.bytesWritten
+                        totalProcessingDuration += updateInfo.processingDuration
                     }
 
                 } catch {
@@ -202,8 +201,6 @@ public struct UpdateManager: InternalUpdateManaging {
                     results.append(false)
                 }
             }
-
-            let aggregateDuration = CFAbsoluteTimeGetCurrent() - aggregateStartTime
 
             // Check that at least one of the dataset type have updated
             let shouldSaveLastUpdateDate = results.contains(true)
@@ -217,7 +214,7 @@ public struct UpdateManager: InternalUpdateManaging {
                 fireAggregateDataSetsUpdatePerformanceEvents(
                     datasetType: datasetType,
                     sampleDataType: dataTypes.first,
-                    aggregateDuration: aggregateDuration,
+                    aggregateDuration: totalProcessingDuration,
                     totalBytesWritten: totalBytesWritten
                 )
             }
