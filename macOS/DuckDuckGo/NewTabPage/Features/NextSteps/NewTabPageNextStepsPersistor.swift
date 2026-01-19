@@ -160,8 +160,6 @@ final class NewTabPageNextStepsCardsPersistor: NewTabPageNextStepsCardsPersistin
     }
 }
 
-
-
 #if DEBUG || REVIEW || ALPHA
 final class NewTabPageNextStepsCardsDebugPersistor {
     private let keyValueStore: ThrowingKeyValueStoring
