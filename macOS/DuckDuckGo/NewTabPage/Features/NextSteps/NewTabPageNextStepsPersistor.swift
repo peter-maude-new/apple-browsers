@@ -160,7 +160,7 @@ final class NewTabPageNextStepsCardsPersistor: NewTabPageNextStepsCardsPersistin
     }
 }
 
-#if DEBUG || REVIEW || ALPHA
+/// For use in debug menu.
 final class NewTabPageNextStepsCardsDebugPersistor {
     private let keyValueStore: ThrowingKeyValueStoring
 
@@ -185,4 +185,3 @@ final class NewTabPageNextStepsCardsDebugPersistor {
         }
     }
 }
-#endif

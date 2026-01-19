@@ -50,11 +50,9 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
     private let subscriptionCardVisibilityManager: HomePageSubscriptionCardVisibilityManaging
     private let syncService: DDGSyncing?
 
-#if DEBUG || REVIEW || ALPHA
     private var debugPersistor: NewTabPageNextStepsCardsDebugPersistor = {
         NewTabPageNextStepsCardsDebugPersistor()
     }()
-#endif
 
     enum Constants {
         /// Maximum times a card can be dismissed before it is permanently hidden.
