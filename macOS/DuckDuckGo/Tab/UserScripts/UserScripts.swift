@@ -224,7 +224,7 @@ final class UserScripts: UserScriptsProvider {
         let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                          pixelHandler: SubscriptionPixelHandler(source: .mainApp))
-        let wideEvent = WideEvent()
+        let wideEvent = Application.appDelegate.wideEvent
         let subscriptionPurchasePixelFiring = MacSubscriptionPurchasePixelFiring()
         let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: wideEvent, pixelFiring: subscriptionPurchasePixelFiring)
         delegate = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
