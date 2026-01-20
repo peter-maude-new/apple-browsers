@@ -72,7 +72,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Shortcuts group
         let shortcutsItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
-            .init(entryBuilder.makeAutoFillEntry()),
+            .init(entryBuilder.makeAutoFillEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external),
             .init(entryBuilder.makeDownloadsEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 
@@ -137,7 +137,7 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         // MARK: Shortcuts group
         let shortcutItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
-            .init(entryBuilder.makeAutoFillEntry()),
+            .init(entryBuilder.makeAutoFillEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external),
             .init(entryBuilder.makeDownloadsEntry(), presentationStyle: options.isNavigationEnabled ? .navigation : .external)
         ].compactMap { $0 }
 

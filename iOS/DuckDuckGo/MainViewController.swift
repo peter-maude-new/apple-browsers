@@ -1701,9 +1701,16 @@ class MainViewController: UIViewController {
         suggestionTrayController?.didHide(animated: false)
     }
     
-    func launchAutofillLogins(with currentTabUrl: URL? = nil, currentTabUid: String? = nil, openSearch: Bool = false, source: AutofillSettingsSource, selectedAccount: SecureVaultModels.WebsiteAccount? = nil, extensionPromotionManager: AutofillExtensionPromotionManaging? = nil) {
+    private func makeAutofillLoginListViewController(
+        currentTabUrl: URL? = nil,
+        currentTabUid: String? = nil,
+        openSearch: Bool = false,
+        source: AutofillSettingsSource,
+        selectedAccount: SecureVaultModels.WebsiteAccount? = nil,
+        extensionPromotionManager: AutofillExtensionPromotionManaging? = nil
+    ) -> AutofillLoginListViewController {
         let appSettings = AppDependencyProvider.shared.appSettings
-        let autofillLoginListViewController = AutofillLoginListViewController(
+        let viewController = AutofillLoginListViewController(
             appSettings: appSettings,
             currentTabUrl: currentTabUrl,
             currentTabUid: currentTabUid,
@@ -1712,13 +1719,25 @@ class MainViewController: UIViewController {
             selectedAccount: selectedAccount,
             openSearch: openSearch,
             source: source,
-            bookmarksDatabase: self.bookmarksDatabase,
-            favoritesDisplayMode: self.appSettings.favoritesDisplayMode,
-            keyValueStore: self.keyValueStore,
+            bookmarksDatabase: bookmarksDatabase,
+            favoritesDisplayMode: appSettings.favoritesDisplayMode,
+            keyValueStore: keyValueStore,
             extensionPromotionManager: extensionPromotionManager,
             productSurfaceTelemetry: productSurfaceTelemetry
         )
-        autofillLoginListViewController.delegate = self
+        viewController.delegate = self
+        return viewController
+    }
+
+    func launchAutofillLogins(with currentTabUrl: URL? = nil, currentTabUid: String? = nil, openSearch: Bool = false, source: AutofillSettingsSource, selectedAccount: SecureVaultModels.WebsiteAccount? = nil, extensionPromotionManager: AutofillExtensionPromotionManaging? = nil) {
+        let autofillLoginListViewController = makeAutofillLoginListViewController(
+            currentTabUrl: currentTabUrl,
+            currentTabUid: currentTabUid,
+            openSearch: openSearch,
+            source: source,
+            selectedAccount: selectedAccount,
+            extensionPromotionManager: extensionPromotionManager
+        )
         let navigationController = UINavigationController(rootViewController: autofillLoginListViewController)
         autofillLoginListViewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: UserText.autofillNavigationButtonItemTitleClose,
                                                                                           style: .plain,
@@ -3288,6 +3307,17 @@ extension MainViewController: TabDelegate {
              didRequestAutofillLogins account: SecureVaultModels.WebsiteAccount?,
              source: AutofillSettingsSource, extensionPromotionManager: AutofillExtensionPromotionManaging? = nil) {
         launchAutofillLogins(with: currentTab?.url, currentTabUid: tab.tabModel.uid, source: source, selectedAccount: account, extensionPromotionManager: extensionPromotionManager)
+    }
+
+    func tabDidRequestAutofillLoginsViewControllerForEmbedding(_ tab: TabViewController) -> UIViewController? {
+        let viewController = makeAutofillLoginListViewController(
+            currentTabUrl: tab.url,
+            currentTabUid: tab.tabModel.uid,
+            source: .overflow,
+            extensionPromotionManager: tab.extensionPromotionManager
+        )
+        viewController.title = UserText.actionAutofillLogins
+        return viewController
     }
 
     func tab(_ tab: TabViewController,

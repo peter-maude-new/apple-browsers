@@ -234,10 +234,20 @@ extension TabViewController {
     }
     
     private func buildAutoFillEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {
-        .regular(name: UserText.actionAutofillLogins,
+        let handler = navigationPushHandler
+        return .regular(name: UserText.actionAutofillLogins,
                  image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.keyLogin : DesignSystemImages.Glyphs.Size24.key,
                  action: { [weak self] in
-            self?.onOpenAutofillLoginsAction()
+            guard let self = self else { return }
+            
+            Pixel.fire(pixel: .browsingMenuAutofill)
+            
+            if let handler = handler,
+               let autofillVC = self.delegate?.tabDidRequestAutofillLoginsViewControllerForEmbedding(self) {
+                handler(autofillVC)
+            } else {
+                self.delegate?.tab(self, didRequestAutofillLogins: nil, source: .overflow, extensionPromotionManager: self.extensionPromotionManager)
+            }
         })
     }
 

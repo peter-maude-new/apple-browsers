@@ -74,6 +74,8 @@ protocol TabDelegate: AnyObject {
              source: AutofillSettingsSource,
              extensionPromotionManager: AutofillExtensionPromotionManaging?)
 
+    func tabDidRequestAutofillLoginsViewControllerForEmbedding(_ tab: TabViewController) -> UIViewController?
+
     func tab(_ tab: TabViewController,
              didRequestDataImport source: DataImportViewModel.ImportScreen,
              onFinished: @escaping () -> Void,
