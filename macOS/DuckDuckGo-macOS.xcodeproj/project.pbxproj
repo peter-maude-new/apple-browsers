@@ -2949,6 +2949,7 @@
 		B568715F2EC528950075A270 /* CABasicAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B568715D2EC528950075A270 /* CABasicAnimationExtension.swift */; };
 		B56871612EC528CF0075A270 /* CATransitionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56871602EC528CF0075A270 /* CATransitionExtension.swift */; };
 		B56871622EC528CF0075A270 /* CATransitionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56871602EC528CF0075A270 /* CATransitionExtension.swift */; };
+		B56B84F82F201E56007EC570 /* ApplicationMemoryStatsIPCMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56B84F72F201E56007EC570 /* ApplicationMemoryStatsIPCMetric.swift */; };
 		B58D635B2F1158FE00AAB218 /* ThemePopoverDeciderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58D635A2F1158FE00AAB218 /* ThemePopoverDeciderTests.swift */; };
 		B58D635C2F1158FE00AAB218 /* ThemePopoverDeciderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58D635A2F1158FE00AAB218 /* ThemePopoverDeciderTests.swift */; };
 		B59AB6442EFB179F00C2F87A /* SearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59AB6432EFB179F00C2F87A /* SearchField.swift */; };
@@ -5804,6 +5805,7 @@
 		B56776742ED778C600303198 /* FaviconImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconImageView.swift; sourceTree = "<group>"; };
 		B568715D2EC528950075A270 /* CABasicAnimationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CABasicAnimationExtension.swift; sourceTree = "<group>"; };
 		B56871602EC528CF0075A270 /* CATransitionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CATransitionExtension.swift; sourceTree = "<group>"; };
+		B56B84F72F201E56007EC570 /* ApplicationMemoryStatsIPCMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMemoryStatsIPCMetric.swift; sourceTree = "<group>"; };
 		B574243A2EBA8CDF002E5460 /* TabFaviconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabFaviconView.swift; sourceTree = "<group>"; };
 		B58D635A2F1158FE00AAB218 /* ThemePopoverDeciderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePopoverDeciderTests.swift; sourceTree = "<group>"; };
 		B59AB6432EFB179F00C2F87A /* SearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchField.swift; sourceTree = "<group>"; };
@@ -7755,6 +7757,7 @@
 			isa = PBXGroup;
 			children = (
 				37C3210F2F1E8127008F4604 /* ApplicationMemoryMetric.swift */,
+				B56B84F72F201E56007EC570 /* ApplicationMemoryStatsIPCMetric.swift */,
 				37C3210C2F1E80FC008F4604 /* MemoryTests.swift */,
 				37C321132F1E81CA008F4604 /* macOS Memory Usage Tests.xctestplan */,
 			);
@@ -15698,6 +15701,7 @@
 				37C321572F1F8C82008F4604 /* XCUIApplicationExtension.swift in Sources */,
 				37C321582F1F8C82008F4604 /* NSPredicateExtension.swift in Sources */,
 				37C321592F1F8C82008F4604 /* XCUIElementTypeExtension.swift in Sources */,
+				B56B84F82F201E56007EC570 /* ApplicationMemoryStatsIPCMetric.swift in Sources */,
 				37C3215A2F1F8C82008F4604 /* XCUIElementSnapshotExtension.swift in Sources */,
 				37C3215B2F1F8C82008F4604 /* UITests.swift in Sources */,
 				37C3215C2F1F8C82008F4604 /* StringExtensions.swift in Sources */,

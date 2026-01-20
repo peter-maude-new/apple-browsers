@@ -1,0 +1,103 @@
+//
+//  ApplicationMemoryStatsIPCMetric.swift
+//
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import Foundation
+import os.log
+import XCTest
+
+/// A custom XCTMetric that measures the Allocations of the Browser through file-based IPC.
+///
+final class ApplicationMemoryStatsIPCMetric: NSObject, XCTMetric {
+
+    private let memoryStatsURL: URL
+    private var initialState: MemoryStatsSnapshot?
+    private var finalState: MemoryStatsSnapshot?
+
+    init(memoryStatsURL: URL) {
+        self.memoryStatsURL = memoryStatsURL
+        super.init()
+    }
+
+    // MARK: - NSCopying
+
+    func copy(with zone: NSZone? = nil) -> Any {
+        ApplicationMemoryStatsIPCMetric(memoryStatsURL: memoryStatsURL)
+    }
+
+    // MARK: - XCTMetric
+
+    func willBeginMeasuring() {
+        initialState = try? loadAndDecodeStats(sourceURL: memoryStatsURL)
+    }
+
+    func didStopMeasuring() {
+        finalState = try? loadAndDecodeStats(sourceURL: memoryStatsURL)
+    }
+
+    func reportMeasurements(from startTime: XCTPerformanceMeasurementTimestamp, to endTime: XCTPerformanceMeasurementTimestamp) throws -> [XCTPerformanceMeasurement] {
+        guard let initialState, let finalState else {
+            XCTFail()
+            return []
+        }
+
+        let initialMemoryUsedMB = XCTPerformanceMeasurement(
+            identifier: "com.duckduckgo.memory.allocations.used.initial",
+            displayName: "Initial Memory Used",
+            doubleValue: Double(initialState.totalUsedInMB),
+            unitSymbol: "MB"
+        )
+
+        let finalMemoryUsedMB = XCTPerformanceMeasurement(
+            identifier: "com.duckduckgo.memory.allocations.used.final",
+            displayName: "Final Memory Used",
+            doubleValue: Double(finalState.totalUsedInMB),
+            unitSymbol: "MB"
+        )
+
+        return [finalMemoryUsedMB, initialMemoryUsedMB]
+    }
+}
+
+private extension ApplicationMemoryStatsIPCMetric {
+
+    func loadAndDecodeStats(sourceURL: URL) throws -> MemoryStatsSnapshot? {
+        let testing = (try? String(contentsOf: sourceURL, encoding: .utf8)) ?? ""
+
+        let exists = FileManager.default.fileExists(atPath: sourceURL.path)
+        Logger.tests.log("#### Stats \(testing, privacy: .public) URL \(sourceURL, privacy: .public) exists \(exists)")
+        let decoder = JSONDecoder()
+
+        do {
+            let statsAsData = try Data(contentsOf: sourceURL)
+
+            return try decoder.decode(MemoryStatsSnapshot.self, from: statsAsData)
+        } catch {
+            Logger.tests.log("#### ERROR \(error, privacy: .public)")
+
+            return nil
+        }
+    }
+}
+
+struct MemoryStatsSnapshot: Codable {
+    let processID: pid_t
+    let timestamp: Date
+    let mallocZoneCount: UInt
+    let totalAllocatedInMB: UInt64
+    let totalUsedInMB: UInt64
+}

@@ -38,6 +38,20 @@ class MemoryTests: XCTestCase {
         application.terminate()
     }
 
+    func testMemoryAllocationsWhenOpeningMultipleNewtabs() throws {
+        let allocationsMetric = ApplicationMemoryStatsIPCMetric(memoryStatsURL: application.memoryStatsURL)
+
+        application.openNewWindow()
+        application.waitForAddressBar()
+
+        application.deleteAndExportMemoryStats()
+
+        measure(metrics: [allocationsMetric], options: .buildOptions(iterations: 1)) {
+            application.openNewTab()
+            application.deleteAndExportMemoryStats()
+        }
+    }
+
     func testMemoryPressureWhenOpeningMultipleNewWindows() throws {
         let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: bundleID)
 
@@ -50,18 +64,18 @@ class MemoryTests: XCTestCase {
         let memoryMetric = ApplicationMemoryMetric(bundleIdentifier: bundleID)
 
         application.openNewWindow()
-        waitForAddressBar(application: application)
+        application.waitForAddressBar()
 
-        measure(metrics: [memoryMetric], options: .buildOptions(iterations: 20)) {
+        measure(metrics: [memoryMetric], options: .buildOptions(iterations: 10)) {
             application.openNewTab()
         }
     }
+}
 
+private extension XCUIApplication {
 
-    // MARK: - Utilities
-
-    private func waitForAddressBar(application: XCUIApplication) {
-        _ = application.addressBar.waitForExistence(timeout: UITests.Timeouts.elementExistence)
+    func waitForAddressBar() {
+        _ = addressBar.waitForExistence(timeout: UITests.Timeouts.elementExistence)
     }
 }
 
@@ -76,4 +90,29 @@ extension XCTMeasureOptions {
 
 extension Logger {
     static let tests = os.Logger(subsystem: "com.duckduckgo.macos.browser.memory", category: "🧪")
+}
+
+
+extension XCUIApplication {
+
+    var memoryStatsURL: URL {
+        let path = "/tmp/" + (bundleID ?? "") + ".json"
+        return URL(string: path)!
+    }
+
+    func deleteAndExportMemoryStats() {
+        deleteMemoryStats()
+        exportMemoryStats()
+    }
+
+    private func exportMemoryStats() {
+        debugMenu
+            .menuItems["Memory Debugging"]
+            .menuItems["Export Memory Stats"]
+            .click()
+    }
+
+    private func deleteMemoryStats() {
+        try? FileManager.default.removeItem(at: memoryStatsURL)
+    }
 }
