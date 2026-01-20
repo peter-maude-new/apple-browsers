@@ -42,6 +42,15 @@ final class BrowsingMenuContainerViewController: UIViewController {
         return view
     }()
 
+    /// Background view that provides a fallback color during transitions
+    /// when the content doesn't fill the entire sheet height
+    private lazy var transitionBackgroundView: UIVisualEffectView = {
+        let effect = UIBlurEffect(style: .systemThickMaterial)
+        let view = UIVisualEffectView(effect: effect)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     private lazy var embeddedNavigationController: UINavigationController = {
         let nav = UINavigationController()
         nav.setNavigationBarHidden(true, animated: false)
@@ -72,23 +81,46 @@ final class BrowsingMenuContainerViewController: UIViewController {
     func transitionToViewController(_ viewController: BrowsingMenuContentProviding, animated: Bool) {
         let isInitialSetup = currentChildViewController == nil
         
-        removeCurrentChildViewController()
-        embedChildViewController(viewController)
-        rootMenuViewController = viewController
-
-        if !isInitialSetup {
-            updateSheetHeight(to: viewController.preferredContentHeight, animated: animated)
+        if !isInitialSetup && animated {
+            // Snapshot covers the transition while both crossfade and detent animate together
+            let snapshot = embeddedNavigationController.view.snapshotView(afterScreenUpdates: false)
+            
+            embedChildViewController(viewController)
+            rootMenuViewController = viewController
+            
+            if let snapshot = snapshot {
+                embeddedNavigationController.view.addSubview(snapshot)
+                
+                // Start detent animation immediately (runs in parallel with crossfade)
+                updateSheetHeight(to: viewController.preferredContentHeight, animated: true)
+                
+                UIView.animate(withDuration: 0.3) {
+                    snapshot.alpha = 0
+                } completion: { _ in
+                    snapshot.removeFromSuperview()
+                }
+            } else {
+                updateSheetHeight(to: viewController.preferredContentHeight, animated: true)
+            }
+        } else {
+            embedChildViewController(viewController)
+            rootMenuViewController = viewController
+            
+            if !isInitialSetup {
+                updateSheetHeight(to: viewController.preferredContentHeight, animated: false)
+            }
         }
     }
 
     func pushViewController(_ viewController: UIViewController, animated: Bool) {
         savedDetentIdentifier = sheetPresentationController?.selectedDetentIdentifier
         hasNavigationStack = true
-        
-        embeddedNavigationController.setNavigationBarHidden(false, animated: animated)
+
         embeddedNavigationController.pushViewController(viewController, animated: animated)
-        
-        if let sheet = sheetPresentationController {
+        embeddedNavigationController.setNavigationBarHidden(false, animated: animated)
+
+        let updateDetent = { [weak self] in
+            guard let sheet = self?.sheetPresentationController else { return }
             sheet.animateChanges {
                 if #available(iOS 16.0, *) {
                     sheet.detents = [.large()]
@@ -98,18 +130,20 @@ final class BrowsingMenuContainerViewController: UIViewController {
                 }
             }
         }
+
+        if animated, let coordinator = embeddedNavigationController.transitionCoordinator {
+            coordinator.animate(alongsideTransition: nil) { _ in
+                updateDetent()
+            }
+        } else {
+            updateDetent()
+        }
     }
 
     func popViewController(animated: Bool) {
         embeddedNavigationController.popViewController(animated: animated)
-        
-        if embeddedNavigationController.viewControllers.count <= 1 {
-            embeddedNavigationController.setNavigationBarHidden(true, animated: animated)
-            
-            if let menuVC = rootMenuViewController as? BrowsingMenuContentProviding {
-                updateSheetHeight(to: menuVC.preferredContentHeight, animated: animated)
-            }
-        }
+
+        // Navigation bar hiding and detent restoration handled in UINavigationControllerDelegate
     }
 
     func updateSheetHeight(to height: CGFloat, animated: Bool) {
@@ -174,18 +208,21 @@ final class BrowsingMenuContainerViewController: UIViewController {
         currentChildViewController = childVC
     }
 
-    private func removeCurrentChildViewController() {
-        embeddedNavigationController.setViewControllers([], animated: false)
-        currentChildViewController = nil
-    }
-
     // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = .clear
+        
+        // Add blur background first (behind content) to prevent see-through during transitions
+        view.addSubview(transitionBackgroundView)
         view.addSubview(contentContainerView)
 
         NSLayoutConstraint.activate([
+            transitionBackgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            transitionBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            transitionBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            transitionBackgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             contentContainerView.topAnchor.constraint(equalTo: view.topAnchor),
             contentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -212,7 +249,15 @@ extension BrowsingMenuContainerViewController: UINavigationControllerDelegate {
         if navigationController.viewControllers.count == 1 {
             navigationController.setNavigationBarHidden(true, animated: animated)
             hasNavigationStack = false
-            restoreMenuSheetDetents(animated: animated)
+            
+            // Two-stage: wait for pop to complete, then animate detent
+            if animated, let coordinator = navigationController.transitionCoordinator {
+                coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+                    self?.restoreMenuSheetDetents(animated: true)
+                }
+            } else {
+                restoreMenuSheetDetents(animated: false)
+            }
         }
     }
     
