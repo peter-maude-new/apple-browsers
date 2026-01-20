@@ -100,9 +100,7 @@ extension MainViewController {
         }
     }
 
-    private func launchBookmarksViewController(completion: ((BookmarksViewController) -> Void)? = nil) {
-        Logger.lifecycle.debug(#function)
-
+    private func makeBookmarksViewController() -> BookmarksViewController {
         let storyboard = UIStoryboard(name: "Bookmarks", bundle: nil)
         let bookmarks = storyboard.instantiateViewController(identifier: "BookmarksViewController") { coder in
             BookmarksViewController(coder: coder,
@@ -115,12 +113,24 @@ extension MainViewController {
                                     productSurfaceTelemetry: self.productSurfaceTelemetry)
         }
         bookmarks.delegate = self
+        return bookmarks
+    }
 
+    private func launchBookmarksViewController(completion: ((BookmarksViewController) -> Void)? = nil) {
+        Logger.lifecycle.debug(#function)
+
+        let bookmarks = makeBookmarksViewController()
         let controller = UINavigationController(rootViewController: bookmarks)
         controller.modalPresentationStyle = .automatic
         present(controller, animated: true) {
             completion?(bookmarks)
         }
+    }
+
+    func tabDidRequestBookmarksViewControllerForEmbedding(_ tab: TabViewController) -> UIViewController? {
+        let viewController = makeBookmarksViewController()
+        viewController.title = UserText.actionOpenBookmarks
+        return viewController
     }
 
     func segueToReportBrokenSite(entryPoint: PrivacyDashboardEntryPoint = .report) {

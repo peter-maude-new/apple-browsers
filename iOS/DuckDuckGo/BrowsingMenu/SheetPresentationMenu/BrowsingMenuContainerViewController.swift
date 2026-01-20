@@ -54,6 +54,7 @@ final class BrowsingMenuContainerViewController: UIViewController {
     private lazy var embeddedNavigationController: UINavigationController = {
         let nav = UINavigationController()
         nav.setNavigationBarHidden(true, animated: false)
+        nav.setToolbarHidden(true, animated: false)
         nav.view.backgroundColor = .clear
         return nav
     }()
@@ -142,8 +143,10 @@ final class BrowsingMenuContainerViewController: UIViewController {
 
     func popViewController(animated: Bool) {
         embeddedNavigationController.popViewController(animated: animated)
+        embeddedNavigationController.setNavigationBarHidden(true, animated: animated)
+        embeddedNavigationController.setToolbarHidden(true, animated: animated)
 
-        // Navigation bar hiding and detent restoration handled in UINavigationControllerDelegate
+        // Detent restoration handled in UINavigationControllerDelegate
     }
 
     func updateSheetHeight(to height: CGFloat, animated: Bool) {
@@ -248,6 +251,7 @@ extension BrowsingMenuContainerViewController: UINavigationControllerDelegate {
         
         if navigationController.viewControllers.count == 1 {
             navigationController.setNavigationBarHidden(true, animated: animated)
+            navigationController.setToolbarHidden(true, animated: animated)
             hasNavigationStack = false
             
             // Two-stage: wait for pop to complete, then animate detent

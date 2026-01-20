@@ -62,6 +62,8 @@ protocol TabDelegate: AnyObject {
     func tab(_ tab: TabViewController, didRequestToggleReportWithCompletionHandler completionHandler: @escaping (Bool) -> Void)
 
     func tabDidRequestBookmarks(tab: TabViewController)
+
+    func tabDidRequestBookmarksViewControllerForEmbedding(_ tab: TabViewController) -> UIViewController?
     
     func tabDidRequestEditBookmark(tab: TabViewController)
     

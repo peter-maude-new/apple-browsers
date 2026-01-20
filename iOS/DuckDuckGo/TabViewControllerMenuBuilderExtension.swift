@@ -502,10 +502,21 @@ extension TabViewController {
     }
 
     private func buildOpenBookmarksEntry(useSmallIcon: Bool = true) -> BrowsingMenuEntry {
-        BrowsingMenuEntry.regular(name: UserText.actionOpenBookmarks,
+        let handler = navigationPushHandler
+        return BrowsingMenuEntry.regular(name: UserText.actionOpenBookmarks,
                                   image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.bookmarks : DesignSystemImages.Glyphs.Size24.bookmarks,
                                   action: { [weak self] in
-            self?.onOpenBookmarksAction()
+            guard let self = self else { return }
+            
+            Pixel.fire(pixel: .bookmarksButtonPressed,
+                       withAdditionalParameters: [PixelParameters.originatedFromMenu: "1"])
+            
+            if let handler = handler,
+               let bookmarksVC = self.delegate?.tabDidRequestBookmarksViewControllerForEmbedding(self) {
+                handler(bookmarksVC)
+            } else {
+                self.delegate?.tabDidRequestBookmarks(tab: self)
+            }
         })
     }
     
