@@ -282,7 +282,10 @@ public enum FeatureFlag: String {
     
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212556727029805
     case enhancedDataClearingSettings
-    
+
+    /// Shows tracker count banner in Tab Switcher and related settings item
+    case tabSwitcherTrackerCount
+
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212632627091091?focus=true
     case burnSingleTab
 }
@@ -377,6 +380,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .dataImportSummarySyncPromotion,
              .aiChatAtb,
              .enhancedDataClearingSettings,
+             .tabSwitcherTrackerCount,
              .burnSingleTab:
             return true
         case .showSettingsCompleteSetupSection:
@@ -593,7 +597,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AIChatSubfeature.aiChatAtb))
         case .enhancedDataClearingSettings:
             return .disabled
-        case .burnSingleTab:
+        case .tabSwitcherTrackerCount,
+             .burnSingleTab:
             return .disabled
         }
     }
