@@ -2973,6 +2973,8 @@
 		B5E7B6CB2ED4A7A800094EDF /* LoadingIndicatorPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E7B6C82ED4A7A800094EDF /* LoadingIndicatorPolicyTests.swift */; };
 		B5ECC1962EF1D24B0046A1C7 /* ScriptStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ECC1952EF1D24B0046A1C7 /* ScriptStyleProvider.swift */; };
 		B5ECC1972EF1D24B0046A1C7 /* ScriptStyleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ECC1952EF1D24B0046A1C7 /* ScriptStyleProvider.swift */; };
+		B5EDA5612F1FB92A00A5D9CD /* MemoryStatsExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EDA5602F1FB92A00A5D9CD /* MemoryStatsExporter.swift */; };
+		B5EDA5622F1FB92A00A5D9CD /* MemoryStatsExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EDA5602F1FB92A00A5D9CD /* MemoryStatsExporter.swift */; };
 		B5F7BDC92EBD1D9D00ECE33A /* TabFaviconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574243A2EBA8CDF002E5460 /* TabFaviconView.swift */; };
 		B5F7BDCA2EBD1D9D00ECE33A /* TabFaviconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B574243A2EBA8CDF002E5460 /* TabFaviconView.swift */; };
 		B602E7CF2A93A5FF00F12201 /* WKBackForwardListExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602E7CE2A93A5FF00F12201 /* WKBackForwardListExtension.swift */; };
@@ -5816,6 +5818,7 @@
 		B5E7B6C42ED4A79500094EDF /* TitleDisplayPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleDisplayPolicyTests.swift; sourceTree = "<group>"; };
 		B5E7B6C82ED4A7A800094EDF /* LoadingIndicatorPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicatorPolicyTests.swift; sourceTree = "<group>"; };
 		B5ECC1952EF1D24B0046A1C7 /* ScriptStyleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptStyleProvider.swift; sourceTree = "<group>"; };
+		B5EDA5602F1FB92A00A5D9CD /* MemoryStatsExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStatsExporter.swift; sourceTree = "<group>"; };
 		B602E7CE2A93A5FF00F12201 /* WKBackForwardListExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKBackForwardListExtension.swift; sourceTree = "<group>"; };
 		B602E8152A1E2570006D261F /* URL+NetworkProtection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+NetworkProtection.swift"; sourceTree = "<group>"; };
 		B602E81C2A1E25B0006D261F /* NEOnDemandRuleExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NEOnDemandRuleExtension.swift; sourceTree = "<group>"; };
@@ -12144,6 +12147,7 @@
 			isa = PBXGroup;
 			children = (
 				3727A5A62F17F57A002E10E1 /* MemoryPressureReporter.swift */,
+				B5EDA5602F1FB92A00A5D9CD /* MemoryStatsExporter.swift */,
 				37E4778F2EF006E1006369D6 /* MemoryUsageMonitor.swift */,
 				ED4470142EB2676A003DC918 /* HangReportingFeatureMonitor.swift */,
 				EDCFFF812E9A61AB00ABD9F9 /* WatchdogSleepMonitor.swift */,
@@ -14117,6 +14121,7 @@
 				3706FABD293F65D500E42796 /* NSNotificationName+PasswordManager.swift in Sources */,
 				3706FABE293F65D500E42796 /* RulesCompilationMonitor.swift in Sources */,
 				B520EBE22EC4D66A00D286E4 /* LoadingIndicatorPolicy.swift in Sources */,
+				B5EDA5612F1FB92A00A5D9CD /* MemoryStatsExporter.swift in Sources */,
 				3706FABF293F65D500E42796 /* CrashReportReader.swift in Sources */,
 				B6B4D1C62B0B3B5400C26286 /* DataImportReportModel.swift in Sources */,
 				3768D8452C2CC884004120AE /* RemoteMessagingConfigMatcherProvider.swift in Sources */,
@@ -16536,6 +16541,7 @@
 				BD88A83E2C4F3E4300460A26 /* FeedbackCategoryProviding.swift in Sources */,
 				BBFD526E2E12FB930043B00C /* VisualizeFireSettingsDecider.swift in Sources */,
 				9F56CFB12B843F6C00BB7F11 /* BookmarksDialogViewFactory.swift in Sources */,
+				B5EDA5622F1FB92A00A5D9CD /* MemoryStatsExporter.swift in Sources */,
 				372042D42DF9B0AD00CE099A /* InternalFeedbackFormTabExtension.swift in Sources */,
 				B645D8F629FA95440024461F /* WKProcessPoolExtension.swift in Sources */,
 				9D9AE86B2AA76CF90026E7DC /* LoginItemsManager.swift in Sources */,

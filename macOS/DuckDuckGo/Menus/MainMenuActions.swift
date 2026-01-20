@@ -550,6 +550,12 @@ extension AppDelegate {
         Application.appDelegate.windowControllersManager.replaceTabWith(Tab(content: .newtab))
     }
 
+    @MainActor
+    @objc func exportMemoryStats(_ sender: Any?) {
+        let provider = MemoryStatsExporter()
+        _ = try? provider.exportSnapshotToTemporaryURL()
+    }
+
     @objc func resetRemoteMessages(_ sender: Any?) {
         Task {
             await remoteMessagingClient.store?.resetRemoteMessages()
