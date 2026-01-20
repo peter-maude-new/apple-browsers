@@ -206,7 +206,7 @@ private extension AIChatContextualSheetCoordinator {
 
     /// Factory method for creating web view controllers, avoids prop drilling through the Sheet VC.
     func makeWebViewController() -> AIChatContextualWebViewController {
-        let webVC = AIChatContextualWebViewController(
+        AIChatContextualWebViewController(
             aiChatSettings: aiChatSettings,
             privacyConfigurationManager: privacyConfigurationManager,
             contentBlockingAssetsPublisher: contentBlockingAssetsPublisher,
@@ -214,10 +214,6 @@ private extension AIChatContextualSheetCoordinator {
             featureFlagger: featureFlagger,
             pageContextStore: pageContextStore
         )
-        webVC.pageContextProvider = { [weak self] in
-            self?.viewModel?.fullPageContext
-        }
-        return webVC
     }
 }
 
