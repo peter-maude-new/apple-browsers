@@ -24,8 +24,9 @@ import PrivacyConfig
 import UIKit
 
 protocol BrowsingMenuSheetCapable {
-    var isAvailable: Bool { get }
+    var isExperimentalMenuOptInEnabled: Bool { get }
     var isEnabled: Bool { get }
+    var isSettingsOptionVisible: Bool { get }
     var isInlineZoomEnabled: Bool { get }
     var isNavigationEnabled: Bool { get }
     var options: BrowsingMenuOptions { get }
@@ -40,9 +41,15 @@ extension BrowsingMenuSheetCapable {
 }
 
 enum BrowsingMenuSheetCapability {
-    static func create(using featureFlagger: FeatureFlagger, keyValueStore: ThrowingKeyValueStoring) -> BrowsingMenuSheetCapable {
+    static func create(
+        using featureFlagger: FeatureFlagger,
+        keyValueStore: ThrowingKeyValueStoring,
+    ) -> BrowsingMenuSheetCapable {
         if #available(iOS 17, *) {
-            return BrowsingMenuSheetDefaultCapability(featureFlagger: featureFlagger, keyValueStore: keyValueStore)
+            return BrowsingMenuSheetDefaultCapability(
+                featureFlagger: featureFlagger,
+                keyValueStore: keyValueStore
+            )
         } else {
             return BrowsingMenuSheetUnavailableCapability()
         }
@@ -50,8 +57,9 @@ enum BrowsingMenuSheetCapability {
 }
 
 struct BrowsingMenuSheetUnavailableCapability: BrowsingMenuSheetCapable {
-    let isAvailable: Bool = false
+    let isExperimentalMenuOptInEnabled: Bool = false
     let isEnabled: Bool = false
+    let isSettingsOptionVisible: Bool = false
     let isInlineZoomEnabled: Bool = false
     let isNavigationEnabled: Bool = false
 
@@ -70,16 +78,25 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
         self.keyValueStore = keyValueStore
     }
 
-    var isAvailable: Bool {
+    var isExperimentalMenuOptInEnabled: Bool {
         featureFlagger.isFeatureOn(.browsingMenuSheetPresentation)
     }
 
     var isEnabled: Bool {
-        get {
-            guard isAvailable else { return false }
-
-            return (try? keyValueStore.object(forKey: StorageKey.experimentalBrowsingMenuEnabled) as? Bool) ?? false
+        if isEnabledByDefault {
+            if featureFlagger.internalUserDecider.isInternalUser {
+                return storedEnabledValue ?? true
+            }
+            return true
         }
+        return isExperimentalMenuOptInEnabled && (storedEnabledValue ?? false)
+    }
+
+    var isSettingsOptionVisible: Bool {
+        if isEnabledByDefault {
+            return featureFlagger.internalUserDecider.isInternalUser
+        }
+        return isExperimentalMenuOptInEnabled
     }
 
     var isInlineZoomEnabled: Bool {
@@ -93,6 +110,16 @@ struct BrowsingMenuSheetDefaultCapability: BrowsingMenuSheetCapable {
 
     func setEnabled(_ enabled: Bool) {
         try? keyValueStore.set(enabled, forKey: StorageKey.experimentalBrowsingMenuEnabled)
+    }
+
+    // MARK: - Private
+
+    private var isEnabledByDefault: Bool {
+        featureFlagger.isFeatureOn(.browsingMenuSheetEnabledByDefault)
+    }
+
+    private var storedEnabledValue: Bool? {
+        try? keyValueStore.object(forKey: StorageKey.experimentalBrowsingMenuEnabled) as? Bool
     }
 
     private struct StorageKey {

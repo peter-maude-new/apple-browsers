@@ -412,7 +412,7 @@ final class RunDBPDebugModeViewModel: ObservableObject {
         let appDependencies = AppDependencyProvider.shared
         self.featureFlagger = DBPFeatureFlagger(appDependencies: appDependencies)
         let dbpSubscriptionManager = DataBrokerProtectionSubscriptionManager(
-            subscriptionManager: appDependencies.subscriptionAuthV1toV2Bridge,
+            subscriptionManager: appDependencies.subscriptionManager,
             runTypeProvider: appDependencies.dbpSettings
         )
         
@@ -815,7 +815,7 @@ final class FakeStageDurationCalculator: StageDurationCalculator {
     func fireOptOutFillForm() {}
     func fireOptOutValidate() {}
     func fireOptOutSubmitSuccess(tries: Int) {}
-    func fireOptOutFailure(tries: Int) {}
+    func fireOptOutFailure(tries: Int, error: Error) {}
     func fireScanSuccess(matchesFound: Int) {}
     func fireScanNoResults() {}
     func fireScanError(error: Error) {}
