@@ -54,6 +54,7 @@ final class SettingsViewModel: ObservableObject {
     let aiChatSettings: AIChatSettingsProvider
     let serpSettings: SERPSettingsProviding
     let maliciousSiteProtectionPreferencesManager: MaliciousSiteProtectionPreferencesManaging
+    private let tabSwitcherSettings: TabSwitcherSettings
     let themeManager: ThemeManaging
     var experimentalAIChatManager: ExperimentalAIChatManager
     private let duckPlayerSettings: DuckPlayerSettings
@@ -151,6 +152,10 @@ final class SettingsViewModel: ObservableObject {
 
     var shouldShowHideAIGeneratedImagesSection: Bool {
         featureFlagger.isFeatureOn(.showHideAIGeneratedImagesSection)
+    }
+
+    var isTabSwitcherTrackerCountEnabled: Bool {
+        featureFlagger.isFeatureOn(.tabSwitcherTrackerCount)
     }
 
     var isBlackFridayCampaignEnabled: Bool {
@@ -648,10 +653,12 @@ final class SettingsViewModel: ObservableObject {
          userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
          browsingMenuSheetCapability: BrowsingMenuSheetCapable,
          onboardingSearchExperienceSettingsResolver: OnboardingSearchExperienceSettingsResolver? = nil,
-         whatsNewCoordinator: ModalPromptProvider & OnDemandModalPromptProvider
+         whatsNewCoordinator: ModalPromptProvider & OnDemandModalPromptProvider,
+         tabSwitcherSettings: TabSwitcherSettings = DefaultTabSwitcherSettings()
     ) {
 
         self.state = SettingsState.defaults
+        self.tabSwitcherSettings = tabSwitcherSettings
         self.legacyViewProvider = legacyViewProvider
         self.subscriptionManager = subscriptionManager
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
@@ -1434,6 +1441,15 @@ extension SettingsViewModel {
                     self.objectWillChange.send()
                     self.aiChatSettings.enableAutomaticContextAttachment(enable: newValue)
                 }
+            }
+        )
+    }
+
+    var showTrackerCountInTabSwitcherBinding: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.tabSwitcherSettings.showTrackerCountInTabSwitcher },
+            set: { newValue in
+                self.tabSwitcherSettings.showTrackerCountInTabSwitcher = newValue
             }
         )
     }
