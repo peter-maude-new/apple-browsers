@@ -36,9 +36,9 @@
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "7B4CE8D926F02108009134B1"
-                     BuildableName = "UI Tests.xctest"
-                     BlueprintName = "UI Tests"
+                     BlueprintIdentifier = "37C320B62F1E80A1008F4604"
+                     BuildableName = "Memory Usage Tests.xctest"
+                     BlueprintName = "Memory Usage Tests"
                      ReferencedContainer = "container:DuckDuckGo-macOS.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
@@ -60,23 +60,6 @@
             default = "YES">
          </TestPlanReference>
       </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7B4CE8D926F02108009134B1"
-               BuildableName = "UI Tests.xctest"
-               BlueprintName = "UI Tests"
-               ReferencedContainer = "container:DuckDuckGo-macOS.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "PermissionsTests">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Review"
