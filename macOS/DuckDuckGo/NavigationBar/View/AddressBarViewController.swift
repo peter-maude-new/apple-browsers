@@ -581,7 +581,6 @@ final class AddressBarViewController: NSViewController {
     /// https://app.asana.com/1/137249556945/project/414235014887631/task/1211448334620171?focus=true
     @available(macOS 26.0, *)
     private func setInternalTextFieldLabelsAlpha(_ alpha: CGFloat, in textField: NSTextField) {
-        guard featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) else { return }
         for subview in textField.subviews where NSStringFromClass(type(of: subview)).contains("NSTextFieldSimpleLabel") {
             subview.alphaValue = alpha
         }
@@ -612,7 +611,7 @@ final class AddressBarViewController: NSViewController {
         passiveTextField.textColor = theme.colorsProvider.textPrimaryColor
 
         // Workaround for macOS 26.0 NSTextFieldSimpleLabel rendering bug
-        if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+        if #available(macOS 26.0, *) {
             if addressBarTextField.isHidden {
                 forceHideInternalTextFieldLabels(in: addressBarTextField)
             }
@@ -880,7 +879,7 @@ final class AddressBarViewController: NSViewController {
             isFirstResponder = false
 
             // Restore internal text field labels when address bar loses focus
-            if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+            if #available(macOS 26.0, *) {
                 restoreInternalTextFieldLabels(in: addressBarTextField)
             }
 
@@ -1298,7 +1297,7 @@ extension AddressBarViewController: AddressBarTextFieldFocusDelegate {
         addressBarButtonsViewController?.setupButtonPaddings(isFocused: false)
 
         // Restore internal text field labels when address bar loses focus
-        if #available(macOS 26.0, *), featureFlagger.isFeatureOn(.blurryAddressBarTahoeFix) {
+        if #available(macOS 26.0, *) {
             restoreInternalTextFieldLabels(in: addressBarTextField)
         }
     }

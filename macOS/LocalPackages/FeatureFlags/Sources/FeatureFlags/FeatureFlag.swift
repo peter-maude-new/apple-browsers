@@ -182,9 +182,6 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866620653515
     case storeSerpSettings
 
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866620524141
-    case blurryAddressBarTahoeFix
-
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866477623612
     case dataImportNewExperience
 
@@ -297,7 +294,6 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .dataImportNewSafariFilePicker,
                 .fireDialog,
                 .fireDialogIndividualSitesLink,
-                .blurryAddressBarTahoeFix,
                 .allowPopupsForCurrentPage,
                 .extendedUserInitiatedPopupTimeout,
                 .suppressEmptyPopUpsOnApproval,
@@ -374,7 +370,6 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .aiChatDataClearing,
                 .dataImportNewSafariFilePicker,
                 .storeSerpSettings,
-                .blurryAddressBarTahoeFix,
                 .dataImportNewExperience,
                 .tabProgressIndicator,
                 .attributedMetrics,
@@ -519,8 +514,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.feature(.duckAiDataClearing))
         case .storeSerpSettings:
             return .remoteReleasable(.subfeature(SERPSubfeature.storeSerpSettings))
-        case .blurryAddressBarTahoeFix:
-            return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.blurryAddressBarTahoeFix))
         case .dataImportNewExperience:
             return .remoteReleasable(.subfeature(DataImportSubfeature.newDataImportExperience))
         case .scheduledDefaultBrowserAndDockPromptsInactiveUser:
