@@ -116,17 +116,22 @@ struct BrowsingMenuSheetView: View {
     }
 
     var body: some View {
-        List {
-            headerSection
-            menuSections
+        ZStack {
+            // Background that fills entire available space
+            Color.clear
+                .background(.thickMaterial)
+                .background(Color(designSystemColor: .background).opacity(0.1))
+            
+            List {
+                headerSection
+                menuSections
+            }
+            .compactSectionSpacingIfAvailable()
+            .hideScrollContentBackground()
+            .listStyle(.insetGrouped)
+            .bounceBasedOnSizeIfAvailable()
+            .padding(.top, -Metrics.listTopPaddingAdjustment)
         }
-        .compactSectionSpacingIfAvailable()
-        .hideScrollContentBackground()
-        .listStyle(.insetGrouped)
-        .bounceBasedOnSizeIfAvailable()
-        .padding(.top, -Metrics.listTopPaddingAdjustment)
-        .background(.thickMaterial)
-        .background(Color(designSystemColor: .background).opacity(0.1))
         .onDisappear(perform: {
             actionToPerform?()
             onDismiss(actionToPerform != nil)
