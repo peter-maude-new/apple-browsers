@@ -18,6 +18,8 @@
 
 import AppKit
 import AIChat
+import BrowserServicesKit
+import PrivacyConfig
 
 final class AIChatDebugMenu: NSMenu {
     private var storage = DefaultAIChatPreferencesStorage()
@@ -42,6 +44,15 @@ final class AIChatDebugMenu: NSMenu {
                 NSMenuItem(title: "Show Toggle Popover", action: #selector(showTogglePopover))
                     .targetting(self)
                 NSMenuItem(title: "Reset Toggle Popover Seen Flag", action: #selector(resetTogglePopoverSeenFlag))
+                    .targetting(self)
+            }
+
+            NSMenuItem.separator()
+
+            NSMenuItem(title: "Data Clearing") {
+                NSMenuItem(title: "Clear Chat by ID...", action: #selector(clearChatById))
+                    .targetting(self)
+                NSMenuItem(title: "Clear All Chats", action: #selector(clearAllChats))
                     .targetting(self)
             }
 
@@ -95,6 +106,68 @@ final class AIChatDebugMenu: NSMenu {
     @MainActor @objc func resetTogglePopoverSeenFlag() {
         AIChatTogglePopoverCoordinator(windowControllersManager: NSApp.delegateTyped.windowControllersManager).clearPopoverSeenFlag()
         storage.userDidSeeToggleOnboarding = false
+    }
+
+    @MainActor @objc func clearChatById() {
+        showChatIdInputAlert { [weak self] chatId in
+            guard let chatId = chatId, !chatId.isEmpty else { return }
+            self?.performClearChat(chatId: chatId)
+        }
+    }
+
+    @MainActor @objc func clearAllChats() {
+        performClearChat(chatId: nil)
+    }
+
+    @MainActor
+    private func performClearChat(chatId: String?) {
+        Task {
+            let featureFlagger = NSApp.delegateTyped.featureFlagger
+            let privacyConfig = NSApp.delegateTyped.privacyFeatures.contentBlocking.privacyConfigurationManager
+            let historyCleaner = HistoryCleaner(featureFlagger: featureFlagger, privacyConfig: privacyConfig)
+
+            let result: Result<Void, Error>
+            if let chatId = chatId {
+                result = await historyCleaner.cleanAIChatHistory(chatId: chatId)
+            } else {
+                result = await historyCleaner.cleanAIChatHistory()
+            }
+
+            await MainActor.run {
+                let alert = NSAlert()
+                switch result {
+                case .success:
+                    alert.messageText = "Success"
+                    alert.informativeText = chatId != nil
+                        ? "Chat '\(chatId!)' cleared successfully."
+                        : "All chats cleared successfully."
+                case .failure(let error):
+                    alert.messageText = "Failed"
+                    alert.informativeText = "Error: \(error.localizedDescription)"
+                }
+                alert.addButton(withTitle: "OK")
+                alert.runModal()
+            }
+        }
+    }
+
+    private func showChatIdInputAlert(callback: @escaping (String?) -> Void) {
+        let alert = NSAlert()
+        alert.messageText = "Enter Chat ID"
+        alert.informativeText = "Paste the chat ID to clear:"
+        alert.addButton(withTitle: "Clear")
+        alert.addButton(withTitle: "Cancel")
+
+        let inputTextField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+        inputTextField.placeholderString = "e.g., e0328fe7-be35-43e1-9142-92c28e7e9a3b"
+        alert.accessoryView = inputTextField
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            callback(inputTextField.stringValue)
+        } else {
+            callback(nil)
+        }
     }
 
     private func updateWebUIMenuItemsState() {

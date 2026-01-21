@@ -122,13 +122,15 @@ final class AIChatDataClearingUserScript: NSObject, Subfeature {
     // MARK: - Public Async API
 
     /// Starts JS-based clearing and awaits a result. Safe to call only after navigation finished.
-    /// - Parameter timeout: Maximum seconds to wait for a JS response before failing with `.timeout`.
+    /// - Parameters:
+    ///   - chatId: Optional chat ID to clear. If nil, clears all chats.
+    ///   - timeout: Maximum seconds to wait for a JS response before failing with `.timeout`.
     /// - Returns: Result signalling success or an error.
     @MainActor
-    func clearAIChatDataAsync(timeout: TimeInterval = 5) async -> Result<Void, Error> {
+    func clearAIChatDataAsync(chatId: String? = nil, timeout: TimeInterval = 5) async -> Result<Void, Error> {
         guard webView != nil, broker != nil else { return .failure(ClearError.notReady) }
 
-        sendClearDataMessage()
+        sendClearDataMessage(chatId: chatId)
 
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
@@ -141,9 +143,14 @@ final class AIChatDataClearingUserScript: NSObject, Subfeature {
 
     // MARK: - Private helpers
 
-    private func sendClearDataMessage() {
+    private struct ClearDataParams: Encodable {
+        let chatId: String
+    }
+
+    private func sendClearDataMessage(chatId: String? = nil) {
         guard let webView else { return }
-        broker?.push(method: AIChatDataClearingUserScript.MessageName.duckAiClearData.rawValue, params: nil, for: self, into: webView)
+        let params: ClearDataParams? = chatId.map { ClearDataParams(chatId: $0) }
+        broker?.push(method: AIChatDataClearingUserScript.MessageName.duckAiClearData.rawValue, params: params, for: self, into: webView)
     }
 
     @MainActor

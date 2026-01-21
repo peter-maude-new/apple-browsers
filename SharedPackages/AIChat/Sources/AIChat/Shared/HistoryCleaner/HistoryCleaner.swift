@@ -24,6 +24,7 @@ import WebKit
 
 public protocol HistoryCleaning {
     @MainActor func cleanAIChatHistory() async -> Result<Void, Error>
+    @MainActor func cleanAIChatHistory(chatId: String) async -> Result<Void, Error>
 }
 
 public final class HistoryCleaner: HistoryCleaning {
@@ -35,6 +36,7 @@ public final class HistoryCleaner: HistoryCleaning {
     private let privacyConfig: PrivacyConfigurationManaging
     private var contentScopeUserScript: ContentScopeUserScript?
     private var aiChatDataClearingUserScript: AIChatDataClearingUserScript?
+    private var pendingChatId: String?
 
     public init(featureFlagger: FeatureFlagger,
                 privacyConfig: PrivacyConfigurationManaging) {
@@ -45,10 +47,22 @@ public final class HistoryCleaner: HistoryCleaning {
     /// Launches a headless web view to clear Duck.ai chat history with a C-S-S feature.
     @MainActor
     public func cleanAIChatHistory() async -> Result<Void, Error> {
+        await cleanAIChatHistoryInternal(chatId: nil)
+    }
+
+    /// Launches a headless web view to clear a specific Duck.ai chat by ID.
+    @MainActor
+    public func cleanAIChatHistory(chatId: String) async -> Result<Void, Error> {
+        await cleanAIChatHistoryInternal(chatId: chatId)
+    }
+
+    @MainActor
+    private func cleanAIChatHistoryInternal(chatId: String?) async -> Result<Void, Error> {
         guard webView == nil else { return .success(()) }
 
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
+            self.pendingChatId = chatId
             Task { @MainActor in
                 await self.processAllDomains()
             }
@@ -173,7 +187,7 @@ public final class HistoryCleaner: HistoryCleaning {
             return .failure(HistoryCleanerError.scriptNotInitialized)
         }
 
-        return await script.clearAIChatDataAsync(timeout: 5)
+        return await script.clearAIChatDataAsync(chatId: pendingChatId, timeout: 5)
     }
 
     // MARK: - Cleanup
@@ -181,6 +195,7 @@ public final class HistoryCleaner: HistoryCleaning {
     @MainActor
     private func finish(result: Result<Void, Error>) {
         tearDownClearingWebView()
+        pendingChatId = nil
         continuation?.resume(returning: result)
         continuation = nil
     }
