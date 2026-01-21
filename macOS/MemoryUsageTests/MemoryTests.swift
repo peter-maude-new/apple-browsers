@@ -96,8 +96,7 @@ extension Logger {
 extension XCUIApplication {
 
     var memoryStatsURL: URL {
-        let path = "/tmp/" + (bundleID ?? "") + ".json"
-        return URL(string: path)!
+        URL(fileURLWithPath: "/tmp/" + bundleID! + ".json")
     }
 
     func deleteAndExportMemoryStats() {
