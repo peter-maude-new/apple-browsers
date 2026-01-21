@@ -28,15 +28,6 @@
       }
     },
     {
-      "identity" : "content-scope-scripts",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/duckduckgo/content-scope-scripts.git",
-      "state" : {
-        "revision" : "d6674948bfd8017e21c016da497b6066feed3c46",
-        "version" : "12.30.0"
-      }
-    },
-    {
       "identity" : "duckduckgo-autofill",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/duckduckgo/duckduckgo-autofill.git",
