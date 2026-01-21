@@ -44,11 +44,11 @@ class MemoryTests: XCTestCase {
         application.openNewWindow()
         application.waitForAddressBar()
 
-        application.deleteAndExportMemoryStats()
+        application.cleanExportMemoryStats()
 
         measure(metrics: [allocationsMetric], options: .buildOptions(iterations: 1)) {
             application.openNewTab()
-            application.deleteAndExportMemoryStats()
+            application.cleanExportMemoryStats()
         }
     }
 
@@ -89,7 +89,7 @@ extension XCTMeasureOptions {
 }
 
 extension Logger {
-    static let tests = os.Logger(subsystem: "com.duckduckgo.macos.browser.memory", category: "🧪")
+    static let memory = os.Logger(subsystem: "com.duckduckgo.macos.browser.memory", category: "🧪")
 }
 
 
@@ -99,7 +99,7 @@ extension XCUIApplication {
         URL(fileURLWithPath: "/tmp/" + bundleID! + ".json")
     }
 
-    func deleteAndExportMemoryStats() {
+    func cleanExportMemoryStats() {
         deleteMemoryStats()
         exportMemoryStats()
     }

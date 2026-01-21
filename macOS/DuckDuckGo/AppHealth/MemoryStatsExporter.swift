@@ -24,8 +24,8 @@ struct MemoryStatsSnapshot: Codable {
     let processID: pid_t
     let timestamp: Date
     let mallocZoneCount: UInt
-    let totalAllocatedInMB: UInt64
-    let totalUsedInMB: UInt64
+    let totalAllocatedMB: UInt64
+    let totalInUseMB: UInt64
 }
 
 enum MemoryStatsExporterError: Error {
@@ -100,8 +100,8 @@ private extension MemoryStatsExporter {
         return MemoryStatsSnapshot(processID: getpid(),
                                    timestamp: Date(),
                                    mallocZoneCount: UInt(zoneCount),
-                                   totalAllocatedInMB: convertToMB(bytes: totalAllocatedInBytes),
-                                   totalUsedInMB: convertToMB(bytes: totalUsedInBytes))
+                                   totalAllocatedMB: convertToMB(bytes: totalAllocatedInBytes),
+                                   totalInUseMB: convertToMB(bytes: totalUsedInBytes))
     }
 
     func convertToMB(bytes: UInt64) -> UInt64 {

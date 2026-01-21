@@ -58,14 +58,14 @@ final class ApplicationMemoryStatsIPCMetric: NSObject, XCTMetric {
         let initialMemoryUsedMB = XCTPerformanceMeasurement(
             identifier: "com.duckduckgo.memory.allocations.used.initial",
             displayName: "Initial Memory Used",
-            doubleValue: Double(initialState.totalUsedInMB),
+            doubleValue: Double(initialState.totalInUseMB),
             unitSymbol: "MB"
         )
 
         let finalMemoryUsedMB = XCTPerformanceMeasurement(
             identifier: "com.duckduckgo.memory.allocations.used.final",
             displayName: "Final Memory Used",
-            doubleValue: Double(finalState.totalUsedInMB),
+            doubleValue: Double(finalState.totalInUseMB),
             unitSymbol: "MB"
         )
 
@@ -76,10 +76,6 @@ final class ApplicationMemoryStatsIPCMetric: NSObject, XCTMetric {
 private extension ApplicationMemoryStatsIPCMetric {
 
     func loadAndDecodeStats(sourceURL: URL) throws -> MemoryStatsSnapshot? {
-        let testing = (try? String(contentsOf: sourceURL, encoding: .utf8)) ?? ""
-
-        let exists = FileManager.default.fileExists(atPath: sourceURL.path)
-        Logger.tests.log("#### Stats \(testing, privacy: .public) URL \(sourceURL, privacy: .public) exists \(exists)")
         let decoder = JSONDecoder()
 
         do {
@@ -87,8 +83,7 @@ private extension ApplicationMemoryStatsIPCMetric {
 
             return try decoder.decode(MemoryStatsSnapshot.self, from: statsAsData)
         } catch {
-            Logger.tests.log("#### ERROR \(error, privacy: .public)")
-
+            Logger.memory.log("#### ERROR \(error, privacy: .public)")
             return nil
         }
     }
@@ -98,6 +93,6 @@ struct MemoryStatsSnapshot: Codable {
     let processID: pid_t
     let timestamp: Date
     let mallocZoneCount: UInt
-    let totalAllocatedInMB: UInt64
-    let totalUsedInMB: UInt64
+    let totalAllocatedMB: UInt64
+    let totalInUseMB: UInt64
 }
