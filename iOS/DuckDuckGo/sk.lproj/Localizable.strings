@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Ochrana. Súkromie. Pokoj v duši.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo je nezávislá spoločnosť na ochranu súkromia online pre každého, kto chce získať späť kontrolu nad svojimi osobnými údajmi.\n\nVeríme, že najlepším spôsobom, ako chrániť tvoje osobné údaje pred hackermi, podvodníkmi a spoločnosťami, ktoré narušujú súkromie, je zabrániť ich zhromažďovaniu. Preto si milióny ľudí [vyberajú DuckDuckGo pred prehliadačom Chrome a inými prehliadačmi](ddgQuickLink://duckduckgo.com/compare-privacy) na online vyhľadávanie a prehliadanie. Náš vstavaný vyhľadávač je ako Google, ale nikdy nesleduje tvoje vyhľadávania. Naše ochrany prehliadania, ako je blokovanie sledovania reklám a blokovanie súborov cookie, pomáhajú zastaviť iné spoločnosti v zhromažďovaní tvojich údajov. A náš prehliadač je zadarmo – zarábame na [reklamách vo vyhľadávaní, ktoré rešpektujú súkromie](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), a nie zneužívaním tvojich údajov. \n\n%@ \n\nZískaj späť kontrolu nad svojimi osobnými údajmi s prehliadačom, ktorý je určený na ochranu údajov a nie na ich zhromažďovanie.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Zjednodušenie prístupu";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Pomoc a podpora";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Spravovať platbu alebo zrušiť";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Spravovať plán";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Tvoje ročné predplatné vyprší dňa %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Tvoj mesačný program sa zníži na %1$@ dňa %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Tvoj program sa prepne na %1$@ dňa %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Tvoj program sa zníži na %1$@ ročný dňa %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Tvoje mesačné predplatné sa obnoví %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Bezplatná skúšobná verzia je aktívna";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Zvýšiť na %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Odomkni inteligentnejšiu a výkonnejšiu umelú inteligenciu";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Aktualizovať";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Zobraziť všetky plány";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Nastavenie synchronizácie";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Synchronizuj a zálohuj svoje kreditné karty";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Synchronizuj a zálohuj svoje dáta";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nie, ďakujem";

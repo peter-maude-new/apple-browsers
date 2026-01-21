@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Védelem. Adatvédelem. Nyugalom.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "A DuckDuckGo független online adatvédelmi cég azoknak kínál megoldást, akik vissza akarják venni a személyes adataik feletti irányítást.\n\nÚgy gondoljuk, hogy a legjobb módja annak, hogy megvédjük a személyes adataidat a hekkerektől, a csalóktól és az adatvédelmet sértő cégektől az, ha egyáltalán nem gyűjtjük őket. Emberek milliói ezért [választják a DuckDuckGót a Chrome és más böngészők helyett](ddgQuickLink://duckduckgo.com/compare-privacy) az online kereséshez és böngészéshez. Beépített keresőmotorunk olyan, mint a Google, de sosem követi a kereséseidet. Böngészési védelmeink, mint például a hirdetéskövetők és a sütik blokkolása, segítenek megakadályozni, hogy más cégek összegyűjtsék az adataidat. Ja, és a böngészőnk ingyenes – a bevételünket az [adatvédelmet tiszteletben tartó keresési hirdetésekből](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/) szerezzük, nem az adataid kihasználásából. \n\n%@ \n\nVedd vissza az irányítást a személyes adataid felett az adatgyűjtés helyett adatvédelemre tervezett böngészővel.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Kisegítő lehetőségek";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Segítség és támogatás";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Fizetés kezelése vagy lemondása";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Csomag kezelése";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Az éves előfizetésed lejár ekkor: %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "A csomagod %2$@ dátummal %1$@ havi előfizetésre vált.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "A csomagod %2$@ dátummal %1$@ előfizetésre vált.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "A csomagod %2$@ dátummal %1$@ éves előfizetésre vált.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "A havi előfizetésed megújul ekkor: %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Az ingyenes próbaidőszak aktív";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Váltás %@ előfizetésre";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Okosabb és erősebb AI használata";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Váltás";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Összes csomag megtekintése";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Szinkronizálás beállítása";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Hitelkártyák szinkronizálása és biztonsági mentése";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Adatok szinkronizálása és biztonsági mentése";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nem, köszönöm";

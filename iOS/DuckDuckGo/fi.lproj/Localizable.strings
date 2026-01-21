@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Suojausta. Tietosuojaa. Mielenrauhaa.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo on riippumaton verkkosuojausta tarjoava yritys kaikille, jotka haluavat saada henkilökohtaiset tietonsa takaisin hallintaansa.\n\nUskomme, että paras tapa suojata henkilötietojasi hakkereilta, huijareilta ja tietosuojaa loukkaavilta yrityksiltä on estää niiden kerääminen kokonaan. Siksi miljoonat ihmiset [valitsevat Chromen ja muiden selainten sijaan DuckDuckGon hakeakseen ja selatakseen verkossa](ddgQuickLink://duckduckgo.com/compare-privacy). Selaimeemme sisältyvä hakukoneemme on kuin Google, mutta se ei koskaan seuraa hakujasi. Selaussuojauksemme, kuten mainosten seurannan esto ja evästeiden esto, auttavat estämään muita yrityksiä keräämästä tietojasi. Lisäksi selaimemme on ilmainen – ansaitsemme rahaa [tietosuojaa kunnioittavilla hakumainoksilla](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), ei hyödyntämällä tietojasi. \n\n%@ \n\nOta henkilökohtaiset tietosi takaisin hallintaasi selaimella, joka on suunniteltu tietojen suojaamiseen, ei tietojen keräämiseen.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Käytettävyys";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Apu ja tuki";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Hallitse maksua tai peruuta";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Hallinnoi suunnitelmaa";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Vuositilauksesi päättyy %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Tilauksesi alenee kuukausitilaukseen %1$@ alkaen %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Sopimuksesi alenee tasolle %1$@ alkaen %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Tilauksesi alenee tasolle %1$@ vuositilaus alkaen %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Kuukausitilauksesi uusiutuu %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Ilmainen kokeilujakso on aktiivinen";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Päivitä tasoon %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Avaa älykkäämpi ja tehokkaampi tekoäly";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Päivitä";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Näytä kaikki tilaukset";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Määritä synkronointi";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Synkronoi ja varmuuskopioi luottokorttisi";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Synkronoi ja varmuuskopioi tietosi";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Ei kiitos";

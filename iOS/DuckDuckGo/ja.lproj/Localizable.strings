@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "プライバシー。保護。安心感を。";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGoは、個人情報の管理を取り戻したい人のための独立系オンライン保護企業です。\n\n私たちは、ハッカーや詐欺師、プライバシーを侵害する企業から個人情報を守る最良の方法は、そもそも情報が収集されないようにすることだと考えています。そのため、何百万人ものユーザーがオンラインでの検索や閲覧に[Chromeや他のブラウザではなくDuckDuckGoを選択](ddgQuickLink://duckduckgo.com/compare-privacy)しています。DuckDuckGoの組み込み検索エンジンはGoogleに似ていますが、検索を追跡することはありません。また、広告トラッカーのブロックやCookieのブロックなどのブラウジング保護により、他社によるデータの収集を阻止できます。また、当社のブラウザは無料です。私たちはお客様のデータを悪用することによってではなく、[プライバシーを尊重する検索広告](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/)から収益を得ています。\n\n%@ \n\nデータ収集ではなくデータ保護のために設計されたブラウザを使用してプライバシーを取り戻しましょう。";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "アクセシビリティ";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "ヘルプとサポート";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "支払いを管理またはキャンセル";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "プランを管理する";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "年間サブスクリプションの有効期限は%@です。";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "プランは%2$@に毎月%1$@にダウングレードされます。";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "プランは%2$@に%1$@にダウングレードされます。";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "プランは%2$@に%1$@（年額）にダウングレードされます。";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "月間サブスクリプションは%@に更新されます。";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "無料トライアルが有効です";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "%@にアップグレード";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "よりスマートで、より強力なAIを利用可能に";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "アップグレード";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "全プランを表示";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "同期を設定";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "クレジットカードを同期・バックアップ";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "データを同期・バックアップ";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "いいえ、結構です";

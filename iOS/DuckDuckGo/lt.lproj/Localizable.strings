@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Apsauga. Privatumas. Ramybės jausmas.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "„DuckDuckGo“ yra nepriklausoma interneto apsaugos bendrovė, skirta visiems, norintiems susigrąžinti savo asmeninės informacijos kontrolę.Manome, kad geriausias būdas apsaugoti asmeninę informaciją nuo įsilaužėlių, sukčių ir į privatumą pasikėsinančių įmonių – visiškai sustabdyti jos rinkimą. Štai kodėl milijonai žmonių [pasirenka „DuckDuckGo“, o ne „Chrome“ ir kitas naršykles](ddgQuickLink://duckduckgo.com/compare-privacy) ieškoti ir naršyti internete. Mūsų integruota paieškos sistema yra kaip „Google“, bet niekada nestebi jūsų paieškų. O mūsų naršymo apsaugos priemonės, tokios kaip skelbimų sekimo ir slapukų blokavimas, padeda neleisti kitoms įmonėms rinkti jūsų duomenų. Beje, mūsų naršyklė yra nemokama – mes uždirbame iš [privatumą gerbiančių paieškos skelbimų](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), ne išnaudodami jūsų duomenis. \n\n%@ \n\nSusigrąžinkite savo asmeninės informacijos kontrolę naudodami naršyklę, sukurtą duomenų apsaugai, o ne jų rinkimui.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Pritaikymas neįgaliems";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Pagalba ir palaikymas";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Tvarkyti mokėjimą arba atšaukti";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Tvarkyti planą";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Tavo metinė prenumerata baigiasi %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Jūsų mėnesinis planas bus sumažintas iki %1$@ nuo %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Jūsų planas bus sumažintas iki %1$@ nuo %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Jūsų planas bus sumažintas iki %1$@ metinio plano nuo %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Tavo mėnesinė prenumerata atnaujinama %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Nemokama bandomoji versija aktyvi";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Atnaujinkite į %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Atraskite išmanesnį ir galingesnį dirbtinį intelektą";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Atnaujinti";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Peržiūrėti visus planus";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Nustatykite sinchronizavimą";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Sinchronizuokite ir kurkite savo kreditinių kortelių atsargines kopijas";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Sinchronizuokite duomenis ir sukurkite jų atsargines kopijas";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Ne, dėkoju";

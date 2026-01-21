@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Aizsardzība. Privātums. Sirds miers.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo ir neatkarīgs uzņēmums tiešsaistes aizsardzībai, kas pieejams ikvienam, kurš vēlas atgūt kontroli pār savu personisko informāciju.\n\nMēs uzskatām, ka labākais veids, kā aizsargāt savu personisko informāciju no hakeriem, krāpniekiem un privātumu apdraudošiem uzņēmumiem, ir to neievākt vispār. Tāpēc miljoniem cilvēku [izvēlas DuckDuckGo, nevis Chrome un citas pārlūkprogrammas](ddgQuickLink://duckduckgo.com/compare-privacy), lai meklētu un pārlūkotu tiešsaistē. Mūsu iebūvētā meklētājprogramma ir līdzīga Google, taču tā neizseko jūsu meklēšanas vaicājumus. Mūsu pārlūkošanas aizsardzība, piemēram, reklāmu izsekotāju bloķēšana un sīkfailu bloķēšana neļauj citiem uzņēmumiem ievākt tavus datus. Turklāt mūsu pārlūkprogramma ir bez maksas — mēs pelnām naudu no [privātumu respektējošām meklēšanas reklāmām](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), nevis izmantojot tavus datus. \n\n%@ \n\nAtgūsti kontroli pār savu personisko informāciju ar pārlūkprogrammu, kas paredzēta datu aizsardzībai, nevis datu apkopošanai.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Pieejamība";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Palīdzība un atbalsts";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Pārvaldīt maksājumu vai atcelt";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Plāna pārvaldība";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Tavs gada abonements beidzas %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Tavs plāns tiks pazemināts uz %1$@ mēnesī, sākot ar %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Tavs plāns tiks pazemināts uz %1$@, sākot ar %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Tavs plāns tiks pazemināts uz %1$@ gadā, sākot ar %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Tavs mēneša abonements atjaunojas %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Bezmaksas izmēģinājuma periods ir aktīvs";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Jaunināt uz %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Piekļūsti viedākam un jaudīgākam MI";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Jaunināt";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Skatīt visus plānus";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Iestatīt sinhronizāciju";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Sinhronizē un dublē savas kredītkartes";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Sinhronizē un dublē savus datus";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nē, paldies";

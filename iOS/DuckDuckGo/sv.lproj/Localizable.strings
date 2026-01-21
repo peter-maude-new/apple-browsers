@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Skydd. Integritet. Sinnesro.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo är ett oberoende företag för onlineskydd för alla som vill återta kontrollen över sin personliga information.\n\nVi vill skydda din personliga information från hackare, bedragare och integritetskränkande företag – och den bästa metoden är att förhindra att den samlas in överhuvudtaget. Det är därför som miljontals människor [väljer DuckDuckGo framför Chrome och andra webbläsare](ddgQuickLink://duckduckgo.com/compare-privacy) för att söka och surfa online. Vår inbyggda sökmotor är som Google men spårar aldrig dina sökningar. Och våra surfskydd, som spårningsblockering och blockering av cookies, hjälper till att stoppa andra företag från att samla in dina data. Vår webbläsare är dessutom gratis – vi tjänar pengar på [sökannonser som respekterar din integritet](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), inte genom att utnyttja dina data. \n\n%@ \n\nTa tillbaka kontrollen över din personliga information med webbläsaren som är utformad för dataskydd, inte datainsamling.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Tillgänglighet";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Hjälp och support";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Hantera betalning eller avbryt";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Hantera abonnemang";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Ditt årsabonnemang löper ut den %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Din plan kommer att nedgraderas till %1$@ månadsvis den %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Din plan kommer att nedgraderas till %1$@ den %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Din plan kommer att nedgraderas till %1$@ årligen den %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Ditt månadsabonnemang förnyas den %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Gratis provperiod aktiv";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Uppgradera till %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Lås upp smartare och kraftfullare AI";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Uppgradera";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Visa alla abonnemang";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Ställ in synk";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Synkronisera och säkerhetskopiera dina kreditkort";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Synkronisera och säkerhetskopiera dina data";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nej tack";

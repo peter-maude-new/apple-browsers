@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Schutz. Privatsphäre. Extra an Sicherheit.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo ist das unabhängige Unternehmen im Bereich Online-Schutz für alle, die die Kontrolle über ihre personenbezogene Daten zurückerlangen möchten.\n\nWir glauben, dass der beste Weg, deine persönlichen Daten vor Hackern, Betrügern und Unternehmen, die deine Privatsphäre verletzen, zu schützen, darin besteht, gar nicht erst zuzulassen, dass sie gesammelt werden. Deshalb entscheiden sich Millionen von Menschen [für DuckDuckGo anstelle von Chrome und anderen Browsern](ddgQuickLink://duckduckgo.com/compare-privacy) für DuckDuckGo anstelle von Chrome und anderen Browsern, um online zu suchen und zu surfen. Unsere integrierte Suchmaschine ähnelt Google, trackt deine Suchanfragen jedoch nie. Und unsere Browsing-Schutzfunktionen, wie die Tracker-Blockade von Werbung und das Blockieren von Cookies, verhindern, dass andere Unternehmen deine Daten sammeln. Ach ja, und unser Browser ist kostenlos – wir verdienen unser Geld mit [datenschutzfreundlichen Suchanzeigen](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), nicht durch die Ausbeutung deiner Daten. \n\n%@ \n\nGewinne mit dem Browser, der für den Datenschutz und nicht für die Datensammlung entwickelt wurde, die Kontrolle über deine persönlichen Daten zurück.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Barrierefreiheit";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Hilfe und Support";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Zahlung verwalten oder stornieren";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Tarif verwalten";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Dein Jahresabonnement läuft am %@ ab.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Dein Tarif wird am %2$@ auf %1$@ monatlich herabgestuft.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Dein Tarif wird am %2$@ auf %1$@ herabgestuft.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Dein Tarif wird am %2$@ zu %1$@ jährlich herabgestuft.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Dein monatliches Abonnement verlängert sich am %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Kostenlose Testphase aktiv";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Upgrade auf %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Nutze intelligentere und leistungsfähigere KI";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Upgrade";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Alle Tarife anzeigen";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Sync einrichten";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Kreditkarten synchronisieren und sichern";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Daten synchronisieren und sichern";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nein, danke";

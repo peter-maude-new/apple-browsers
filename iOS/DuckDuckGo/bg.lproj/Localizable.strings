@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Защита. Поверителност. Спокойствие.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo е независима компания за онлайн защита за всеки, който иска да си върне контрола върху личната информация.Ние вярваме, че най-добрият начин за защита на личната информация от хакери, измамници и компании, които не зачитат поверителността, е тя изобщо да не бъде събирана. Ето защо милиони хора [избират DuckDuckGo пред Chrome и други браузъри](ddgQuickLink://duckduckgo.com/compare-privacy) за търсене и сърфиране онлайн. Нашата вградена търсачка е като Google, но никога не следи какво търсите. А нашите защити при сърфиране, като блокиране на рекламни тракери и блокиране на бисквитки, помагат да спрем събирането на Вашите данни от други компании. Освен това нашият браузър е безплатен – ние печелим пари от [реклами при търсене, които зачитат поверителността](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), а не като използваме Вашите данни. \n\n%@ \n\nВърнете си контрола върху личната информация с браузъра, предназначен за защита на данните, а не за събиране на данните.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Достъпност";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Помощ и поддръжка";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Управлявай плащането или отмени";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Управление на плана";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Годишният ви абонамент изтича на %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Планът ти ще бъде намален на %1$@ месечно на %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Планът ти ще бъде намален на %1$@ на %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Планът ти ще бъде намален на %1$@ годишно на %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Месечният ви абонамент се подновява на %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Безплатна пробна версия е активна";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Надгради до %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Отключи по-интелигентен и по-мощен изкуствен интелект";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Актуализация";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Виж всички планове";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Настройка на синхронизиране";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Синхронизирай и архивирай кредитните си карти";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Синхронизирай и архивирай данните си";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Не, благодаря";

@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Protecție. Confidențialitate. Liniște sufletească.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo este o companie independentă din domeniul protecției online care se adresează oricărei persoane care dorește să recâștige controlul asupra datelor cu caracter personal.\n\nCredem că cel mai bun mod de a-ți proteja datele cu caracter personal împotriva hackerilor, a escrocilor și a companiilor care încalcă viața privată este să împiedici colectarea lor. De aceea, milioane de persoane [aleg DuckDuckGo în locul Chrome și al altor browsere](ddgQuickLink://duckduckgo.com/compare-privacy) pentru a căuta și naviga online. Motorul nostru de căutare încorporat este asemănător cu Google, dar nu îți urmărește niciodată căutările. Iar mecanismele noastre de protecție pentru navigare, cum ar fi blocarea tehnologiilor de urmărire a reclamelor și blocarea modulelor cookie, contribuie la împiedicarea colectării datelor tale de alte companii. Oh, și browserul nostru este gratuit: obținem câștiguri din [anunțuri de căutare care respectă viața privată](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), nu din exploatarea datelor tale. \n\n%@ \n\nPreia din nou controlul asupra informațiilor tale personale cu browserul conceput pentru protecția datelor, nu pentru colectarea lor.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Accesibilitate";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Ajutor și suport";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Gestionează plata sau anulează";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Gestionează planul";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Abonamentul tău anual expiră la data de %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Planul tău va fi retrogradat la %1$@ lunar la data de %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Planul tău va fi retrogradat la %1$@ la data de %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Planul tău va fi retrogradat la %1$@ anual la data de %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Abonamentul tău lunar se reînnoiește la data de %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Perioada de încercare gratuită este activă";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Fă upgrade la %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Deblochează servicii de IA mai inteligente și mai puternice";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Fă upgrade";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Vezi toate planurile";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Configurează sincronizarea";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Sincronizează și creează copii de rezervă pentru cardurile tale de credit";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Sincronizează și creează copii de rezervă pentru datele tale";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Nu, mulțumesc";

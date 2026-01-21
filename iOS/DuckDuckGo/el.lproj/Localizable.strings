@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Προστασία. Ιδιωτικότητα. Ηρεμία.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "Η DuckDuckGo αποτελεί ανεξάρτητη εταιρεία διαδικτυακής προστασίας για οποιονδήποτε επιθυμεί να ανακτήσει τον έλεγχο των προσωπικών πληροφοριών του.\n\nΠιστεύουμε ότι ο καλύτερος τρόπος για να προστατέψετε τις προσωπικές πληροφορίες σας από χάκερ, απατεώνες και εταιρείες που παραβιάζουν την ιδιωτικότητα είναι να μη συλλέγονται καθόλου. Αυτός είναι ο λόγος για τον οποίον εκατομμύρια άνθρωποι [επιλέγουν το DuckDuckGo έναντι του Chrome και άλλων προγραμμάτων περιήγησης] (ddgQuickLink://duckduckgo.com/compare-privacy) για να πραγματοποιήσουν αναζητήσεις και να περιηγηθούν στο διαδίκτυο Η ενσωματωμένη μηχανή αναζήτησής μας είναι σαν της Google, ωστόσο δεν παρακολουθεί ποτέ τις αναζητήσεις σας. Και οι προστασίες περιήγησής μας, όπως ο αποκλεισμός παρακολούθησης διαφημίσεων και ο αποκλεισμός cookie, βοηθούν ώστε να σταματήσουν άλλες εταιρείες να συλλέγουν τα δεδομένα σας. Και, φυσικά, το πρόγραμμα περιήγησής μας είναι δωρεάν. Κερδίζουμε χρήματα από [διαφημίσεις αναζήτησης που σέβονται την ιδιωτικότητα], (ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), όχι από την εκμετάλλευση των δεδομένων σας. \n\n%@ \n\nΑνακτήστε τον έλεγχο των προσωπικών πληροφοριών σας με το πρόγραμμα περιήγησης που έχει σχεδιαστεί για προστασία δεδομένων και όχι για συλλογή δεδομένων.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Προσβασιμότητα";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Βοήθεια και υποστήριξη";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Διαχείριση πληρωμής ή ακύρωση";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Διαχείριση προγράμματος";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Η ετήσια συνδρομή σας λήγει %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Το πρόγραμμά σας θα υποβαθμιστεί σε %1$@ Μηνιαία στις %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Το πρόγραμμά σας θα υποβαθμιστεί σε %1$@ στις %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Το πρόγραμμά σας θα υποβαθμιστεί σε %1$@ Ετήσια στις %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Η μηνιαία συνδρομή σας ανανεώνεται %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Η δωρεάν δοκιμή είναι ενεργή";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Αναβάθμιση σε %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Ξεκλείδωσε μια πιο έξυπνη και πιο ισχυρή τεχνητή νοημοσύνη";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Αναβάθμιση";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Δείτε όλα τα προγράμματα";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Ρύθμιση συγχρονισμού";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Συγχρονισμός και δημιουργία αντιγράφων ασφαλείας των πιστωτικών καρτών σας";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Συγχρονισμός και δημιουργία αντιγράφων ασφαλείας των δεδομένων σας";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Όχι, ευχαριστώ";

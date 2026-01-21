@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Zaščita. Zasebnost. Zaupanje.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo je neodvisno podjetje za spletno zaščito za vse, ki želijo znova prevzeti nadzor nad svojimi osebnimi podatki.\n\nVerjamemo, da je najboljši način za zaščito vaših osebnih podatkov pred hekerji, prevaranti in podjetji, ki posegajo v zasebnost, da preprečimo njihovo zbiranje. Zato na milijone ljudi za iskanje in brskanje po spletu [namesto brskalnika Chrome in drugih brskalnikov izbere DuckDuckGo](ddgQuickLink://duckduckgo.com/compare-privacy). Naš vgrajeni iskalnik je kot Google, vendar nikoli ne sledi vašim iskanjem. Naše zaščite pri brskanju, kot sta blokiranje sledilnikov oglasov in piškotkov, pomagajo drugim podjetjem preprečevati zbiranje vaših podatkov. In še to, naš brskalnik je brezplačen – zaslužimo z [oglasi v iskanju, ki spoštujejo zasebnost](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), ne z izkoriščanjem vaših podatkov. \n\n%@ \n\nPrevzemite nadzor nad svojimi osebnimi podatki z brskalnikom, ki je zasnovan za varstvo podatkov, ne za zbiranje podatkov.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Dostopnost";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Pomoč in podpora";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Upravljanje plačila ali preklic";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Upravljanje načrta";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Vaša letna naročnina poteče dne %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Vaša naročnina se bo znižala na %1$@ mesečno dne %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Vaša naročnina se bo znižala na %1$@ dne %2$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Vaša naročnina se bo znižala na %1$@ letno dne %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Vaša mesečna naročnina se bo obnovila dne %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Brezplačni preizkus je aktiven";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Nadgradi na %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Odklenite pametnejšo in zmogljivejšo umetno inteligenco";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Nadgradi";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Oglejte si vse naročnine";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Nastavitev sinhronizacije";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Sinhronizirajte in varnostno kopirajte svoje kreditne kartice";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Sinhronizirajte in varnostno kopirajte svoje podatke";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Ne, hvala";

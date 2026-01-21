@@ -2962,6 +2962,9 @@
 /* about tagline */
 "settings.about.tagline" = "Kaitse Privaatsus Meelerahu.";
 
+/* About page template with placeholder for subscription sentence */
+"settings.about.text.template" = "DuckDuckGo on sõltumatu veebikaitseettevõte kõikidele, kes tahavad oma isikliku teabe üle kontrolli tagasi saada.\n\nUsume, et parim viis sinu isikuandmete kaitsmiseks häkkerite, petturite ja eraelu puutumatust rikkuvate ettevõtete eest on nende kogumise täielik vältimine. Seetõttu miljonid inimesed [valivad DuckDuckGo Chrome'i ja teiste brauserite asemel](ddgQuickLink://duckduckgo.com/compare-privacy) veebis otsimiseks ja sirvimiseks. Meie sisseehitatud otsingumootor on nagu Google, kuid ei jälgi kunagi sinu otsinguid. Ja meie sirvimiskaitsed, nagu reklaamijälgijate ja küpsiste blokeerimine, aitavad takistada teistel ettevõtetel sinu andmeid kogumast. Ja muideks, meie brauser on tasuta — teenime raha [privaatsust austavate otsingureklaamidega](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/company/how-duckduckgo-makes-money/), mitte sinu andmeid ära kasutades. \n\n%@ \n\nVõta tagasi kontroll oma isikuandmete üle brauseriga, mis on loodud andmete kaitsmiseks ja mitte nende kogumiseks.";
+
 /* Settings screen accessibility section title */
 "settings.accessibility" = "Hõlpsus";
 
@@ -3607,6 +3610,9 @@
 /* Help and support Section header */
 "subscription.help" = "Abi ja tugi";
 
+/* Manage Payment or cancel action title */
+"subscription.manage.payment" = "Makse haldamine või tühistamine";
+
 /* Manage Plan header */
 "subscription.manage.plan" = "Halda plaani";
 
@@ -3706,6 +3712,15 @@
 /* Annual subscription expiration info where parameter is expiration date. This reads as 'Your annual subscription expires on (date)' */
 "subscription.subscription.expiring.yearly.caption" = "Teie aastane tellimus aegub %@.";
 
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Monthly on (date).' */
+"subscription.subscription.pending.downgrade.monthly.caption" = "Teie pakett alandatakse kuutasule %1$@ alates %2$@.";
+
+/* Pending downgrade info for unknown billing period. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.subscription.pending.downgrade.unknown.caption" = "Teie pakett alandatakse kuupäeval %2$@ paketile %1$@.";
+
+/* Pending downgrade info for yearly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus Yearly on (date).' */
+"subscription.subscription.pending.downgrade.yearly.caption" = "Teie pakett alandatakse aastasele paketile %1$@ alates %2$@.";
+
 /* Monthly subscription renewal info where parameter is renewal date. This reads as 'Your monthly subscription renews on (date)' */
 "subscription.subscription.renewing.monthly.caption" = "Teie kuutellimus uueneb %@.";
 
@@ -3726,6 +3741,15 @@
 
 /* Subtitle in header when on a free trial subscription */
 "subscription.trial" = "Tasuta prooviperiood aktiveeritud";
+
+/* Button to upgrade subscription. Parameter is the tier name (e.g., 'Pro') */
+"subscription.upgrade.button" = "Uuenda versioonile %@";
+
+/* Caption text in the upgrade section promoting AI features */
+"subscription.upgrade.section.caption" = "Ava nutikam ja võimsam tehisintellekt";
+
+/* Header for the upgrade section in subscription settings */
+"subscription.upgrade.section.title" = "Uuenda";
 
 /* View All Plans button to see available subscription tiers */
 "subscription.view.all.plans" = "Vaata kõiki plaane";
@@ -3753,6 +3777,12 @@
 
 /* Title for a button in the Sync Promotion banner to set up Sync */
 "sync.promo.confirm.action" = "Sünkroonimise seadistamine";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.credit-cards.title" = "Oma krediitkaartide sünkroonimine ja varundamine";
+
+/* Title for the Sync Promotion banner */
+"sync.promo.data.import.title" = "Andmete sünkroonimine ja varundamine";
 
 /* Title for a button in the Sync Promotion banner to dismiss Sync promotion banner */
 "sync.promo.dismiss.action" = "Ei aitäh";
