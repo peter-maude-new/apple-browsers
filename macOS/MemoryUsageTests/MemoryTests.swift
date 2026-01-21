@@ -38,17 +38,20 @@ class MemoryTests: XCTestCase {
         application.terminate()
     }
 
-    func testMemoryAllocationsWhenOpeningMultipleNewtabs() throws {
+    func testMemoryUsedWhenOpeningSingleNewTab() throws {
         let allocationsMetric = ApplicationMemoryStatsIPCMetric(memoryStatsURL: application.memoryStatsURL)
 
         application.openNewWindow()
         application.waitForAddressBar()
 
-        application.cleanExportMemoryStats()
-
-        measure(metrics: [allocationsMetric], options: .buildOptions(iterations: 1)) {
-            application.openNewTab()
+        measure(metrics: [allocationsMetric], options: .buildOptions(iterations: 5, manualEvents: true)) {
             application.cleanExportMemoryStats()
+            startMeasuring()
+
+            application.openNewTab()
+
+            application.cleanExportMemoryStats()
+            stopMeasuring()
         }
     }
 
@@ -81,9 +84,10 @@ private extension XCUIApplication {
 
 extension XCTMeasureOptions {
 
-    static func buildOptions(iterations: Int) -> XCTMeasureOptions {
+    static func buildOptions(iterations: Int, manualEvents: Bool = false) -> XCTMeasureOptions {
         let options = XCTMeasureOptions()
         options.iterationCount = iterations
+        options.invocationOptions = manualEvents ? [.manuallyStart, .manuallyStop] : []
         return options
     }
 }

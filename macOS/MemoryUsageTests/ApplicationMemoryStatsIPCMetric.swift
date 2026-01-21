@@ -69,6 +69,7 @@ final class ApplicationMemoryStatsIPCMetric: NSObject, XCTMetric {
             unitSymbol: "MB"
         )
 
+        Logger.memory.log("#### Reporting \(initialState.totalInUseMB, privacy: .public) > \(finalState.totalInUseMB, privacy: .public)")
         return [finalMemoryUsedMB, initialMemoryUsedMB]
     }
 }
