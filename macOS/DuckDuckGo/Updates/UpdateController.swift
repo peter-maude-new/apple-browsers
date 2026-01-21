@@ -273,5 +273,8 @@ final class NoOpUpdateController: UpdateController {
     func handleAppTermination() {
         // No-op
     }
+
+    var mustShowUpdateIndicators: Bool { false }
+    var clearsNotificationDotOnMenuOpen: Bool { true }
 }
 
