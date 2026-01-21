@@ -1,7 +1,7 @@
 //
-//  MockThrowingKeyValueStore.swift
+//  AIChatDebugURLSettings.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2024 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,22 +16,24 @@
 //  limitations under the License.
 //
 
+import AppKit
 import Persistence
 
-public class MockThrowingKeyValueStore: ThrowingKeyValueStoring {
-    private var storage: [String: Any] = [:]
+struct AIChatDebugURLSettings: StoringKeys {
+    let customURL = StorageKey<String>(.aiChatDebugURLSettings)
+}
 
-    public init() { }
+extension KeyedStoring where Keys == AIChatDebugURLSettings {
 
-    public func object(forKey defaultName: String) throws -> Any? {
-        return storage[defaultName]
+    var customURLHostname: String? {
+        if let customURL = self.customURL,
+            let url = URL(string: customURL) {
+            return url.host
+        }
+        return nil
     }
 
-    public func set(_ value: Any?, forKey defaultName: String) throws {
-        storage[defaultName] = value
-    }
-
-    public func removeObject(forKey defaultName: String) throws {
-        storage.removeValue(forKey: defaultName)
+    func resetCustomURL() {
+        self.customURL = nil
     }
 }
