@@ -3259,7 +3259,7 @@ extension MainViewController: TabDelegate {
         if openedByPage {
             showBars()
             newTabAnimation {
-                self.loadUrlInNewTab(url, reuseExisting: .any, inheritedAttribution: attribution)
+                self.loadUrlInNewTab(url, inheritedAttribution: attribution)
                 self.currentTab?.openedByPage = true
                 self.currentTab?.openingTab = tab
             }
