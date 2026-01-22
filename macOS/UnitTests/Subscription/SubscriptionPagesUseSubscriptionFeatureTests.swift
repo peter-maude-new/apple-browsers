@@ -107,6 +107,14 @@ final class MockSubscriptionPurchaseInstrumentation: SubscriptionPurchaseInstrum
     }
 }
 
+final class MockSubscriptionPurchasePixelFiring: SubscriptionPurchasePixelFiring {
+    var firedPixels: [SubscriptionPurchasePixel] = []
+
+    func fire(_ pixel: SubscriptionPurchasePixel) {
+        firedPixels.append(pixel)
+    }
+}
+
 final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
 
     private var sut: SubscriptionPagesUseSubscriptionFeature!
@@ -469,15 +477,47 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
 
     @MainActor
     func testAppStoreSuccess_EmitsWideEventWithContext() async throws {
-        throw XCTSkip("Temporarily disabled")
-
         let originURL = URL(string: "https://duckduckgo.com/subscriptions?origin=funnel_appsettings_macos")!
         let webView = MockURLWebView(url: originURL)
         let message = MockWKScriptMessage(name: "subscriptionSelected", body: [:], webView: webView)
 
         subscriptionManager.resultURL = URL(string: "https://duckduckgo.com/subscriptions")!
+        subscriptionManager.resultCreateAccountTokenContainer = OAuthTokensFactory.makeValidTokenContainerWithEntitlements()
         mockStorePurchaseManager.isEligibleForFreeTrialResult = true
+        mockStorePurchaseManager.purchaseSubscriptionResult = .success("test-transaction-jws")
+        subscriptionManager.confirmPurchaseResponse = .success(
+            DuckDuckGoSubscription(
+                productId: "yearly",
+                name: "Yearly",
+                billingPeriod: .yearly,
+                startedAt: Date(),
+                expiresOrRenewsAt: Date().addingTimeInterval(365 * 24 * 60 * 60),
+                platform: .apple,
+                status: .autoRenewable,
+                activeOffers: [],
+                tier: .plus,
+                availableChanges: nil,
+                pendingPlans: nil
+            )
+        )
         mockUIHandler.setAlertResponse(alertResponse: .alertFirstButtonReturn)
+
+        let mockPixelFiring = MockSubscriptionPurchasePixelFiring()
+        let instrumentation = DefaultSubscriptionPurchaseInstrumentation(wideEvent: mockWideEvent, pixelFiring: mockPixelFiring)
+        sut = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
+                                                      subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler,
+                                                      stripePurchaseFlow: StripePurchaseFlowMock(subscriptionOptionsResult: .failure(.noProductsFound), prepareSubscriptionPurchaseResult: .failure(.noProductsFound)),
+                                                      uiHandler: mockUIHandler,
+                                                      subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
+                                                      freemiumDBPUserStateManager: mockFreemiumDBPUserStateManager,
+                                                      notificationCenter: mockNotificationCenter,
+                                                      dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
+                                                      aiChatURL: URL.duckDuckGo,
+                                                      wideEvent: mockWideEvent,
+                                                      subscriptionEventReporter: mockEventReporter,
+                                                      pendingTransactionHandler: MockPendingTransactionHandler(),
+                                                      instrumentation: instrumentation)
+        sut.with(broker: broker)
 
         _ = try await sut.subscriptionSelected(params: ["id": "yearly"], original: message)
 
