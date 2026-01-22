@@ -187,9 +187,35 @@ public final class AutomationServerCore {
             return newWindow(url: url)
         case "/getWindowHandle":
             return getWindowHandle(url: url)
+        case "/shutdown":
+            return shutdown()
         default:
             return .failure(.unknownMethod)
         }
+    }
+
+    /// Cleanly shut down the automation server and terminate the app.
+    /// This allows the webdriver to close the app without triggering a crash dialog.
+    public func shutdown() -> ConnectionResult {
+        Logger.automationServer.info("Shutdown requested - stopping automation server and terminating app")
+
+        // Cancel the listener to stop accepting new connections
+        listener.cancel()
+
+        // Clear connection queues
+        connectionQueues.removeAll()
+
+        Logger.automationServer.info("Automation server shut down, scheduling app termination")
+
+        // Schedule app termination after a short delay to allow this response to be sent
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            Logger.automationServer.info("Terminating app via exit(0)")
+            // Use exit(0) for clean termination without crash dialogs
+            // This is safe because we've already cleaned up the automation server
+            exit(0)
+        }
+
+        return .success("shutdown")
     }
 
     // MARK: - Route Handlers
@@ -345,4 +371,3 @@ public final class AutomationServerCore {
         return url.queryItems?.first(where: { $0.name == param })?.value
     }
 }
-
