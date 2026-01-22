@@ -22,6 +22,7 @@ import CryptoKit
 import Foundation
 import OSLog
 import WebKit
+import WebExtensions
 
 protocol WebExtensionManaging {
 
@@ -218,6 +219,7 @@ final class WebExtensionManager: NSObject, WebExtensionManaging {
 
     @MainActor
     func loadInstalledExtensions() async {
+        Logger.webExtensions.debug("Loading installed extensions")
         eventsListener.controller = controller
 
         uninstallBitwardenExtensionIfNeeded()
