@@ -280,7 +280,6 @@ class TabViewController: UIViewController {
             updateTabModel()
             delegate?.tabLoadingStateDidChange(tab: self)
             checkLoginDetectionAfterNavigation()
-            updateInputAccessoryViewVisibility()
         }
     }
     
@@ -788,6 +787,8 @@ class TabViewController: UIViewController {
 
         webView.allowsLinkPreview = true
         webView.allowsBackForwardNavigationGestures = true
+
+        webView.preventFlashOnLoad(featureFlagger: featureFlagger)
 
         addObservers()
 
@@ -1946,12 +1947,6 @@ extension TabViewController: WKNavigationDelegate {
             saveLoginPromptIsPresenting = false
             shouldShowAutofillExtensionPrompt = false
         }
-    }
-
-    /// Hides the default keyboard input accessory view when on duck.ai pages.
-    private func updateInputAccessoryViewVisibility() {
-        guard let webView = webView as? WebView else { return }
-        webView.shouldHideDefaultInputAccessoryView = isAITab
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
