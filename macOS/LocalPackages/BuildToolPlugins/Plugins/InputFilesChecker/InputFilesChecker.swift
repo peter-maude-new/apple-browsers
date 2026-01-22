@@ -36,7 +36,17 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("SparkleUpdaterAvailabilityChecker.swift", .source),
     .init("UpdateProgressState.swift", .source),
     .init("UpdatesDebugMenu.swift", .source),
-    .init("UpdateWideEventData.swift", .source)])
+    .init("UpdateWideEventData.swift", .source),
+    // WebDriver (DEBUG only)
+    .init("WebDriverCoordinator.swift", .source),
+    .init("WebDriverDebugMenu.swift", .source),
+    .init("WebDriverElementLocator.swift", .source),
+    .init("WebDriverElementStore.swift", .source),
+    .init("WebDriverProtocol.swift", .source),
+    .init("WebDriverRouter.swift", .source),
+    .init("WebDriverServer.swift", .source),
+    .init("WebDriverSession.swift", .source),
+    .init("WebDriverSessionManager.swift", .source)])
 
 let sandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("AppStore.xcstrings", .resource),

@@ -3867,6 +3867,15 @@
 		CD34F0C22C886482006826BE /* MaliciousSiteProtectionMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD34F0BF2C886482006826BE /* MaliciousSiteProtectionMocks.swift */; };
 		CD89DD612C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
 		CD89DD622C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */; };
+		CD90D9752F21109E0015A628 /* WebDriverRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D9702F21109E0015A628 /* WebDriverRouter.swift */; };
+		CD90D9762F21109E0015A628 /* WebDriverElementLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D96D2F21109E0015A628 /* WebDriverElementLocator.swift */; };
+		CD90D9772F21109E0015A628 /* WebDriverServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D9712F21109E0015A628 /* WebDriverServer.swift */; };
+		CD90D9782F21109E0015A628 /* WebDriverSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D9722F21109E0015A628 /* WebDriverSession.swift */; };
+		CD90D9792F21109E0015A628 /* WebDriverCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D96B2F21109E0015A628 /* WebDriverCoordinator.swift */; };
+		CD90D97A2F21109E0015A628 /* WebDriverSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D9732F21109E0015A628 /* WebDriverSessionManager.swift */; };
+		CD90D97B2F21109E0015A628 /* WebDriverElementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D96E2F21109E0015A628 /* WebDriverElementStore.swift */; };
+		CD90D97C2F21109E0015A628 /* WebDriverProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D96F2F21109E0015A628 /* WebDriverProtocol.swift */; };
+		CD90D97D2F21109E0015A628 /* WebDriverDebugMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD90D96C2F21109E0015A628 /* WebDriverDebugMenu.swift */; };
 		D6229C302ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
 		D6229C312ED0E213001DAE71 /* shield.new.json in Resources */ = {isa = PBXBuildFile; fileRef = D6229C2F2ED0E213001DAE71 /* shield.new.json */; };
 		D65D0F9F2E7239680075A784 /* NetworkQualityMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = D65D0F9E2E7239680075A784 /* NetworkQualityMonitor */; };
@@ -6309,6 +6318,15 @@
 		CD33012F2C89B602009AA127 /* ErrorPageHTMLFactoryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorPageHTMLFactoryTests.swift; sourceTree = "<group>"; };
 		CD34F0BF2C886482006826BE /* MaliciousSiteProtectionMocks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionMocks.swift; sourceTree = "<group>"; };
 		CD89DD5D2C89E08D0080F9AF /* MaliciousSiteProtectionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionTests.swift; sourceTree = "<group>"; };
+		CD90D96B2F21109E0015A628 /* WebDriverCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverCoordinator.swift; sourceTree = "<group>"; };
+		CD90D96C2F21109E0015A628 /* WebDriverDebugMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverDebugMenu.swift; sourceTree = "<group>"; };
+		CD90D96D2F21109E0015A628 /* WebDriverElementLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverElementLocator.swift; sourceTree = "<group>"; };
+		CD90D96E2F21109E0015A628 /* WebDriverElementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverElementStore.swift; sourceTree = "<group>"; };
+		CD90D96F2F21109E0015A628 /* WebDriverProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverProtocol.swift; sourceTree = "<group>"; };
+		CD90D9702F21109E0015A628 /* WebDriverRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverRouter.swift; sourceTree = "<group>"; };
+		CD90D9712F21109E0015A628 /* WebDriverServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverServer.swift; sourceTree = "<group>"; };
+		CD90D9722F21109E0015A628 /* WebDriverSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverSession.swift; sourceTree = "<group>"; };
+		CD90D9732F21109E0015A628 /* WebDriverSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebDriverSessionManager.swift; sourceTree = "<group>"; };
 		CDE248A32C821FFE00F9399D /* phishingHashPrefixes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = phishingHashPrefixes.json; sourceTree = "<group>"; };
 		CDE248A42C821FFE00F9399D /* MaliciousSiteProtectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionManager.swift; sourceTree = "<group>"; };
 		CDE248A52C821FFE00F9399D /* MaliciousSiteProtectionPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaliciousSiteProtectionPreferences.swift; sourceTree = "<group>"; };
@@ -10099,6 +10117,7 @@
 				1D2DB9A22CE26B7A00F73E96 /* WebExtensions */,
 				AA6EF9AE25066F99004754E6 /* Windows */,
 				31F28C4B28C8EE9000119F70 /* YoutubePlayer */,
+				CD90D9742F21109E0015A628 /* WebDriver */,
 			);
 			path = DuckDuckGo;
 			sourceTree = "<group>";
@@ -12071,6 +12090,22 @@
 				CD34F0BF2C886482006826BE /* MaliciousSiteProtectionMocks.swift */,
 			);
 			path = Mocks;
+			sourceTree = "<group>";
+		};
+		CD90D9742F21109E0015A628 /* WebDriver */ = {
+			isa = PBXGroup;
+			children = (
+				CD90D96B2F21109E0015A628 /* WebDriverCoordinator.swift */,
+				CD90D96C2F21109E0015A628 /* WebDriverDebugMenu.swift */,
+				CD90D96D2F21109E0015A628 /* WebDriverElementLocator.swift */,
+				CD90D96E2F21109E0015A628 /* WebDriverElementStore.swift */,
+				CD90D96F2F21109E0015A628 /* WebDriverProtocol.swift */,
+				CD90D9702F21109E0015A628 /* WebDriverRouter.swift */,
+				CD90D9712F21109E0015A628 /* WebDriverServer.swift */,
+				CD90D9722F21109E0015A628 /* WebDriverSession.swift */,
+				CD90D9732F21109E0015A628 /* WebDriverSessionManager.swift */,
+			);
+			path = WebDriver;
 			sourceTree = "<group>";
 		};
 		CDE248A22C821FD500F9399D /* MaliciousSiteProtection */ = {
@@ -16261,6 +16296,15 @@
 				4B5A4F4C27F3A5AA008FBD88 /* NSNotificationName+DataImport.swift in Sources */,
 				B64C853826944B880048FEBE /* StoredPermission.swift in Sources */,
 				AAE246F8270A406200BEEAEE /* FirePopoverCollectionViewHeader.swift in Sources */,
+				CD90D9752F21109E0015A628 /* WebDriverRouter.swift in Sources */,
+				CD90D9762F21109E0015A628 /* WebDriverElementLocator.swift in Sources */,
+				CD90D9772F21109E0015A628 /* WebDriverServer.swift in Sources */,
+				CD90D9782F21109E0015A628 /* WebDriverSession.swift in Sources */,
+				CD90D9792F21109E0015A628 /* WebDriverCoordinator.swift in Sources */,
+				CD90D97A2F21109E0015A628 /* WebDriverSessionManager.swift in Sources */,
+				CD90D97B2F21109E0015A628 /* WebDriverElementStore.swift in Sources */,
+				CD90D97C2F21109E0015A628 /* WebDriverProtocol.swift in Sources */,
+				CD90D97D2F21109E0015A628 /* WebDriverDebugMenu.swift in Sources */,
 				AAB7320926DD0CD9002FACF9 /* FireViewController.swift in Sources */,
 				31C26A0D2CBE9DFE00FFF462 /* AIChatPreferences.swift in Sources */,
 				4B92928C26670D1700AD2C21 /* OutlineSeparatorViewCell.swift in Sources */,

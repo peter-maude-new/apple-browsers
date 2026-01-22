@@ -817,6 +817,13 @@ final class MainMenu: NSMenu {
             NSMenuItem(title: "Personal Information Removal")
                 .submenu(DataBrokerProtectionDebugMenu())
 
+#if DEBUG
+            if let webDriverCoordinator = Application.appDelegate.webDriverCoordinator {
+                NSMenuItem(title: "WebDriver")
+                    .submenu(WebDriverDebugMenu(coordinator: webDriverCoordinator))
+            }
+#endif
+
             FreemiumDebugMenu()
 
             if case .normal = AppVersion.runType {

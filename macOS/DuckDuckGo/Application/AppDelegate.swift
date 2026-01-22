@@ -125,6 +125,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let windowControllersManager: WindowControllersManager
     let subscriptionNavigationCoordinator: SubscriptionNavigationCoordinator
 
+#if DEBUG
+    private(set) var webDriverCoordinator: WebDriverCoordinator?
+#endif
+
     let appearancePreferences: AppearancePreferences
     let dataClearingPreferences: DataClearingPreferences
     let startupPreferences: StartupPreferences
@@ -704,6 +708,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         windowControllersManager.tabsPreferences = tabsPreferences
         self.windowControllersManager = windowControllersManager
 
+#if DEBUG
+        self.webDriverCoordinator = WebDriverCoordinator(
+            port: 4444,
+            windowControllersManager: windowControllersManager
+        )
+#endif
+
         pinnedTabsManagerProvider.tabsPreferences = tabsPreferences
         pinnedTabsManagerProvider.windowControllersManager = windowControllersManager
 
@@ -1244,6 +1255,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         userChurnScheduler.start()
 
         memoryUsageMonitor.enableIfNeeded(featureFlagger: featureFlagger)
+
+#if DEBUG
+        // Handle WebDriver command-line arguments
+        webDriverCoordinator?.handleCommandLineArguments()
+#endif
 
         PixelKit.fire(GeneralPixel.launch, doNotEnforcePrefix: true)
     }
