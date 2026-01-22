@@ -1169,6 +1169,12 @@ extension MainViewController {
         }
     }
 
+    @objc func lockButtonAction(_ sender: NSButton) {
+        DispatchQueue.main.async {
+            Application.appDelegate.browserLockCoordinator.lock()
+        }
+    }
+
     // MARK: - Bookmarks
 
     @objc func bookmarkThisPage(_ sender: Any) {

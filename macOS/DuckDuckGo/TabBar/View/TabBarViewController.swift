@@ -49,6 +49,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @IBOutlet weak var rightShadowImageView: NSImageView!
     @IBOutlet weak var leftShadowImageView: NSImageView!
     @IBOutlet weak var fireButton: MouseOverAnimationButton!
+    @IBOutlet weak var lockButton: MouseOverButton!
     @IBOutlet weak var draggingSpace: NSView!
     @IBOutlet weak var windowDraggingViewLeadingConstraint: NSLayoutConstraint!
 
@@ -58,6 +59,8 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     @IBOutlet weak var fireButtonWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var fireButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var lockButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var lockButtonHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var addTabButton: MouseOverButton!
     @IBOutlet weak var addTabButtonWidth: NSLayoutConstraint!
     @IBOutlet weak var addTabButtonHeight: NSLayoutConstraint!
@@ -249,6 +252,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         observeToScrollNotifications()
         subscribeToSelectionIndex()
         setupFireButton()
+        setupLockButton()
         setupPinnedTabsView()
         subscribeToTabModeChanges()
         setupAddTabButton()
@@ -370,6 +374,19 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
         fireButtonWidthConstraint.constant = theme.tabBarButtonSize
         fireButtonHeightConstraint.constant = theme.tabBarButtonSize
+    }
+
+    private func setupLockButton() {
+        lockButton.image = NSImage(systemSymbolName: "lock", accessibilityDescription: UserText.lockBrowserTooltip)
+        lockButton.toolTip = UserText.lockBrowserTooltip
+        lockButton.setAccessibilityElement(true)
+        lockButton.setAccessibilityRole(.button)
+        lockButton.setAccessibilityIdentifier("TabBarViewController.lockButton")
+        lockButton.setAccessibilityTitle(UserText.lockBrowserTooltip)
+        lockButton.setCornerRadius(theme.toolbarButtonsCornerRadius)
+        lockButton.sendAction(on: .leftMouseDown)
+        lockButtonWidthConstraint.constant = theme.tabBarButtonSize
+        lockButtonHeightConstraint.constant = theme.tabBarButtonSize
     }
 
     private func setupScrollButtons() {
@@ -512,6 +529,10 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @objc func addButtonAction(_ sender: NSButton) {
         autoconsentStatsPopoverCoordinator?.dismissDialogDueToNewTabBeingShown()
         tabCollectionViewModel.insertOrAppendNewTab()
+    }
+
+    @IBAction func lockButtonAction(_ sender: NSButton) {
+        Application.appDelegate.browserLockCoordinator.lock()
     }
 
     @IBAction func rightScrollButtonAction(_ sender: NSButton) {
@@ -1035,6 +1056,10 @@ extension TabBarViewController: ThemeUpdateListening {
 
         fireButton.normalTintColor = isFireWindow ? .white : colorsProvider.iconsColor
         fireButton.mouseOverColor = isFireWindow ? .fireButtonRedHover : colorsProvider.buttonMouseOverColor
+
+        lockButton.normalTintColor = colorsProvider.iconsColor
+        lockButton.mouseOverTintColor = colorsProvider.iconsColor
+        lockButton.mouseOverColor = colorsProvider.buttonMouseOverColor
 
         leftScrollButton.normalTintColor = colorsProvider.iconsColor
         leftScrollButton.mouseOverColor = colorsProvider.buttonMouseOverColor

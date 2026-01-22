@@ -149,6 +149,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let privacyFeatures: AnyPrivacyFeatures
     let brokenSitePromptLimiter: BrokenSitePromptLimiter
     let fireCoordinator: FireCoordinator
+    @MainActor
+    private(set) lazy var browserLockCoordinator = BrowserLockCoordinator()
     let permissionManager: PermissionManager
     let notificationService: UserNotificationAuthorizationServicing
     let recentlyClosedCoordinator: RecentlyClosedCoordinating
@@ -1137,6 +1139,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statisticsLoader?.load()
 
         startupSync()
+
+        // Check browser lock BEFORE restoring windows
+        browserLockCoordinator.checkAndShowLockIfNeeded()
 
         if [.normal, .uiTests].contains(AppVersion.runType) {
             stateRestorationManager.applicationDidFinishLaunching()

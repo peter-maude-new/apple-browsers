@@ -2215,6 +2215,12 @@
 		7BC15A1C2E1917D6000062C8 /* VPNNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC15A1B2E1917D6000062C8 /* VPNNotifications */; };
 		7BC16BA92E724CF80016EE8E /* ContentScopePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC16BA82E724CF80016EE8E /* ContentScopePreferences.swift */; };
 		7BC16BAA2E724CF80016EE8E /* ContentScopePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC16BA82E724CF80016EE8E /* ContentScopePreferences.swift */; };
+		7BC2690F2F22BD1F0006092C /* BrowserLockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690D2F22BD1F0006092C /* BrowserLockOverlayView.swift */; };
+		7BC269102F22BD1F0006092C /* BrowserLockPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690C2F22BD1F0006092C /* BrowserLockPreferences.swift */; };
+		7BC269112F22BD1F0006092C /* BrowserLockCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690B2F22BD1F0006092C /* BrowserLockCoordinator.swift */; };
+		7BC269122F22BD1F0006092C /* BrowserLockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690D2F22BD1F0006092C /* BrowserLockOverlayView.swift */; };
+		7BC269132F22BD1F0006092C /* BrowserLockPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690C2F22BD1F0006092C /* BrowserLockPreferences.swift */; };
+		7BC269142F22BD1F0006092C /* BrowserLockCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC2690B2F22BD1F0006092C /* BrowserLockCoordinator.swift */; };
 		7BC26CA42DFC103D00E52480 /* VPN in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC26CA32DFC103D00E52480 /* VPN */; };
 		7BC26CA62DFC104700E52480 /* VPN in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC26CA52DFC104700E52480 /* VPN */; };
 		7BC26CA82DFC105400E52480 /* VPN in Frameworks */ = {isa = PBXBuildFile; productRef = 7BC26CA72DFC105400E52480 /* VPN */; };
@@ -5359,6 +5365,9 @@
 		7BBBD8962ED8DA51003A7DA5 /* NotificationIconFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationIconFetcher.swift; sourceTree = "<group>"; };
 		7BBD45B02A691AB500C83CA9 /* NetworkProtectionDebugUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkProtectionDebugUtilities.swift; sourceTree = "<group>"; };
 		7BC16BA82E724CF80016EE8E /* ContentScopePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentScopePreferences.swift; sourceTree = "<group>"; };
+		7BC2690B2F22BD1F0006092C /* BrowserLockCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLockCoordinator.swift; sourceTree = "<group>"; };
+		7BC2690C2F22BD1F0006092C /* BrowserLockPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLockPreferences.swift; sourceTree = "<group>"; };
+		7BC2690D2F22BD1F0006092C /* BrowserLockOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLockOverlayView.swift; sourceTree = "<group>"; };
 		7BC5F7DF2D49044C0005B3D9 /* PreferencesUI-macOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "PreferencesUI-macOS"; sourceTree = "<group>"; };
 		7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesDebugMenu.swift; sourceTree = "<group>"; };
 		7BCB90C12C18626E008E3543 /* VPNControllerXPCClient+ConvenienceInitializers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VPNControllerXPCClient+ConvenienceInitializers.swift"; sourceTree = "<group>"; };
@@ -9181,6 +9190,16 @@
 			path = UserNotifications;
 			sourceTree = "<group>";
 		};
+		7BC2690E2F22BD1F0006092C /* BrowserLock */ = {
+			isa = PBXGroup;
+			children = (
+				7BC2690B2F22BD1F0006092C /* BrowserLockCoordinator.swift */,
+				7BC2690C2F22BD1F0006092C /* BrowserLockPreferences.swift */,
+				7BC2690D2F22BD1F0006092C /* BrowserLockOverlayView.swift */,
+			);
+			path = BrowserLock;
+			sourceTree = "<group>";
+		};
 		7BDA36E72B7E037200AD5388 /* VPNProxyExtension */ = {
 			isa = PBXGroup;
 			children = (
@@ -10093,6 +10112,7 @@
 				7B1E819A27C8874900FF0E60 /* Autofill */,
 				AAC5E4C025D6A6A9007F5990 /* Bookmarks */,
 				4BFD356E283ADE8B00CE9234 /* BookmarksBar */,
+				7BC2690E2F22BD1F0006092C /* BrowserLock */,
 				AA86491324D831B9001BABEE /* Common */,
 				85D33F1025C82E93002B91A6 /* Configuration */,
 				4B6160D125B14E5E007DE5B2 /* ContentBlocker */,
@@ -14546,6 +14566,9 @@
 				3706FB83293F65D500E42796 /* NSApplicationExtension.swift in Sources */,
 				E274EFF72E1D55D500373C41 /* NewTabPageOmnibarSuggestionsProvider.swift in Sources */,
 				CCC87D6D2E1412D70091344D /* ChromiumTopSitesReader.swift in Sources */,
+				7BC269122F22BD1F0006092C /* BrowserLockOverlayView.swift in Sources */,
+				7BC269132F22BD1F0006092C /* BrowserLockPreferences.swift in Sources */,
+				7BC269142F22BD1F0006092C /* BrowserLockCoordinator.swift in Sources */,
 				37197EA42942441D00394917 /* NewWindowPolicy.swift in Sources */,
 				1D72D59D2BFF61B200AEDE36 /* UpdateNotificationPresenter.swift in Sources */,
 				3706FB84293F65D500E42796 /* NSWindowExtension.swift in Sources */,
@@ -17287,6 +17310,9 @@
 				C153E7C22C8AD68D00B9BAD7 /* FreemiumDBPPromotionViewCoordinator.swift in Sources */,
 				7BB4BC6A2C5CD96200E06FC8 /* ActiveDomainPublisher.swift in Sources */,
 				4BE53374286E39F10019DBFD /* ChromiumKeychainPrompt.swift in Sources */,
+				7BC2690F2F22BD1F0006092C /* BrowserLockOverlayView.swift in Sources */,
+				7BC269102F22BD1F0006092C /* BrowserLockPreferences.swift in Sources */,
+				7BC269112F22BD1F0006092C /* BrowserLockCoordinator.swift in Sources */,
 				B6553692268440D700085A79 /* WKProcessPool+GeolocationProvider.swift in Sources */,
 				B68D21C32ACBC916002DA3C2 /* ContentBlockingMock.swift in Sources */,
 				7BAA30D62EA795A6001F217A /* UpdateWideEventData.swift in Sources */,
