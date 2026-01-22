@@ -1679,6 +1679,18 @@
         }
       }
     },
+    "preferences.begin-sync.card-description-updated" : {
+      "comment" : "Begin Syncing card description in sync settings",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Securely sync bookmarks, autofill data, and Duck.ai chats between your devices."
+          }
+        }
+      }
+    },
     "preferences.begin-sync.card-footer" : {
       "comment" : "Footer / caption on the Begin Syncing card in sync settings",
       "extractionState" : "extracted_with_value",
@@ -2219,6 +2231,18 @@
         }
       }
     },
+    "preferences.preparing-to-sync.dialog-subtitle-updated" : {
+      "comment" : "Preparing to sync dialog subtitle during sync set up",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "We're setting up the connection to synchronize your bookmarks, autofill data, and Duck.ai chats with the other device."
+          }
+        }
+      }
+    },
     "preferences.preparing-to-sync.dialog-title" : {
       "comment" : "Preparing to sync dialog title during sync set up",
       "extractionState" : "extracted_with_value",
@@ -2695,6 +2719,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Поддержка некоторых типов данных зависит от платформы. [Подробнее...](https://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/sync-and-backup-privacy/)"
+          }
+        }
+      }
+    },
+    "preferences.sync.card-footer-updated" : {
+      "comment" : "Footer / caption on the Sync card in sync settings",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Support for certain data types varies by platform. [Learn More](https://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/sync-and-backup-privacy/)"
           }
         }
       }
@@ -4195,6 +4231,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "DuckDuckGo создаст зашифрованную резервную копию ваших закладок и данных автозаполнения на надежном сервере. Копию можно синхронизировать с другими устройствами."
+          }
+        }
+      }
+    },
+    "preferences.sync.sync-with-server-subtitle1-updated" : {
+      "comment" : "Sync with server dialog first subtitle",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "This creates an encrypted backup of your bookmarks, passwords, credit cards, identities, and Duck.ai chats on DuckDuckGo’s secure server, which can be synced with your other devices."
           }
         }
       }
