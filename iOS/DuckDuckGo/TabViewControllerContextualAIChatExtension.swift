@@ -205,27 +205,3 @@ extension TabViewController {
             }
     }
 }
-
-// MARK: - Page Context Auto-Update
-
-extension TabViewController {
-
-    private func subscribeToPageContextUpdates() {
-        guard pageContextUpdateCancellable == nil,
-              let script = pageContextUserScript else { return }
-
-        pageContextUpdateCancellable = script.collectionResultPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] pageContext in
-                guard let self,
-                      let pageContext,
-                      aiChatContextualSheetCoordinator.isSheetPresented,
-                      aiChatContextualSheetCoordinator.aiChatSettings.isAutomaticContextAttachmentEnabled else {
-                    return
-                }
-                if let enriched = enrichWithFavicon(pageContext) {
-                    aiChatContextualSheetCoordinator.updatePageContext(enriched)
-                }
-            }
-    }
-}
