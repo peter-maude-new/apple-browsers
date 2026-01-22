@@ -87,7 +87,7 @@ public enum SubscriptionURL {
             case .plans:
                 baseURL.appendingPathComponent("plans")
             case .upgrade:
-                baseURL.appendingPathComponent("plans").appendingParameter(name: "goToUpgrade", value: "true")
+                baseURL.appendingPathComponent("plans").appendingParameter(name: "tier", value: "pro")
             }
         }()
 
@@ -161,7 +161,7 @@ extension SubscriptionURL {
      *
      * - Parameters:
      *   - origin: Attribution origin for analytics
-     *   - goToUpgrade: If true, includes goToUpgrade=true parameter for direct upgrade flow
+     *   - goToUpgrade: If true, includes tier=pro parameter for direct upgrade flow
      *   - environment: The subscription environment (production/staging)
      *
      * - Returns: URLComponents containing the plans URL with origin parameter
