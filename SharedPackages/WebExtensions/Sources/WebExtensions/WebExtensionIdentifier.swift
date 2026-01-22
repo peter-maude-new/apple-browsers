@@ -1,5 +1,5 @@
 //
-//  WebExtensionLoadResult.swift
+//  WebExtensionIdentifier.swift
 //
 //  Copyright © 2024 DuckDuckGo. All rights reserved.
 //
@@ -17,17 +17,29 @@
 //
 
 import Foundation
-import WebKit
 
 @available(macOS 15.4, *)
-struct WebExtensionLoadResult {
-    let context: WKWebExtensionContext
-    let extensionIdentifier: WebExtensionIdentifier?
-    let path: String
+public enum WebExtensionIdentifier: String {
+    case bitwarden
 
-    init(context: WKWebExtensionContext, path: String, extensionIdentifier: WebExtensionIdentifier? = nil) {
-        self.context = context
-        self.path = path
-        self.extensionIdentifier = extensionIdentifier
+    static func identify(bundle: Bundle) -> WebExtensionIdentifier? {
+        guard let bundleId = bundle.bundleIdentifier else {
+            return nil
+        }
+
+        switch bundleId {
+        case "com.bitwarden.desktop.safari":
+            // Could add additional validation here (entitlements, version, etc.)
+            return .bitwarden
+        default:
+            return nil
+        }
+    }
+
+    public var defaultPath: String {
+        switch self {
+        case .bitwarden:
+            "file:///Applications/Bitwarden.app/Contents/PlugIns/safari.appex"
+        }
     }
 }
