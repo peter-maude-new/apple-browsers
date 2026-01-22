@@ -1,6 +1,5 @@
 //
-//  SyncMocks.swift
-//  DuckDuckGo
+//  AIChatFeatureFlagProvider.swift
 //
 //  Copyright © 2025 DuckDuckGo. All rights reserved.
 //
@@ -17,15 +16,19 @@
 //  limitations under the License.
 //
 
-import Foundation
-import Bookmarks
-import DDGSync
-import Persistence
-import Core
-@testable import DuckDuckGo
+import AIChat
+import PrivacyConfig
+import FeatureFlags
 
-class MockFavoriteDisplayModeStorage: FavoritesDisplayModeStoring {
-    var favoritesDisplayMode: FavoritesDisplayMode = .displayNative(.mobile)
+struct AIChatFeatureFlagProvider: AIChatFeatureFlagProviding {
+
+    private let featureFlagger: FeatureFlagger
+
+    init(featureFlagger: FeatureFlagger) {
+        self.featureFlagger = featureFlagger
+    }
+
+    func isAIChatSyncEnabled() -> Bool {
+        featureFlagger.isFeatureOn(.aiChatSync)
+    }
 }
-
-class MockFavoritesDisplayModeStoring: MockFavoriteDisplayModeStorage {}
