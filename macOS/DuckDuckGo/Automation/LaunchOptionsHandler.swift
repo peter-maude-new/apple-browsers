@@ -51,6 +51,11 @@ public final class LaunchOptionsHandler {
         userDefaults.bool(forKey: Self.isUITestingKey)
     }
 
+    /// Returns true if the app is running in any automation mode (WebDriver or UI Tests)
+    public var isAutomationSession: Bool {
+        automationPort != nil || isUITesting
+    }
+
     public var onboardingStatus: OnboardingStatus {
         // If we're running UI Tests override onboarding settings permanently to keep state consistency across app launches. Some test re-launch the app within the same tests.
         // Launch Arguments can be read via userDefaults for easy value access.
