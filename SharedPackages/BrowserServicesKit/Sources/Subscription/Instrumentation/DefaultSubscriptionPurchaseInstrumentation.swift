@@ -52,14 +52,15 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
 
     // MARK: - Purchase Flow
 
-    public func purchaseAttemptStarted(selectionID: String, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?) {
+    public func purchaseAttemptStarted(selectionID: String?, freeTrialEligible: Bool, purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform, origin: String?) {
         pixelFiring.fire(.purchaseAttempt)
 
+        let normalizedSelectionID = selectionID.flatMap { $0.isEmpty ? nil : $0 }
         let data = SubscriptionPurchaseWideEventData(
             purchasePlatform: purchasePlatform,
-            subscriptionIdentifier: selectionID,
+            subscriptionIdentifier: normalizedSelectionID,
             freeTrialEligible: freeTrialEligible,
-            contextData: WideEventContextData(name: origin)
+            contextData: WideEventContextData(name: origin ?? "")
         )
 
         purchaseWideEventData = data
@@ -75,6 +76,8 @@ public final class DefaultSubscriptionPurchaseInstrumentation: SubscriptionPurch
     public func purchaseFailed(step: SubscriptionPurchaseWideEventData.FailingStep, error: Error) {
         guard let data = purchaseWideEventData else { return }
         data.markAsFailed(at: step, error: error)
+        data.activateAccountDuration?.complete()
+        wideEvent.updateFlow(data)
         wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
         purchaseWideEventData = nil
     }

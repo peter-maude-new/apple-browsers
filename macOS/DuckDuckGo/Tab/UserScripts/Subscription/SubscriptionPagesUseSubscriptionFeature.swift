@@ -317,7 +317,14 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 // 2: Show purchase progress UI to user
                 await uiHandler.presentProgressViewController(withTitle: UserText.purchasingSubscriptionTitle)
 
-                // 3: Check for active subscriptions
+                // 3: Start instrumentation once we have valid selection data.
+                let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
+                instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
+                                                       freeTrialEligible: freeTrialEligible,
+                                                       purchasePlatform: .appStore,
+                                                       origin: origin)
+
+                // 4: Check for active subscriptions
                 if await subscriptionManager.storePurchaseManager().hasActiveSubscription() {
                     // Sandbox note: Looks like our BE is not receiving updates when a subscription transitions from grace period to expired, so during testing we can end up with a subscription in grace period and we will not be able to purchase a new one, only restore it because Transaction.currentEntitlements will not return the subscription to restore.
                     instrumentation.activeSubscriptionAlreadyPresent()
@@ -327,13 +334,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                     await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
                     return nil
                 }
-
-                // 4: Configure instrumentation and start the flow
-                let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
-                instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
-                                                       freeTrialEligible: freeTrialEligible,
-                                                       purchasePlatform: .appStore,
-                                                       origin: origin)
 
                 // 5: No existing subscription was found, so proceed with the remaining purchase flow
                 let purchaseTransactionJWS: String
@@ -432,7 +432,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             let emailAccessToken = try? EmailManager().getToken()
 
             // Stripe uses freeTrialEligible = true as default, and nil for subscriptionIdentifier
-            instrumentation.purchaseAttemptStarted(selectionID: "",
+            instrumentation.purchaseAttemptStarted(selectionID: nil,
                                                    freeTrialEligible: true,
                                                    purchasePlatform: .stripe,
                                                    origin: origin)
@@ -623,6 +623,9 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         let changeType = completion?.change
 
         await uiHandler.presentProgressViewController(withTitle: UserText.completingPurchaseTitle)
+        if changeType == nil {
+            instrumentation.activationStarted()
+        }
         await stripePurchaseFlow.completeSubscriptionPurchase()
         await uiHandler.dismissProgressViewController()
 

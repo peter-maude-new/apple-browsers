@@ -412,6 +412,13 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         }
 
         // 2: Check for active subscriptions
+        // Start instrumentation once we have valid selection data.
+        let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
+        instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
+                                               freeTrialEligible: freeTrialEligible,
+                                               purchasePlatform: .appStore,
+                                               origin: subscriptionAttributionOrigin)
+
         if await subscriptionManager.storePurchaseManager().hasActiveSubscription() {
             Logger.subscription.log("Subscription already active")
             setTransactionError(.activeSubscriptionAlreadyPresent)
@@ -419,13 +426,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             setTransactionStatus(.idle)
             return nil
         }
-
-        // 3: Start instrumentation for the purchase flow
-        let freeTrialEligible = subscriptionManager.storePurchaseManager().isUserEligibleForFreeTrial()
-        instrumentation.purchaseAttemptStarted(selectionID: subscriptionSelection.id,
-                                               freeTrialEligible: freeTrialEligible,
-                                               purchasePlatform: .appStore,
-                                               origin: subscriptionAttributionOrigin)
 
         let purchaseTransactionJWS: String
 
