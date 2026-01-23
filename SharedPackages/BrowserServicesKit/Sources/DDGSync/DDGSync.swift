@@ -58,7 +58,7 @@ public class DDGSync: DDGSyncing {
         $featureFlags.eraseToAnyPublisher()
     }
 
-    enum Constants {
+    public enum Constants {
         public static let syncEnabledKey = "com.duckduckgo.sync.enabled"
         public static let keychainAttrMigratedKey = "com.duckduckgo.sync.keychain.attr.migrated"
         static let aiChatHistoryEnabledKey = "com.duckduckgo.aichat.sync.chatHistoryEnabled"
@@ -100,12 +100,14 @@ public class DDGSync: DDGSyncing {
                             errorEvents: EventMapping<SyncError>,
                             privacyConfigurationManager: PrivacyConfigurationManaging,
                             keyValueStore: ThrowingKeyValueStoring,
-                            environment: ServerEnvironment = .production) {
+                            environment: ServerEnvironment = .production,
+                            shouldPreserveAccountWhenSyncDisabled: @escaping () -> Bool = { false }) {
         let dependencies = ProductionDependencies(
             serverEnvironment: environment,
             privacyConfigurationManager: privacyConfigurationManager,
             keyValueStore: keyValueStore,
-            errorEvents: errorEvents
+            errorEvents: errorEvents,
+            shouldPreserveAccountWhenSyncDisabled: shouldPreserveAccountWhenSyncDisabled
         )
         self.init(dataProvidersSource: dataProvidersSource, dependencies: dependencies)
     }
@@ -361,7 +363,21 @@ public class DDGSync: DDGSyncing {
 
         // Proceed to initialization - if needed
         guard syncEnabled else {
-            if account != nil {
+            let storedAccount: SyncAccount?
+            do {
+                storedAccount = try dependencies.secureStore.account()
+            } catch {
+                dependencies.errorEvents.fire(.failedToLoadAccount, error: error)
+                storedAccount = nil
+            }
+
+            // Feature-flagged in the app layer (FeatureFlag.syncAutoRestore) and only true when the user opted in.
+            if dependencies.shouldPreserveAccountWhenSyncDisabled(), storedAccount != nil {
+                authState = .inactive
+                return
+            }
+
+            if storedAccount != nil {
                 dependencies.errorEvents.fire(.accountRemoved(.syncEnabledNotSetOnKeyValueStore))
             }
             try? dependencies.secureStore.removeAccount()

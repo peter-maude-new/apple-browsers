@@ -42,7 +42,9 @@ final class SyncService {
     init(bookmarksDatabase: CoreDataDatabase,
          privacyConfigurationManager: PrivacyConfigurationManaging,
          keyValueStore: ThrowingKeyValueStoring,
-         application: UIApplication = UIApplication.shared) {
+         application: UIApplication = UIApplication.shared,
+         featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
+         decisionStore: SyncAutoRestoreDecisionStoring = SyncAutoRestoreDecisionStore()) {
         self.application = application
 
 #if CI
@@ -68,7 +70,7 @@ final class SyncService {
             syncErrorHandler: syncErrorHandler,
             faviconStoring: Favicons.shared,
             tld: AppDependencyProvider.shared.storageCache.tld,
-            featureFlagger: AppDependencyProvider.shared.featureFlagger
+            featureFlagger: featureFlagger
         )
 
         sync = DDGSync(
@@ -76,12 +78,26 @@ final class SyncService {
             errorEvents: SyncErrorHandler(),
             privacyConfigurationManager: privacyConfigurationManager,
             keyValueStore: keyValueStore,
-            environment: environment
+            environment: environment,
+            shouldPreserveAccountWhenSyncDisabled: { [featureFlagger, decisionStore] in
+                guard Self.isAutoRestoreFeatureEnabled(featureFlagger) else {
+                    return false
+                }
+
+                do {
+                    return try decisionStore.getDecision() == true
+                } catch {
+                    Logger.sync.error(
+                        "[Sync Auto Restore] Failed to read auto-restore decision: \(error.localizedDescription, privacy: .public)"
+                    )
+                    return false
+                }
+            }
         )
 
         aiChatsCleaner = SyncAIChatsCleaner(sync: sync,
                                             keyValueStore: keyValueStore,
-                                            featureFlagger: AppDependencyProvider.shared.featureFlagger)
+                                            featureFlagger: featureFlagger)
         sync.setCustomOperations([AIChatDeleteOperation(cleaner: aiChatsCleaner)])
 
         isSyncInProgressCancellable = sync.isSyncInProgressPublisher
@@ -112,6 +128,15 @@ final class SyncService {
     func suspend() {
         suspendSync()
         syncDataProviders.bookmarksAdapter.cancelFaviconsFetching(application)
+    }
+
+    private static func isAutoRestoreFeatureEnabled(_ featureFlagger: FeatureFlagger) -> Bool {
+        #if DEBUG
+        // Debug-only override to simplify local testing.
+        return true
+        #else
+        return featureFlagger.isFeatureOn(.syncAutoRestore)
+        #endif
     }
 
     private func suspendSync() {
