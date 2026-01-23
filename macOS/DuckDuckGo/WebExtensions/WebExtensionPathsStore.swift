@@ -16,6 +16,9 @@
 //  limitations under the License.
 //
 
+import Foundation
+import Persistence
+
 @available(macOS 15.4, *)
 protocol WebExtensionPathsStoring: AnyObject {
     var paths: [String] { get }
@@ -23,11 +26,22 @@ protocol WebExtensionPathsStoring: AnyObject {
     func remove(_ url: String)
 }
 
+struct WebExtensionPathsSettings: StoringKeys {
+    let paths = StorageKey<[String]>(.webExtensionStoredPaths, assertionHandler: { _ in })
+}
+
 @available(macOS 15.4, *)
 final class WebExtensionPathsStore: WebExtensionPathsStoring {
 
-    @UserDefaultsWrapper(key: .webExtensionStoredPaths, defaultValue: [])
-    var paths: [String]
+    private let storage: any KeyedStoring<WebExtensionPathsSettings>
+
+    var paths: [String] {
+        storage.paths ?? []
+    }
+
+    init(storage: (any KeyedStoring<WebExtensionPathsSettings>)? = nil) {
+        self.storage = if let storage { storage } else { UserDefaults.standard.keyedStoring() }
+    }
 
     func add(_ url: String) {
         guard !paths.contains(url) else {
@@ -35,7 +49,9 @@ final class WebExtensionPathsStore: WebExtensionPathsStoring {
             return
         }
 
-        paths.append(url)
+        var currentPaths = paths
+        currentPaths.append(url)
+        storage.paths = currentPaths
     }
 
     func remove(_ url: String) {
@@ -44,6 +60,8 @@ final class WebExtensionPathsStore: WebExtensionPathsStoring {
             return
         }
 
-        paths.removeAll(where: { $0 == url })
+        var currentPaths = paths
+        currentPaths.removeAll(where: { $0 == url })
+        storage.paths = currentPaths
     }
 }
