@@ -606,6 +606,7 @@ class MockAIChatSidebarHosting: AIChatSidebarHosting {
     var currentTabID: TabIdentifier? = "test-tab-id"
     var sidebarContainerLeadingConstraint: NSLayoutConstraint?
     var sidebarContainerWidthConstraint: NSLayoutConstraint?
+    var sidebarHostViewWidth: CGFloat = 1000
     var burnerMode: BurnerMode = .regular
 
     var embeddedViewController: NSViewController?
@@ -676,6 +677,10 @@ class MockAIChatSidebarProvider: AIChatSidebarProviding {
         for tabID in tabIDsToRemove {
             handleSidebarDidClose(for: tabID)
         }
+    }
+
+    func updateSidebarWidth(_ width: CGFloat) {
+        sidebarWidth = width
     }
 
     func restoreState(_ sidebarsByTab: AIChatSidebarsByTab) {

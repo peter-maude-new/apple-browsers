@@ -28,6 +28,18 @@ protocol AIChatSidebarViewControllerDelegate: AnyObject {
     func didClickOpenInNewTabButton()
     /// Called when the user clicks the "Close" button
     func didClickCloseButton()
+    /// Called when the user starts resizing the sidebar.
+    func sidebarViewControllerDidBeginResizing(_ viewController: AIChatSidebarViewController)
+    /// Called when the user drags the resize handle.
+    func sidebarViewController(_ viewController: AIChatSidebarViewController, didResizeWith deltaX: CGFloat)
+    /// Called when the user finishes resizing the sidebar.
+    func sidebarViewControllerDidEndResizing(_ viewController: AIChatSidebarViewController)
+}
+
+extension AIChatSidebarViewControllerDelegate {
+    func sidebarViewControllerDidBeginResizing(_ viewController: AIChatSidebarViewController) {}
+    func sidebarViewController(_ viewController: AIChatSidebarViewController, didResizeWith deltaX: CGFloat) {}
+    func sidebarViewControllerDidEndResizing(_ viewController: AIChatSidebarViewController) {}
 }
 
 /// A view controller that manages the AI Chat sidebar interface.
@@ -38,7 +50,8 @@ protocol AIChatSidebarViewControllerDelegate: AnyObject {
 final class AIChatSidebarViewController: NSViewController {
 
     private enum Constants {
-        static let separatorWidth: CGFloat = 1
+        static let resizeHandleWidth: CGFloat = 6
+        static let separatorLineWidth: CGFloat = 1
         static let topBarHeight: CGFloat = 48
         static let barButtonHeight: CGFloat = 32
         static let barButtonWidth: CGFloat = 32
@@ -61,7 +74,8 @@ final class AIChatSidebarViewController: NSViewController {
     private var openInNewTabButton: MouseOverButton!
     private var closeButton: MouseOverButton!
     private var webViewContainer: WebViewContainerView!
-    private var separator: NSView!
+    private var resizeHandle: SidebarResizeHandleView!
+    private var separatorLine: NSView!
     private var topBar: NSView!
 
     private lazy var aiTab: Tab = Tab(content: .url(currentAIChatURL, source: .ui), burnerMode: burnerMode, isLoadedInSidebar: true)
@@ -109,18 +123,18 @@ final class AIChatSidebarViewController: NSViewController {
             aiTab.aiChat?.setAIChatNativeHandoffData(payload: aiChatPayload)
         }
 
-        createAndSetupSeparator(in: container)
+        createAndSetupResizeHandle(in: container)
         createAndSetupTopBar(in: container)
         createAndSetupWebViewContainer(in: container)
 
         NSLayoutConstraint.activate([
             topBar.topAnchor.constraint(equalTo: container.topAnchor),
-            topBar.leadingAnchor.constraint(equalTo: separator.trailingAnchor),
+            topBar.leadingAnchor.constraint(equalTo: resizeHandle.trailingAnchor),
             topBar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             topBar.heightAnchor.constraint(equalToConstant: Constants.topBarHeight),
 
             webViewContainer.topAnchor.constraint(equalTo: topBar.bottomAnchor),
-            webViewContainer.leadingAnchor.constraint(equalTo: separator.trailingAnchor, constant: Constants.webViewContainerPadding),
+            webViewContainer.leadingAnchor.constraint(equalTo: resizeHandle.trailingAnchor, constant: Constants.webViewContainerPadding),
             webViewContainer.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -Constants.webViewContainerPadding),
             webViewContainer.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -Constants.webViewContainerPadding),
         ])
@@ -134,18 +148,41 @@ final class AIChatSidebarViewController: NSViewController {
         subscribeToThemeChanges()
     }
 
-    private func createAndSetupSeparator(in container: NSView) {
-        separator = NSView()
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.wantsLayer = true
-        separator.layer?.backgroundColor = NSColor.separatorColor.cgColor
-        container.addSubview(separator)
+    private func createAndSetupResizeHandle(in container: NSView) {
+        resizeHandle = SidebarResizeHandleView()
+        resizeHandle.translatesAutoresizingMaskIntoConstraints = false
+        resizeHandle.wantsLayer = true
+        container.addSubview(resizeHandle)
+
+        separatorLine = NSView()
+        separatorLine.translatesAutoresizingMaskIntoConstraints = false
+        separatorLine.wantsLayer = true
+        separatorLine.layer?.backgroundColor = NSColor.separatorColor.cgColor
+        resizeHandle.addSubview(separatorLine)
+
+        resizeHandle.onDragBegan = { [weak self] in
+            guard let self else { return }
+            self.delegate?.sidebarViewControllerDidBeginResizing(self)
+        }
+        resizeHandle.onDragChanged = { [weak self] deltaX in
+            guard let self else { return }
+            self.delegate?.sidebarViewController(self, didResizeWith: deltaX)
+        }
+        resizeHandle.onDragEnded = { [weak self] in
+            guard let self else { return }
+            self.delegate?.sidebarViewControllerDidEndResizing(self)
+        }
 
         NSLayoutConstraint.activate([
-            separator.topAnchor.constraint(equalTo: container.topAnchor),
-            separator.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            separator.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            separator.widthAnchor.constraint(equalToConstant: Constants.separatorWidth)
+            resizeHandle.topAnchor.constraint(equalTo: container.topAnchor),
+            resizeHandle.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            resizeHandle.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            resizeHandle.widthAnchor.constraint(equalToConstant: Constants.resizeHandleWidth),
+
+            separatorLine.topAnchor.constraint(equalTo: resizeHandle.topAnchor),
+            separatorLine.bottomAnchor.constraint(equalTo: resizeHandle.bottomAnchor),
+            separatorLine.trailingAnchor.constraint(equalTo: resizeHandle.trailingAnchor),
+            separatorLine.widthAnchor.constraint(equalToConstant: Constants.separatorLineWidth)
         ])
     }
 
@@ -353,5 +390,33 @@ extension NSNotification.Name {
 
     enum UserInfoKeys {
         static let userInteractionDialog = "userInteractionDialog"
+    }
+}
+
+private final class SidebarResizeHandleView: NSView {
+    var onDragBegan: (() -> Void)?
+    var onDragChanged: ((CGFloat) -> Void)?
+    var onDragEnded: (() -> Void)?
+
+    private var dragStartLocation: NSPoint?
+
+    override func mouseDown(with event: NSEvent) {
+        dragStartLocation = event.locationInWindow
+        onDragBegan?()
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let dragStartLocation else { return }
+        let deltaX = event.locationInWindow.x - dragStartLocation.x
+        onDragChanged?(deltaX)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        dragStartLocation = nil
+        onDragEnded?()
+    }
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .resizeLeftRight)
     }
 }

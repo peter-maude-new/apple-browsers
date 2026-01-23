@@ -19,10 +19,15 @@
 import Combine
 import Foundation
 import FeatureFlags
+import Persistence
 import PrivacyConfig
 
 typealias TabIdentifier = String
 typealias AIChatSidebarsByTab = [TabIdentifier: AIChatSidebar]
+
+struct AIChatSidebarSettings: StoringKeys {
+    var sidebarWidth = StorageKey<Double>(.aiChatSidebarWidth)
+}
 
 /// A protocol that defines the interface for managing AI chat sidebars in tabs.
 /// This provider handles the lifecycle and state of chat sidebars across multiple browser tabs.
@@ -67,6 +72,9 @@ protocol AIChatSidebarProviding: AnyObject {
     /// Publishes events whenever `sidebarsByTab` gets updated.
     var sidebarsByTabPublisher: AnyPublisher<AIChatSidebarsByTab, Never> { get }
 
+    /// Updates the width of the sidebar, persisting it for future sessions.
+    func updateSidebarWidth(_ width: CGFloat)
+
     /// Restores the sidebar provider's state from a previously saved model.
     /// This method cleans up all existing sidebars and replaces the current model with the provided one.
     /// - Parameter model: The sidebar model to restore, containing tab IDs mapped to their chat sidebars
@@ -80,8 +88,9 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
     }
 
     private let featureFlagger: FeatureFlagger
+    private let settingsStore: any KeyedStoring<AIChatSidebarSettings>
 
-    var sidebarWidth: CGFloat { Constants.sidebarWidth }
+    private(set) var sidebarWidth: CGFloat
 
     @Published private(set) var sidebarsByTab: AIChatSidebarsByTab
 
@@ -94,9 +103,16 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
     }
 
     init(sidebarsByTab: AIChatSidebarsByTab? = nil,
-         featureFlagger: FeatureFlagger) {
+         featureFlagger: FeatureFlagger,
+         settingsStore: (any KeyedStoring<AIChatSidebarSettings>)? = nil) {
         self.sidebarsByTab = sidebarsByTab ?? [:]
         self.featureFlagger = featureFlagger
+        self.settingsStore = if let settingsStore { settingsStore } else { UserDefaults.standard.keyedStoring() }
+        if let storedWidth = self.settingsStore.sidebarWidth, storedWidth > 0 {
+            self.sidebarWidth = CGFloat(storedWidth)
+        } else {
+            self.sidebarWidth = Constants.sidebarWidth
+        }
     }
 
     func getSidebarViewController(for tabID: TabIdentifier) -> AIChatSidebarViewController? {
@@ -162,6 +178,12 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
             handleSidebarDidClose(for: tabID)
             sidebarsByTab.removeValue(forKey: tabID)
         }
+    }
+
+    func updateSidebarWidth(_ width: CGFloat) {
+        guard width > 0, width != sidebarWidth else { return }
+        sidebarWidth = width
+        settingsStore.sidebarWidth = Double(width)
     }
 
     func restoreState(_ sidebarsByTab: AIChatSidebarsByTab) {

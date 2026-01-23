@@ -17,6 +17,8 @@
 //
 
 import AIChat
+import Persistence
+import PersistenceTestingUtils
 import PrivacyConfig
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
@@ -24,22 +26,34 @@ import XCTest
 final class AIChatSidebarProviderTests: XCTestCase {
 
     var provider: AIChatSidebarProvider!
+    private var settingsStore: any KeyedStoring<AIChatSidebarSettings>!
 
     override func setUp() {
         super.setUp()
-        provider = AIChatSidebarProvider(featureFlagger: MockFeatureFlagger())
+        settingsStore = InMemoryKeyValueStore().keyedStoring()
+        provider = AIChatSidebarProvider(featureFlagger: MockFeatureFlagger(), settingsStore: settingsStore)
     }
 
     override func tearDown() {
         provider = nil
+        settingsStore = nil
         super.tearDown()
+    }
+
+    private func makeProvider(sidebarsByTab: AIChatSidebarsByTab? = nil,
+                              featureFlagger: FeatureFlagger = MockFeatureFlagger()) -> AIChatSidebarProvider {
+        AIChatSidebarProvider(
+            sidebarsByTab: sidebarsByTab,
+            featureFlagger: featureFlagger,
+            settingsStore: InMemoryKeyValueStore().keyedStoring()
+        )
     }
 
     // MARK: - Initialization Tests
 
     func testInit_withDefaultParameters_setsEmptyDictionary() {
         // Given & When
-        let provider = AIChatSidebarProvider(featureFlagger: MockFeatureFlagger())
+        let provider = makeProvider()
 
         // Then
         XCTAssertTrue(provider.sidebarsByTab.isEmpty)
@@ -52,7 +66,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         let sidebarsByTab = ["tab1": testSidebar]
 
         // When
-        let provider = AIChatSidebarProvider(sidebarsByTab: sidebarsByTab, featureFlagger: MockFeatureFlagger())
+        let provider = makeProvider(sidebarsByTab: sidebarsByTab)
 
         // Then
         XCTAssertEqual(provider.sidebarsByTab.count, 1)
@@ -61,10 +75,22 @@ final class AIChatSidebarProviderTests: XCTestCase {
 
     func testInit_withNilParameter_setsEmptyDictionary() {
         // Given & When
-        let provider = AIChatSidebarProvider(sidebarsByTab: nil, featureFlagger: MockFeatureFlagger())
+        let provider = makeProvider(sidebarsByTab: nil)
 
         // Then
         XCTAssertTrue(provider.sidebarsByTab.isEmpty)
+    }
+
+    func testUpdateSidebarWidth_persistsValue() {
+        // Given
+        let updatedWidth: CGFloat = 480
+
+        // When
+        provider.updateSidebarWidth(updatedWidth)
+
+        // Then
+        XCTAssertEqual(provider.sidebarWidth, updatedWidth)
+        XCTAssertEqual(settingsStore.sidebarWidth, Double(updatedWidth))
     }
 
     // MARK: - Get Sidebar Tests
@@ -211,7 +237,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         // Given
         let mockFeatureFlagger = MockFeatureFlagger()
         mockFeatureFlagger.enabledFeatureFlags = [.aiChatKeepSession]
-        let keepSessionProvider = AIChatSidebarProvider(featureFlagger: mockFeatureFlagger)
+        let keepSessionProvider = makeProvider(featureFlagger: mockFeatureFlagger)
 
         let tabID = "keep-session-tab"
         _ = keepSessionProvider.makeSidebarViewController(for: tabID, burnerMode: .regular)
@@ -234,7 +260,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         // Given
         let mockFeatureFlagger = MockFeatureFlagger()
         mockFeatureFlagger.enabledFeatureFlags = [] // aiChatKeepSession disabled
-        let noKeepSessionProvider = AIChatSidebarProvider(featureFlagger: mockFeatureFlagger)
+        let noKeepSessionProvider = makeProvider(featureFlagger: mockFeatureFlagger)
 
         let tabID = "no-keep-session-tab"
         _ = noKeepSessionProvider.makeSidebarViewController(for: tabID, burnerMode: .regular)
@@ -411,7 +437,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         // Given - Create provider with keep session enabled
         let mockFeatureFlagger = MockFeatureFlagger()
         mockFeatureFlagger.enabledFeatureFlags = [.aiChatKeepSession]
-        let keepSessionProvider = AIChatSidebarProvider(featureFlagger: mockFeatureFlagger)
+        let keepSessionProvider = makeProvider(featureFlagger: mockFeatureFlagger)
 
         let tabID = "session-timeout-tab"
         _ = keepSessionProvider.makeSidebarViewController(for: tabID, burnerMode: .regular)
@@ -440,7 +466,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         // Given - Create provider with keep session enabled
         let mockFeatureFlagger = MockFeatureFlagger()
         mockFeatureFlagger.enabledFeatureFlags = [.aiChatKeepSession]
-        let keepSessionProvider = AIChatSidebarProvider(featureFlagger: mockFeatureFlagger)
+        let keepSessionProvider = makeProvider(featureFlagger: mockFeatureFlagger)
 
         let tabID = "valid-session-tab"
         _ = keepSessionProvider.makeSidebarViewController(for: tabID, burnerMode: .regular)
@@ -551,7 +577,7 @@ final class AIChatSidebarProviderTests: XCTestCase {
         // Given - Create provider with keep session enabled
         let mockFeatureFlagger = MockFeatureFlagger()
         mockFeatureFlagger.enabledFeatureFlags = [.aiChatKeepSession]
-        let keepSessionProvider = AIChatSidebarProvider(featureFlagger: mockFeatureFlagger)
+        let keepSessionProvider = makeProvider(featureFlagger: mockFeatureFlagger)
 
         let tabID = "fresh-url-tab"
         _ = keepSessionProvider.makeSidebarViewController(for: tabID, burnerMode: .regular)

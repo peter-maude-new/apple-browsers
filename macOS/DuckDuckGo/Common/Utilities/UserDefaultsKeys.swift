@@ -64,6 +64,9 @@ enum UserDefaultsKeys: String, StorageKeyDescribing {
     // MARK: - AIChatDebugURLSettings
     case aiChatDebugURLSettings = "customURL"
 
+    // MARK: - AIChatSidebar
+    case aiChatSidebarWidth = "aichat.sidebar.width"
+
     // MARK: - Fire Dialog Settings
 
     case fireDialogSelectedClearingOption = "fire-dialog_selectedClearingOption"

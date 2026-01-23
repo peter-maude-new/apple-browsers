@@ -55,6 +55,9 @@ protocol AIChatSidebarHosting: AnyObject  {
     /// The layout constraint controlling the width of the sidebar container.
     var sidebarContainerWidthConstraint: NSLayoutConstraint? { get }
 
+    /// The width available for sidebar layout decisions.
+    var sidebarHostViewWidth: CGFloat { get }
+
     /// Embeds the provided view controller as the sidebar content.
     /// - Parameter vc: The view controller to embed as the sidebar content.
     func embedSidebarViewController(_ vc: NSViewController)
@@ -71,6 +74,10 @@ extension BrowserTabViewController: AIChatSidebarHosting {
 
     var currentTabID: TabIdentifier? {
         tabViewModel?.tab.uuid
+    }
+
+    var sidebarHostViewWidth: CGFloat {
+        view.bounds.width
     }
 
     func embedSidebarViewController(_ sidebarViewController: NSViewController) {

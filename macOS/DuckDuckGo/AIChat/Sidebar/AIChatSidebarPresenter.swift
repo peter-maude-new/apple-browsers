@@ -64,6 +64,12 @@ protocol AIChatSidebarPresenting {
 
 final class AIChatSidebarPresenter: AIChatSidebarPresenting {
 
+    private enum SidebarSizing {
+        static let minWidth: CGFloat = 320
+        static let maxWidth: CGFloat = 720
+        static let maxWidthRatio: CGFloat = 0.6
+    }
+
     let sidebarPresenceWillChangePublisher: AnyPublisher<AIChatSidebarPresenceChange, Never>
 
     private let sidebarHost: AIChatSidebarHosting
@@ -75,6 +81,7 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
     private let sidebarPresenceWillChangeSubject = PassthroughSubject<AIChatSidebarPresenceChange, Never>()
 
     private var isAnimatingSidebarTransition: Bool = false
+    private var sidebarResizeStartWidth: CGFloat?
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -162,9 +169,10 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
             sidebarProvider.sidebarsByTab[tabID]?.setHidden()
         }
 
-        let newConstraintValue = isShowingSidebar ? -self.sidebarProvider.sidebarWidth : 0.0
+        let sidebarWidth = clampedSidebarWidth(sidebarProvider.sidebarWidth)
+        let newConstraintValue = isShowingSidebar ? -sidebarWidth : 0.0
 
-        sidebarHost.sidebarContainerWidthConstraint?.constant = sidebarProvider.sidebarWidth
+        sidebarHost.sidebarContainerWidthConstraint?.constant = sidebarWidth
 
         if withAnimation {
             NSAnimationContext.runAnimationGroup { [weak self] context in
@@ -188,6 +196,26 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
                 sidebarProvider.handleSidebarDidClose(for: tabID)
             }
             self.isAnimatingSidebarTransition = false
+        }
+    }
+
+    private func clampedSidebarWidth(_ width: CGFloat) -> CGFloat {
+        let hostWidth = sidebarHost.sidebarHostViewWidth
+        let maxWidth = hostWidth > 0
+            ? min(SidebarSizing.maxWidth, hostWidth * SidebarSizing.maxWidthRatio)
+            : SidebarSizing.maxWidth
+        let minWidth = min(SidebarSizing.minWidth, maxWidth)
+        return min(max(width, minWidth), maxWidth)
+    }
+
+    private func applySidebarWidth(_ width: CGFloat) {
+        let clampedWidth = clampedSidebarWidth(width)
+        sidebarProvider.updateSidebarWidth(clampedWidth)
+        sidebarHost.sidebarContainerWidthConstraint?.constant = clampedWidth
+
+        if let currentTabID = sidebarHost.currentTabID,
+           sidebarProvider.isShowingSidebar(for: currentTabID) {
+            sidebarHost.sidebarContainerLeadingConstraint?.constant = -clampedWidth
         }
     }
 
@@ -247,6 +275,23 @@ extension AIChatSidebarPresenter: AIChatSidebarHostingDelegate {
 }
 
 extension AIChatSidebarPresenter: AIChatSidebarViewControllerDelegate {
+
+    func sidebarViewControllerDidBeginResizing(_ viewController: AIChatSidebarViewController) {
+        guard let currentTabID = sidebarHost.currentTabID,
+              sidebarProvider.isShowingSidebar(for: currentTabID),
+              !isAnimatingSidebarTransition else { return }
+        sidebarResizeStartWidth = sidebarHost.sidebarContainerWidthConstraint?.constant ?? sidebarProvider.sidebarWidth
+    }
+
+    func sidebarViewController(_ viewController: AIChatSidebarViewController, didResizeWith deltaX: CGFloat) {
+        guard let startWidth = sidebarResizeStartWidth,
+              !isAnimatingSidebarTransition else { return }
+        applySidebarWidth(startWidth - deltaX)
+    }
+
+    func sidebarViewControllerDidEndResizing(_ viewController: AIChatSidebarViewController) {
+        sidebarResizeStartWidth = nil
+    }
 
     func didClickOpenInNewTabButton() {
         guard let currentTabID = sidebarHost.currentTabID,
