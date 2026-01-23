@@ -36,6 +36,7 @@ protocol AIChatUserScriptProviding: AnyObject {
     var webView: WKWebView? { get set }
     func setPayloadHandler(_ payloadHandler: any AIChatConsumableDataHandling)
     func setPageContextHandler(_ handler: AIChatPageContextHandling?)
+    func setContextualModePixelHandler(_ handler: AIChatContextualModePixelFiring?)
     func setDisplayMode(_ displayMode: AIChatDisplayMode)
     func submitPrompt(_ prompt: String, pageContext: AIChatPageContextData?)
     func submitStartChatAction()
@@ -73,7 +74,10 @@ protocol AIChatContentHandling: AIChatPageContextHandling {
     var delegate: AIChatContentHandlingDelegate? { get set }
 
     /// Configures the user script, WebView and display mode for AIChat interaction.
-    func setup(with userScript: AIChatUserScriptProviding, webView: WKWebView, displayMode: AIChatDisplayMode)
+    func setup(with userScript: AIChatUserScriptProviding,
+               webView: WKWebView,
+               displayMode: AIChatDisplayMode,
+               contextualModePixelHandler: AIChatContextualModePixelFiring?)
 
     /// Sets the initial payload data for the AIChat session.
     func setPayload(payload: Any?)
@@ -104,6 +108,10 @@ protocol AIChatContentHandling: AIChatPageContextHandling {
 extension AIChatContentHandling {
     func submitPrompt(_ prompt: String) {
         submitPrompt(prompt, pageContext: nil)
+    }
+
+    func setup(with userScript: AIChatUserScriptProviding, webView: WKWebView, displayMode: AIChatDisplayMode) {
+        setup(with: userScript, webView: webView, displayMode: displayMode, contextualModePixelHandler: nil)
     }
 }
 
@@ -141,13 +149,17 @@ final class AIChatContentHandler: AIChatContentHandling {
         self.pageContextStore = pageContextStore
     }
 
-    func setup(with userScript: AIChatUserScriptProviding, webView: WKWebView, displayMode: AIChatDisplayMode) {
+    func setup(with userScript: AIChatUserScriptProviding,
+               webView: WKWebView,
+               displayMode: AIChatDisplayMode,
+               contextualModePixelHandler: AIChatContextualModePixelFiring? = nil) {
         self.userScript = userScript
         self.userScript?.delegate = self
         self.userScript?.setDisplayMode(displayMode)
         self.userScript?.setPayloadHandler(payloadHandler)
         self.userScript?.webView = webView
         self.userScript?.setPageContextHandler(self)
+        self.userScript?.setContextualModePixelHandler(contextualModePixelHandler)
     }
     
     /// Sets the initial payload data for the AIChat session.

@@ -46,6 +46,7 @@ final class AIChatContextualWebViewController: UIViewController {
     private let featureDiscovery: FeatureDiscovery
     private let featureFlagger: FeatureFlagger
     private let pageContextStore: AIChatPageContextStoring
+    private let contextualModePixelHandler: AIChatContextualModePixelFiring?
 
     private(set) var aiChatContentHandler: AIChatContentHandling
 
@@ -60,6 +61,7 @@ final class AIChatContextualWebViewController: UIViewController {
     private var userContentController: UserContentController?
     private var isPageReady = false
     private var isContentHandlerReady = false
+    private var hasFiredTelemetry = false
     private var urlObservation: NSKeyValueObservation?
     private var lastContextualChatURL: URL?
 
@@ -92,13 +94,15 @@ final class AIChatContextualWebViewController: UIViewController {
          contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>,
          featureDiscovery: FeatureDiscovery,
          featureFlagger: FeatureFlagger,
-         pageContextStore: AIChatPageContextStoring) {
+         pageContextStore: AIChatPageContextStoring,
+         contextualModePixelHandler: AIChatContextualModePixelFiring? = nil) {
         self.aiChatSettings = aiChatSettings
         self.privacyConfigurationManager = privacyConfigurationManager
         self.contentBlockingAssetsPublisher = contentBlockingAssetsPublisher
         self.featureDiscovery = featureDiscovery
         self.featureFlagger = featureFlagger
         self.pageContextStore = pageContextStore
+        self.contextualModePixelHandler = contextualModePixelHandler
 
         let productSurfaceTelemetry = PixelProductSurfaceTelemetry(featureFlagger: featureFlagger, dailyPixelFiring: DailyPixel.self)
         self.aiChatContentHandler = AIChatContentHandler(
@@ -121,7 +125,6 @@ final class AIChatContextualWebViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupURLObservation()
-        aiChatContentHandler.fireAIChatTelemetry()
         if let restoreURL = initialRestoreURL {
             loadChatURL(restoreURL)
         } else {
@@ -137,6 +140,7 @@ final class AIChatContextualWebViewController: UIViewController {
 
     /// Queues prompt if web view not ready yet; otherwise submits immediately.
     func submitPrompt(_ prompt: String, pageContext: AIChatPageContextData? = nil) {
+        fireTelemetryIfNeeded()
         if isPageReady && isContentHandlerReady {
             aiChatContentHandler.submitPrompt(prompt, pageContext: pageContext)
         } else {
@@ -166,6 +170,7 @@ final class AIChatContextualWebViewController: UIViewController {
 
     /// Loads a specific chat URL (for cold restore after app restart).
     func loadChatURL(_ url: URL) {
+        fireTelemetryIfNeeded()
         loadingView.startAnimating()
         webView.load(URLRequest(url: url))
     }
@@ -206,6 +211,13 @@ final class AIChatContextualWebViewController: UIViewController {
         let contextualURL = aiChatSettings.aiChatURL.appendingParameter(name: "placement", value: "sidebar")
         let request = URLRequest(url: contextualURL)
         webView.load(request)
+    }
+
+    /// Fires telemetry when user actually engages with the chat (submits prompt or restores session).
+    private func fireTelemetryIfNeeded() {
+        guard !hasFiredTelemetry else { return }
+        hasFiredTelemetry = true
+        aiChatContentHandler.fireAIChatTelemetry()
     }
 
     /// Handles edge case where user submits before preloaded web view is fully ready.
@@ -259,7 +271,10 @@ extension AIChatContextualWebViewController: UserContentControllerDelegate {
             return
         }
 
-        aiChatContentHandler.setup(with: userScripts.aiChatUserScript, webView: webView, displayMode: .contextual)
+        aiChatContentHandler.setup(with: userScripts.aiChatUserScript,
+                                   webView: webView,
+                                   displayMode: .contextual,
+                                   contextualModePixelHandler: contextualModePixelHandler)
 
         isContentHandlerReady = true
         submitPendingPromptIfReady()

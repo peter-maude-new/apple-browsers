@@ -210,6 +210,10 @@ final class AIChatUserScript: NSObject, Subfeature {
         self.handler.setPageContextHandler(handler)
     }
 
+    func setContextualModePixelHandler(_ handler: AIChatContextualModePixelFiring?) {
+        self.handler.setContextualModePixelHandler(handler)
+    }
+
     // MARK: - Input Box Event Subscription
 
     private func subscribeToInputBoxEvents() {

@@ -71,6 +71,7 @@ protocol AIChatMetricReportingHandling: AnyObject {
 protocol AIChatUserScriptHandling: AnyObject {
     var displayMode: AIChatDisplayMode? { get set }
     func setPageContextHandler(_ handler: AIChatPageContextHandling?)
+    func setContextualModePixelHandler(_ handler: AIChatContextualModePixelFiring?)
     func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable?
@@ -113,7 +114,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let migrationStore = AIChatMigrationStore()
     private let aichatFullModeFeature: AIChatFullModeFeatureProviding
     private let aichatContextualModeFeature: AIChatContextualModeFeatureProviding
-    
+
+    /// Optional handler for contextual mode pixels (frontend toggle events).
+    private var contextualModePixelHandler: AIChatContextualModePixelFiring?
+
     /// Set externally via `AIChatContentHandler.setup()`.
     var displayMode: AIChatDisplayMode?
 
@@ -124,12 +128,14 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
          syncHandler: AIChatSyncHandling,
          featureFlagger: FeatureFlagger,
          aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature(),
-         aichatContextualModeFeature: AIChatContextualModeFeatureProviding = AIChatContextualModeFeature()) {
+         aichatContextualModeFeature: AIChatContextualModeFeatureProviding = AIChatContextualModeFeature(),
+         contextualModePixelHandler: AIChatContextualModePixelFiring? = nil) {
         self.experimentalAIChatManager = experimentalAIChatManager
         self.syncHandler = syncHandler
         self.featureFlagger = featureFlagger
         self.aichatFullModeFeature = aichatFullModeFeature
         self.aichatContextualModeFeature = aichatContextualModeFeature
+        self.contextualModePixelHandler = contextualModePixelHandler
         setUpSyncStatusObserver()
     }
 
@@ -248,9 +254,9 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         guard displayMode == .contextual else { return nil }
 
         if payload.enabled {
-            DailyPixel.fireDailyAndCount(pixel: .aiChatContextualPageContextManuallyAttachedFrontend)
+            contextualModePixelHandler?.firePageContextManuallyAttachedFrontend()
         } else {
-            DailyPixel.fireDailyAndCount(pixel: .aiChatContextualPageContextRemovedFrontend)
+            contextualModePixelHandler?.firePageContextRemovedFrontend()
         }
 
         return nil
@@ -270,6 +276,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func setPageContextHandler(_ handler: AIChatPageContextHandling?) {
         self.pageContextHandler = handler
+    }
+
+    func setContextualModePixelHandler(_ handler: AIChatContextualModePixelFiring?) {
+        self.contextualModePixelHandler = handler
     }
 
     func setSyncStatusChangedHandler(_ handler: ((AIChatSyncHandler.SyncStatus) -> Void)?) {

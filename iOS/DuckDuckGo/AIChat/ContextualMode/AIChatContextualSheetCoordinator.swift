@@ -47,7 +47,7 @@ protocol AIChatContextualSheetCoordinatorDelegate: AnyObject {
 }
 
 /// Coordinates the presentation and lifecycle of the contextual AI chat sheet.
-final class AIChatContextualSheetCoordinator {
+final class AIChatContextualSheetCoordinator: NSObject {
 
     // MARK: - Properties
 
@@ -98,6 +98,7 @@ final class AIChatContextualSheetCoordinator {
         self.featureFlagger = featureFlagger
         self.pageContextStore = pageContextStore
         self.pixelHandler = pixelHandler
+        super.init()
     }
 
     // MARK: - Public Methods
@@ -166,6 +167,7 @@ final class AIChatContextualSheetCoordinator {
         }
 
         presentingViewController.present(sheetVC, animated: true)
+        sheetVC.presentationController?.delegate = self
 
         if isNewSheet {
             pixelHandler.fireSheetOpened()
@@ -229,7 +231,8 @@ private extension AIChatContextualSheetCoordinator {
             contentBlockingAssetsPublisher: contentBlockingAssetsPublisher,
             featureDiscovery: featureDiscovery,
             featureFlagger: featureFlagger,
-            pageContextStore: pageContextStore
+            pageContextStore: pageContextStore,
+            contextualModePixelHandler: pixelHandler
         )
     }
 }
@@ -278,5 +281,14 @@ extension AIChatContextualSheetCoordinator: AIChatContextualSheetViewControllerD
 
     func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didUpdateContextualChatURL url: URL?) {
         delegate?.aiChatContextualSheetCoordinator(self, didUpdateContextualChatURL: url)
+    }
+}
+
+// MARK: - UIAdaptivePresentationControllerDelegate
+
+extension AIChatContextualSheetCoordinator: UIAdaptivePresentationControllerDelegate {
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        pixelHandler.fireSheetDismissed()
     }
 }
