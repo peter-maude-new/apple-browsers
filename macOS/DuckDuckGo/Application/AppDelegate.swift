@@ -1140,12 +1140,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         startupSync()
 
-        // Check browser lock BEFORE restoring windows
-        browserLockCoordinator.checkAndShowLockIfNeeded()
-
         if [.normal, .uiTests].contains(AppVersion.runType) {
             stateRestorationManager.applicationDidFinishLaunching()
         }
+
+        // Check browser lock AFTER state restoration so windows exist to be hidden
+        browserLockCoordinator.checkAndShowLockIfNeeded()
         let urlEventHandlerResult = urlEventHandler.applicationDidFinishLaunching()
 
         setUpAutoClearHandler()
