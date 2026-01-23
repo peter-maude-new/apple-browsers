@@ -53,6 +53,11 @@ struct GetPageContextRequest: Codable {
     let reason: String
 }
 
+/// Request structure for togglePageContextTelemetry
+struct TogglePageContextTelemetry: Codable {
+    let enabled: Bool
+}
+
 /// Response structure for getAIChatPageContext
 struct PageContextResponse: Encodable {
     let pageContext: AIChatPageContextData?
@@ -69,6 +74,7 @@ protocol AIChatUserScriptHandling: AnyObject {
     func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable?
+    func togglePageContextTelemetry(params: Any, message: UserScriptMessage) -> Encodable?
     func openAIChat(params: Any, message: UserScriptMessage) async -> Encodable?
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?)
     func setAIChatInputBoxHandler(_ inputBoxHandler: (any AIChatInputBoxHandling)?)
@@ -232,6 +238,22 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable? {
         PageContextResponse(pageContext: pageContextHandler?.getPageContext())
+    }
+
+    func togglePageContextTelemetry(params: Any, message: UserScriptMessage) -> Encodable? {
+        guard let payload: TogglePageContextTelemetry = DecodableHelper.decode(from: params) else {
+            return nil
+        }
+
+        guard displayMode == .contextual else { return nil }
+
+        if payload.enabled {
+            DailyPixel.fireDailyAndCount(pixel: .aiChatContextualPageContextManuallyAttachedFrontend)
+        } else {
+            DailyPixel.fireDailyAndCount(pixel: .aiChatContextualPageContextRemovedFrontend)
+        }
+
+        return nil
     }
 
     func setPayloadHandler(_ payloadHandler: (any AIChatConsumableDataHandling)?) {

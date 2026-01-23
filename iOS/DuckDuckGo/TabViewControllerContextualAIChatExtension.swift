@@ -20,6 +20,7 @@
 import AIChat
 import Combine
 import Common
+import Core
 import UIKit
 
 // MARK: - Contextual AI Chat
@@ -44,6 +45,9 @@ extension TabViewController {
 
             if !needsColdRestore {
                 pageContext = await collectPageContext()
+                if let url = pageContext?.url {
+                    aiChatContextualSheetCoordinator.pixelHandler.primeNavigationURL(url)
+                }
             }
 
             aiChatContextualSheetCoordinator.presentSheet(
@@ -164,6 +168,8 @@ extension TabViewController: AIChatContextualSheetCoordinatorDelegate {
 
     func aiChatContextualSheetCoordinatorDidRequestAttachPage(_ coordinator: AIChatContextualSheetCoordinator) {
         Task { @MainActor in
+            coordinator.pixelHandler.beginManualAttach()
+            defer { coordinator.pixelHandler.endManualAttach() }
             guard let context = await collectPageContext() else { return }
             aiChatContextualSheetCoordinator.updatePageContext(context)
         }
@@ -187,6 +193,7 @@ extension TabViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pageContext in
                 guard let self,
+                      !aiChatContextualSheetCoordinator.pixelHandler.isManualAttachInProgress,
                       let pageContext,
                       let enriched = enrichWithFavicon(pageContext) else { return }
 
@@ -196,6 +203,7 @@ extension TabViewController {
                 let autoAttachEnabled = aiChatContextualSheetCoordinator.aiChatSettings.isAutomaticContextAttachmentEnabled
 
                 if isSheetPresented && autoAttachEnabled {
+                    aiChatContextualSheetCoordinator.pixelHandler.firePageContextUpdatedOnNavigation(url: enriched.url)
                     if aiChatContextualSheetCoordinator.hasActiveChat {
                         aiChatContextualSheetCoordinator.sheetViewController?.pushPageContextToFrontend(enriched)
                     } else {

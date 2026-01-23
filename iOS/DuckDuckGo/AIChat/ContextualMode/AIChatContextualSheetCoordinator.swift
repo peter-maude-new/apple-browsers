@@ -21,6 +21,7 @@ import AIChat
 import BrowserServicesKit
 import Combine
 import Common
+import Core
 import PrivacyConfig
 import UIKit
 
@@ -62,6 +63,9 @@ final class AIChatContextualSheetCoordinator {
     /// Single source of truth for page context in this chat session.
     let pageContextStore: AIChatPageContextStoring
 
+    /// Handles all pixel firing for contextual mode.
+    let pixelHandler: AIChatContextualModePixelFiring
+
     /// The retained sheet view controller for this tab's active chat session.
     private(set) var sheetViewController: AIChatContextualSheetViewController?
 
@@ -84,7 +88,8 @@ final class AIChatContextualSheetCoordinator {
          contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>,
          featureDiscovery: FeatureDiscovery,
          featureFlagger: FeatureFlagger,
-         pageContextStore: AIChatPageContextStoring = AIChatPageContextStore()) {
+         pageContextStore: AIChatPageContextStoring = AIChatPageContextStore(),
+         pixelHandler: AIChatContextualModePixelFiring = AIChatContextualModePixelHandler()) {
         self.voiceSearchHelper = voiceSearchHelper
         self.aiChatSettings = aiChatSettings
         self.privacyConfigurationManager = privacyConfigurationManager
@@ -92,6 +97,7 @@ final class AIChatContextualSheetCoordinator {
         self.featureDiscovery = featureDiscovery
         self.featureFlagger = featureFlagger
         self.pageContextStore = pageContextStore
+        self.pixelHandler = pixelHandler
     }
 
     // MARK: - Public Methods
@@ -107,9 +113,11 @@ final class AIChatContextualSheetCoordinator {
                       pageContext: AIChatPageContextData? = nil,
                       restoreURL: URL? = nil) {
         let sheetVC: AIChatContextualSheetViewController
+        let isNewSheet: Bool
 
         if let existingSheet = sheetViewController {
             sheetVC = existingSheet
+            isNewSheet = false
 
             if let context = pageContext {
                 pageContextStore.update(context)
@@ -149,13 +157,22 @@ final class AIChatContextualSheetCoordinator {
                         guard let self else { return }
                         self.delegate?.aiChatContextualSheetCoordinatorDidRequestOpenSettings(self)
                     }
-                }
+                },
+                pixelHandler: pixelHandler
             )
             sheetVC.delegate = self
             sheetViewController = sheetVC
+            isNewSheet = true
         }
 
         presentingViewController.present(sheetVC, animated: true)
+
+        if isNewSheet {
+            pixelHandler.fireSheetOpened()
+            if restoreURL != nil {
+                pixelHandler.fireSessionRestored()
+            }
+        }
     }
 
     /// Updates page context in the store and notifies UI to refresh.
@@ -226,6 +243,7 @@ extension AIChatContextualSheetCoordinator: AIChatContextualSheetViewControllerD
     }
 
     func aiChatContextualSheetViewControllerDidRequestDismiss(_ viewController: AIChatContextualSheetViewController) {
+        pixelHandler.fireSheetDismissed()
         viewController.dismiss(animated: true)
     }
 

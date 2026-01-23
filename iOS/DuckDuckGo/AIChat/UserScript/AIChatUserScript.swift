@@ -157,6 +157,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.getAIChatNativeHandoffData
         case .getAIChatPageContext:
             return handler.getAIChatPageContext
+        case .togglePageContextTelemetry:
+            return handler.togglePageContextTelemetry
         case .openAIChat:
             return handler.openAIChat
         case .hideChatInput:
