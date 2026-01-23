@@ -120,7 +120,7 @@ public final class CrashCollection {
                 // Attempt to fix a crash on key comparison during serialization.
                 // Deep copy the JSON representation to ensure all string allocations are kept by "us".
                 // This allegedly prevents crashes caused by dangling references to MetricKit's internal strings
-                // when JSONSerialization.sortedKeys triggers ICU string comparison.
+                // when JSONSerialization.sortedKeys triggers string comparison.
                 // Fall back to previous solution if failed for some reason.
                 let jsonData = payload.jsonRepresentation()
                 var dict = (try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]) ?? payload.dictionaryRepresentation()

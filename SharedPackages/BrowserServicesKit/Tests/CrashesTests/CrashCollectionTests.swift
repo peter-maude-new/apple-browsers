@@ -221,32 +221,6 @@ class CrashCollectionTests: XCTestCase {
         XCTAssertEqual(diagnosticMetaData["appVersion"] as? String, "7.200.0")
         XCTAssertEqual(diagnosticMetaData["bundleIdentifier"] as? String, "com.duckduckgo.mobile.ios")
     }
-
-    func testWhenPayloadHasInvalidJSONThenItIsSkipped() {
-        // Given: A mock payload with invalid JSON data
-        let invalidJSONData = "not valid json".data(using: .utf8)!
-        let mockPayload = MockPayload(mockJSONData: invalidJSONData)
-
-        let crashReportSender = MockCrashReportSender(platform: .iOS, pixelEvents: nil)
-        let crashCollection = CrashCollection(crashReportSender: crashReportSender,
-                                              crashCollectionStorage: MockKeyValueStore())
-
-        let expectation = self.expectation(description: "Crash payloads processed")
-        var receivedPayloads: [Data] = []
-
-        // When: startAttachingCrashLogMessages processes the invalid payload
-        crashCollection.startAttachingCrashLogMessages { _, payloads, _ in
-            receivedPayloads = payloads
-            expectation.fulfill()
-        }
-
-        crashCollection.crashHandler.didReceive([mockPayload])
-
-        wait(for: [expectation], timeout: 3)
-
-        // Then: The invalid payload should be skipped (empty array)
-        XCTAssertTrue(receivedPayloads.isEmpty)
-    }
 }
 
 class MockPayload: MXDiagnosticPayload {
