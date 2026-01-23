@@ -1,0 +1,17 @@
+name: macOS Self-Hosted Test
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  test-clickhouse-connectivity:
+    name: Test ClickHouse Connectivity
+    runs-on: [ self-hosted, apple ]
+
+    steps:
+      - name: Test ClickHouse HTTP port (8123)
+        run: nc -zv clickhouse.duckduckgo.com 8123
+
+      - name: Test ClickHouse Native port (9000)
+        run: nc -zv clickhouse.duckduckgo.com 9000
