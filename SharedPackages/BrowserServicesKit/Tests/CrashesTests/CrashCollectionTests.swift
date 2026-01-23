@@ -159,14 +159,109 @@ class CrashCollectionTests: XCTestCase {
 
         XCTAssertEqual(store.object(forKey: CRCIDManager.crcidKey) as? String, crcid)
     }
+
+    func testWhenStartAttachingCrashLogMessagesThenJSONPayloadIsProcessedCorrectly() {
+        // Given: A mock payload with known JSON structure containing crashDiagnostics
+        let mockJSON: [String: Any] = [
+            "timeStampBegin": "2024-07-05 14:10:00",
+            "crashDiagnostics": [
+                [
+                    "callStackTree": ["root": true],
+                    "diagnosticMetaData": [
+                        "appVersion": "7.200.0",
+                        "bundleIdentifier": "com.duckduckgo.mobile.ios",
+                        "objectiveCexceptionReason": [
+                            "composedMessage": "Test exception message"
+                        ]
+                    ]
+                ]
+            ]
+        ]
+        let mockJSONData = try! JSONSerialization.data(withJSONObject: mockJSON)
+        let mockPayload = MockPayload(mockJSONData: mockJSONData)
+
+        let crashReportSender = MockCrashReportSender(platform: .iOS, pixelEvents: nil)
+        let crashCollection = CrashCollection(crashReportSender: crashReportSender,
+                                              crashCollectionStorage: MockKeyValueStore())
+
+        let expectation = self.expectation(description: "Crash payloads processed")
+        var receivedPayloads: [Data] = []
+
+        // When: startAttachingCrashLogMessages processes the payload
+        crashCollection.startAttachingCrashLogMessages { _, payloads, _ in
+            receivedPayloads = payloads
+            expectation.fulfill()
+        }
+
+        crashCollection.crashHandler.didReceive([mockPayload])
+
+        wait(for: [expectation], timeout: 3)
+
+        // Then: The payload should be valid JSON with the expected structure
+        XCTAssertEqual(receivedPayloads.count, 1)
+
+        guard let payloadData = receivedPayloads.first,
+              let parsedPayload = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any] else {
+            XCTFail("Failed to parse received payload as JSON")
+            return
+        }
+
+        // Verify the JSON structure is preserved
+        XCTAssertNotNil(parsedPayload["crashDiagnostics"])
+        XCTAssertNotNil(parsedPayload["timeStampBegin"])
+
+        // Verify crashDiagnostics structure
+        guard let crashDiagnostics = parsedPayload["crashDiagnostics"] as? [[String: Any]],
+              let firstCrash = crashDiagnostics.first,
+              let diagnosticMetaData = firstCrash["diagnosticMetaData"] as? [String: Any] else {
+            XCTFail("Failed to parse crashDiagnostics structure")
+            return
+        }
+
+        XCTAssertEqual(diagnosticMetaData["appVersion"] as? String, "7.200.0")
+        XCTAssertEqual(diagnosticMetaData["bundleIdentifier"] as? String, "com.duckduckgo.mobile.ios")
+    }
+
+    func testWhenPayloadHasInvalidJSONThenItIsSkipped() {
+        // Given: A mock payload with invalid JSON data
+        let invalidJSONData = "not valid json".data(using: .utf8)!
+        let mockPayload = MockPayload(mockJSONData: invalidJSONData)
+
+        let crashReportSender = MockCrashReportSender(platform: .iOS, pixelEvents: nil)
+        let crashCollection = CrashCollection(crashReportSender: crashReportSender,
+                                              crashCollectionStorage: MockKeyValueStore())
+
+        let expectation = self.expectation(description: "Crash payloads processed")
+        var receivedPayloads: [Data] = []
+
+        // When: startAttachingCrashLogMessages processes the invalid payload
+        crashCollection.startAttachingCrashLogMessages { _, payloads, _ in
+            receivedPayloads = payloads
+            expectation.fulfill()
+        }
+
+        crashCollection.crashHandler.didReceive([mockPayload])
+
+        wait(for: [expectation], timeout: 3)
+
+        // Then: The invalid payload should be skipped (empty array)
+        XCTAssertTrue(receivedPayloads.isEmpty)
+    }
 }
 
 class MockPayload: MXDiagnosticPayload {
 
     var mockCrashes: [MXCrashDiagnostic]?
+    var mockJSONData: Data?
 
     init(mockCrashes: [MXCrashDiagnostic]?) {
         self.mockCrashes = mockCrashes
+        super.init()
+    }
+
+    init(mockJSONData: Data) {
+        self.mockJSONData = mockJSONData
+        self.mockCrashes = [MXCrashDiagnostic()]
         super.init()
     }
 
@@ -176,6 +271,13 @@ class MockPayload: MXDiagnosticPayload {
 
     override var crashDiagnostics: [MXCrashDiagnostic]? {
         return mockCrashes
+    }
+
+    override func jsonRepresentation() -> Data {
+        if let mockJSONData {
+            return mockJSONData
+        }
+        return super.jsonRepresentation()
     }
 }
 

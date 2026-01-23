@@ -117,7 +117,13 @@ public final class CrashCollection {
     public func startAttachingCrashLogMessages(didFindCrashReports: @escaping (_ pixelParameters: [[String: String]], _ payloads: [Data], _ uploadReports: @escaping () -> Void) -> Void) {
         start(process: { payloads in
             payloads.compactMap { payload in
-                var dict = payload.dictionaryRepresentation()
+                // Attempt to fix a crash on key comparison during serialization.
+                // Deep copy the JSON representation to ensure all string allocations are kept by "us".
+                // This allegedly prevents crashes caused by dangling references to MetricKit's internal strings
+                // when JSONSerialization.sortedKeys triggers ICU string comparison.
+                // Fall back to previous solution if failed for some reason.
+                let jsonData = payload.jsonRepresentation()
+                var dict = (try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]) ?? payload.dictionaryRepresentation()
 
                 var pid: pid_t?
                 if #available(macOS 14.0, iOS 17.0, *) {
