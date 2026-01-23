@@ -41,8 +41,8 @@
         "suffixes": ["first_daily_count", "platform", "form_factor"],
         "parameters": ["appVersion"]
     },
-    "m_aichat_contextual_quick_action_selected": {
-        "description": "Fired when the user selects a quick action chip in the contextual sheet",
+    "m_aichat_contextual_quick_action_summarize_selected": {
+        "description": "Fired when the user selects the summarize quick action chip in the contextual sheet",
         "owners": ["aataraxiaa"],
         "triggers": ["other"],
         "suffixes": ["first_daily_count", "platform", "form_factor"],
@@ -71,6 +71,34 @@
     },
     "m_aichat_contextual_page_context_manually_attached_frontend": {
         "description": "Fired when the user manually attaches page context via the frontend attach button",
+        "owners": ["aataraxiaa"],
+        "triggers": ["other"],
+        "suffixes": ["first_daily_count", "platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_aichat_contextual_page_context_removed_native": {
+        "description": "Fired when the user removes page context via the native context chip remove button",
+        "owners": ["aataraxiaa"],
+        "triggers": ["other"],
+        "suffixes": ["first_daily_count", "platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_aichat_contextual_page_context_removed_frontend": {
+        "description": "Fired when the user removes page context via the frontend UI",
+        "owners": ["aataraxiaa"],
+        "triggers": ["other"],
+        "suffixes": ["first_daily_count", "platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_aichat_contextual_prompt_submitted_with_context_native": {
+        "description": "Fired when the user submits a prompt with page context attached via the native input",
+        "owners": ["aataraxiaa"],
+        "triggers": ["other"],
+        "suffixes": ["first_daily_count", "platform", "form_factor"],
+        "parameters": ["appVersion"]
+    },
+    "m_aichat_contextual_prompt_submitted_without_context_native": {
+        "description": "Fired when the user submits a prompt without page context via the native input",
         "owners": ["aataraxiaa"],
         "triggers": ["other"],
         "suffixes": ["first_daily_count", "platform", "form_factor"],

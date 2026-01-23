@@ -1463,11 +1463,15 @@ extension Pixel {
         case aiChatContextualSheetDismissed
         case aiChatContextualExpandButtonTapped
         case aiChatContextualNewChatButtonTapped
-        case aiChatContextualQuickActionSelected
+        case aiChatContextualQuickActionSummarizeSelected
         case aiChatContextualPageContextAutoAttached
         case aiChatContextualPageContextUpdatedOnNavigation
         case aiChatContextualPageContextManuallyAttachedNative
         case aiChatContextualPageContextManuallyAttachedFrontend
+        case aiChatContextualPageContextRemovedNative
+        case aiChatContextualPageContextRemovedFrontend
+        case aiChatContextualPromptSubmittedWithContextNative
+        case aiChatContextualPromptSubmittedWithoutContextNative
         case aiChatContextualSessionRestored
 
         // MARK: Customization
@@ -2914,11 +2918,15 @@ extension Pixel.Event {
         case .aiChatContextualSheetDismissed: return "m_aichat_contextual_sheet_dismissed"
         case .aiChatContextualExpandButtonTapped: return "m_aichat_contextual_expand_button_tapped"
         case .aiChatContextualNewChatButtonTapped: return "m_aichat_contextual_new_chat_button_tapped"
-        case .aiChatContextualQuickActionSelected: return "m_aichat_contextual_quick_action_selected"
+        case .aiChatContextualQuickActionSummarizeSelected: return "m_aichat_contextual_quick_action_summarize_selected"
         case .aiChatContextualPageContextAutoAttached: return "m_aichat_contextual_page_context_auto_attached"
         case .aiChatContextualPageContextUpdatedOnNavigation: return "m_aichat_contextual_page_context_updated_on_navigation"
         case .aiChatContextualPageContextManuallyAttachedNative: return "m_aichat_contextual_page_context_manually_attached_native"
         case .aiChatContextualPageContextManuallyAttachedFrontend: return "m_aichat_contextual_page_context_manually_attached_frontend"
+        case .aiChatContextualPageContextRemovedNative: return "m_aichat_contextual_page_context_removed_native"
+        case .aiChatContextualPageContextRemovedFrontend: return "m_aichat_contextual_page_context_removed_frontend"
+        case .aiChatContextualPromptSubmittedWithContextNative: return "m_aichat_contextual_prompt_submitted_with_context_native"
+        case .aiChatContextualPromptSubmittedWithoutContextNative: return "m_aichat_contextual_prompt_submitted_without_context_native"
         case .aiChatContextualSessionRestored: return "m_aichat_contextual_session_restored"
 
         // MARK: AI Chat Sync
