@@ -102,8 +102,9 @@ final class MainCoordinator {
         let tabsPersistence = try TabsModelPersistence()
         let tabsModel = try Self.prepareTabsModel(previewsSource: previewsSource, tabsPersistence: tabsPersistence)
         reportingService.subscriptionDataReporter.injectTabsModel(tabsModel)
-        let daxDialogsFactory = ExperimentContextualDaxDialogsFactory(contextualOnboardingLogic: daxDialogs,
-                                                                      contextualOnboardingPixelReporter: reportingService.onboardingPixelReporter)
+        let daxDialogsFactory = BrowserDaxDialogProvider(featureFlagger: featureFlagger,
+                                                         contextualOnboardingLogic: daxDialogs,
+                                                         contextualOnboardingPixelReporter: reportingService.onboardingPixelReporter)
         let contextualOnboardingPresenter = ContextualOnboardingPresenter(variantManager: variantManager, daxDialogsFactory: daxDialogsFactory)
         let textZoomCoordinator = Self.makeTextZoomCoordinator()
         let websiteDataManager = Self.makeWebsiteDataManager(fireproofing: fireproofing)
