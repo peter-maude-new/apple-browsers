@@ -19,31 +19,34 @@
 import Foundation
 import Persistence
 
-@available(macOS 15.4, *)
-protocol WebExtensionPathsStoring: AnyObject {
+@available(macOS 15.4, iOS 18.0, *)
+public protocol WebExtensionPathsStoring: AnyObject {
     var paths: [String] { get }
     func add(_ url: String)
     func remove(_ url: String)
 }
 
-struct WebExtensionPathsSettings: StoringKeys {
-    let paths = StorageKey<[String]>(.webExtensionStoredPaths, assertionHandler: { _ in })
+@available(macOS 15.4, iOS 18.0, *)
+public struct WebExtensionPathsSettings: StoringKeys {
+    let paths = StorageKey<[String]>(WebExtensionStorageKeys.storedPaths, assertionHandler: { _ in })
+
+    public init() {}
 }
 
-@available(macOS 15.4, *)
-final class WebExtensionPathsStore: WebExtensionPathsStoring {
+@available(macOS 15.4, iOS 18.0, *)
+public final class WebExtensionPathsStore: WebExtensionPathsStoring {
 
     private let storage: any KeyedStoring<WebExtensionPathsSettings>
 
-    var paths: [String] {
+    public var paths: [String] {
         storage.paths ?? []
     }
 
-    init(storage: (any KeyedStoring<WebExtensionPathsSettings>)? = nil) {
+    public init(storage: (any KeyedStoring<WebExtensionPathsSettings>)? = nil) {
         self.storage = if let storage { storage } else { UserDefaults.standard.keyedStoring() }
     }
 
-    func add(_ url: String) {
+    public func add(_ url: String) {
         guard !paths.contains(url) else {
             assertionFailure("Cannot add path as it is already stored: \(url)")
             return
@@ -54,7 +57,7 @@ final class WebExtensionPathsStore: WebExtensionPathsStoring {
         storage.paths = currentPaths
     }
 
-    func remove(_ url: String) {
+    public func remove(_ url: String) {
         guard paths.contains(url) else {
             assertionFailure("Cannot remove path as it is already absent: \(url)")
             return

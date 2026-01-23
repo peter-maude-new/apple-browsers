@@ -38,7 +38,8 @@ let package = Package(
             name: "WebExtensions",
             dependencies: [
                 .product(name: "Common", package: "BrowserServicesKit"),
-                .product(name: "BrowserServicesKit", package: "BrowserServicesKit")
+                .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "Persistence", package: "BrowserServicesKit")
             ]
         ),
 //        .testTarget(
