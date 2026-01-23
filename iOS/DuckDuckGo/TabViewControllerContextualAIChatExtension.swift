@@ -193,7 +193,6 @@ extension TabViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] pageContext in
                 guard let self,
-                      !aiChatContextualSheetCoordinator.pixelHandler.isManualAttachInProgress,
                       let pageContext,
                       let enriched = enrichWithFavicon(pageContext) else { return }
 

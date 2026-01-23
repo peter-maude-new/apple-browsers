@@ -158,23 +158,6 @@ final class AIChatContextualModePixelHandlerTests: XCTestCase {
         XCTAssertEqual(firedPixels, [.aiChatContextualPromptSubmittedWithoutContextNative])
     }
 
-    // MARK: - Manual Attach State
-
-    func testManualAttachState_initiallyFalse() {
-        XCTAssertFalse(sut.isManualAttachInProgress)
-    }
-
-    func testManualAttachState_beginSetsTrue() {
-        sut.beginManualAttach()
-        XCTAssertTrue(sut.isManualAttachInProgress)
-    }
-
-    func testManualAttachState_endSetsFalse() {
-        sut.beginManualAttach()
-        sut.endManualAttach()
-        XCTAssertFalse(sut.isManualAttachInProgress)
-    }
-
     // MARK: - URL Priming
 
     func testPrimeNavigationURL_preventsFirstFire() {
@@ -205,6 +188,8 @@ final class AIChatContextualModePixelHandlerTests: XCTestCase {
     func testReset_clearsManualAttachState() {
         sut.beginManualAttach()
         sut.reset()
-        XCTAssertFalse(sut.isManualAttachInProgress)
+        sut.firePageContextUpdatedOnNavigation(url: "https://example.com")
+
+        XCTAssertEqual(firedPixels.count, 1)
     }
 }

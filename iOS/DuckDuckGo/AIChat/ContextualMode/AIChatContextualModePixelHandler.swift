@@ -49,7 +49,6 @@ protocol AIChatContextualModePixelFiring {
     // MARK: - Manual Attach State
     func beginManualAttach()
     func endManualAttach()
-    var isManualAttachInProgress: Bool { get }
 
     // MARK: - URL Priming
     func primeNavigationURL(_ url: String)
