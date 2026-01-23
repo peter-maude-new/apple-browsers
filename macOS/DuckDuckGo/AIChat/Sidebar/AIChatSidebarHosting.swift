@@ -32,6 +32,10 @@ protocol AIChatSidebarHostingDelegate: AnyObject {
     /// Called when the list of tabs in the AI Chat sidebar is updated.
     /// - Parameter currentTabIDs: An array of tab identifiers representing the current state of tabs.
     func sidebarHostDidUpdateTabs()
+
+    /// Called when the sidebar width is resized by the user.
+    /// - Parameter width: The new sidebar width in points.
+    func sidebarHostDidResizeSidebar(to width: CGFloat)
 }
 
 /// A protocol that defines the requirements for hosting the AI Chat sidebar in a view controller.

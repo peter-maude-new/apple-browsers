@@ -44,8 +44,14 @@ protocol BrowserTabViewControllerDelegate: AnyObject {
 
 final class BrowserTabViewController: NSViewController {
 
+    private enum SidebarResizeConstants {
+        static let handleWidth: CGFloat = 6
+        static let minContentWidth: CGFloat = 360
+    }
+
     private lazy var browserTabView = BrowserTabView(frame: .zero, backgroundColor: .browserTabBackground)
     private(set) lazy var sidebarContainer = ColorView(frame: .zero, backgroundColor: .browserTabBackground, borderWidth: 0)
+    private lazy var sidebarResizeHandle = SidebarResizeHandleView()
     private lazy var hoverLabel = NSTextField(string: URL.duckDuckGo.absoluteString)
     private lazy var hoverLabelContainer = ColorView(frame: .zero, backgroundColor: .browserTabBackground, borderWidth: 0)
 
@@ -225,11 +231,24 @@ final class BrowserTabViewController: NSViewController {
         sidebarContainerLeadingConstraint = sidebarContainer.leadingAnchor.constraint(equalTo: browserTabView.trailingAnchor)
         sidebarContainerWidthConstraint = sidebarContainer.widthAnchor.constraint(equalToConstant: 0)
 
+        sidebarResizeHandle.translatesAutoresizingMaskIntoConstraints = false
+        sidebarResizeHandle.currentWidthProvider = { [weak self] in
+            self?.sidebarContainerWidthConstraint?.constant ?? 0
+        }
+        sidebarResizeHandle.onDrag = { [weak self] proposedWidth in
+            self?.resizeSidebar(to: proposedWidth)
+        }
+        view.addSubview(sidebarResizeHandle, positioned: .above, relativeTo: sidebarContainer)
+
         NSLayoutConstraint.activate([
             sidebarContainer.topAnchor.constraint(equalTo: browserTabView.topAnchor),
             sidebarContainer.bottomAnchor.constraint(equalTo: browserTabView.bottomAnchor),
             sidebarContainerLeadingConstraint!,
-            sidebarContainerWidthConstraint!
+            sidebarContainerWidthConstraint!,
+            sidebarResizeHandle.leadingAnchor.constraint(equalTo: sidebarContainer.leadingAnchor),
+            sidebarResizeHandle.topAnchor.constraint(equalTo: view.topAnchor),
+            sidebarResizeHandle.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            sidebarResizeHandle.widthAnchor.constraint(equalToConstant: SidebarResizeConstants.handleWidth)
         ])
     }
 
@@ -552,6 +571,29 @@ final class BrowserTabViewController: NSViewController {
 
     private(set) var sidebarContainerLeadingConstraint: NSLayoutConstraint?
     private(set) var sidebarContainerWidthConstraint: NSLayoutConstraint?
+
+    private func resizeSidebar(to proposedWidth: CGFloat) {
+        guard let sidebarContainerWidthConstraint,
+              let sidebarContainerLeadingConstraint else { return }
+
+        let clampedWidth = clampedSidebarWidth(for: proposedWidth)
+        sidebarContainerWidthConstraint.constant = clampedWidth
+        sidebarContainerLeadingConstraint.constant = -clampedWidth
+        aiChatSidebarHostingDelegate?.sidebarHostDidResizeSidebar(to: clampedWidth)
+        view.layoutSubtreeIfNeeded()
+    }
+
+    private func clampedSidebarWidth(for proposedWidth: CGFloat) -> CGFloat {
+        let minWidth = AIChatSidebarProvider.Constants.minSidebarWidth
+        let maxWidth = max(
+            minWidth,
+            min(
+                AIChatSidebarProvider.Constants.maxSidebarWidth,
+                view.bounds.width - SidebarResizeConstants.minContentWidth
+            )
+        )
+        return max(minWidth, min(proposedWidth, maxWidth))
+    }
 
     private func addWebViewToViewHierarchy(_ webView: WebView, tab: Tab) {
         let container = WebViewContainerView(tab: tab, webView: webView, frame: view.bounds)
@@ -1757,6 +1799,35 @@ extension BrowserTabViewController {
         accessibilityPreferences: Application.appDelegate.accessibilityPreferences,
         duckPlayer: Application.appDelegate.duckPlayer
     )
+}
+
+private final class SidebarResizeHandleView: NSView {
+
+    var onDrag: ((CGFloat) -> Void)?
+    var currentWidthProvider: (() -> CGFloat)?
+
+    private var dragStartX: CGFloat?
+    private var dragStartWidth: CGFloat = 0
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .resizeLeftRight)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        dragStartX = event.locationInWindow.x
+        dragStartWidth = currentWidthProvider?() ?? 0
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let dragStartX else { return }
+        let deltaX = event.locationInWindow.x - dragStartX
+        let proposedWidth = dragStartWidth - deltaX
+        onDrag?(proposedWidth)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        dragStartX = nil
+    }
 }
 
 private extension NSViewController {

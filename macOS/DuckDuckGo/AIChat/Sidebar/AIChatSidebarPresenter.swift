@@ -244,6 +244,10 @@ extension AIChatSidebarPresenter: AIChatSidebarHostingDelegate {
         let allTabIDs = windowControllersManager.allTabCollectionViewModels.flatMap { $0.tabViewModels.keys }.map { $0.uuid }
         sidebarProvider.cleanUp(for: allPinnedTabIDs + allTabIDs)
     }
+
+    func sidebarHostDidResizeSidebar(to width: CGFloat) {
+        sidebarProvider.sidebarWidth = width
+    }
 }
 
 extension AIChatSidebarPresenter: AIChatSidebarViewControllerDelegate {

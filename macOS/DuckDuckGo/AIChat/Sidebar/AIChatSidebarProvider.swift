@@ -28,7 +28,7 @@ typealias AIChatSidebarsByTab = [TabIdentifier: AIChatSidebar]
 /// This provider handles the lifecycle and state of chat sidebars across multiple browser tabs.
 protocol AIChatSidebarProviding: AnyObject {
     /// The width of the chat sidebar in points.
-    var sidebarWidth: CGFloat { get }
+    var sidebarWidth: CGFloat { get set }
 
     /// Returns the existing cached sidebar view controller for the specified tab, if one exists.
     /// - Parameter tabID: The unique identifier of the tab
@@ -77,11 +77,18 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
 
     enum Constants {
         static let sidebarWidth: CGFloat = 400
+        static let minSidebarWidth: CGFloat = 280
+        static let maxSidebarWidth: CGFloat = 720
     }
 
     private let featureFlagger: FeatureFlagger
 
-    var sidebarWidth: CGFloat { Constants.sidebarWidth }
+    private var currentSidebarWidth: CGFloat
+
+    var sidebarWidth: CGFloat {
+        get { currentSidebarWidth }
+        set { currentSidebarWidth = Self.clampedSidebarWidth(newValue) }
+    }
 
     @Published private(set) var sidebarsByTab: AIChatSidebarsByTab
 
@@ -94,9 +101,15 @@ final class AIChatSidebarProvider: AIChatSidebarProviding {
     }
 
     init(sidebarsByTab: AIChatSidebarsByTab? = nil,
+         sidebarWidth: CGFloat = Constants.sidebarWidth,
          featureFlagger: FeatureFlagger) {
         self.sidebarsByTab = sidebarsByTab ?? [:]
         self.featureFlagger = featureFlagger
+        self.currentSidebarWidth = Self.clampedSidebarWidth(sidebarWidth)
+    }
+
+    private static func clampedSidebarWidth(_ width: CGFloat) -> CGFloat {
+        max(Constants.minSidebarWidth, min(width, Constants.maxSidebarWidth))
     }
 
     func getSidebarViewController(for tabID: TabIdentifier) -> AIChatSidebarViewController? {
