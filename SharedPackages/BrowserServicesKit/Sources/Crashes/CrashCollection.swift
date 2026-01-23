@@ -123,7 +123,7 @@ public final class CrashCollection {
                 // when JSONSerialization.sortedKeys triggers string comparison.
                 // Fall back to previous solution if failed for some reason.
                 let jsonData = payload.jsonRepresentation()
-                var dict = (try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]) ?? payload.dictionaryRepresentation()
+                var dict = (try? JSONSerialization.jsonObject(with: jsonData) as? [AnyHashable : Any]) ?? payload.dictionaryRepresentation()
 
                 var pid: pid_t?
                 if #available(macOS 14.0, iOS 17.0, *) {
