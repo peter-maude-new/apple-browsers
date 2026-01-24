@@ -65,6 +65,7 @@ final class AIChatContextualWebViewController: UIViewController {
 
     /// Constraint for adjusting WebView bottom when keyboard appears
     private var webViewBottomConstraint: NSLayoutConstraint?
+    private var isMediumDetent = false
 
     /// URL to load on viewDidLoad instead of the default AI chat URL (for cold restore).
     var initialRestoreURL: URL?
@@ -179,6 +180,15 @@ final class AIChatContextualWebViewController: UIViewController {
         webView.load(URLRequest(url: url))
     }
 
+    /// Updates the sheet detent. Keyboard fix only applies in medium detent.
+    func setMediumDetent(_ isMediumDetent: Bool) {
+        self.isMediumDetent = isMediumDetent
+        // Reset constraint when switching to large detent
+        if !isMediumDetent {
+            webViewBottomConstraint?.constant = 0
+        }
+    }
+
     // MARK: - Private Methods
 
     private func setupUI() {
@@ -219,6 +229,7 @@ final class AIChatContextualWebViewController: UIViewController {
     }
 
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        guard isMediumDetent else { return }
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
@@ -242,6 +253,7 @@ final class AIChatContextualWebViewController: UIViewController {
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
+        guard isMediumDetent else { return }
         guard let userInfo = notification.userInfo,
               let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
               let curve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
