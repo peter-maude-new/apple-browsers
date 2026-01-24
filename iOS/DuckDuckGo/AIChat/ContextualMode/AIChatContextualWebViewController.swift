@@ -63,6 +63,9 @@ final class AIChatContextualWebViewController: UIViewController {
     private var urlObservation: NSKeyValueObservation?
     private var lastContextualChatURL: URL?
 
+    /// Constraint for adjusting WebView bottom when keyboard appears
+    private var webViewBottomConstraint: NSLayoutConstraint?
+
     /// URL to load on viewDidLoad instead of the default AI chat URL (for cold restore).
     var initialRestoreURL: URL?
 
@@ -184,15 +187,75 @@ final class AIChatContextualWebViewController: UIViewController {
         view.addSubview(webView)
         view.addSubview(loadingView)
 
+        let bottomConstraint = webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        webViewBottomConstraint = bottomConstraint
+
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: view.topAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomConstraint,
 
             loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+
+        setupKeyboardObservers()
+    }
+
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillChangeFrame),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+
+    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let curve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
+
+        // Convert keyboard frame to our view's coordinate system
+        let keyboardFrameInView = view.convert(keyboardFrame, from: nil)
+        let keyboardOverlap = max(0, view.bounds.height - keyboardFrameInView.origin.y)
+
+        // Resize WebView to exclude keyboard area so visualViewport.height is accurate
+        webViewBottomConstraint?.constant = -keyboardOverlap
+
+        UIView.animate(
+            withDuration: duration,
+            delay: 0,
+            options: UIView.AnimationOptions(rawValue: curve << 16),
+            animations: {
+                self.view.layoutIfNeeded()
+            }
+        )
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
+              let curve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt else { return }
+
+        webViewBottomConstraint?.constant = 0
+
+        UIView.animate(
+            withDuration: duration,
+            delay: 0,
+            options: UIView.AnimationOptions(rawValue: curve << 16),
+            animations: {
+                self.view.layoutIfNeeded()
+            }
+        )
     }
 
     private func createWebViewConfiguration() -> WKWebViewConfiguration {
