@@ -242,6 +242,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let displaysTabsProgressIndicator: Bool
 
     let wideEvent: WideEventManaging
+    lazy var subscriptionInstrumentation: SubscriptionInstrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
     let subscriptionManager: any SubscriptionManager
     static let deadTokenRecoverer = DeadTokenRecoverer()
 

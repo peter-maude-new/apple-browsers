@@ -84,6 +84,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     private var planChangeWideEventData: SubscriptionPlanChangeWideEventData?
 
     private let pendingTransactionHandler: PendingTransactionHandling
+    private let instrumentation: SubscriptionInstrumentation
 
     public init(subscriptionManager: SubscriptionManager,
                 subscriptionSuccessPixelHandler: SubscriptionAttributionPixelHandling = SubscriptionAttributionPixelHandler(),
@@ -96,7 +97,8 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 aiChatURL: URL,
                 wideEvent: WideEventManaging,
                 subscriptionEventReporter: SubscriptionEventReporter = DefaultSubscriptionEventReporter(),
-                pendingTransactionHandler: PendingTransactionHandling) {
+                pendingTransactionHandler: PendingTransactionHandling,
+                instrumentation: SubscriptionInstrumentation = Application.appDelegate.subscriptionInstrumentation) {
         self.subscriptionManager = subscriptionManager
         self.stripePurchaseFlow = stripePurchaseFlow
         self.subscriptionSuccessPixelHandler = subscriptionSuccessPixelHandler
@@ -109,6 +111,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         self.wideEvent = wideEvent
         self.subscriptionEventReporter = subscriptionEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
+        self.instrumentation = instrumentation
     }
 
     func with(broker: UserScriptMessageBroker) {
@@ -293,7 +296,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
     // swiftlint:disable:next cyclomatic_complexity
     func subscriptionSelected(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseAttempt, frequency: .legacyDailyAndCount)
+        instrumentation.purchaseAttempted()
         struct SubscriptionSelection: Decodable {
             let id: String
         }
@@ -320,7 +323,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 // 3: Check for active subscriptions
                 if await subscriptionManager.storePurchaseManager().hasActiveSubscription() {
                     // Sandbox note: Looks like our BE is not receiving updates when a subscription transitions from grace period to expired, so during testing we can end up with a subscription in grace period and we will not be able to purchase a new one, only restore it because Transaction.currentEntitlements will not return the subscription to restore.
-                    PixelKit.fire(SubscriptionPixel.subscriptionRestoreAfterPurchaseAttempt)
+                    instrumentation.existingSubscriptionFoundDuringPurchase()
                     Logger.subscription.log("[Purchase] Found active subscription during purchase")
                     subscriptionEventReporter.report(subscriptionActivationError: .activeSubscriptionAlreadyPresent)
                     await showSubscriptionFoundAlert(originalMessage: message)
@@ -705,7 +708,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     // MARK: functions used in SubscriptionAccessActionHandlers
 
     func activateSubscription(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseOfferPageEntry)
+        instrumentation.restoreOfferPageEntry()
         Task { @MainActor in
             uiHandler.presentSubscriptionAccessViewController(handler: self, message: original)
         }

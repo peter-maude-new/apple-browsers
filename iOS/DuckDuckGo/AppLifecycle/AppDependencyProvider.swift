@@ -60,6 +60,7 @@ protocol DependencyProvider {
     var wideEvent: WideEventManaging { get }
     var subscriptionManager: any SubscriptionManager { get }
     var tokenHandlerProvider: any SubscriptionTokenHandling { get }
+    var subscriptionInstrumentation: SubscriptionInstrumentation { get }
     var dbpSettings: DataBrokerProtectionSettings { get }
 }
 
@@ -88,6 +89,7 @@ final class AppDependencyProvider: DependencyProvider {
     // Subscription
     var subscriptionManager: any SubscriptionManager
     var tokenHandlerProvider: any SubscriptionTokenHandling
+    lazy var subscriptionInstrumentation: SubscriptionInstrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
     static let deadTokenRecoverer = DeadTokenRecoverer()
 
     let vpnFeatureVisibility: DefaultNetworkProtectionVisibility

@@ -102,7 +102,7 @@ struct SettingsSubscriptionView: View {
             let restoreView = subscriptionRestoreViewV2
                 .navigationViewStyle(.stack)
                 .onFirstAppear {
-                    Pixel.fire(pixel: .subscriptionRestorePurchaseClick)
+                    AppDependencyProvider.shared.subscriptionInstrumentation.restoreClickedInSettings()
                 }
             NavigationLink(destination: restoreView,
                            isActive: $isShowingRestoreFlow) {
@@ -147,7 +147,7 @@ struct SettingsSubscriptionView: View {
             let restoreView = subscriptionRestoreViewV2
                 .navigationViewStyle(.stack)
                 .onFirstAppear {
-                    Pixel.fire(pixel: .subscriptionRestorePurchaseClick)
+                    AppDependencyProvider.shared.subscriptionInstrumentation.restoreClickedInSettings()
                 }
             NavigationLink(destination: restoreView,
                            isActive: $isShowingRestoreFlow) {
