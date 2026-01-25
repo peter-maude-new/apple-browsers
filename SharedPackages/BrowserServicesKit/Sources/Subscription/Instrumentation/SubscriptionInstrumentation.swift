@@ -38,10 +38,14 @@ public protocol SubscriptionInstrumentation: AnyObject {
     /// Called after initial purchase succeeds (account created, StoreKit transaction complete).
     /// This starts the purchase wide event. Account creation duration should be set separately via `updatePurchaseAccountCreationDuration()`.
     /// - Parameters:
-    ///   - subscriptionId: The subscription product identifier
+    ///   - subscriptionId: The subscription product identifier (optional)
     ///   - freeTrialEligible: Whether the user is eligible for a free trial
     ///   - origin: The origin/source of the purchase flow (platform-specific)
-    func purchaseFlowStarted(subscriptionId: String, freeTrialEligible: Bool, origin: String?)
+    ///   - purchasePlatform: The purchase platform for the flow (app store, stripe)
+    func purchaseFlowStarted(subscriptionId: String?,
+                             freeTrialEligible: Bool,
+                             origin: String?,
+                             purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform)
 
     /// Called when purchase completes successfully. Fires:
     /// - subscriptionPurchaseSuccess (daily+count)
@@ -91,12 +95,19 @@ public protocol SubscriptionInstrumentation: AnyObject {
     /// - Parameter error: The error that caused the failure
     func restoreStoreFailed(error: AppStoreRestoreFlowError)
 
+    /// Called when Apple account restore is cancelled (discards wide event).
+    func restoreStoreCancelled()
+
     /// Called when user starts email restore flow (starts wide event).
     /// - Parameter origin: The origin/source of the restore flow (optional)
     func restoreEmailStarted(origin: String?)
 
     /// Called when email restore succeeds.
     func restoreEmailSucceeded()
+
+    /// Called when email restore fails.
+    /// - Parameter error: The error that caused the failure (optional)
+    func restoreEmailFailed(error: Error?)
 
     /// Called for background pre-purchase restore check (starts wide event with .purchaseBackgroundTask).
     /// - Parameter origin: The origin/source of the background check
@@ -107,7 +118,7 @@ public protocol SubscriptionInstrumentation: AnyObject {
 
     /// Called when background restore check fails.
     /// - Parameter error: The error that caused the failure
-    func restoreBackgroundCheckFailed(error: AppStoreRestoreFlowError)
+    func restoreBackgroundCheckFailed(error: Error)
 
     // MARK: - Plan Change Flow
 
@@ -117,7 +128,12 @@ public protocol SubscriptionInstrumentation: AnyObject {
     ///   - to: The target plan identifier
     ///   - changeType: The type of change (upgrade, downgrade, crossgrade)
     ///   - origin: The origin/source of the plan change flow (platform-specific)
-    func planChangeStarted(from: String, to: String, changeType: SubscriptionPlanChangeWideEventData.ChangeType?, origin: String?)
+    ///   - purchasePlatform: The purchase platform for the flow (app store, stripe, play store)
+    func planChangeStarted(from: String,
+                           to: String,
+                           changeType: SubscriptionPlanChangeWideEventData.ChangeType?,
+                           origin: String?,
+                           purchasePlatform: SubscriptionPlanChangeWideEventData.PurchasePlatform)
 
     /// Called when plan change payment succeeds (updates wide event timing).
     func planChangePaymentSucceeded()

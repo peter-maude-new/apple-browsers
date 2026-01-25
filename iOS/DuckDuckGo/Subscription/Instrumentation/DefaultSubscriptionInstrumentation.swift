@@ -48,9 +48,12 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
                                      pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
     }
 
-    func purchaseFlowStarted(subscriptionId: String, freeTrialEligible: Bool, origin: String?) {
+    func purchaseFlowStarted(subscriptionId: String?,
+                             freeTrialEligible: Bool,
+                             origin: String?,
+                             purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform) {
         let data = SubscriptionPurchaseWideEventData(
-            purchasePlatform: .appStore,
+            purchasePlatform: purchasePlatform,
             subscriptionIdentifier: subscriptionId,
             freeTrialEligible: freeTrialEligible,
             contextData: WideEventContextData(name: origin)
@@ -185,6 +188,13 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
+    func restoreStoreCancelled() {
+        if let restoreWideEventData {
+            wideEvent.discardFlow(restoreWideEventData)
+        }
+        self.restoreWideEventData = nil
+    }
+
     func restoreEmailStarted(origin: String?) {
         DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseEmailStart,
                                      pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)
@@ -209,6 +219,17 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
+    func restoreEmailFailed(error: Error?) {
+        if let restoreWideEventData {
+            restoreWideEventData.emailAddressRestoreDuration?.complete()
+            if let error {
+                restoreWideEventData.errorData = WideEventErrorData(error: error)
+            }
+            wideEvent.completeFlow(restoreWideEventData, status: .failure, onComplete: { _, _ in })
+        }
+        self.restoreWideEventData = nil
+    }
+
     func restoreBackgroundCheckStarted(origin: String) {
         let data = SubscriptionRestoreWideEventData(
             restorePlatform: .purchaseBackgroundTask,
@@ -227,7 +248,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
-    func restoreBackgroundCheckFailed(error: AppStoreRestoreFlowError) {
+    func restoreBackgroundCheckFailed(error: Error) {
         if let restoreWideEventData {
             restoreWideEventData.appleAccountRestoreDuration?.complete()
             restoreWideEventData.errorData = WideEventErrorData(error: error)
@@ -238,9 +259,13 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
 
     // MARK: - Plan Change Flow
 
-    func planChangeStarted(from: String, to: String, changeType: SubscriptionPlanChangeWideEventData.ChangeType?, origin: String?) {
+    func planChangeStarted(from: String,
+                           to: String,
+                           changeType: SubscriptionPlanChangeWideEventData.ChangeType?,
+                           origin: String?,
+                           purchasePlatform: SubscriptionPlanChangeWideEventData.PurchasePlatform) {
         let data = SubscriptionPlanChangeWideEventData(
-            purchasePlatform: .appStore,
+            purchasePlatform: purchasePlatform,
             changeType: changeType,
             fromPlan: from,
             toPlan: to,
