@@ -223,8 +223,6 @@ enum Preferences {
                                                                                                      restoreOrigin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue,
                                                                                                      instrumentation: instrumentation)
                             await subscriptionAppStoreRestorer.restoreAppStoreSubscription()
-
-                            PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreStart, frequency: .legacyDailyAndCount)
                         }
                     }
                 })

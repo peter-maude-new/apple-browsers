@@ -284,23 +284,32 @@ final class SubscriptionEmailViewModel: ObservableObject {
     
     private func setupSubscriptionRestoreWideEventData() {
         guard state.currentFlow == .restoreFlow else { return }
-        instrumentation.restoreEmailStarted(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
+        instrumentation.beginRestoreEmailAttempt(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
     }
     
     func dismissView() {
         DispatchQueue.main.async {
+            if self.state.currentFlow == .restoreFlow {
+                self.instrumentation.endRestoreEmailAttempt()
+            }
             self.state.shouldDismissView = true
         }
     }
     
     func backToSubscriptionSettings() {
         DispatchQueue.main.async {
+            if self.state.currentFlow == .restoreFlow {
+                self.instrumentation.endRestoreEmailAttempt()
+            }
             self.state.shouldPopToSubscriptionSettings = true
         }
     }
     
     func backToAppSettings() {
         DispatchQueue.main.async {
+            if self.state.currentFlow == .restoreFlow {
+                self.instrumentation.endRestoreEmailAttempt()
+            }
             self.state.shouldPopToAppSettings = true
         }
     }

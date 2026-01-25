@@ -29,6 +29,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var restoreWideEventData: SubscriptionRestoreWideEventData?
     private var planChangeWideEventData: SubscriptionPlanChangeWideEventData?
+    private var isRestoreEmailAttemptActive = false
 
     init(wideEvent: WideEventManaging,
          subscriptionSuccessPixelHandler: SubscriptionAttributionPixelHandling = SubscriptionAttributionPixelHandler()) {
@@ -188,7 +189,10 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
-    func restoreEmailStarted(origin: String?) {
+    func beginRestoreEmailAttempt(origin: String?) {
+        guard !isRestoreEmailAttemptActive else { return }
+        isRestoreEmailAttemptActive = true
+
         PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
 
         let data = SubscriptionRestoreWideEventData(
@@ -200,6 +204,14 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         wideEvent.startFlow(data)
     }
 
+    func endRestoreEmailAttempt() {
+        if let restoreWideEventData, restoreWideEventData.restorePlatform == .emailAddress {
+            wideEvent.discardFlow(restoreWideEventData)
+            self.restoreWideEventData = nil
+        }
+        isRestoreEmailAttemptActive = false
+    }
+
     func restoreEmailSucceeded() {
         PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailSuccess, frequency: .legacyDailyAndCount)
 
@@ -208,6 +220,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
             wideEvent.completeFlow(restoreWideEventData, status: .success, onComplete: { _, _ in })
         }
         self.restoreWideEventData = nil
+        isRestoreEmailAttemptActive = false
     }
 
     func restoreEmailFailed(error: Error?) {
@@ -219,6 +232,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
             wideEvent.completeFlow(restoreWideEventData, status: .failure, onComplete: { _, _ in })
         }
         self.restoreWideEventData = nil
+        isRestoreEmailAttemptActive = false
     }
 
     func restoreBackgroundCheckStarted(origin: String) {

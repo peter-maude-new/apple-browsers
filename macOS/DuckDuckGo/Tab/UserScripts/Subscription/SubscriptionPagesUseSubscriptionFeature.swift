@@ -78,7 +78,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
     // Wide Event
     private let wideEvent: WideEventManaging
-    private var hasEmailRestoreFlowStarted = false
 
     private let pendingTransactionHandler: PendingTransactionHandling
     private let instrumentation: SubscriptionInstrumentation
@@ -171,15 +170,11 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
     func setAuthTokens(params: Any, original: WKScriptMessage) async throws -> Encodable? {
 
-        if !hasEmailRestoreFlowStarted {
-            instrumentation.restoreEmailStarted(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
-            hasEmailRestoreFlowStarted = true
-        }
+        instrumentation.beginRestoreEmailAttempt(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
 
         guard let subscriptionValues: SubscriptionValuesV2 = CodableHelper.decode(from: params) else {
             Logger.subscription.fault("SubscriptionPagesUserScript: expected JSON representation of SubscriptionValues")
             instrumentation.restoreEmailFailed(error: nil)
-            hasEmailRestoreFlowStarted = false
             assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionValues")
             return nil
         }
@@ -190,7 +185,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         guard !subscriptionValues.accessToken.isEmpty, !subscriptionValues.refreshToken.isEmpty else {
             Logger.subscription.fault("Empty access token or refresh token provided")
             instrumentation.restoreEmailFailed(error: nil)
-            hasEmailRestoreFlowStarted = false
             return nil
         }
 
@@ -198,11 +192,9 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             try await subscriptionManager.adopt(accessToken: subscriptionValues.accessToken, refreshToken: subscriptionValues.refreshToken)
             try await subscriptionManager.getSubscription(cachePolicy: .remoteFirst)
             instrumentation.restoreEmailSucceeded()
-            hasEmailRestoreFlowStarted = false
             Logger.subscription.log("Subscription retrieved")
         } catch {
             instrumentation.restoreEmailFailed(error: error)
-            hasEmailRestoreFlowStarted = false
             Logger.subscription.error("Failed to adopt V2 tokens: \(error, privacy: .public)")
         }
         return nil
@@ -223,6 +215,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     // MARK: -
 
     func backToSettings(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        instrumentation.endRestoreEmailAttempt()
         _ = try? await subscriptionManager.getTokenContainer(policy: .localForceRefresh)
         DispatchQueue.main.async { [weak self] in
             self?.notificationCenter.post(name: .subscriptionPageCloseAndOpenPreferences, object: self)
@@ -910,8 +903,7 @@ extension SubscriptionPagesUseSubscriptionFeature: SubscriptionAccessActionHandl
 
     func subscriptionAccessActionOpenURLHandler(url: URL) {
         Task {
-            instrumentation.restoreEmailStarted(origin: SubscriptionRestoreFunnelOrigin.purchaseOffer.rawValue)
-            hasEmailRestoreFlowStarted = true
+            instrumentation.beginRestoreEmailAttempt(origin: SubscriptionRestoreFunnelOrigin.purchaseOffer.rawValue)
             await self.uiHandler.showTab(with: .subscription(url))
         }
     }

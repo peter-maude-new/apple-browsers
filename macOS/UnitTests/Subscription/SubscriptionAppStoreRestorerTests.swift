@@ -352,7 +352,8 @@ private final class MockSubscriptionInstrumentation: SubscriptionInstrumentation
     func restoreStoreSucceeded() {}
     func restoreStoreFailed(error: AppStoreRestoreFlowError) {}
     func restoreStoreCancelled() {}
-    func restoreEmailStarted(origin: String?) {}
+    func beginRestoreEmailAttempt(origin: String?) {}
+    func endRestoreEmailAttempt() {}
     func restoreEmailSucceeded() {}
     func restoreEmailFailed(error: Error?) {}
     func restoreBackgroundCheckStarted(origin: String) {}

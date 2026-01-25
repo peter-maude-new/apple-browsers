@@ -54,7 +54,8 @@ public protocol SubscriptionInstrumentation: AnyObject {
     func restoreStoreFailed(error: AppStoreRestoreFlowError)
     func restoreStoreCancelled()
 
-    func restoreEmailStarted(origin: String?)
+    func beginRestoreEmailAttempt(origin: String?)
+    func endRestoreEmailAttempt()
     func restoreEmailSucceeded()
     func restoreEmailFailed(error: Error?)
 
