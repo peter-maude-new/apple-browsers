@@ -171,7 +171,7 @@ final class TabPreviewViewController: NSViewController {
 extension TabViewModel: Previewable {
 
     var shouldShowPreview: Bool {
-        !isShowingErrorPage
+        !isShowingErrorPage && !tab.isLocked
     }
 
     var snapshot: NSImage? {

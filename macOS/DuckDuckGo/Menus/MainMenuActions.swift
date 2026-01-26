@@ -1170,8 +1170,14 @@ extension MainViewController {
     }
 
     @objc func lockButtonAction(_ sender: NSButton) {
-        DispatchQueue.main.async {
-            Application.appDelegate.browserLockCoordinator.lock()
+        // Toggle lock state for all configured tabs in the current window
+        Task { @MainActor in
+            // Handle pinned tabs
+            if let pinnedCollection = self.tabCollectionViewModel.pinnedTabsCollection {
+                await BrowserLockCoordinator.shared.toggleLock(in: pinnedCollection)
+            }
+            // Handle unpinned tabs
+            await BrowserLockCoordinator.shared.toggleLock(in: self.tabCollectionViewModel.tabCollection)
         }
     }
 
