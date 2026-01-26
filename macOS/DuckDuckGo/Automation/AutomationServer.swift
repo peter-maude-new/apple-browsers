@@ -17,7 +17,9 @@
 //  limitations under the License.
 //
 
+import AppKit
 import AutomationServer
+import BrowserServicesKit
 import Foundation
 import WebKit
 
@@ -25,9 +27,11 @@ import WebKit
 @MainActor
 final class MacOSAutomationProvider: BrowserAutomationProvider {
     let windowControllersManager: WindowControllersManager
+    let contentBlockingManager: ContentBlockerRulesManagerProtocol
 
-    init(windowControllersManager: WindowControllersManager) {
+    init(windowControllersManager: WindowControllersManager, contentBlockingManager: ContentBlockerRulesManagerProtocol) {
         self.windowControllersManager = windowControllersManager
+        self.contentBlockingManager = contentBlockingManager
     }
 
     private var activeMainViewController: MainViewController? {
@@ -48,6 +52,11 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
 
     var isLoading: Bool {
         currentTab?.isLoading ?? false
+    }
+
+    var isContentBlockerReady: Bool {
+        // Content blocker is ready when rules have been compiled
+        !contentBlockingManager.currentRules.isEmpty
     }
 
     var currentURL: URL? {
@@ -122,6 +131,30 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
             return .failure(error)
         }
     }
+
+    func takeScreenshot(rect: CGRect?) async -> Data? {
+        guard let webView = currentWebView else { return nil }
+
+        return await withCheckedContinuation { continuation in
+            let config = WKSnapshotConfiguration()
+            if let rect = rect {
+                config.rect = rect
+            }
+            webView.takeSnapshot(with: config) { image, _ in
+                guard let image = image else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                guard let tiffData = image.tiffRepresentation,
+                      let bitmap = NSBitmapImageRep(data: tiffData),
+                      let pngData = bitmap.representation(using: .png, properties: [:]) else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                continuation.resume(returning: pngData)
+            }
+        }
+    }
 }
 
 /// Wrapper that creates the automation server with the macOS provider
@@ -129,8 +162,8 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
 final class AutomationServer {
     private let core: AutomationServerCore
 
-    init(windowControllersManager: WindowControllersManager, port: Int?) {
-        let provider = MacOSAutomationProvider(windowControllersManager: windowControllersManager)
+    init(windowControllersManager: WindowControllersManager, contentBlockingManager: ContentBlockerRulesManagerProtocol, port: Int?) {
+        let provider = MacOSAutomationProvider(windowControllersManager: windowControllersManager, contentBlockingManager: contentBlockingManager)
         self.core = AutomationServerCore(provider: provider, port: port)
     }
 }

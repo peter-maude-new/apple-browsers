@@ -189,6 +189,10 @@ public final class AutomationServerCore {
             return getWindowHandle(url: url)
         case "/shutdown":
             return shutdown()
+        case "/screenshot":
+            return await takeScreenshot(url: url)
+        case "/contentBlockerReady":
+            return contentBlockerReady()
         default:
             return .failure(.unknownMethod)
         }
@@ -298,6 +302,33 @@ public final class AutomationServerCore {
         } else {
             return .failure(.jsonEncodingFailed)
         }
+    }
+
+    public func takeScreenshot(url: URLComponents) async -> ConnectionResult {
+        // Parse optional rect parameter for element screenshots
+        var rect: CGRect?
+        if let rectString = getQueryStringParameter(url: url, param: "rect"),
+           let rectData = rectString.data(using: .utf8),
+           let rectDict = try? JSONDecoder().decode([String: CGFloat].self, from: rectData),
+           let x = rectDict["x"],
+           let y = rectDict["y"],
+           let width = rectDict["width"],
+           let height = rectDict["height"] {
+            rect = CGRect(x: x, y: y, width: width, height: height)
+        }
+
+        guard let screenshotData = await provider.takeScreenshot(rect: rect) else {
+            return .failure(.screenshotFailed)
+        }
+        return .success(screenshotData.base64EncodedString())
+    }
+
+    /// Check if the content blocker rules have been compiled and are ready
+    /// WebDriver should wait for this before considering the browser ready for testing
+    public func contentBlockerReady() -> ConnectionResult {
+        let isReady = provider.isContentBlockerReady
+        Logger.automationServer.info("Content blocker ready: \(isReady)")
+        return .success(isReady ? "true" : "false")
     }
 
     public func executeScript(_ script: String, args: [String: Any]) async -> ConnectionResult {

@@ -27,5 +27,5 @@ public enum AutomationServerError: Error {
     case unknownMethod
     case invalidURL
     case scriptExecutionFailed
+    case screenshotFailed
 }
-

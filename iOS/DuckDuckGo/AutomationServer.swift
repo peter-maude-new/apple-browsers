@@ -18,6 +18,7 @@
 //
 
 import AutomationServer
+import Core
 import Foundation
 import WebKit
 
@@ -36,6 +37,11 @@ final class IOSAutomationProvider: BrowserAutomationProvider {
 
     var isLoading: Bool {
         main.currentTab?.isLoading ?? false
+    }
+
+    var isContentBlockerReady: Bool {
+        // Content blocker is ready when rules have been compiled
+        !ContentBlocking.shared.contentBlockingManager.currentRules.isEmpty
     }
 
     var currentURL: URL? {
@@ -84,6 +90,24 @@ final class IOSAutomationProvider: BrowserAutomationProvider {
             return .failure(AutomationServerError.scriptExecutionFailed)
         }
         return result.mapError { $0 as Error }
+    }
+
+    func takeScreenshot(rect: CGRect?) async -> Data? {
+        guard let webView = currentWebView else { return nil }
+
+        return await withCheckedContinuation { continuation in
+            let config = WKSnapshotConfiguration()
+            if let rect = rect {
+                config.rect = rect
+            }
+            webView.takeSnapshot(with: config) { image, _ in
+                guard let image = image else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                continuation.resume(returning: image.pngData())
+            }
+        }
     }
 }
 

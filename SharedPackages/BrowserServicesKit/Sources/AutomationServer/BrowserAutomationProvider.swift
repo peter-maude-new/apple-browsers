@@ -29,6 +29,10 @@ public protocol BrowserAutomationProvider: AnyObject {
     /// Whether the current tab is still loading
     var isLoading: Bool { get }
 
+    /// Whether the content blocker rules have been compiled and are ready
+    /// WebDriver should wait for this before considering the browser ready for testing
+    var isContentBlockerReady: Bool { get }
+
     /// The current URL of the active tab
     var currentURL: URL? { get }
 
@@ -56,6 +60,11 @@ public protocol BrowserAutomationProvider: AnyObject {
     /// The default implementation uses callAsyncJavaScript on the webview.
     /// Override if the platform needs custom script execution.
     func executeScript(_ script: String, args: [String: Any]) async -> Result<Any?, Error>
+
+    /// Take a screenshot of the current webview
+    /// - Parameter rect: Optional rect to crop the screenshot (for element screenshots)
+    /// - Returns: PNG image data, or nil if screenshot failed
+    func takeScreenshot(rect: CGRect?) async -> Data?
 }
 
 // MARK: - Default Implementation
@@ -80,4 +89,3 @@ public extension BrowserAutomationProvider {
         }
     }
 }
-
