@@ -87,8 +87,19 @@ final class AppContentBlocking {
         autoconsentManagement: AutoconsentManagement,
         contentScopePreferences: ContentScopePreferences
     ) {
-        let privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: configurationStore.loadEtag(for: .privacyConfiguration),
-                                                                      fetchedData: configurationStore.loadData(for: .privacyConfiguration),
+        // When TEST_PRIVACY_CONFIG_PATH is set, skip cached config to use embedded (test) config
+        let useTestConfig = ProcessInfo.processInfo.environment[AppPrivacyConfigurationDataProvider.Constants.testPrivacyConfigPathKey] != nil
+        let fetchedEtag: String? = useTestConfig ? nil : configurationStore.loadEtag(for: .privacyConfiguration)
+        let fetchedData: Data? = useTestConfig ? nil : configurationStore.loadData(for: .privacyConfiguration)
+        
+        #if DEBUG
+        if useTestConfig {
+            NSLog("[DDG-TEST-CONFIG] Skipping cached privacy config to use TEST_PRIVACY_CONFIG_PATH")
+        }
+        #endif
+        
+        let privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: fetchedEtag,
+                                                                      fetchedData: fetchedData,
                                                                       embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
                                                                       localProtection: LocalUnprotectedDomains(database: database),
                                                                       errorReporting: Self.debugEvents,
@@ -143,8 +154,13 @@ final class AppContentBlocking {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.tld = tld
 
-        trackerDataManager = TrackerDataManager(etag: configurationStore.loadEtag(for: .trackerDataSet),
-                                                data: configurationStore.loadData(for: .trackerDataSet),
+        // When using test config, also skip cached tracker data to ensure consistent state
+        let useTestConfig = ProcessInfo.processInfo.environment[AppPrivacyConfigurationDataProvider.Constants.testPrivacyConfigPathKey] != nil
+        let trackerEtag: String? = useTestConfig ? nil : configurationStore.loadEtag(for: .trackerDataSet)
+        let trackerData: Data? = useTestConfig ? nil : configurationStore.loadData(for: .trackerDataSet)
+        
+        trackerDataManager = TrackerDataManager(etag: trackerEtag,
+                                                data: trackerData,
                                                 embeddedDataProvider: AppTrackerDataSetProvider(),
                                                 errorReporting: Self.debugEvents)
 

@@ -69,4 +69,3 @@ public func encodeToJsonString(_ value: Any?) -> String {
         return "{\"error\": \"JSON encoding failed: \(error)\"}"
     }
 }
-
