@@ -411,6 +411,17 @@ public class DDGSync: DDGSyncing {
         }
     }
 
+    public func enableSyncFromPreservedAccount() async throws {
+        if authState == .active || authState == .addingNewDevice {
+            return
+        }
+
+        try dependencies.keyValueStore.set(true, forKey: Constants.syncEnabledKey)
+        authState = .initializing
+        initializeIfNeeded()
+        dependencies.scheduler.notifyAppLifecycleEvent()
+    }
+
     private func updateAccount(_ account: SyncAccount) throws {
         guard account.state != .initializing else {
             assertionFailure("Sync has not been initialized properly")

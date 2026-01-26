@@ -123,6 +123,10 @@ final class SyncService {
         sync.scheduler.notifyAppLifecycleEvent()
     }
 
+    func enableSyncFromPreservedAccount() async throws {
+        try await sync.enableSyncFromPreservedAccount()
+    }
+
     // MARK: - Suspend
 
     func suspend() {
