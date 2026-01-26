@@ -49,7 +49,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     @IBOutlet weak var rightShadowImageView: NSImageView!
     @IBOutlet weak var leftShadowImageView: NSImageView!
     @IBOutlet weak var fireButton: MouseOverAnimationButton!
-    @IBOutlet weak var lockButton: MouseOverButton!
+    @IBOutlet weak var lockButton: MouseOverAnimationButton!
     @IBOutlet weak var draggingSpace: NSView!
     @IBOutlet weak var windowDraggingViewLeadingConstraint: NSLayoutConstraint!
 
@@ -73,6 +73,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private var pinnedTabsCollectionCancellable: AnyCancellable?
     private var fireButtonMouseOverCancellable: AnyCancellable?
+    private var lockButtonMouseOverCancellable: AnyCancellable?
 
     private var addNewTabButtonFooter: TabBarFooter? {
         guard let indexPath = collectionView.indexPathsForVisibleSupplementaryElements(ofKind: NSCollectionView.elementKindSectionFooter).first,
@@ -377,6 +378,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     private func setupLockButton() {
+        lockButton.isAnimationEnabled = false  // Prevent image hiding on hover
         lockButton.image = NSImage(systemSymbolName: "lock", accessibilityDescription: UserText.lockBrowserTooltip)
         lockButton.toolTip = UserText.lockBrowserTooltip
         lockButton.setAccessibilityElement(true)
@@ -387,6 +389,14 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         lockButton.sendAction(on: .leftMouseDown)
         lockButtonWidthConstraint.constant = theme.tabBarButtonSize
         lockButtonHeightConstraint.constant = theme.tabBarButtonSize
+
+        // Show unlock icon on hover to indicate action
+        lockButtonMouseOverCancellable = lockButton.publisher(for: \.isMouseOver)
+            .sink { [weak self] isMouseOver in
+                guard let self else { return }
+                let iconName = isMouseOver ? "lock.open" : "lock"
+                self.lockButton.image = NSImage(systemSymbolName: iconName, accessibilityDescription: UserText.lockBrowserTooltip)
+            }
     }
 
     private func setupScrollButtons() {
@@ -532,7 +542,10 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
     }
 
     @IBAction func lockButtonAction(_ sender: NSButton) {
-        Application.appDelegate.browserLockCoordinator.lock()
+        // Toggle lock state for all configured tabs in this window
+        Task {
+            await BrowserLockCoordinator.shared.toggleLock(in: tabCollectionViewModel.tabCollection)
+        }
     }
 
     @IBAction func rightScrollButtonAction(_ sender: NSButton) {
@@ -1907,6 +1920,100 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
         if let url = URL.makeURL(from: stringValue) {
             tab.setContent(.url(url, credential: nil, source: .userEntered(stringValue, downloadRequested: false)))
+        }
+    }
+
+    // MARK: - Tab Lock Actions
+
+    func tabBarViewItemLockTabAction(_ tabBarViewItem: TabBarViewItem) {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
+
+        // Show lock config dialog (title + emoji picker)
+        showLockConfigDialog(for: tab)
+    }
+
+    func tabBarViewItemUnlockTabAction(_ tabBarViewItem: TabBarViewItem) {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
+
+        Task {
+            _ = await BrowserLockCoordinator.shared.unlockTab(tab)
+        }
+    }
+
+    func tabBarViewItemRelockTabAction(_ tabBarViewItem: TabBarViewItem) {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
+
+        BrowserLockCoordinator.shared.relockTab(tab)
+    }
+
+    func tabBarViewItemRemoveLockAction(_ tabBarViewItem: TabBarViewItem) {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
+
+        Task {
+            _ = await BrowserLockCoordinator.shared.removeLock(from: tab)
+        }
+    }
+
+    private func showLockConfigDialog(for tab: Tab) {
+        guard let window = view.window else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "Lock Tab"
+        alert.informativeText = "Enter a disguise title and emoji for this tab."
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Lock")
+        alert.addButton(withTitle: "Cancel")
+
+        // Create accessory view with text field and emoji picker
+        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 70))
+
+        let titleLabel = NSTextField(labelWithString: "Title:")
+        titleLabel.frame = NSRect(x: 0, y: 45, width: 50, height: 20)
+        accessoryView.addSubview(titleLabel)
+
+        let titleField = NSTextField(frame: NSRect(x: 55, y: 42, width: 245, height: 24))
+        titleField.placeholderString = "Enter disguise title"
+        accessoryView.addSubview(titleField)
+
+        let emojiLabel = NSTextField(labelWithString: "Emoji:")
+        emojiLabel.frame = NSRect(x: 0, y: 10, width: 50, height: 20)
+        accessoryView.addSubview(emojiLabel)
+
+        let emojiField = NSTextField(frame: NSRect(x: 55, y: 7, width: 50, height: 24))
+        emojiField.stringValue = "🔒"
+        emojiField.alignment = .center
+        accessoryView.addSubview(emojiField)
+
+        alert.accessoryView = accessoryView
+
+        alert.beginSheetModal(for: window) { response in
+            guard response == .alertFirstButtonReturn else { return }
+
+            let title = titleField.stringValue.isEmpty ? "Locked Tab" : titleField.stringValue
+            let emoji = emojiField.stringValue.isEmpty ? "🔒" : String(emojiField.stringValue.prefix(2))
+
+            let config = TabLockConfig(title: title, emoji: emoji)
+            BrowserLockCoordinator.shared.lockTab(tab, with: config)
         }
     }
 
