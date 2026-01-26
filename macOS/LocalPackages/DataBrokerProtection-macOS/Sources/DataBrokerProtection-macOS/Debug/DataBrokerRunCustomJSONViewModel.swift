@@ -77,8 +77,16 @@ final class NameUI: ObservableObject {
         .init(first: "", middle: "", last: "")
     }
 
-    func toModel() -> DataBrokerProtectionProfile.Name {
-        .init(firstName: first, lastName: last, middleName: middle.isEmpty ? nil : middle)
+    func toModel() -> DataBrokerProtectionProfile.Name? {
+        let trimmedFirst = first.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedMiddle = middle.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedLast = last.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedFirst.isEmpty, trimmedMiddle.isEmpty, trimmedLast.isEmpty {
+            return nil
+        }
+        return .init(firstName: trimmedFirst,
+                     lastName: trimmedLast,
+                     middleName: trimmedMiddle.isEmpty ? nil : trimmedMiddle)
     }
 }
 
@@ -96,8 +104,13 @@ final class AddressUI: ObservableObject {
         .init(city: "", state: "")
     }
 
-    func toModel() -> DataBrokerProtectionProfile.Address {
-        .init(city: city, state: state)
+    func toModel() -> DataBrokerProtectionProfile.Address? {
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedState = state.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedCity.isEmpty, trimmedState.isEmpty {
+            return nil
+        }
+        return .init(city: trimmedCity, state: trimmedState)
     }
 }
 
@@ -129,19 +142,31 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
     let brokers: [DataBroker]
 
     private let emailService: EmailService
-    private let emailConfirmationDataService: EmailConfirmationDataServiceProvider
-    private let captchaService: CaptchaService
-    private let privacyConfigManager: PrivacyConfigurationManaging
-    private let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
-    private let fakePixelHandler: EventMapping<DataBrokerProtectionSharedPixels> = EventMapping { event, _, _, _ in
-        print(event)
+    lazy var emailConfirmationDataService: EmailConfirmationDataServiceProvider = {
+        EmailConfirmationDataService(emailConfirmationStore: emailConfirmationStore,
+                                     database: nil,
+                                     emailServiceV0: emailService,
+                                     emailServiceV1: emailServiceV1,
+                                     featureFlagger: featureFlagger,
+                                     pixelHandler: pixelHandler,
+                                     debugEventHandler: { [weak self] message in
+                                        self?.addHistoryDebugEvent(summary: "Email confirmation", details: message)
+                                     })
+    }()
+    let emailConfirmationStore = DebugEmailConfirmationStore()
+    let captchaService: CaptchaService
+    private let emailServiceV1: EmailServiceV1Protocol
+    let privacyConfigManager: PrivacyConfigurationManaging
+    let pixelHandler: EventMapping<DataBrokerProtectionSharedPixels>
+    let fakePixelHandler: EventMapping<DataBrokerProtectionSharedPixels> = EventMapping { event, _, _, _ in
+        Logger.dataBrokerProtection.debug("Debug event: \(String(describing: event), privacy: .public)")
     }
-    private let contentScopeProperties: ContentScopeProperties
+    let contentScopeProperties: ContentScopeProperties
     private let authenticationManager: DataBrokerProtectionAuthenticationManaging
-    private let featureFlagger: DBPFeatureFlagging
+    let featureFlagger: DBPFeatureFlagging
 
-    var nextExtractedProfileId: Int64 = 1
     private var isSyncingAgeFields = false
+    var awaitingEmailConfirmationProfileIds = Set<Int64>()
 
     var combinedDebugEvents: [DebugEventRow] {
         let debugRows = debugEvents.map { event in
@@ -154,51 +179,13 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                 details: event.details
             )
         }
-        return debugRows.sorted(by: { $0.timestamp < $1.timestamp })
+        return debugRows.sorted(by: { $0.timestamp > $1.timestamp })
     }
 
-    private class DebugDBPFeatureFlagger: DBPFeatureFlagging {
-        private let featureFlagger: FeatureFlagger
-
-        var isRemoteBrokerDeliveryFeatureOn: Bool {
-            featureFlagger.isFeatureOn(.dbpRemoteBrokerDelivery)
-        }
-
-        var isEmailConfirmationDecouplingFeatureOn: Bool {
-            featureFlagger.isFeatureOn(.dbpEmailConfirmationDecoupling)
-        }
-
-        var isForegroundRunningOnAppActiveFeatureOn: Bool {
-            // Not relevant to macOS
-            return false
-        }
-
-        var isForegroundRunningWhenDashboardOpenFeatureOn: Bool {
-            // Not relevant to macOS
-            return false
-        }
-
-        var isClickActionDelayReductionOptimizationOn: Bool {
-            featureFlagger.isFeatureOn(.dbpClickActionDelayReductionOptimization)
-        }
-
-        init(privacyConfigManager: PrivacyConfigurationManaging) {
-            self.featureFlagger = DefaultFeatureFlagger(
-                internalUserDecider: privacyConfigManager.internalUserDecider,
-                privacyConfigManager: privacyConfigManager,
-                localOverrides: FeatureFlagLocalOverrides(
-                    keyValueStore: UserDefaults.standard,
-                    actionHandler: FeatureFlagOverridesPublishingHandler<FeatureFlag>()
-                ),
-                experimentManager: nil,
-                for: FeatureFlag.self
-            )
-        }
-    }
-
-    init(authenticationManager: DataBrokerProtectionAuthenticationManaging) {
+    init(authenticationManager: DataBrokerProtectionAuthenticationManaging,
+         featureFlagger: DBPFeatureFlagging) {
         let privacyConfigurationManager = DBPPrivacyConfigurationManager()
-        self.featureFlagger = DebugDBPFeatureFlagger(privacyConfigManager: privacyConfigurationManager)
+        self.featureFlagger = featureFlagger
         let features = ContentScopeFeatureToggles(emailProtection: false,
                                                   emailProtectionIncontextSignup: false,
                                                   credentialsAutofill: false,
@@ -243,18 +230,11 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
         let vaultFactory = createDataBrokerProtectionSecureVaultFactory(appGroupName: Bundle.main.appGroupName, databaseFileURL: databaseURL)
         let vault = try! vaultFactory.makeVault(reporter: reporter)
 
-        let database = DataBrokerProtectionDatabase(fakeBrokerFlag: DataBrokerDebugFlagFakeBroker(), pixelHandler: sharedPixelsHandler, vault: vault, localBrokerService: MockLocalBrokerJSONService())
-
-        let emailServiceV1 = EmailServiceV1(authenticationManager: authenticationManager,
-                                           settings: dbpSettings,
-                                           servicePixel: backendServicePixels)
-        self.emailConfirmationDataService = EmailConfirmationDataService(database: database,
-                                                                     emailServiceV0: emailService,
-                                                                     emailServiceV1: emailServiceV1,
-                                                                     featureFlagger: featureFlagger,
-                                                                     pixelHandler: sharedPixelsHandler)
-
         self.brokers = try! vault.fetchAllBrokers()
+
+        self.emailServiceV1 = EmailServiceV1(authenticationManager: authenticationManager,
+                                             settings: dbpSettings,
+                                             servicePixel: backendServicePixels)
     }
 
     @MainActor
@@ -262,6 +242,8 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
         self.error = nil
         self.results.removeAll()
         self.debugEvents.removeAll()
+        self.awaitingEmailConfirmationProfileIds.removeAll()
+        self.emailConfirmationStore.reset()
         self.isProgressActive = true
         self.progressText = "Starting scan..."
         if let data = jsonString.data(using: .utf8) {
@@ -304,10 +286,17 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                                 shouldRunNextStep: { true }
                             )
                             let extractedProfiles = try await runner.scan(query, showWebView: true) { true }
-                            let assignedProfiles = extractedProfiles.map { assignExtractedProfileIdIfNeeded($0) }
+                            let brokerId = DebugHelper.stableId(for: query.dataBroker)
+                            let profileQueryId = DebugHelper.stableId(for: query.profileQuery)
+                            let assignedProfiles: [ExtractedProfile] = extractedProfiles.map { profile in
+                                emailConfirmationStore.storeExtractedProfile(profile,
+                                                                             brokerId: brokerId,
+                                                                             profileQueryId: profileQueryId,
+                                                                             stableId: DebugHelper.stableId(for: profile))
+                            }
                             addScanResultEvents(for: query, extractedProfiles: assignedProfiles)
 
-                            DispatchQueue.main.async {
+                            Task { @MainActor in
                                 for extractedProfile in assignedProfiles {
                                     self.results.append(ScanResult(dataBroker: query.dataBroker,
                                                                    profileQuery: query.profileQuery,
@@ -352,8 +341,8 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
             dataBroker: scanResult.dataBroker,
             profileQuery: scanResult.profileQuery,
             scanJobData: ScanJobData(
-                brokerId: scanResult.dataBroker.id ?? 1,
-                profileQueryId: scanResult.profileQuery.id ?? 1,
+                brokerId: DebugHelper.stableId(for: scanResult.dataBroker),
+                profileQueryId: DebugHelper.stableId(for: scanResult.profileQuery),
                 historyEvents: [HistoryEvent]()
             )
         )
@@ -389,8 +378,21 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                                         extractedProfile: scanResult.extractedProfile,
                                         showWebView: true) { true }
 
+                if self.featureFlagger.isEmailConfirmationDecouplingFeatureOn,
+                   scanResult.dataBroker.requiresEmailConfirmationDuringOptOut() {
+                    addOptOutAwaitingEmailConfirmationEvent(for: scanResult)
+                    Task { @MainActor in
+                        self.isProgressActive = false
+                        self.progressText = "Awaiting email confirmation"
+                        self.showAlert = true
+                        self.alert = AlertUI(title: "Opt-out submitted awaiting email confirmation",
+                                             description: "Use \"Check for email confirmation\" to continue. You may need to run it multiple times.")
+                    }
+                    return
+                }
+
                 addOptOutConfirmedEvent(for: scanResult)
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.isProgressActive = false
                     self.progressText = "Idle"
                     self.showAlert = true
@@ -403,7 +405,7 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
                 fatalError("Failed to load JS file \(jsFile): \(error.localizedDescription)")
             } catch {
                 addOptOutErrorEvent(for: scanResult, error: error)
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.isProgressActive = false
                     self.progressText = "Idle"
                 }
@@ -415,70 +417,51 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
     private func createBrokerProfileQueryData(for broker: DataBroker) -> [BrokerProfileQueryData] {
         let profile: DataBrokerProtectionProfile =
             .init(
-                names: names.map { $0.toModel() },
-                addresses: addresses.map { $0.toModel() },
+                names: names.compactMap { $0.toModel() },
+                addresses: addresses.compactMap { $0.toModel() },
                 phones: [String](),
                 birthYear: Int(birthYear) ?? 1990
             )
         let profileQueries = profile.profileQueries
         var brokerProfileQueryData = [BrokerProfileQueryData]()
 
-        var profileQueryIndex: Int64 = 1
+        let resolvedBroker = brokerWithId(broker)
         for profileQuery in profileQueries {
-            let fakeScanJobData = ScanJobData(brokerId: 0, profileQueryId: profileQueryIndex, historyEvents: [HistoryEvent]())
+            let profileQueryId = DebugHelper.stableId(for: profileQuery)
+            let fakeScanJobData = ScanJobData(brokerId: DebugHelper.stableId(for: resolvedBroker),
+                                              profileQueryId: profileQueryId,
+                                              historyEvents: [HistoryEvent]())
             brokerProfileQueryData.append(
-                .init(dataBroker: broker, profileQuery: profileQuery.with(id: profileQueryIndex), scanJobData: fakeScanJobData)
+                .init(dataBroker: resolvedBroker,
+                      profileQuery: profileQuery.with(id: profileQueryId),
+                      scanJobData: fakeScanJobData)
             )
-            profileQueryLabels[profileQueryIndex] = profileQueryText(for: profileQuery)
-
-            profileQueryIndex += 1
-        }
-
-        return brokerProfileQueryData
-    }
-
-    private func createBrokerProfileQueryData() -> [BrokerProfileQueryData] {
-        let profile: DataBrokerProtectionProfile =
-            .init(
-                names: names.map { $0.toModel() },
-                addresses: addresses.map { $0.toModel() },
-                phones: [String](),
-                birthYear: Int(birthYear) ?? 1990
-            )
-        let profileQueries = profile.profileQueries
-        var brokerProfileQueryData = [BrokerProfileQueryData]()
-
-        var profileQueryIndex: Int64 = 1
-        for profileQuery in profileQueries {
-            let fakeScanJobData = ScanJobData(brokerId: 0, profileQueryId: profileQueryIndex, historyEvents: [HistoryEvent]())
-            for broker in brokers {
-                brokerProfileQueryData.append(
-                    .init(dataBroker: broker, profileQuery: profileQuery.with(id: profileQueryIndex), scanJobData: fakeScanJobData)
-                )
-            }
-            profileQueryLabels[profileQueryIndex] = profileQueryText(for: profileQuery)
-
-            profileQueryIndex += 1
+            profileQueryLabels[profileQueryId] = profileQueryText(for: profileQuery)
         }
 
         return brokerProfileQueryData
     }
 
     private func showNoResultsAlert() {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.showAlert = true
             self.alert = AlertUI.noResults()
         }
     }
 
-    private func showAlert(for error: Error) {
-        DispatchQueue.main.async {
+    private func brokerWithId(_ broker: DataBroker) -> DataBroker {
+        guard broker.id == nil else { return broker }
+        return broker.with(id: DebugHelper.stableId(for: broker))
+    }
+
+    func showAlert(for error: Error) {
+        Task { @MainActor in
             self.showAlert = true
             if let dbpError = error as? DataBrokerProtectionError {
                 self.alert = AlertUI.from(error: dbpError)
             }
 
-            print("Error when scanning: \(error)")
+            Logger.dataBrokerProtection.error("Error when scanning: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -526,7 +509,11 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
         AppVersion.shared.versionNumber
     }
 
-    private func addDebugEvent(kind: DebugEventKind, summary: String, profileQueryLabel: String, details: String, progressText: String) {
+    var dbpEndpoint: String {
+        DataBrokerProtectionSettings(defaults: .dbp).endpointURL.absoluteString
+    }
+
+    func addDebugEvent(kind: DebugEventKind, summary: String, profileQueryLabel: String, details: String, progressText: String) {
         let event = DebugLogEvent(
             timestamp: Date(),
             kind: kind,
@@ -534,30 +521,43 @@ final class DataBrokerRunCustomJSONViewModel: ObservableObject {
             summary: summary,
             details: details
         )
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.debugEvents.append(event)
         }
         updateProgress(progressText)
     }
 
-    private func actionSummary(stepType: StepType, actionType: ActionType?) -> String {
+    func addHistoryDebugEvent(summary: String, details: String) {
+        let event = DebugLogEvent(
+            timestamp: Date(),
+            kind: .history,
+            profileQueryLabel: "-",
+            summary: summary,
+            details: details
+        )
+        Task { @MainActor in
+            self.debugEvents.append(event)
+        }
+    }
+
+    func actionSummary(stepType: StepType, actionType: ActionType?) -> String {
         let typeText = actionType?.rawValue ?? "unknown"
         return "\(stepType.rawValue) > \(typeText)"
     }
 
-    private func currentActionText(stepType: StepType, actionType: ActionType?, prefix: String) -> String {
+    func currentActionText(stepType: StepType, actionType: ActionType?, prefix: String) -> String {
         let typeText = actionType?.rawValue ?? "unknown"
         return "\(prefix): \(stepType.rawValue) > \(typeText)"
     }
 
-    private func profileQueryText(for profileQuery: ProfileQuery) -> String {
+    func profileQueryText(for profileQuery: ProfileQuery) -> String {
         let nameText = "\(profileQuery.firstName) \(profileQuery.lastName)"
         let locationText = "\(profileQuery.city) \(profileQuery.state)"
         return "\(nameText) x \(locationText)"
     }
 
-    private func updateProgress(_ text: String) {
-        DispatchQueue.main.async {
+    func updateProgress(_ text: String) {
+        Task { @MainActor in
             self.progressText = text
             self.isProgressActive = true
         }
