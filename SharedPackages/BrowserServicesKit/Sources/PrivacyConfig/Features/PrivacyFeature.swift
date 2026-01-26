@@ -349,6 +349,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Controls whether automatic page context attachment defaults to enabled
     case autoAttachContextByDefault
+
+    /// Controls deletion of Synced chats
+    case supportsSyncChatsDeletion
 }
 
 public enum HtmlNewTabPageSubfeature: String, Equatable, PrivacySubfeature {

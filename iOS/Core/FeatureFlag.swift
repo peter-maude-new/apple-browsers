@@ -274,7 +274,7 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211652685709102?focus=true
     case aiChatAutoAttachContextByDefault
 
-    /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211837879355661?focus=true
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212980785692847?focus=true
     case aiChatSync
 
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212388316840466?focus=true
@@ -301,6 +301,9 @@ public enum FeatureFlag: String {
     
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212875994217788?focus=true
     case genericBackgroundTask
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212980785692854?focus=true
+    case supportsSyncChatsDeletion
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -401,7 +404,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .genericBackgroundTask,
              .webViewFlashPrevention,
              .tabSwitcherTrackerCount,
-             .burnSingleTab:
+             .burnSingleTab,
+             .supportsSyncChatsDeletion:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -628,6 +632,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .genericBackgroundTask:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))
+        case .supportsSyncChatsDeletion:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.supportsSyncChatsDeletion))
         }
     }
 }

@@ -271,7 +271,7 @@ public enum FeatureFlag: String, CaseIterable {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212783502979551?focus=true
     case memoryPressureReporting
 
-    /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211837879355661?focus=true
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212901927858518?focus=true
     case aiChatSync
 
     /// Autoconsent heuristic action experiment
@@ -285,6 +285,9 @@ public enum FeatureFlag: String, CaseIterable {
     /// Whether the wide event POST endpoint is enabled
     /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
     case wideEventPostEndpoint
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212901927858518?focus=true
+    case supportsSyncChatsDeletion
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -409,7 +412,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .aiChatSync,
                 .heuristicAction,
                 .nextStepsSingleCardIteration,
-                .wideEventPostEndpoint:
+                .wideEventPostEndpoint,
+                .supportsSyncChatsDeletion:
             return true
         case .freemiumDBP,
                 .contextualOnboarding,
@@ -589,6 +593,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .wideEventPostEndpoint:
             return .remoteReleasable(.subfeature(MacOSBrowserConfigSubfeature.wideEventPostEndpoint))
+        case .supportsSyncChatsDeletion:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.supportsSyncChatsDeletion))
         }
     }
 }
