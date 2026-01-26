@@ -296,6 +296,8 @@
 		4B82E4772E64E4CF00DE9F0C /* WideEventLaunchCleanupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B82E4762E64E4CF00DE9F0C /* WideEventLaunchCleanupTask.swift */; };
 		4B92C6F72F26968200108694 /* PrivacyStats in Frameworks */ = {isa = PBXBuildFile; productRef = AA3000060000000000000006 /* PrivacyStats */; };
 		4B92C6FD2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B92C6FB2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift */; };
+		4B92C7082F26F44000108694 /* AIChat in Frameworks */ = {isa = PBXBuildFile; productRef = 4B92C7072F26F44000108694 /* AIChat */; };
+		4B92C70A2F26F47300108694 /* AIChat in Frameworks */ = {isa = PBXBuildFile; productRef = 4B92C7092F26F47300108694 /* AIChat */; };
 		4B94B79E2D4831D90014AAB8 /* SyncUI-iOS in Frameworks */ = {isa = PBXBuildFile; productRef = 4B94B79D2D4831D90014AAB8 /* SyncUI-iOS */; };
 		4BB7CBB02AF59C310014A35F /* VPNWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB7CBAF2AF59C310014A35F /* VPNWidget.swift */; };
 		4BB88F3F2E5D701200DE539A /* PixelKitTestingUtilities in Frameworks */ = {isa = PBXBuildFile; productRef = 4BB88F3E2E5D701200DE539A /* PixelKitTestingUtilities */; };
@@ -4689,6 +4691,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B92C7082F26F44000108694 /* AIChat in Frameworks */,
 				986CD5352DE8F4FA00AFA98A /* RemoteMessaging in Frameworks */,
 				1E1D8B632995143200C96994 /* OHHTTPStubs in Frameworks */,
 				1E1D8B652995143200C96994 /* OHHTTPStubsSwift in Frameworks */,
@@ -4729,6 +4732,7 @@
 				98424A962CED4F430071C7DB /* OHHTTPStubs in Frameworks */,
 				374E76102EF56FAE00F8AADE /* PrivacyConfigTestsUtils in Frameworks */,
 				98424A972CED4F430071C7DB /* OHHTTPStubsSwift in Frameworks */,
+				4B92C70A2F26F47300108694 /* AIChat in Frameworks */,
 				4BC95EB32D7417CC002FAB32 /* BrowserServicesKit in Frameworks */,
 				F11595D72E8570AF00CC0481 /* AttributedMetric in Frameworks */,
 				98424A982CED4F430071C7DB /* ContentBlocking in Frameworks */,
@@ -10272,6 +10276,7 @@
 				C1B441E42E2990F7005E2BA9 /* PersistenceTestingUtils */,
 				CC55B2402E82CD860032E8BD /* BrowserServicesKitTestsUtils */,
 				374E760D2EF56D9100F8AADE /* PrivacyConfigTestsUtils */,
+				4B92C7072F26F44000108694 /* AIChat */,
 			);
 			productName = IntegrationTests;
 			productReference = 85D33FCB25C97B6E002B91A6 /* IntegrationTests.xctest */;
@@ -10348,6 +10353,7 @@
 				7BC26CB52DFC156A00E52480 /* VPNTestUtils */,
 				F11595D62E8570AF00CC0481 /* AttributedMetric */,
 				374E760F2EF56FAE00F8AADE /* PrivacyConfigTestsUtils */,
+				4B92C7092F26F47300108694 /* AIChat */,
 			);
 			productName = DuckDuckGoTests;
 			productReference = 98424AA92CED4F430071C7DB /* WebViewUnitTests.xctest */;
@@ -16401,6 +16407,14 @@
 		4B307E392EA2E44D00D18297 /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Common;
+		};
+		4B92C7072F26F44000108694 /* AIChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AIChat;
+		};
+		4B92C7092F26F47300108694 /* AIChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AIChat;
 		};
 		4B94B79D2D4831D90014AAB8 /* SyncUI-iOS */ = {
 			isa = XCSwiftPackageProductDependency;

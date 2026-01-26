@@ -54,17 +54,14 @@ final class SubscriptionRestoreViewModel: ObservableObject {
     // Read only View State - Should only be modified from the VM
     @Published private(set) var state = State()
 
-    private let wideEvent: WideEventManaging
     private let instrumentation: SubscriptionInstrumentation
 
     init(userScript: SubscriptionPagesUserScript,
          subFeature: any SubscriptionPagesUseSubscriptionFeature,
          isAddingDevice: Bool = false,
-         wideEvent: WideEventManaging = AppDependencyProvider.shared.wideEvent,
          instrumentation: SubscriptionInstrumentation = AppDependencyProvider.shared.subscriptionInstrumentation) {
         self.userScript = userScript
         self.subFeature = subFeature
-        self.wideEvent = wideEvent
         self.instrumentation = instrumentation
     }
     
