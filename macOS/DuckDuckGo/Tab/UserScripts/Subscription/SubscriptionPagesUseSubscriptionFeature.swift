@@ -287,7 +287,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         }
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     func subscriptionSelected(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         instrumentation.purchaseAttempted()
         struct SubscriptionSelection: Decodable {
@@ -948,4 +947,3 @@ private extension SubscriptionPagesUseSubscriptionFeature {
         }
     }
 }
-
