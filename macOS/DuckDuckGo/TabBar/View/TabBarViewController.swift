@@ -73,7 +73,8 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private var pinnedTabsCollectionCancellable: AnyCancellable?
     private var fireButtonMouseOverCancellable: AnyCancellable?
-    private var lockButtonMouseOverCancellable: AnyCancellable?
+    private var lockStateTabsCancellable: AnyCancellable?
+    private var lockStateCancellables: Set<AnyCancellable> = []
 
     private var addNewTabButtonFooter: TabBarFooter? {
         guard let indexPath = collectionView.indexPathsForVisibleSupplementaryElements(ofKind: NSCollectionView.elementKindSectionFooter).first,
@@ -379,7 +380,6 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
 
     private func setupLockButton() {
         lockButton.isAnimationEnabled = false  // Prevent image hiding on hover
-        lockButton.image = NSImage(systemSymbolName: "lock", accessibilityDescription: UserText.lockBrowserTooltip)
         lockButton.toolTip = UserText.lockBrowserTooltip
         lockButton.setAccessibilityElement(true)
         lockButton.setAccessibilityRole(.button)
@@ -390,13 +390,47 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         lockButtonWidthConstraint.constant = theme.tabBarButtonSize
         lockButtonHeightConstraint.constant = theme.tabBarButtonSize
 
-        // Show unlock icon on hover to indicate action
-        lockButtonMouseOverCancellable = lockButton.publisher(for: \.isMouseOver)
-            .sink { [weak self] isMouseOver in
-                guard let self else { return }
-                let iconName = isMouseOver ? "lock.open" : "lock"
-                self.lockButton.image = NSImage(systemSymbolName: iconName, accessibilityDescription: UserText.lockBrowserTooltip)
-            }
+        // Observe tab collection changes to resubscribe when tabs are added/removed
+        let pinnedTabsPublisher = tabCollectionViewModel.pinnedTabsCollection
+            .map { $0.$tabs.eraseToAnyPublisher() }
+            ?? Just([]).eraseToAnyPublisher()
+
+        lockStateTabsCancellable = Publishers.CombineLatest(
+            tabCollectionViewModel.tabCollection.$tabs,
+            pinnedTabsPublisher
+        )
+        .sink { [weak self] regularTabs, pinnedTabs in
+            self?.subscribeToTabLockStates(regularTabs + pinnedTabs)
+        }
+    }
+
+    private func subscribeToTabLockStates(_ tabs: [Tab]) {
+        lockStateCancellables.removeAll()
+
+        for tab in tabs {
+            tab.$isLocked
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.updateLockButtonIcon()
+                }
+                .store(in: &lockStateCancellables)
+        }
+
+        // Update immediately with current state
+        updateLockButtonIcon()
+    }
+
+    private func updateLockButtonIcon() {
+        let regularAllLocked = BrowserLockCoordinator.shared.allConfiguredTabsLocked(
+            in: tabCollectionViewModel.tabCollection
+        )
+        let pinnedAllLocked = tabCollectionViewModel.pinnedTabsCollection.map {
+            BrowserLockCoordinator.shared.allConfiguredTabsLocked(in: $0)
+        } ?? true
+
+        let allLocked = regularAllLocked && pinnedAllLocked
+        let iconName = allLocked ? "lock" : "lock.open"
+        lockButton.image = NSImage(systemSymbolName: iconName, accessibilityDescription: UserText.lockBrowserTooltip)
     }
 
     private func setupScrollButtons() {
@@ -1072,7 +1106,6 @@ extension TabBarViewController: ThemeUpdateListening {
 
         lockButton.normalTintColor = colorsProvider.iconsColor
         lockButton.mouseOverTintColor = colorsProvider.iconsColor
-        lockButton.mouseOverColor = colorsProvider.buttonMouseOverColor
 
         leftScrollButton.normalTintColor = colorsProvider.iconsColor
         leftScrollButton.mouseOverColor = colorsProvider.buttonMouseOverColor
