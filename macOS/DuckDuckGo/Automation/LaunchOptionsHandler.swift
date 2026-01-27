@@ -41,9 +41,11 @@ public final class LaunchOptionsHandler {
 
     /// Returns the automation port if set, nil otherwise.
     /// The automation server will listen on this port when launched.
+    /// Port must be in the valid UInt16 range (1-65535).
     public var automationPort: Int? {
         let port = userDefaults.integer(forKey: Self.automationPortKey)
-        return port > 0 ? port : nil
+        guard UInt16(exactly: port) != nil, port > 0 else { return nil }
+        return port
     }
 
     /// Returns true if the app is running in UI testing mode
