@@ -116,6 +116,7 @@ public final class AutomationServerCore {
             }
             if isComplete {
                 Logger.automationServer.info("Connection marked complete. Cancelling connection.")
+                self.connectionQueues.removeValue(forKey: ObjectIdentifier(connection))
                 connection.cancel()
                 return
             }
