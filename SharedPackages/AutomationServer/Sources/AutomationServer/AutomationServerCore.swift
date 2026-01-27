@@ -90,12 +90,15 @@ public final class AutomationServerCore {
         ) { (content: Data?, _: NWConnection.ContentContext?, isComplete: Bool, error: NWError?) in
             guard connection.state == .ready else {
                 Logger.automationServer.info("Receive aborted as connection is no longer ready.")
+                self.connectionQueues.removeValue(forKey: ObjectIdentifier(connection))
                 return
             }
             Logger.automationServer.info("Received request - Content: \(String(describing: content)) isComplete: \(isComplete) Error: \(String(describing: error))")
 
             if let error {
                 Logger.automationServer.error("Error in request: \(error)")
+                self.connectionQueues.removeValue(forKey: ObjectIdentifier(connection))
+                connection.cancel()
                 return
             }
 
@@ -134,6 +137,7 @@ public final class AutomationServerCore {
                 }
             } else {
                 Logger.automationServer.info("Connection is no longer ready, stopping receive.")
+                self.connectionQueues.removeValue(forKey: ObjectIdentifier(connection))
             }
         }
     }
