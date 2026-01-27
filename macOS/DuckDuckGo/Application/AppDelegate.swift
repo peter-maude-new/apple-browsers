@@ -475,7 +475,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let privacyConfigurationManager: PrivacyConfigurationManager
 
-#if DEBUG
+#if DEBUG || REVIEW
         // When TEST_PRIVACY_CONFIG_PATH is set, skip cached config to use the test config from embedded data provider
         let useTestConfig = ProcessInfo.processInfo.environment[AppPrivacyConfigurationDataProvider.Constants.testPrivacyConfigPathKey] != nil
         let fetchedEtag: String? = useTestConfig ? nil : configurationStore.loadEtag(for: .privacyConfiguration)

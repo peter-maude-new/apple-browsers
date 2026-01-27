@@ -87,17 +87,20 @@ final class AppContentBlocking {
         autoconsentManagement: AutoconsentManagement,
         contentScopePreferences: ContentScopePreferences
     ) {
+#if DEBUG || REVIEW
         // When TEST_PRIVACY_CONFIG_PATH is set, skip cached config to use embedded (test) config
         let useTestConfig = ProcessInfo.processInfo.environment[AppPrivacyConfigurationDataProvider.Constants.testPrivacyConfigPathKey] != nil
         let fetchedEtag: String? = useTestConfig ? nil : configurationStore.loadEtag(for: .privacyConfiguration)
         let fetchedData: Data? = useTestConfig ? nil : configurationStore.loadData(for: .privacyConfiguration)
-        
-        #if DEBUG
+
         if useTestConfig {
             NSLog("[DDG-TEST-CONFIG] Skipping cached privacy config to use TEST_PRIVACY_CONFIG_PATH")
         }
-        #endif
-        
+#else
+        let fetchedEtag: String? = configurationStore.loadEtag(for: .privacyConfiguration)
+        let fetchedData: Data? = configurationStore.loadData(for: .privacyConfiguration)
+#endif
+
         let privacyConfigurationManager = PrivacyConfigurationManager(fetchedETag: fetchedEtag,
                                                                       fetchedData: fetchedData,
                                                                       embeddedDataProvider: AppPrivacyConfigurationDataProvider(),
@@ -154,11 +157,16 @@ final class AppContentBlocking {
         self.privacyConfigurationManager = privacyConfigurationManager
         self.tld = tld
 
+#if DEBUG || REVIEW
         // When using test config, also skip cached tracker data to ensure consistent state
         let useTestConfig = ProcessInfo.processInfo.environment[AppPrivacyConfigurationDataProvider.Constants.testPrivacyConfigPathKey] != nil
         let trackerEtag: String? = useTestConfig ? nil : configurationStore.loadEtag(for: .trackerDataSet)
         let trackerData: Data? = useTestConfig ? nil : configurationStore.loadData(for: .trackerDataSet)
-        
+#else
+        let trackerEtag: String? = configurationStore.loadEtag(for: .trackerDataSet)
+        let trackerData: Data? = configurationStore.loadData(for: .trackerDataSet)
+#endif
+
         trackerDataManager = TrackerDataManager(etag: trackerEtag,
                                                 data: trackerData,
                                                 embeddedDataProvider: AppTrackerDataSetProvider(),
