@@ -52,8 +52,12 @@ final class IOSAutomationProvider: BrowserAutomationProvider {
         main.currentTab?.webView
     }
 
-    func navigate(to url: URL) {
+    func navigate(to url: URL) -> Bool {
+        guard main.currentTab != nil else {
+            return false
+        }
         main.loadUrl(url)
+        return true
     }
 
     func getAllTabHandles() -> [String] {

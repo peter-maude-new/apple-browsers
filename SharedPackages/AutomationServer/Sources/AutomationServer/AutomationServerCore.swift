@@ -240,7 +240,9 @@ public final class AutomationServerCore {
         guard let navigateUrl = URL(string: navigateUrlString) else {
             return .failure(.invalidURL)
         }
-        provider.navigate(to: navigateUrl)
+        guard provider.navigate(to: navigateUrl) else {
+            return .failure(.noWindow)
+        }
         return .success("done")
     }
 

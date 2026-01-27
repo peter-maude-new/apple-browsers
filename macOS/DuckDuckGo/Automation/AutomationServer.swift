@@ -106,8 +106,12 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
 
     // MARK: - BrowserAutomationProvider
 
-    func navigate(to url: URL) {
-        currentTab?.setContent(.contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false)))
+    func navigate(to url: URL) -> Bool {
+        guard let tab = currentTab else {
+            return false
+        }
+        tab.setContent(.contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false)))
+        return true
     }
 
     func getAllTabHandles() -> [String] {
