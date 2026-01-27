@@ -96350,6 +96350,102 @@
         }
       }
     },
+    "tab.lock.click" : {
+      "comment" : "Tab lock overlay instruction label",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Click to unlock"
+          }
+        }
+      }
+    },
+    "tab.lock.menu.lock" : {
+      "comment" : "Context menu item to lock a tab with custom title/emoji",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lock Tab..."
+          }
+        }
+      }
+    },
+    "tab.lock.menu.relock" : {
+      "comment" : "Context menu item to re-lock a tab that already has lock config",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lock"
+          }
+        }
+      }
+    },
+    "tab.lock.menu.remove" : {
+      "comment" : "Context menu item to remove lock configuration from a tab",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove Lock"
+          }
+        }
+      }
+    },
+    "tab.lock.menu.unlock" : {
+      "comment" : "Context menu item to unlock a locked tab",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlock"
+          }
+        }
+      }
+    },
+    "tab.lock.preview.detail" : {
+      "comment" : "Detail text shown in tab preview tooltip when tab is locked",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlock to view site details"
+          }
+        }
+      }
+    },
+    "tab.lock.preview.title" : {
+      "comment" : "Title shown in tab preview tooltip when tab is locked",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Site Locked"
+          }
+        }
+      }
+    },
+    "tab.lock.remove.reason" : {
+      "comment" : "Touch ID prompt reason for removing a tab lock",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Remove tab lock"
+          }
+        }
+      }
+    },
     "tab.onboarding.title" : {
       "comment" : "Tab onboarding title",
       "extractionState" : "extracted_with_value",
@@ -96526,6 +96622,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Примечания к релизу"
+          }
+        }
+      }
+    },
+    "tab.unlock.reason" : {
+      "comment" : "Touch ID prompt reason for unlocking a tab",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Unlock tab"
           }
         }
       }

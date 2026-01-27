@@ -141,6 +141,7 @@ extension Preferences {
                             .padding(.leading, 19)
                         }
                     }
+
                 }
 
                 // SECTION: Tabs

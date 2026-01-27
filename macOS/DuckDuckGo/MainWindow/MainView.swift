@@ -47,6 +47,7 @@ final class MainView: NSView {
     let fireContainerView = NSView()
     let aiChatOmnibarContainerView: NSView = .init()
     let aiChatOmnibarTextContainerView: PassthroughView = .init()
+    let tabLockContainerView = NSView()
 
     let divider = ColorView(frame: .zero, backgroundColor: .separatorColor)
 
@@ -78,7 +79,8 @@ final class MainView: NSView {
             aiChatOmnibarContainerView,
             aiChatOmnibarTextContainerView,
             findInPageContainerView,
-            fireContainerView
+            fireContainerView,
+            tabLockContainerView
         ] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             addSubview(subview)
@@ -153,7 +155,15 @@ final class MainView: NSView {
             fireContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             fireContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             fireContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            // Tab lock container spans from below tab bar to bottom
+            tabLockContainerView.topAnchor.constraint(equalTo: tabBarContainerView.bottomAnchor),
+            tabLockContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tabLockContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tabLockContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
+
+        tabLockContainerView.isHidden = true
 
         aiChatOmnibarContainerWidthConstraint = aiChatOmnibarContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: 832)
         aiChatOmnibarContainerHeightConstraint = aiChatOmnibarContainerView.heightAnchor.constraint(equalToConstant: Constants.aiChatOmnibarContainerMinHeight)

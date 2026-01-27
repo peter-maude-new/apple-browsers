@@ -1,5 +1,5 @@
 //
-//  BrowserLockOverlayView.swift
+//  TabLockOverlayView.swift
 //
 //  Copyright © 2024 DuckDuckGo. All rights reserved.
 //
@@ -18,12 +18,10 @@
 
 import AppKit
 
-final class BrowserLockOverlayView: NSView {
+/// Overlay view that covers locked tab content and triggers unlock on interaction
+final class TabLockOverlayView: NSView {
 
     var onUnlockRequested: (() -> Void)?
-
-    /// Height of the draggable region at the top of the overlay (matching titlebar height)
-    private let draggableRegionHeight: CGFloat = 38
 
     private let visualEffectView: NSVisualEffectView = {
         let view = NSVisualEffectView()
@@ -44,7 +42,7 @@ final class BrowserLockOverlayView: NSView {
     }()
 
     private let instructionLabel: NSTextField = {
-        let label = NSTextField(labelWithString: UserText.browserLockClickToUnlock)
+        let label = NSTextField(labelWithString: UserText.tabLockClickToUnlock)
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .white
         label.alignment = .center
@@ -96,7 +94,7 @@ final class BrowserLockOverlayView: NSView {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
     override func keyDown(with event: NSEvent) {
-        // Consume - trigger unlock on any key press
+        // Trigger unlock on any key press
         onUnlockRequested?()
     }
 
@@ -108,28 +106,7 @@ final class BrowserLockOverlayView: NSView {
         // Consume modifier key changes
     }
 
-    override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        guard event.modifierFlags.contains(.command) else { return false }
-        let chars = event.charactersIgnoringModifiers?.lowercased() ?? ""
-
-        // Allow only: Quit (q), Hide (h), Hide Others (h+opt), Minimize (m)
-        switch (chars, event.modifierFlags.contains(.option)) {
-        case ("q", _), ("h", _), ("m", false):
-            return false  // Let these through
-        default:
-            return true   // Block all other shortcuts
-        }
-    }
-
     override func mouseDown(with event: NSEvent) {
-        let locationInView = convert(event.locationInWindow, from: nil)
-
-        // Allow window dragging from the top region (title bar area)
-        if locationInView.y > bounds.height - draggableRegionHeight {
-            window?.performDrag(with: event)
-            return
-        }
-
         onUnlockRequested?()
     }
 
@@ -160,21 +137,4 @@ final class BrowserLockOverlayView: NSView {
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation { [] }
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool { false }
-}
-
-// MARK: - Menu Validation
-
-extension BrowserLockOverlayView: NSMenuItemValidation {
-    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        // Allow only essential items
-        switch menuItem.action {
-        case #selector(NSApplication.terminate(_:)),
-             #selector(NSApplication.hide(_:)),
-             #selector(NSApplication.hideOtherApplications(_:)),
-             #selector(NSApplication.unhideAllApplications(_:)):
-            return true
-        default:
-            return false
-        }
-    }
 }

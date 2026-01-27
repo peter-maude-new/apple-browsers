@@ -645,7 +645,7 @@ extension WindowControllersManager: OnboardingNavigating {
         var tabToAppend = tab
         if mainWindowController.mainViewController.isBurner {
             let burnerMode = mainWindowController.mainViewController.tabCollectionViewModel.burnerMode
-            tabToAppend = Tab(content: tab.content, burnerMode: burnerMode)
+            tabToAppend = Tab(content: tab.content, burnerMode: burnerMode, lockConfig: tab.lockConfig)
         }
         mainWindowController.mainViewController.tabCollectionViewModel.append(tab: tabToAppend)
         mainWindowController.mainViewController.tabCollectionViewModel.remove(at: index)

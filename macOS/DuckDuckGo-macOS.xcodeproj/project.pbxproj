@@ -2077,6 +2077,10 @@
 		7B2366882C09FADA002D393F /* VPNAppLauncher in Frameworks */ = {isa = PBXBuildFile; productRef = 7B2366872C09FADA002D393F /* VPNAppLauncher */; };
 		7B23668C2C09FAF1002D393F /* VPNAppLauncher in Frameworks */ = {isa = PBXBuildFile; productRef = 7B23668B2C09FAF1002D393F /* VPNAppLauncher */; };
 		7B23668E2C09FAFA002D393F /* VPNAppLauncher in Frameworks */ = {isa = PBXBuildFile; productRef = 7B23668D2C09FAFA002D393F /* VPNAppLauncher */; };
+		7B23AC722F27FFCA0012FAA1 /* TabLockConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B23AC712F27FFCA0012FAA1 /* TabLockConfig.swift */; };
+		7B23AC732F27FFCA0012FAA1 /* TabLockConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B23AC712F27FFCA0012FAA1 /* TabLockConfig.swift */; };
+		7B23AC752F27FFDB0012FAA1 /* TabLockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B23AC742F27FFDB0012FAA1 /* TabLockOverlayView.swift */; };
+		7B23AC762F27FFDB0012FAA1 /* TabLockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B23AC742F27FFDB0012FAA1 /* TabLockOverlayView.swift */; };
 		7B25856E2BA2F2ED00D49F79 /* NetworkProtectionUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7B25856D2BA2F2ED00D49F79 /* NetworkProtectionUI */; };
 		7B2DDCF82A93A8BB0039D884 /* VPNAppEventsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2DDCF72A93A8BB0039D884 /* VPNAppEventsHandler.swift */; };
 		7B2DDCFA2A93B25F0039D884 /* KeychainType+ClientDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD3AF5C2A8E7AF1006F9F56 /* KeychainType+ClientDefault.swift */; };
@@ -5289,6 +5293,8 @@
 		7B1E819C27C8874900FF0E60 /* ContentOverlay.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ContentOverlay.storyboard; sourceTree = "<group>"; };
 		7B1E819D27C8874900FF0E60 /* ContentOverlayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentOverlayViewController.swift; sourceTree = "<group>"; };
 		7B22D86D2CCFD7B7006A76E1 /* TipKitController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipKitController.swift; sourceTree = "<group>"; };
+		7B23AC712F27FFCA0012FAA1 /* TabLockConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabLockConfig.swift; sourceTree = "<group>"; };
+		7B23AC742F27FFDB0012FAA1 /* TabLockOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabLockOverlayView.swift; sourceTree = "<group>"; };
 		7B25FE322AD12C990012AFAB /* NetworkProtectionMac */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NetworkProtectionMac; sourceTree = "<group>"; };
 		7B2DDCF72A93A8BB0039D884 /* VPNAppEventsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNAppEventsHandler.swift; sourceTree = "<group>"; };
 		7B2E365F2D6DEFBB00A08CB7 /* com.duckduckgo.mobile.ios.vpn.agent.network-extension.debug.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = "com.duckduckgo.mobile.ios.vpn.agent.network-extension.debug.systemextension"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -10577,6 +10583,7 @@
 				B6C0BB6929AF1C7000AE8E3C /* BrowserTabView.swift */,
 				AA585D83248FD31100E9A3E2 /* BrowserTabViewController.swift */,
 				B6BE9FA9293F7955006363C6 /* ModalSheetCancellable.swift */,
+				7B23AC742F27FFDB0012FAA1 /* TabLockOverlayView.swift */,
 				AA6FFB4524DC3B5A0028F4D0 /* WebView.swift */,
 				B6B2400D28083B49001B8F3A /* WebViewContainerView.swift */,
 				37054FCD2876472D00033B6F /* WebViewSnapshotView.swift */,
@@ -10602,6 +10609,7 @@
 				F4A6198B283CFFBB007F2080 /* ContentScopeFeatureFlagging.swift */,
 				84A72AA52DB276A20092A4B4 /* LinkOpenBehavior.swift */,
 				B634DBE4293C944700C3C99E /* NewWindowPolicy.swift */,
+				7B23AC712F27FFCA0012FAA1 /* TabLockConfig.swift */,
 				846FA8DC2ED6CDAC00F263AA /* NewWindowPolicyDecisionMaking.swift */,
 				1DC9DD1D2DB0416D0029D4A5 /* NSAlert+Tab.swift */,
 				85B49AF92CD1B7C5007FAA2A /* SystemInfo.swift */,
@@ -14891,6 +14899,7 @@
 				3706FC0D293F65D500E42796 /* AnimationView.swift in Sources */,
 				1E4EDA2E2DE9ED710019B6E8 /* AIChatSidebarViewController.swift in Sources */,
 				9FA173DB2B79BD8A00EE4E6E /* BookmarkDialogContainerView.swift in Sources */,
+				7B23AC762F27FFDB0012FAA1 /* TabLockOverlayView.swift in Sources */,
 				3706FC0E293F65D500E42796 /* NSRectExtension.swift in Sources */,
 				370C23122C7747E200A80A3E /* ImageProcessor.swift in Sources */,
 				3706FC0F293F65D500E42796 /* YoutubeOverlayUserScript.swift in Sources */,
@@ -15025,6 +15034,7 @@
 				9F9C49FE2BC7E9830099738D /* BookmarkAllTabsDialogViewModel.swift in Sources */,
 				9FCB94692DE05A4A00BC662B /* TimerInterface.swift in Sources */,
 				9F514F922B7D88AD001832A9 /* AddEditBookmarkFolderDialogView.swift in Sources */,
+				7B23AC732F27FFCA0012FAA1 /* TabLockConfig.swift in Sources */,
 				3706FC52293F65D500E42796 /* MouseOverAnimationButton.swift in Sources */,
 				3706FC53293F65D500E42796 /* TabBarScrollView.swift in Sources */,
 				B6104E9C2BA9C173008636B2 /* DownloadResumeData.swift in Sources */,
@@ -16111,6 +16121,7 @@
 				4B9DB03E2A983B24000927DB /* JoinWaitlistView.swift in Sources */,
 				1ED910D52B63BFB300936947 /* IdentityTheftRestorationPagesUserScript.swift in Sources */,
 				3768D8402C29C1F1004120AE /* ActiveRemoteMessageModel.swift in Sources */,
+				7B23AC752F27FFDB0012FAA1 /* TabLockOverlayView.swift in Sources */,
 				376731942C7F332300EB097B /* UserBackgroundImage.swift in Sources */,
 				37534CA028113101002621E7 /* LazyLoadable.swift in Sources */,
 				0230C0A3272080090018F728 /* KeyedCodingExtension.swift in Sources */,
@@ -17313,6 +17324,7 @@
 				7BC2690F2F22BD1F0006092C /* BrowserLockOverlayView.swift in Sources */,
 				7BC269102F22BD1F0006092C /* BrowserLockPreferences.swift in Sources */,
 				7BC269112F22BD1F0006092C /* BrowserLockCoordinator.swift in Sources */,
+				7B23AC722F27FFCA0012FAA1 /* TabLockConfig.swift in Sources */,
 				B6553692268440D700085A79 /* WKProcessPool+GeolocationProvider.swift in Sources */,
 				B68D21C32ACBC916002DA3C2 /* ContentBlockingMock.swift in Sources */,
 				7BAA30D62EA795A6001F217A /* UpdateWideEventData.swift in Sources */,

@@ -149,8 +149,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let privacyFeatures: AnyPrivacyFeatures
     let brokenSitePromptLimiter: BrokenSitePromptLimiter
     let fireCoordinator: FireCoordinator
-    @MainActor
-    private(set) lazy var browserLockCoordinator = BrowserLockCoordinator()
     let permissionManager: PermissionManager
     let notificationService: UserNotificationAuthorizationServicing
     let recentlyClosedCoordinator: RecentlyClosedCoordinating
@@ -1144,8 +1142,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             stateRestorationManager.applicationDidFinishLaunching()
         }
 
-        // Check browser lock AFTER state restoration so windows exist to be hidden
-        browserLockCoordinator.checkAndShowLockIfNeeded()
+        // Tab lock: tabs with lockConfig are already locked on restoration via Tab+NSSecureCoding
         let urlEventHandlerResult = urlEventHandler.applicationDidFinishLaunching()
 
         setUpAutoClearHandler()

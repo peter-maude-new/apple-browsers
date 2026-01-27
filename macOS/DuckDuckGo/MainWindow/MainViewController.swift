@@ -71,6 +71,8 @@ final class MainViewController: NSViewController {
     private var appearanceChangedCancellable: AnyCancellable?
     private var bannerPromptObserver: Any?
     private var bannerDismissedCancellable: AnyCancellable?
+    private var tabLockCancellable: AnyCancellable?
+    private var tabLockView: TabLockOverlayView?
 
     private var bookmarksBarIsVisible: Bool {
         return bookmarksBarViewController.parent != nil
@@ -680,6 +682,7 @@ final class MainViewController: NSViewController {
             subscribeToFindInPage(of: tabViewModel)
             subscribeToTitleChange(of: tabViewModel)
             subscribeToTabContent(of: tabViewModel)
+            subscribeToTabLockState(of: tabViewModel)
         }
     }
 
@@ -749,6 +752,89 @@ final class MainViewController: NSViewController {
                 adjustFirstResponder(selectedTabViewModel: selectedTabViewModel, tabContent: content)
             }
             .store(in: &self.tabViewModelCancellables)
+    }
+
+    // MARK: - Tab Lock
+
+    private func subscribeToTabLockState(of tabViewModel: TabViewModel?) {
+        tabLockCancellable?.cancel()
+        tabLockCancellable = nil
+
+        guard let tab = tabViewModel?.tab else {
+            hideTabLockView()
+            return
+        }
+
+        // Show lock view immediately if tab is locked
+        if tab.isLocked {
+            showTabLockView(for: tab)
+        } else {
+            hideTabLockView()
+        }
+
+        // Subscribe to future lock state changes
+        tabLockCancellable = tab.$isLocked
+            .dropFirst() // Skip initial value since we handled it above
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self, weak tab] isLocked in
+                guard let self, let tab else { return }
+                if isLocked {
+                    self.showTabLockView(for: tab)
+                } else {
+                    self.hideTabLockView()
+                }
+            }
+    }
+
+    private func showTabLockView(for tab: Tab) {
+        guard tabLockView == nil else { return }
+
+        let lockView = TabLockOverlayView(frame: mainView.tabLockContainerView.bounds)
+        lockView.onUnlockRequested = { [weak self, weak tab] in
+            guard let tab else { return }
+            self?.requestTabUnlock(tab)
+        }
+
+        lockView.translatesAutoresizingMaskIntoConstraints = false
+        mainView.tabLockContainerView.addSubview(lockView)
+        NSLayoutConstraint.activate([
+            lockView.leadingAnchor.constraint(equalTo: mainView.tabLockContainerView.leadingAnchor),
+            lockView.trailingAnchor.constraint(equalTo: mainView.tabLockContainerView.trailingAnchor),
+            lockView.topAnchor.constraint(equalTo: mainView.tabLockContainerView.topAnchor),
+            lockView.bottomAnchor.constraint(equalTo: mainView.tabLockContainerView.bottomAnchor)
+        ])
+
+        tabLockView = lockView
+
+        // Hide content containers and show lock container
+        mainView.navigationBarContainerView.isHidden = true
+        mainView.bookmarksBarContainerView.isHidden = true
+        mainView.bannerContainerView.isHidden = true
+        mainView.webContainerView.isHidden = true
+        mainView.tabLockContainerView.isHidden = false
+    }
+
+    private func hideTabLockView() {
+        tabLockView?.removeFromSuperview()
+        tabLockView = nil
+
+        // Restore content containers and hide lock container
+        mainView.navigationBarContainerView.isHidden = false
+        mainView.bookmarksBarContainerView.isHidden = false
+        mainView.bannerContainerView.isHidden = false
+        mainView.webContainerView.isHidden = false
+        mainView.tabLockContainerView.isHidden = true
+    }
+
+    private func requestTabUnlock(_ tab: Tab) {
+        Task { @MainActor in
+            let coordinator = BrowserLockCoordinator.shared
+            let success = await coordinator.authenticateForTabUnlock()
+            if success {
+                tab.isLocked = false
+                tab.reloadContentAfterUnlock()
+            }
+        }
     }
 
     private func subscribeToFirstResponder() {

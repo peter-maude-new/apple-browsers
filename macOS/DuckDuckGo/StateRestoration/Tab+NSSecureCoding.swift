@@ -34,6 +34,7 @@ extension Tab: NSSecureCoding {
         static let preferencePane = "preferencePane"
         static let historyPane = "historyPane"
         static let lastSelectedAt = "lastSelectedAt"
+        static let lockConfig = "lockConfig"
     }
 
     static var supportsSecureCoding: Bool { true }
@@ -56,13 +57,17 @@ extension Tab: NSSecureCoding {
 
         let interactionStateData: Data? = decoder.decodeIfPresent(at: NSSecureCodingKeys.interactionStateData) ?? decoder.decodeIfPresent(at: NSSecureCodingKeys.sessionStateData)
 
+        // Decode lock config if present
+        let lockConfig = TabLockConfig.decode(from: decoder, prefix: NSSecureCodingKeys.lockConfig)
+
         self.init(uuid: uuid,
                   content: content,
                   title: decoder.decodeIfPresent(at: NSSecureCodingKeys.title),
                   favicon: decoder.decodeIfPresent(at: NSSecureCodingKeys.favicon),
                   interactionStateData: interactionStateData,
                   shouldLoadInBackground: false,
-                  lastSelectedAt: decoder.decodeIfPresent(at: NSSecureCodingKeys.lastSelectedAt))
+                  lastSelectedAt: decoder.decodeIfPresent(at: NSSecureCodingKeys.lastSelectedAt),
+                  lockConfig: lockConfig)
 
         _=self.awakeAfter(using: decoder)
     }
@@ -85,6 +90,9 @@ extension Tab: NSSecureCoding {
         } else if let pane = content.historyPane {
             coder.encode(pane.rawValue, forKey: NSSecureCodingKeys.historyPane)
         }
+
+        // Encode lock config if present
+        lockConfig?.encode(with: coder, prefix: NSSecureCodingKeys.lockConfig)
 
         self.encodeExtensions(with: coder)
     }

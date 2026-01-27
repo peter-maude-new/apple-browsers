@@ -154,7 +154,8 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
                      newTabPageShownPixelSender: NewTabPageShownPixelSender? = nil,
                      tabCrashAggregator: TabCrashAggregator? = nil,
                      autoconsentStats: AutoconsentStatsCollecting? = nil,
-                     themeManager: ThemeManaging? = nil
+                     themeManager: ThemeManaging? = nil,
+                     lockConfig: TabLockConfig? = nil
     ) {
 
         let duckPlayer = duckPlayer
@@ -221,7 +222,8 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
                   newTabPageShownPixelSender: newTabPageShownPixelSender ?? NSApp.delegateTyped.newTabPageCoordinator.newTabPageShownPixelSender,
                   tabCrashAggregator: tabCrashAggregator ?? NSApp.delegateTyped.tabCrashAggregator,
                   autoconsentStats: autoconsentStats ?? NSApp.delegateTyped.autoconsentStats,
-                  themeManager: themeManager ?? NSApp.delegateTyped.themeManager
+                  themeManager: themeManager ?? NSApp.delegateTyped.themeManager,
+                  lockConfig: lockConfig
         )
     }
 
@@ -273,7 +275,8 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
          newTabPageShownPixelSender: NewTabPageShownPixelSender,
          tabCrashAggregator: TabCrashAggregator,
          autoconsentStats: AutoconsentStatsCollecting,
-         themeManager: ThemeManaging
+         themeManager: ThemeManaging,
+         lockConfig: TabLockConfig? = nil
     ) {
         self._id = id
         self.uuid = uuid ?? UUID().uuidString
@@ -297,6 +300,10 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         self.startupPreferences = startupPreferences
         self.tabsPreferences = tabsPreferences
         self.themeManager = themeManager
+
+        // Tab lock: set config and lock state (tabs with config start locked)
+        self.lockConfig = lockConfig
+        self.isLocked = lockConfig != nil
 
         self.specialPagesUserScript = SpecialPagesUserScript()
         specialPagesUserScript?
@@ -574,6 +581,77 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     var isLazyLoadingInProgress = false
 
     let burnerMode: BurnerMode
+
+    // MARK: - Tab Lock
+
+    /// Persistent lock configuration (title + emoji disguise). Nil if tab has no lock.
+    @Published var lockConfig: TabLockConfig? {
+        didSet {
+            // When lock config is set, automatically lock the tab
+            if lockConfig != nil && !isLocked {
+                isLocked = true
+            }
+        }
+    }
+
+    /// Session state indicating if the tab content is currently hidden (locked).
+    /// True when the tab is showing the lock overlay instead of real content.
+    @Published var isLocked: Bool = false
+
+    /// Returns true if this tab has a lock configuration (can be locked/unlocked)
+    var hasLockConfig: Bool {
+        lockConfig != nil
+    }
+
+    /// Saved interaction state for restoring content after unlock
+    private var savedInteractionStateForReload: Data?
+
+    /// Flag indicating content has been unloaded due to locking
+    private(set) var isContentUnloaded: Bool = false
+
+    /// Unloads WebView content to save memory while preserving restoration state.
+    @MainActor
+    func unloadContentForLock() {
+        guard !isContentUnloaded else { return }
+
+        // Only unload regular web content (not duck:// pages, blank, etc.)
+        guard let url = webView.url,
+              !url.isDuckURLScheme,
+              url != .blankPage else { return }
+
+        // Save interaction state before unloading
+        if #available(macOS 12.0, *) {
+            savedInteractionStateForReload = webView.interactionState as? Data
+        } else {
+            savedInteractionStateForReload = webView.sessionStateData()
+        }
+
+        // Stop media and loading, then load blank
+        webView.stopAllMedia(shouldStopLoading: true)
+        webView.load(URLRequest(url: .blankPage))
+
+        isContentUnloaded = true
+    }
+
+    /// Reloads WebView content after unlocking, restoring previous state.
+    @MainActor
+    func reloadContentAfterUnlock() {
+        guard isContentUnloaded else { return }
+
+        isContentUnloaded = false
+
+        if let savedState = savedInteractionStateForReload {
+            // Directly restore interaction state (includes URL, scroll position, and full back/forward history)
+            if #available(macOS 12.0, *) {
+                webView.interactionState = savedState
+            } else {
+                webView.restoreSessionState(from: savedState)
+            }
+            savedInteractionStateForReload = nil
+        } else if let url = content.urlForWebView {
+            webView.load(URLRequest(url: url))
+        }
+    }
 
     @PublishedAfter private(set) var content: TabContent {
         didSet {

@@ -183,7 +183,7 @@ final class PinnedTabsManagerProvider: @preconcurrency PinnedTabsManagerProvidin
     @MainActor
     private func migrateShared(to newPinnedTabsManager: PinnedTabsManager) {
         for tab in sharedPinnedTabsManager.tabCollection.tabs {
-            let newTab = Tab(content: tab.content)
+            let newTab = Tab(content: tab.content, lockConfig: tab.lockConfig)
             newPinnedTabsManager.pin(newTab, firePixel: false)
         }
         sharedPinnedTabsManager.tabCollection.removeAll()
@@ -226,7 +226,7 @@ fileprivate extension TabCollection {
         let duplicatedCollection = TabCollection()
         for tab in tabs {
             if let url = tab.url {
-                duplicatedCollection.append(tab: Tab(content: .url(url, source: .ui)))
+                duplicatedCollection.append(tab: Tab(content: .url(url, source: .ui), lockConfig: tab.lockConfig))
             }
         }
         return duplicatedCollection

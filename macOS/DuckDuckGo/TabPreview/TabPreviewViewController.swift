@@ -20,6 +20,7 @@ import Cocoa
 
 protocol Previewable {
     var shouldShowPreview: Bool { get }
+    var isLocked: Bool { get }
 
     var title: String { get }
     var tabContent: Tab.TabContent { get }
@@ -136,6 +137,16 @@ final class TabPreviewViewController: NSViewController {
     func display(tabViewModel: Previewable, isSelected: Bool) {
         _=view // load view if needed
 
+        // Show "Site Locked" for locked tabs (check separately from shouldShowPreview)
+        if tabViewModel.isLocked {
+            titleTextField.stringValue = UserText.tabLockPreviewTitle
+            urlTextField.stringValue = UserText.tabLockPreviewDetail
+            snapshotImageView.image = nil
+            snapshotImageViewHeightConstraint.constant = 0
+            titleTextField.lineBreakMode = .byTruncatingTail
+            return
+        }
+
         titleTextField.stringValue = tabViewModel.title
         titleTextField.lineBreakMode = isSelected ? .byWordWrapping : .byTruncatingTail
 
@@ -193,6 +204,7 @@ extension TabPreviewViewController {
             let title: String
             var tabContent: Tab.TabContent
             let shouldShowPreview: Bool
+            var isLocked: Bool = false
             var addressBarString: String { tabContent.userEditableUrl?.absoluteString ?? "Default" }
 
             var snapshot: NSImage? {

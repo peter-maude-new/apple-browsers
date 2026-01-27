@@ -47,6 +47,11 @@ protocol TabBarViewModel {
     var isLoadingPublisher: AnyPublisher<(Bool, WKError?), Never> { get }
     var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never> { get }
     var loadedPageDOMPublisher: PassthroughSubject<Void, Never> { get }
+
+    // Tab lock support
+    var lockConfig: TabLockConfig? { get }
+    var isLocked: Bool { get }
+    var lockStatePublisher: AnyPublisher<(TabLockConfig?, Bool), Never> { get }
 }
 
 extension TabViewModel: TabBarViewModel {
@@ -74,6 +79,15 @@ extension TabViewModel: TabBarViewModel {
     var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never> { tab.webViewRenderingProgressDidChangePublisher }
     var loadedPageDOMPublisher: PassthroughSubject<Void, Never> {
         tab.loadedPageDOMPublisher
+    }
+
+    // Tab lock support
+    var lockConfig: TabLockConfig? { tab.lockConfig }
+    var isLocked: Bool { tab.isLocked }
+    var lockStatePublisher: AnyPublisher<(TabLockConfig?, Bool), Never> {
+        tab.$lockConfig
+            .combineLatest(tab.$isLocked)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -112,6 +126,12 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool)
+
+    // Tab lock actions
+    @MainActor func tabBarViewItemLockTabAction(_: TabBarViewItem)
+    @MainActor func tabBarViewItemUnlockTabAction(_: TabBarViewItem)
+    @MainActor func tabBarViewItemRelockTabAction(_: TabBarViewItem)
+    @MainActor func tabBarViewItemRemoveLockAction(_: TabBarViewItem)
 }
 
 final class TabBarItemCellView: NSView {
@@ -789,6 +809,10 @@ final class TabBarViewItem: NSCollectionViewItem {
     private var currentURL: URL?
     private var cancellables = Set<AnyCancellable>()
 
+    // Tab lock state
+    private var lockConfig: TabLockConfig?
+    private var isTabLocked: Bool = false
+
     // MARK: - Active Permission Icons (replaces favicon when permissions are in use)
     private let featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger
     private var activePermissionIconTimer: Timer?
@@ -992,6 +1016,14 @@ final class TabBarViewItem: NSCollectionViewItem {
         clearSubscriptions()
 
         representedObject = tabViewModel
+
+        // Subscribe to lock state changes
+        tabViewModel.lockStatePublisher.sink { [weak self] lockConfig, isLocked in
+            self?.lockConfig = lockConfig
+            self?.isTabLocked = isLocked
+            self?.updateLockStateDisplay()
+        }.store(in: &cancellables)
+
         tabViewModel.titleAndLoadingStatusPublisher.sink { [weak self] title, isLoading in
             self?.displayTabTitle(title, isLoading: isLoading)
         }.store(in: &cancellables)
@@ -1070,6 +1102,9 @@ final class TabBarViewItem: NSCollectionViewItem {
         activePermissionTypes = []
         currentActivePermissionIndex = 0
         isLeftToSelected = false
+        // Clear lock state
+        lockConfig = nil
+        isTabLocked = false
         cell.clear()
     }
 
@@ -1312,6 +1347,12 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func updateFavicon(_ favicon: NSImage?) {
+        // Skip favicon update when tab is locked (show emoji instead)
+        if isTabLocked, let lockConfig = lockConfig {
+            displayLockEmoji(lockConfig.emoji)
+            return
+        }
+
         // Skip favicon update when showing active permission icons
         guard !isShowingActivePermissionIcon else { return }
 
@@ -1340,8 +1381,54 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func displayTabTitle(_ title: String, isLoading: Bool) {
+        // When tab is locked, show the disguise title instead
+        if isTabLocked, let lockConfig = lockConfig {
+            cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
+            return
+        }
         let url = tabViewModel?.url
         cell.displayTabTitleIfNeeded(title: title, url: url, isLoading: isLoading)
+    }
+
+    private func updateLockStateDisplay() {
+        // Refresh title and favicon to show/hide lock disguise
+        if isTabLocked, let lockConfig = lockConfig {
+            cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
+            displayLockEmoji(lockConfig.emoji)
+        } else {
+            // Restore real title and favicon
+            if let tabViewModel = tabViewModel {
+                displayTabTitle(tabViewModel.title, isLoading: false)
+                updateFavicon(tabViewModel.favicon)
+            }
+        }
+        cell.needsLayout = true
+    }
+
+    private func displayLockEmoji(_ emoji: String) {
+        let emojiImage = emojiToImage(emoji)
+        cell.needsLayout = true
+
+        if cell.displaysTabsProgressIndicator {
+            cell.faviconView.displayFavicon(favicon: emojiImage, url: nil)
+            cell.faviconView.imageTintColor = nil
+        } else {
+            cell.faviconImageView.isHidden = false
+            cell.faviconImageView.image = emojiImage
+            cell.faviconImageView.contentTintColor = nil
+            cell.faviconPlaceholderView.isHidden = true
+        }
+    }
+
+    private func emojiToImage(_ emoji: String) -> NSImage {
+        let font = NSFont.systemFont(ofSize: 14)
+        let attributes: [NSAttributedString.Key: Any] = [.font: font]
+        let size = (emoji as NSString).size(withAttributes: attributes)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        (emoji as NSString).draw(at: .zero, withAttributes: attributes)
+        image.unlockFocus()
+        return image
     }
 
     private func startSpinnerIfNeeded(isLoading: Bool, error: WKError?) {
@@ -1399,17 +1486,25 @@ extension TabBarViewItem: NSMenuDelegate {
 
         // Initial setup
         menu.removeAllItems()
+
+        // Locked tabs get a simplified menu with only lock-related actions
+        if isTabLocked {
+            addLockMenuItems(to: menu)
+            return
+        }
+
         let otherItemsState = delegate?.otherTabBarViewItemsState(for: self) ?? .init(hasItemsToTheLeft: true,
                                                                                       hasItemsToTheRight: true)
         let areThereOtherTabs = otherItemsState.hasItemsToTheLeft || otherItemsState.hasItemsToTheRight
 
         // Menu Items
-        // Duplicate, Pin, Mute Section
+        // Duplicate, Pin, Mute, Lock Section
         addDuplicateMenuItem(to: menu)
         if !isBurner {
             addPinMenuItem(to: menu)
         }
         addMuteUnmuteMenuItem(to: menu)
+        addLockMenuItems(to: menu)
         menu.addItem(.separator())
 
         // Bookmark/Fireproof Section
@@ -1524,6 +1619,53 @@ extension TabBarViewItem: NSMenuDelegate {
         let muteUnmuteMenuItem = NSMenuItem(title: menuItemTitle, action: #selector(muteUnmuteSiteAction(_:)), keyEquivalent: "")
         muteUnmuteMenuItem.target = self
         menu.addItem(muteUnmuteMenuItem)
+    }
+
+    private func addLockMenuItems(to menu: NSMenu) {
+        // Determine tab lock state
+        let hasConfig = lockConfig != nil
+        let isLocked = isTabLocked
+
+        if !hasConfig {
+            // No config → show "Lock Tab..."
+            let lockMenuItem = NSMenuItem(title: UserText.tabLockMenuItem, action: #selector(lockTabAction(_:)), keyEquivalent: "")
+            lockMenuItem.target = self
+            menu.addItem(lockMenuItem)
+        } else if isLocked {
+            // Has config + locked → show "Unlock" and "Remove Lock"
+            let unlockMenuItem = NSMenuItem(title: UserText.tabUnlockMenuItem, action: #selector(unlockTabAction(_:)), keyEquivalent: "")
+            unlockMenuItem.target = self
+            menu.addItem(unlockMenuItem)
+
+            let removeLockMenuItem = NSMenuItem(title: UserText.tabRemoveLockMenuItem, action: #selector(removeLockAction(_:)), keyEquivalent: "")
+            removeLockMenuItem.target = self
+            menu.addItem(removeLockMenuItem)
+        } else {
+            // Has config + unlocked → show "Lock" and "Remove Lock"
+            let relockMenuItem = NSMenuItem(title: UserText.tabRelockMenuItem, action: #selector(relockTabAction(_:)), keyEquivalent: "")
+            relockMenuItem.target = self
+            menu.addItem(relockMenuItem)
+
+            let removeLockMenuItem = NSMenuItem(title: UserText.tabRemoveLockMenuItem, action: #selector(removeLockAction(_:)), keyEquivalent: "")
+            removeLockMenuItem.target = self
+            menu.addItem(removeLockMenuItem)
+        }
+    }
+
+    @objc private func lockTabAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemLockTabAction(self)
+    }
+
+    @objc private func unlockTabAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemUnlockTabAction(self)
+    }
+
+    @objc private func relockTabAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemRelockTabAction(self)
+    }
+
+    @objc private func removeLockAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemRemoveLockAction(self)
     }
 
     private func addCloseMenuItem(to menu: NSMenu) {
@@ -1790,6 +1932,13 @@ extension TabBarViewItem {
 
             var renderingProgressDidChangePublisher: PassthroughSubject<Void, Never>
 
+            // Tab lock support
+            var lockConfig: TabLockConfig?
+            var isLocked: Bool = false
+            var lockStatePublisher: AnyPublisher<(TabLockConfig?, Bool), Never> {
+                Just((lockConfig, isLocked)).eraseToAnyPublisher()
+            }
+
             init(width: CGFloat, title: String = "Test Title", url: URL? = nil, favicon: NSImage? = .aDark, tabContent: Tab.TabContent = .none, isPinned: Bool = false, usedPermissions: Permissions = Permissions(), audioState: WKWebView.AudioState? = nil, selected: Bool = false, isLoading: Bool = false, error: WKError? = nil) {
                 self.width = width
                 self.title = title
@@ -1950,6 +2099,12 @@ extension TabBarViewItem {
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
         func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem) {}
         func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool) {}
+
+        // Tab lock actions
+        func tabBarViewItemLockTabAction(_: TabBarViewItem) {}
+        func tabBarViewItemUnlockTabAction(_: TabBarViewItem) {}
+        func tabBarViewItemRelockTabAction(_: TabBarViewItem) {}
+        func tabBarViewItemRemoveLockAction(_: TabBarViewItem) {}
     }
 }
 #endif
