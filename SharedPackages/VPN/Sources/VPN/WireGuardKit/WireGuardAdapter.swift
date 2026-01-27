@@ -665,30 +665,37 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
 
             attempts += 1
 
-            let succeeded = await self.performTemporaryShutdownRecoveryAttempt(settingsGenerator: settingsGenerator)
-            if succeeded {
-                self.temporaryShutdownRecoveryTask?.cancel()
-                return
-            }
+            let result = await self.performTemporaryShutdownRecoveryAttempt(settingsGenerator: settingsGenerator)
 
-            if let lastKnownPathStatus = self.lastKnownPathStatus, !lastKnownPathStatus.isSatisfiable {
+            switch result {
+            case .succeeded, .shouldStop:
                 self.temporaryShutdownRecoveryTask?.cancel()
-                return
-            }
-
-            if attempts >= maxAttempts {
-                self.temporaryShutdownRecoveryTask?.cancel()
+            case .shouldRetry:
+                if attempts >= maxAttempts {
+                    self.temporaryShutdownRecoveryTask?.cancel()
+                }
             }
         }, cancellationHandler: { [weak self] in
             self?.temporaryShutdownRecoveryTask = nil
         })
     }
 
-    private func performTemporaryShutdownRecoveryAttempt(settingsGenerator: PacketTunnelSettingsGenerating) async -> Bool {
+    private enum RecoveryAttemptResult {
+        case succeeded
+        case shouldRetry
+        case shouldStop
+    }
+
+    private func performTemporaryShutdownRecoveryAttempt(settingsGenerator: PacketTunnelSettingsGenerating) async -> RecoveryAttemptResult {
         await withCheckedContinuation { continuation in
             workQueue.async {
                 guard let activeGenerator = self.canRecover(with: settingsGenerator) else {
-                    continuation.resume(returning: false)
+                    // canRecover checks lastKnownPathStatus.isSatisfiable - if not satisfiable, stop retrying
+                    if let lastKnownPathStatus = self.lastKnownPathStatus, !lastKnownPathStatus.isSatisfiable {
+                        continuation.resume(returning: .shouldStop)
+                    } else {
+                        continuation.resume(returning: .shouldRetry)
+                    }
                     return
                 }
 
@@ -708,8 +715,7 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
                     }
 
                     self.temporaryShutdownRecoveryFailed = false
-                    self.cancelTemporaryShutdownRecoveryAttempts()
-                    continuation.resume(returning: true)
+                    continuation.resume(returning: .succeeded)
                 } catch {
                     self.logHandler(.error, "Failed to restart backend: \(error.localizedDescription)")
 
@@ -720,7 +726,7 @@ final class WireGuardAdapter: WireGuardAdapterProtocol {
                         self.temporaryShutdownRecoveryFailed = true
                     }
 
-                    continuation.resume(returning: false)
+                    continuation.resume(returning: .shouldRetry)
                 }
             }
         }
