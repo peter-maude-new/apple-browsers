@@ -324,7 +324,8 @@ extension FeatureFlag: FeatureFlagDescribing {
                 .themes,
                 .crashCollectionDisableKeysSorting,
                 .crashCollectionLimitCallStackTreeDepth,
-                .memoryUsageReporting:
+                .memoryUsageReporting,
+                .nextStepsListWidget:
             true
         default:
             false
@@ -587,7 +588,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .heuristicAction:
             return .remoteReleasable(.subfeature(AutoconsentSubfeature.heuristicAction))
         case .nextStepsListWidget:
-            return .disabled
+            return .internalOnly()
         case .nextStepsListAdvancedCardOrdering:
             return .disabled
         case .wideEventPostEndpoint:
