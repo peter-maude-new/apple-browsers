@@ -17,6 +17,7 @@
 //  limitations under the License.
 //
 
+import Common
 import WebKit
 import UserScript
 
@@ -27,7 +28,25 @@ public protocol FaviconUserScriptDelegate: NSObjectProtocol {
 
 }
 
-public class FaviconUserScript: NSObject, UserScript {
+public class FaviconUserScript: NSObject, UserScript, Subfeature {
+
+    struct FaviconsFoundPayload: Codable, Equatable {
+        let documentUrl: String
+        let favicons: [FaviconLink]
+    }
+
+    struct FaviconLink: Codable, Equatable {
+        let href: String
+        let rel: String
+    }
+
+    private enum SubfeatureMessageName: String {
+        case faviconFound
+    }
+
+    public let featureName: String = "favicon"
+    public let messageOriginPolicy: MessageOriginPolicy = .all
+    public weak var broker: UserScriptMessageBroker?
 
     public var source: String = """
 
@@ -93,6 +112,62 @@ public class FaviconUserScript: NSObject, UserScript {
 
         let host = message.messageHost
         delegate?.faviconUserScript(self, didRequestUpdateFaviconForHost: host, withUrl: url)
+    }
+
+    public func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
+        guard SubfeatureMessageName(rawValue: methodName) == .faviconFound else { return nil }
+        return { [weak self] params, original in
+            await self?.handleFaviconFound(params: params, original: original)
+            return nil
+        }
+    }
+
+    @MainActor
+    private func handleFaviconFound(params: Any, original: WKScriptMessage) {
+        guard let payload: FaviconsFoundPayload = DecodableHelper.decode(from: params) else { return }
+
+        let documentUrl = URL(string: payload.documentUrl)
+        let host = hostFromDocumentUrl(documentUrl, fallback: original.messageHost)
+        let faviconUrl = preferredFaviconURL(from: payload.favicons)
+
+        delegate?.faviconUserScript(self, didRequestUpdateFaviconForHost: host, withUrl: faviconUrl)
+    }
+
+    private func hostFromDocumentUrl(_ documentUrl: URL?, fallback: String) -> String {
+        guard let host = documentUrl?.host else { return fallback }
+        if let port = documentUrl?.port, port > 0 {
+            return "\(host):\(port)"
+        }
+        return host
+    }
+
+    private func preferredFaviconURL(from links: [FaviconLink]) -> URL? {
+        let candidates = links.compactMap { link -> (url: URL, rel: String)? in
+            let href = link.href
+            guard !isSvg(href) else { return nil }
+            guard let url = URL(string: href) else { return nil }
+            return (url: url, rel: link.rel)
+        }
+
+        func matches(_ rel: String, token: String) -> Bool {
+            return rel.lowercased().contains(token)
+        }
+
+        if let match = candidates.first(where: { matches($0.rel, token: "apple-touch-icon-precomposed") }) {
+            return match.url
+        }
+        if let match = candidates.first(where: { matches($0.rel, token: "apple-touch-icon") }) {
+            return match.url
+        }
+        if let match = candidates.first(where: { matches($0.rel, token: "icon") || matches($0.rel, token: "favicon") }) {
+            return match.url
+        }
+
+        return candidates.first?.url
+    }
+
+    private func isSvg(_ href: String) -> Bool {
+        return href.lowercased().contains("svg")
     }
 
 }

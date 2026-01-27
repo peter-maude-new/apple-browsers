@@ -116,6 +116,7 @@ final class UserScripts: UserScriptsProvider {
         contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: serpSettingsUserScript)
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
         if let pageContextUserScript {
             contentScopeUserScript.registerSubfeature(delegate: pageContextUserScript)
         }
@@ -136,7 +137,6 @@ final class UserScripts: UserScriptsProvider {
         findInPageScript,
         surrogatesScript,
         contentBlockerUserScript,
-        faviconScript,
         fullScreenVideoScript,
         autofillUserScript,
         printingUserScript,
