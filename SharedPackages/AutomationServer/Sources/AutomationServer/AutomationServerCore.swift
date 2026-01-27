@@ -115,9 +115,15 @@ public final class AutomationServerCore {
                 }
             }
             if isComplete {
-                Logger.automationServer.info("Connection marked complete. Cancelling connection.")
+                Logger.automationServer.info("Connection marked complete. Cleaning up queue tracking.")
                 self.connectionQueues.removeValue(forKey: ObjectIdentifier(connection))
-                connection.cancel()
+                // Only cancel immediately if there was no content to process.
+                // When content is present, respond() will cancel the connection
+                // after successfully sending the response.
+                if content == nil {
+                    Logger.automationServer.info("No pending content - cancelling connection.")
+                    connection.cancel()
+                }
                 return
             }
 
@@ -376,13 +382,8 @@ public final class AutomationServerCore {
             Logger.automationServer.error("Got error encoding JSON: \(error)")
         }
         let statusText = errorCode == 200 ? "OK" : "Bad Request"
-        let responseHeader = """
-        HTTP/1.1 \(errorCode) \(statusText)
-        Content-Type: application/json
-        Connection: close
-
-        """
-        return responseHeader + "\r\n" + responseString
+        // HTTP requires CRLF (\r\n) line endings and \r\n\r\n to terminate headers
+        return "HTTP/1.1 \(errorCode) \(statusText)\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n\(responseString)"
     }
 
     public func respond(on connection: NWConnection, connectionResultWithPath: ConnectionResultWithPath) {
