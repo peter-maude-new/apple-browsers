@@ -209,8 +209,8 @@ enum Preferences {
             let sheetActionHandler = SubscriptionAccessActionHandlers(
                 openActivateViaEmailURL: {
                     let url = subscriptionManager.url(for: .activationFlow)
+                    Application.appDelegate.subscriptionInstrumentation.beginRestoreEmailAttempt(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
                     showTab(.subscription(url))
-                    PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
                 }, restorePurchases: {
                     if #available(macOS 12.0, *) {
                         Task {

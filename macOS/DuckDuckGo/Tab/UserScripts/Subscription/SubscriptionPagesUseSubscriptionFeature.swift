@@ -169,9 +169,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     // MARK: - Subscription + Auth
 
     func setAuthTokens(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-
-        instrumentation.beginRestoreEmailAttempt(origin: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
-
         guard let subscriptionValues: SubscriptionValuesV2 = CodableHelper.decode(from: params) else {
             Logger.subscription.fault("SubscriptionPagesUserScript: expected JSON representation of SubscriptionValues")
             instrumentation.restoreEmailFailed(error: nil)
