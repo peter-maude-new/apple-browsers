@@ -375,8 +375,9 @@ public final class AutomationServerCore {
         } catch {
             Logger.automationServer.error("Got error encoding JSON: \(error)")
         }
+        let statusText = errorCode == 200 ? "OK" : "Bad Request"
         let responseHeader = """
-        HTTP/1.1 \(errorCode) OK
+        HTTP/1.1 \(errorCode) \(statusText)
         Content-Type: application/json
         Connection: close
 
