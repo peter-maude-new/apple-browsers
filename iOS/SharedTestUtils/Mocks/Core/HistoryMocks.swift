@@ -93,6 +93,7 @@ class MockTabHistoryCoordinating: TabHistoryCoordinating {
     var addVisitCalls: [(url: URL, tabID: String?)] = []
     var tabHistoryCalls: [String] = []
     var removeVisitsCalls: [[String]] = []
+    var cleanOrphanedEntriesCalls: Int = 0
     var tabHistoryResult: [URL] = []
 
     func tabHistory(tabID: String) async throws -> [URL] {
@@ -106,6 +107,10 @@ class MockTabHistoryCoordinating: TabHistoryCoordinating {
     
     func removeVisits(for tabIDs: [String]) async throws {
         removeVisitsCalls.append(tabIDs)
+    }
+
+    func cleanOrphanedEntries() async {
+        cleanOrphanedEntriesCalls += 1
     }
 }
 
