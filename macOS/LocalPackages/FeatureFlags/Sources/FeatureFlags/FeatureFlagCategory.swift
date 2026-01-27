@@ -51,9 +51,9 @@ extension FeatureFlag: FeatureFlagCategorization {
         switch self {
         case .aiChatPageContext,
                 .aiChatKeepSession,
-                .aiChatDataClearing,
                 .aiChatOmnibarToggle,
                 .aiChatOmnibarCluster,
+                .aiChatSuggestions,
                 .aiChatOmnibarOnboarding,
                 .standaloneMigration:
             return .duckAI
@@ -68,7 +68,9 @@ extension FeatureFlag: FeatureFlagCategorization {
             return .sync
         case .updatesWontAutomaticallyRestartApp,
                 .autoUpdateInDEBUG,
-                .appStoreUpdateFlow:
+                .autoUpdateInREVIEW,
+                .appStoreUpdateFlow,
+                .updatesSimplifiedFlow:
             return .updates
         case .networkProtectionAppStoreSysex,
                 .networkProtectionAppStoreSysexMessage,

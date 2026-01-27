@@ -157,6 +157,18 @@ enum AIChatPixel: PixelKitEvent {
     /// Event Trigger: User submits a prompt from the suggestion for duck.ai by pressing enter
     case aiChatSuggestionAIChatSubmittedKeyboard
 
+    /// Event Trigger: User selects a pinned recent chat by clicking with the mouse
+    case aiChatRecentChatSelectedPinnedMouse
+
+    /// Event Trigger: User selects a pinned recent chat by pressing enter
+    case aiChatRecentChatSelectedPinnedKeyboard
+
+    /// Event Trigger: User selects a non-pinned recent chat by clicking with the mouse
+    case aiChatRecentChatSelectedMouse
+
+    /// Event Trigger: User selects a non-pinned recent chat by pressing enter
+    case aiChatRecentChatSelectedKeyboard
+
     // MARK: - Toggle popover pixels
 
     /// Event Trigger: The toggle popover is shown to the user
@@ -172,6 +184,14 @@ enum AIChatPixel: PixelKitEvent {
     case aiChatSyncEncryptionError(reason: String)
     case aiChatSyncDecryptionError(reason: String)
     case aiChatSyncHistoryEnabledError(reason: String)
+
+    // MARK: - Prompt Metrics
+
+    /// Event Trigger: User submits their first prompt in a new Duck.ai conversation
+    case aiChatMetricStartNewConversation
+
+    /// Event Trigger: User submits a prompt in an ongoing Duck.ai conversation
+    case aiChatMetricSentPromptOngoingChat
 
     // MARK: - Onboarding
 
@@ -271,6 +291,14 @@ enum AIChatPixel: PixelKitEvent {
             return "aichat_suggestion_aichat_submitted_mouse"
         case .aiChatSuggestionAIChatSubmittedKeyboard:
             return "aichat_suggestion_aichat_submitted_keyboard"
+        case .aiChatRecentChatSelectedPinnedMouse:
+            return "aichat_recent_chat_selected_pinned_mouse"
+        case .aiChatRecentChatSelectedPinnedKeyboard:
+            return "aichat_recent_chat_selected_pinned_keyboard"
+        case .aiChatRecentChatSelectedMouse:
+            return "aichat_recent_chat_selected_mouse"
+        case .aiChatRecentChatSelectedKeyboard:
+            return "aichat_recent_chat_selected_keyboard"
         case .aiChatTogglePopoverShown:
             return "aichat_toggle_popover_shown"
         case .aiChatTogglePopoverDismissButtonClicked:
@@ -293,6 +321,10 @@ enum AIChatPixel: PixelKitEvent {
             return "aichat_onboarding_finished_toggle_on"
         case .aiChatOnboardingFinishedToggleOff:
             return "aichat_onboarding_finished_toggle_off"
+        case .aiChatMetricStartNewConversation:
+            return "aichat_start_new_conversation"
+        case .aiChatMetricSentPromptOngoingChat:
+            return "aichat_sent_prompt_ongoing_chat"
         }
     }
 
@@ -330,13 +362,19 @@ enum AIChatPixel: PixelKitEvent {
                 .aiChatAddressBarAIChatSubmitURL,
                 .aiChatSuggestionAIChatSubmittedMouse,
                 .aiChatSuggestionAIChatSubmittedKeyboard,
+                .aiChatRecentChatSelectedPinnedMouse,
+                .aiChatRecentChatSelectedPinnedKeyboard,
+                .aiChatRecentChatSelectedMouse,
+                .aiChatRecentChatSelectedKeyboard,
                 .aiChatTogglePopoverShown,
                 .aiChatTogglePopoverDismissButtonClicked,
                 .aiChatTogglePopoverCustomizeButtonClicked,
                 .aiChatOnboardingTogglePreferenceOn,
                 .aiChatOnboardingTogglePreferenceOff,
                 .aiChatOnboardingFinishedToggleOn,
-                .aiChatOnboardingFinishedToggleOff:
+                .aiChatOnboardingFinishedToggleOff,
+                .aiChatMetricStartNewConversation,
+                .aiChatMetricSentPromptOngoingChat:
             return nil
         case .aiChatAddressBarButtonClicked(let action):
             return ["action": action.rawValue]
@@ -403,6 +441,10 @@ enum AIChatPixel: PixelKitEvent {
                 .aiChatAddressBarAIChatSubmitURL,
                 .aiChatSuggestionAIChatSubmittedMouse,
                 .aiChatSuggestionAIChatSubmittedKeyboard,
+                .aiChatRecentChatSelectedPinnedMouse,
+                .aiChatRecentChatSelectedPinnedKeyboard,
+                .aiChatRecentChatSelectedMouse,
+                .aiChatRecentChatSelectedKeyboard,
                 .aiChatTogglePopoverShown,
                 .aiChatTogglePopoverDismissButtonClicked,
                 .aiChatTogglePopoverCustomizeButtonClicked,
@@ -413,7 +455,9 @@ enum AIChatPixel: PixelKitEvent {
                 .aiChatOnboardingTogglePreferenceOn,
                 .aiChatOnboardingTogglePreferenceOff,
                 .aiChatOnboardingFinishedToggleOn,
-                .aiChatOnboardingFinishedToggleOff:
+                .aiChatOnboardingFinishedToggleOff,
+                .aiChatMetricStartNewConversation,
+                .aiChatMetricSentPromptOngoingChat:
             return [.pixelSource]
         }
     }

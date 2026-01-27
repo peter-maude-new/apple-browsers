@@ -110,7 +110,6 @@ final class SuggestionJsonScenarioTests: XCTestCase {
         
         // Set up feature flagger
         let featureFlagger = MockFeatureFlagger()
-        featureFlagger.enabledFeatureFlags.append(.autocompleteTabs)
         
         // Create the real data source with test dependencies
         let dataSource = AutocompleteSuggestionsDataSource(
@@ -395,6 +394,10 @@ extension SuggestionJsonScenarioTests {
         }
         
         func addVisit(of url: URL, at date: Date) -> History.Visit? {
+            return nil
+        }
+        
+        func addVisit(of url: URL, at date: Date, tabID: String?) -> History.Visit? {
             return nil
         }
         

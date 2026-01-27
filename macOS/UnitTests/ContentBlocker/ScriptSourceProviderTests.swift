@@ -62,7 +62,6 @@ final class ScriptSourceProviderTests: XCTestCase {
         let windowControllersManager = WindowControllersManagerMock()
         let startupPreferences = StartupPreferences(
             persistor: StartupPreferencesPersistorMock(launchToCustomHomePage: false, customHomePageURL: ""),
-            windowControllersManager: windowControllersManager,
             appearancePreferences: appearancePreferences
         )
         let fireCoordinator = FireCoordinator(tld: TLD(),
@@ -96,7 +95,8 @@ final class ScriptSourceProviderTests: XCTestCase {
             fireproofDomains: MockFireproofDomains(domains: []),
             fireCoordinator: fireCoordinator,
             autoconsentManagement: AutoconsentManagement(),
-            newTabPageActionsManager: nil
+            newTabPageActionsManager: nil,
+            syncServiceProvider: { nil }
         )
 
         let cohorts = try XCTUnwrap(sourceProvider.currentCohorts)

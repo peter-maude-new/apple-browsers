@@ -32,6 +32,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     private let subscriptionManager: SubscriptionManager
     private let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     private var signOutObserver: Any?
+    private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
 
     private var externalAllowedDomains = ["stripe.com"]
@@ -47,6 +48,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         var isShowingLearnMoreView: Bool = false
         var isShowingPlansView: Bool = false
         var isShowingUpgradeView: Bool = false
+        var pendingUpgradeTier: String?
         var subscriptionInfo: DuckDuckGoSubscription?
         var isLoadingSubscriptionInfo: Bool = false
 
@@ -61,9 +63,12 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         var faqViewModel: SubscriptionExternalLinkViewModel
         var learnMoreViewModel: SubscriptionExternalLinkViewModel
 
-        init(faqURL: URL, learnMoreURL: URL, userScriptsDependencies: DefaultScriptSourceProvider.Dependencies) {
-            self.faqViewModel = SubscriptionExternalLinkViewModel(url: faqURL, userScriptsDependencies: userScriptsDependencies)
-            self.learnMoreViewModel = SubscriptionExternalLinkViewModel(url: learnMoreURL, userScriptsDependencies: userScriptsDependencies)
+        let featureFlagger: FeatureFlagger
+
+        init(faqURL: URL, learnMoreURL: URL, userScriptsDependencies: DefaultScriptSourceProvider.Dependencies, featureFlagger: FeatureFlagger) {
+            self.featureFlagger = featureFlagger
+            self.faqViewModel = SubscriptionExternalLinkViewModel(url: faqURL, userScriptsDependencies: userScriptsDependencies, featureFlagger: featureFlagger)
+            self.learnMoreViewModel = SubscriptionExternalLinkViewModel(url: learnMoreURL, userScriptsDependencies: userScriptsDependencies, featureFlagger: featureFlagger)
         }
     }
 
@@ -101,6 +106,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     /// Returns true if "Upgrade" section should be shown
     /// Requirements:
     /// - Subscription is active
+    /// - No pending plan (don't show upgrade if downgrade is scheduled)
     /// - Pro tier purchase feature flag is enabled
     /// - Backend reports available upgrades
     var shouldShowUpgrade: Bool {
@@ -108,6 +114,8 @@ final class SubscriptionSettingsViewModel: ObservableObject {
               subscriptionInfo.isActive else {
             return false
         }
+        // Don't show upgrade if there's a pending plan (downgrade scheduled)
+        guard subscriptionInfo.pendingPlans?.isEmpty ?? true else { return false }
         guard featureFlagger.isFeatureOn(.allowProTierPurchase) else { return false }
         return firstAvailableUpgradeTier != nil
     }
@@ -119,15 +127,29 @@ final class SubscriptionSettingsViewModel: ObservableObject {
             .first?.tier
     }
 
+    var subscriptionManageButtonText: String {
+        featureFlagger.isFeatureOn(.allowProTierPurchase)
+            ? UserText.subscriptionManagePayment
+            : UserText.subscriptionChangePlan
+    }
+
     /// Handles navigation to plans page based on subscription platform
     /// - Parameters:
-    ///   - goToUpgrade: If true, navigates to /plans?goToUpgrade=true for direct upgrade flow
-    func navigateToPlans(goToUpgrade: Bool = false) {
+    ///   - tier: The tier to upgrade to
+    func navigateToPlans(tier: String? = nil) {
         guard let platform = state.subscriptionInfo?.platform else { return }
+
+        // Fire appropriate pixel
+        if tier != nil {
+            Pixel.fire(pixel: .subscriptionUpgradeClick)
+        } else {
+            Pixel.fire(pixel: .subscriptionViewAllPlansClick)
+        }
 
         switch platform {
         case .apple:
-            if goToUpgrade {
+            if tier != nil {
+                state.pendingUpgradeTier = tier
                 state.isShowingUpgradeView = true
             } else {
                 state.isShowingPlansView = true
@@ -158,7 +180,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         self.featureFlagger = featureFlagger
         let subscriptionFAQURL = subscriptionManager.url(for: .faq)
         let learnMoreURL = subscriptionFAQURL.appendingPathComponent("adding-email")
-        self.state = State(faqURL: subscriptionFAQURL, learnMoreURL: learnMoreURL, userScriptsDependencies: userScriptsDependencies)
+        self.state = State(faqURL: subscriptionFAQURL, learnMoreURL: learnMoreURL, userScriptsDependencies: userScriptsDependencies, featureFlagger: featureFlagger)
         self.usesUnifiedFeedbackForm = subscriptionManager.isUserAuthenticated
         self.keyValueStorage = keyValueStorage
         setupNotificationObservers()
@@ -276,10 +298,24 @@ final class SubscriptionSettingsViewModel: ObservableObject {
                 self?.state.shouldDismissView = true
             }
         }
+
+        subscriptionChangeObserver = NotificationCenter.default.addObserver(forName: .subscriptionDidChange, object: nil, queue: .main) { [weak self] _ in
+            Task { [weak self] in
+                _ = await self?.fetchAndUpdateSubscriptionDetails(cachePolicy: .cacheFirst, loadingIndicator: false)
+            }
+        }
     }
 
     @MainActor
     private func updateSubscriptionsStatusMessage(subscription: DuckDuckGoSubscription, date: Date, product: String, billingPeriod: DuckDuckGoSubscription.BillingPeriod) {
+        // Check for pending plan first (downgrade scheduled)
+        if let pendingPlan = subscription.firstPendingPlan {
+            let effectiveDate = dateFormatter.string(from: pendingPlan.effectiveAt)
+            let tierName = pendingPlan.tier.rawValue.capitalized
+            state.subscriptionDetails = UserText.pendingDowngradeInfo(tierName: tierName, billingPeriod: pendingPlan.billingPeriod, effectiveDate: effectiveDate)
+            return
+        }
+
         let date = dateFormatter.string(from: date)
 
         let hasActiveTrialOffer = subscription.hasActiveTrialOffer
@@ -406,7 +442,8 @@ final class SubscriptionSettingsViewModel: ObservableObject {
             } else {
                 let model = SubscriptionExternalLinkViewModel(url: url,
                                                               allowedDomains: externalAllowedDomains,
-                                                              userScriptsDependencies: userScriptsDependencies)
+                                                              userScriptsDependencies: userScriptsDependencies,
+                                                              featureFlagger: featureFlagger)
                 Task { @MainActor in
                     self.state.stripeViewModel = model
                 }
@@ -436,6 +473,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
     deinit {
         signOutObserver = nil
+        subscriptionChangeObserver = nil
     }
 }
 

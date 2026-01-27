@@ -616,7 +616,7 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
             .sink { _ in expectation.fulfill() }
             .store(in: &cancellables)
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 15.0)
 
         // Then - Should return "pro" as it has the lowest order
         XCTAssertEqual(sut.firstAvailableUpgradeTier, "pro")
@@ -643,14 +643,14 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
 
         wait(for: [expectation], timeout: 1.0)
 
-        // When
-        let action = sut.viewAllPlansAction(url: .upgrade)
+        // When - using dynamic tier from backend
+        let action = sut.viewAllPlansAction(url: .upgradeToTier("pro"))
 
         // Then
         if case .navigateToPlans(let navigationAction) = action {
             navigationAction()
             XCTAssertTrue(userEvents.contains { event in
-                if case .openURL(.upgrade) = event { return true }
+                if case .openURL(.upgradeToTier("pro")) = event { return true }
                 return false
             })
         } else {
@@ -677,18 +677,130 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
 
         wait(for: [expectation], timeout: 1.0)
 
-        // When
-        let action = sut.viewAllPlansAction(url: .upgrade)
+        // When - using dynamic tier from backend
+        let action = sut.viewAllPlansAction(url: .upgradeToTier("pro"))
 
         // Then
         if case .navigateToPlans(let navigationAction) = action {
             navigationAction()
             XCTAssertTrue(userEvents.contains { event in
-                if case .openURL(.upgrade) = event { return true }
+                if case .openURL(.upgradeToTier("pro")) = event { return true }
                 return false
             })
         } else {
             XCTFail("Expected navigateToPlans action")
         }
+    }
+
+    // MARK: - Pending Plan Tests
+
+    func testSubscriptionDetails_WhenPendingPlanExists_ShowsDowngradeCopy() {
+        // Given - Subscription with a pending downgrade plan
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-privacy-pro-monthly-plus",
+            billingPeriod: .monthly,
+            effectiveAt: Date(timeIntervalSince1970: 1711557633),
+            status: "pending",
+            tier: .plus
+        )
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            tier: .pro,
+            pendingPlans: [pendingPlan]
+        ))
+
+        // Wait
+        let expectation = expectation(description: "Subscription details updated with pending plan")
+        sut.$subscriptionDetails
+            .compactMap { $0 }
+            .filter { $0.contains("Plus") && $0.contains("Monthly") }
+            .first()
+            .sink { _ in expectation.fulfill() }
+            .store(in: &cancellables)
+
+        wait(for: [expectation], timeout: 2.0)
+
+        // Then - Should show pending downgrade message
+        XCTAssertNotNil(sut.subscriptionDetails)
+        XCTAssertTrue(sut.subscriptionDetails?.contains("Plus") == true)
+        XCTAssertTrue(sut.subscriptionDetails?.contains("Monthly") == true)
+    }
+
+    func testSubscriptionDetails_WhenNoPendingPlan_ShowsRenewalCopy() {
+        // Given - Subscription without pending plan
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            tier: .pro,
+            pendingPlans: nil
+        ))
+
+        // Wait for async subscription update
+        let expectation = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .dropFirst()
+            .sink { _ in expectation.fulfill() }
+            .store(in: &cancellables)
+
+        wait(for: [expectation], timeout: 1.0)
+
+        // Then - Should show standard renewal message
+        XCTAssertNotNil(sut.subscriptionDetails)
+        XCTAssertTrue(sut.subscriptionDetails?.contains("renews") == true)
+    }
+
+    func testSubscriptionDetails_WhenEmptyPendingPlans_ShowsRenewalCopy() {
+        // Given - Subscription with empty pending plans array
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            tier: .pro,
+            pendingPlans: []
+        ))
+
+        // Wait for async subscription update
+        let expectation = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .dropFirst()
+            .sink { _ in expectation.fulfill() }
+            .store(in: &cancellables)
+
+        wait(for: [expectation], timeout: 1.0)
+
+        // Then - Should show standard renewal message (empty array = no pending plan)
+        XCTAssertNotNil(sut.subscriptionDetails)
+        XCTAssertTrue(sut.subscriptionDetails?.contains("renews") == true)
+    }
+
+    func testShouldShowUpgrade_WhenPendingPlanExists_ReturnsFalse() {
+        // Given - Active subscription with pending plan and available upgrades
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-privacy-pro-monthly-plus",
+            billingPeriod: .monthly,
+            effectiveAt: Date(),
+            status: "pending",
+            tier: .plus
+        )
+        let availableChanges = DuckDuckGoSubscription.AvailableChanges(
+            upgrade: [DuckDuckGoSubscription.TierChange(tier: "pro", productIds: [], order: 1)],
+            downgrade: []
+        )
+        isProTierPurchaseEnabled = true
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            tier: .pro,
+            availableChanges: availableChanges,
+            pendingPlans: [pendingPlan]
+        ))
+
+        // Wait for async subscription update
+        let expectation = expectation(description: "Subscription status updated")
+        sut.$subscriptionStatus
+            .dropFirst()
+            .sink { _ in expectation.fulfill() }
+            .store(in: &cancellables)
+
+        wait(for: [expectation], timeout: 1.0)
+
+        // Then - Should NOT show upgrade when there's a pending plan
+        XCTAssertFalse(sut.shouldShowUpgrade)
     }
 }

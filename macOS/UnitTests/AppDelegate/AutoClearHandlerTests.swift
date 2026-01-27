@@ -66,7 +66,6 @@ class AutoClearHandlerTests: XCTestCase {
         )
         startupPreferences = StartupPreferences(
             persistor: persistor2,
-            windowControllersManager: WindowControllersManagerMock(),
             appearancePreferences: appearancePreferences
         )
 
@@ -87,7 +86,7 @@ class AutoClearHandlerTests: XCTestCase {
                                    startupPreferences: startupPreferences,
                                    fireViewModel: fireViewModel,
                                    stateRestorationManager: appStateRestorationManager,
-                                   syncAIChatsCleaner: nil,
+                                   aiChatSyncCleaner: nil,
                                    alertPresenter: mockAlertPresenter)
     }
 
