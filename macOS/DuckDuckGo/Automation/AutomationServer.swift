@@ -67,39 +67,71 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
         currentTab?.webView
     }
 
+    // MARK: - Tab Iteration Helpers
+
+    /// Iterates over all tabs (pinned and unpinned) across all windows.
+    /// Pinned tabs are shared across windows, so they are only yielded once.
+    private func forEachTab(_ body: (Tab) -> Void) {
+        var seenPinnedTabUUIDs = Set<String>()
+
+        for windowController in windowControllersManager.mainWindowControllers {
+            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
+
+            for tab in tabCollectionViewModel.pinnedTabs where !seenPinnedTabUUIDs.contains(tab.uuid) {
+                seenPinnedTabUUIDs.insert(tab.uuid)
+                body(tab)
+            }
+
+            for tab in tabCollectionViewModel.tabs {
+                body(tab)
+            }
+        }
+    }
+
+    /// Finds a tab matching the predicate across all windows, returning the window controller and tab index.
+    private func findTab(where predicate: (Tab) -> Bool) -> (windowController: MainWindowController, index: TabIndex)? {
+        for windowController in windowControllersManager.mainWindowControllers {
+            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
+
+            if let index = tabCollectionViewModel.pinnedTabs.firstIndex(where: predicate) {
+                return (windowController, .pinned(index))
+            }
+
+            if let index = tabCollectionViewModel.tabs.firstIndex(where: predicate) {
+                return (windowController, .unpinned(index))
+            }
+        }
+        return nil
+    }
+
+    // MARK: - BrowserAutomationProvider
+
     func navigate(to url: URL) {
         currentTab?.setContent(.contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false)))
     }
 
     func getAllTabHandles() -> [String] {
         var handles: [String] = []
-        for windowController in windowControllersManager.mainWindowControllers {
-            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
-            for tab in tabCollectionViewModel.tabs {
-                handles.append(tab.uuid)
-            }
-        }
+        forEachTab { handles.append($0.uuid) }
         return handles
     }
 
     func closeCurrentTab() {
         guard let tab = currentTab,
-              let tabCollectionViewModel = activeTabCollectionViewModel else {
+              let tabCollectionViewModel = activeTabCollectionViewModel,
+              let tabIndex = tabCollectionViewModel.indexInAllTabs(of: tab) else {
             return
         }
-        tabCollectionViewModel.remove(at: .unpinned(tabCollectionViewModel.tabCollection.tabs.firstIndex(of: tab) ?? 0))
+        tabCollectionViewModel.remove(at: tabIndex)
     }
 
     func switchToTab(handle: String) -> Bool {
-        for windowController in windowControllersManager.mainWindowControllers {
-            let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
-            if let index = tabCollectionViewModel.tabCollection.tabs.firstIndex(where: { $0.uuid == handle }) {
-                windowController.window?.makeKeyAndOrderFront(nil)
-                tabCollectionViewModel.select(at: .unpinned(index))
-                return true
-            }
+        guard let (windowController, index) = findTab(where: { $0.uuid == handle }) else {
+            return false
         }
-        return false
+        windowController.window?.makeKeyAndOrderFront(nil)
+        windowController.mainViewController.tabCollectionViewModel.select(at: index)
+        return true
     }
 
     func newTab() -> String? {
