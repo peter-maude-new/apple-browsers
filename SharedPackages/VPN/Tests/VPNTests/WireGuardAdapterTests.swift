@@ -378,6 +378,12 @@ final class WireGuardAdapterTests: XCTestCase {
         XCTAssertEqual(wireGuardInterface.turnOffCallCount, 1)
 
         pathMonitor.emitStatus(.satisfied)
+
+        // Recovery now happens asynchronously via periodic retry task
+        waitForCondition(timeout: 1.0) {
+            self.wireGuardInterface.turnOnCallCount == 2
+        }
+
         XCTAssertEqual(wireGuardInterface.turnOnCallCount, 2)
         XCTAssertEqual(packetTunnelProvider.setTunnelNetworkSettingsCallCount, 2)
         XCTAssertTrue(eventHandler.handledEvents.isEmpty)
@@ -402,7 +408,7 @@ final class WireGuardAdapterTests: XCTestCase {
             XCTFail("Expected attempt failure event")
         }
 
-        pathMonitor.emitStatus(.satisfied)
+        // Note: With periodic retry, the task continues automatically - no need to emit .satisfied again
         waitForHandledEventCount(2)
         if case .endTemporaryShutdownStateRecoveryFailure(let error) = eventHandler.handledEvents[1] {
             guard let adapterError = error as? WireGuardAdapterError,
@@ -415,8 +421,8 @@ final class WireGuardAdapterTests: XCTestCase {
             XCTFail("Expected recovery failure event")
         }
 
+        // Clear error - next periodic retry will succeed
         packetTunnelProvider.setTunnelNetworkSettingsError = nil
-        pathMonitor.emitStatus(.satisfied)
         waitForHandledEventCount(3)
         if case .endTemporaryShutdownStateRecoverySuccess = eventHandler.handledEvents[2] {
             // success
@@ -460,6 +466,101 @@ final class WireGuardAdapterTests: XCTestCase {
 
         XCTAssertEqual(wireGuardInterface.setConfigCallCount, 0, "Backend should not receive config while offline")
         XCTAssertEqual(wireGuardInterface.turnOnCallCount, 1, "Backend should not restart during update")
+    }
+
+    func testTemporaryShutdownRecoveryStopsAfterMaxAttempts() {
+        // Use a small number of max attempts for faster test execution
+        temporaryShutdownRecoveryMaxAttempts = 3
+        adapter = makeAdapter()
+
+        startAdapterSuccessfully()
+        pathMonitor.emitStatus(.unsatisfied)
+
+        // Set up persistent failure
+        packetTunnelProvider.setTunnelNetworkSettingsError = TestError.someError
+        pathMonitor.emitStatus(.satisfied)
+
+        // Wait for all attempts to be exhausted (3 attempts with 0.1s delay between each)
+        // First attempt is immediate, then 2 more after delays
+        let maxAttemptsExpectation = expectation(description: "Max attempts exhausted")
+        let expectedEventCount = temporaryShutdownRecoveryMaxAttempts
+        let timeout = temporaryShutdownRecoveryDelay * Double(temporaryShutdownRecoveryMaxAttempts + 2)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+            // Should have exactly maxAttempts failure events (1 initial + remaining recovery failures)
+            XCTAssertEqual(self.eventHandler.handledEvents.count, expectedEventCount,
+                           "Should emit exactly \(expectedEventCount) failure events")
+
+            // Verify first event is attempt failure, rest are recovery failures
+            if case .endTemporaryShutdownStateAttemptFailure = self.eventHandler.handledEvents[0] {
+                // Expected
+            } else {
+                XCTFail("First event should be attempt failure")
+            }
+
+            for i in 1..<self.eventHandler.handledEvents.count {
+                if case .endTemporaryShutdownStateRecoveryFailure = self.eventHandler.handledEvents[i] {
+                    // Expected
+                } else {
+                    XCTFail("Event \(i) should be recovery failure")
+                }
+            }
+
+            // Backend should never have restarted
+            XCTAssertEqual(self.wireGuardInterface.turnOnCallCount, 1, "Backend should not restart when all attempts fail")
+
+            maxAttemptsExpectation.fulfill()
+        }
+
+        wait(for: [maxAttemptsExpectation], timeout: timeout + 1.0)
+    }
+
+    func testConfigurationUpdateDuringRecoveryUsesNewConfiguration() {
+        startAdapterSuccessfully()
+        pathMonitor.emitStatus(.unsatisfied)
+
+        // Set up initial failure to keep recovery task running
+        packetTunnelProvider.setTunnelNetworkSettingsError = TestError.someError
+        pathMonitor.emitStatus(.satisfied)
+
+        // Wait for first failure
+        waitForHandledEventCount(1)
+
+        // Now update configuration while recovery is in progress
+        let newSettingsGenerator = MockPacketTunnelSettingsGenerator()
+        newSettingsGenerator.networkSettingsToReturn = expectedNetworkSettings
+        newSettingsGenerator.uapiConfigurationReturnValue = ("new-config", [nil])
+
+        // Replace the settings generator provider to return new generator
+        settingsGeneratorProvider = { [weak self] _, _ in
+            guard self != nil else {
+                return MockPacketTunnelSettingsGenerator()
+            }
+            return newSettingsGenerator
+        }
+
+        // Clear error so recovery can succeed
+        packetTunnelProvider.setTunnelNetworkSettingsError = nil
+
+        let updateExpectation = expectation(description: "Update completes")
+        adapter.update(tunnelConfiguration: tunnelConfiguration, reassert: false) { error in
+            XCTAssertNil(error)
+            updateExpectation.fulfill()
+        }
+        wait(for: [updateExpectation], timeout: 10.0)
+
+        // The old recovery task should now fail canRecover() because the settings generator changed
+        // Wait to verify no successful recovery with old generator
+        let verificationExpectation = expectation(description: "Verify recovery behavior")
+        DispatchQueue.main.asyncAfter(deadline: .now() + (temporaryShutdownRecoveryDelay * 3)) {
+            // The recovery task with old generator should have stopped retrying
+            // (canRecover returns nil when settingsGenerator !== activeGenerator)
+            // Backend should still be off since we're in temporaryShutdown with new generator
+            XCTAssertEqual(self.wireGuardInterface.turnOnCallCount, 1,
+                           "Backend should not restart - old recovery task should fail canRecover check")
+            verificationExpectation.fulfill()
+        }
+        wait(for: [verificationExpectation], timeout: temporaryShutdownRecoveryDelay * 5)
     }
     #elseif os(macOS)
     func testMacPathUpdateBumpsSockets() {
@@ -505,6 +606,50 @@ final class WireGuardAdapterTests: XCTestCase {
         if result != .completed {
             XCTFail("Expected \(count) events, got \(eventHandler.handledEvents.count)", file: file, line: line)
         }
+    }
+
+    private func waitForCondition(timeout: TimeInterval, file: StaticString = #file, line: UInt = #line, condition: @escaping () -> Bool) {
+        if condition() {
+            return
+        }
+
+        let conditionExpectation = expectation(description: "Wait for condition")
+        let deadline = Date().addingTimeInterval(timeout)
+        let checkInterval: TimeInterval = 0.01
+
+        func checkCondition() {
+            if condition() {
+                conditionExpectation.fulfill()
+            } else if Date() < deadline {
+                DispatchQueue.main.asyncAfter(deadline: .now() + checkInterval) {
+                    checkCondition()
+                }
+            }
+        }
+
+        DispatchQueue.main.async {
+            checkCondition()
+        }
+
+        let result = XCTWaiter.wait(for: [conditionExpectation], timeout: timeout + 0.5)
+        if result != .completed {
+            XCTFail("Condition not met within \(timeout) seconds", file: file, line: line)
+        }
+    }
+
+    private func makeAdapter() -> WireGuardAdapter {
+        WireGuardAdapter(
+            with: packetTunnelProvider,
+            wireGuardInterface: wireGuardInterface,
+            eventHandler: eventHandler,
+            logHandler: { _, _ in },
+            pathMonitorProvider: { self.pathMonitor },
+            packetTunnelSettingsGeneratorProvider: settingsGeneratorProvider,
+            dnsResolver: dnsResolver,
+            tunnelFileDescriptorProvider: tunnelFileDescriptorProvider,
+            temporaryShutdownRecoveryMaxAttempts: temporaryShutdownRecoveryMaxAttempts,
+            temporaryShutdownRecoveryDelay: temporaryShutdownRecoveryDelay
+        )
     }
 
 }
