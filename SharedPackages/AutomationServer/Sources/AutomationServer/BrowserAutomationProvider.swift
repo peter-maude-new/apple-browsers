@@ -40,7 +40,8 @@ public protocol BrowserAutomationProvider: AnyObject {
     var currentWebView: WKWebView? { get }
 
     /// Navigate to a URL in the current tab
-    func navigate(to url: URL)
+    /// - Returns: true if navigation was initiated, false if no current tab exists
+    func navigate(to url: URL) -> Bool
 
     /// Get all tab handles across all windows
     func getAllTabHandles() -> [String]
