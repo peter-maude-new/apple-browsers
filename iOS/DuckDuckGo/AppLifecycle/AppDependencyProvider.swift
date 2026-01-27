@@ -89,9 +89,7 @@ final class AppDependencyProvider: DependencyProvider {
     // Subscription
     var subscriptionManager: any SubscriptionManager
     var tokenHandlerProvider: any SubscriptionTokenHandling
-    var subscriptionInstrumentation: SubscriptionInstrumentation {
-        DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
-    }
+    lazy var subscriptionInstrumentation: SubscriptionInstrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
     static let deadTokenRecoverer = DeadTokenRecoverer()
 
     let vpnFeatureVisibility: DefaultNetworkProtectionVisibility
