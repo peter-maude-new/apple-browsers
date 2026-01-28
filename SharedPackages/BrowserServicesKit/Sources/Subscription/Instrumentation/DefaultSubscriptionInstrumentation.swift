@@ -190,15 +190,21 @@ public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentati
     public func restoreEmailSucceeded() {
         pixelHandler.fire(.restoreEmailSuccess)
 
+        // Complete any local restore flow
         if let restoreWideEventData {
             restoreWideEventData.emailAddressRestoreDuration?.complete()
             wideEvent.completeFlow(restoreWideEventData, status: .success, onComplete: { _, _ in })
         }
         self.restoreWideEventData = nil
         isRestoreEmailAttemptActive = false
+
+        // Also complete any pending email restore flows started by another instrumentation instance
+        // (e.g., email restore initiated from app settings but completed in a web view)
+        completePendingEmailRestoreFlowsFromOtherInstances(success: true, error: nil)
     }
 
     public func restoreEmailFailed(error: Error?) {
+        // Complete any local restore flow
         if let restoreWideEventData {
             restoreWideEventData.emailAddressRestoreDuration?.complete()
             if let error {
@@ -208,6 +214,32 @@ public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentati
         }
         self.restoreWideEventData = nil
         isRestoreEmailAttemptActive = false
+
+        // Also complete any pending email restore flows started by another instrumentation instance
+        completePendingEmailRestoreFlowsFromOtherInstances(success: false, error: error)
+    }
+
+    /// Finds and completes any pending email restore wide events that were started by another instrumentation instance.
+    ///
+    /// This handles the cross-instance coordination case where email restore is initiated from one location
+    /// (e.g., app settings using the AppDelegate's instrumentation) but completed in another location
+    /// (e.g., a web view using its own local instrumentation instance).
+    private func completePendingEmailRestoreFlowsFromOtherInstances(success: Bool, error: Error?) {
+        let flows = wideEvent.getAllFlowData(SubscriptionRestoreWideEventData.self)
+        let pendingEmailRestoreFlows = flows.filter {
+            $0.restorePlatform == .emailAddress &&
+            $0.emailAddressRestoreDuration?.start != nil &&
+            $0.emailAddressRestoreDuration?.end == nil
+        }
+
+        for flowData in pendingEmailRestoreFlows {
+            flowData.emailAddressRestoreDuration?.complete()
+            if !success, let error {
+                flowData.errorData = WideEventErrorData(error: error)
+            }
+            let status: WideEvent.Status = success ? .success : .failure
+            wideEvent.completeFlow(flowData, status: status, onComplete: { _, _ in })
+        }
     }
 
     public func restoreBackgroundCheckStarted(origin: String) {
