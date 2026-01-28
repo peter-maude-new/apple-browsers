@@ -108,6 +108,37 @@ class TabSwitcherViewController: UIViewController {
         searchBar.delegate = self
         searchBar.accessibilityLabel = UserText.tabSearchBarAccessibilityLabel
         searchBar.accessibilityHint = UserText.tabSearchBarAccessibilityHint
+
+        // Style to match mockup using Design System colors
+        if let textField = searchBar.searchTextField as UITextField? {
+            // Background - light gray rounded background
+            textField.backgroundColor = UIColor(designSystemColor: .surface)
+            textField.layer.cornerRadius = 10
+            textField.clipsToBounds = true
+
+            // Text color
+            textField.textColor = UIColor(designSystemColor: .textPrimary)
+
+            // Placeholder color
+            textField.attributedPlaceholder = NSAttributedString(
+                string: UserText.tabSearchBarPlaceholder,
+                attributes: [.foregroundColor: UIColor(designSystemColor: .textPlaceholder)]
+            )
+
+            // Search icon (left) - secondary icon color
+            if let leftView = textField.leftView as? UIImageView {
+                leftView.tintColor = UIColor(designSystemColor: .iconsSecondary)
+            }
+
+            // Clear button (X) - secondary icon color
+            if let clearButton = textField.value(forKey: "_clearButton") as? UIButton {
+                clearButton.tintColor = UIColor(designSystemColor: .iconsSecondary)
+            }
+        }
+
+        // Cancel button will be styled when it appears
+        searchBar.setShowsCancelButton(false, animated: false)
+
         searchBar.sizeToFit()
         return searchBar
     }()
@@ -977,6 +1008,12 @@ extension TabSwitcherViewController: UISearchBarDelegate {
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(true, animated: true)
+
+        // Style the cancel button with textPrimary color
+        if let cancelButton = searchBar.value(forKey: "cancelButton") as? UIButton {
+            cancelButton.setTitleColor(UIColor(designSystemColor: .textPrimary), for: .normal)
+        }
+
         prepareForSearching()
     }
 
@@ -1038,6 +1075,12 @@ extension TabSwitcherViewController: UISearchBarDelegate {
         }
         isSearching = true
         collectionView.dragDelegate = nil // Disable drag during search
+
+        // Ensure cancel button is styled with textPrimary
+        if let cancelButton = searchBar.value(forKey: "cancelButton") as? UIButton {
+            cancelButton.setTitleColor(UIColor(designSystemColor: .textPrimary), for: .normal)
+        }
+
         updateUIForSelectionMode()
     }
 
