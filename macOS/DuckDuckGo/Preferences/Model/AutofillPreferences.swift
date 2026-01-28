@@ -29,6 +29,7 @@ protocol AutofillPreferencesPersistor {
     var autolockLocksFormFilling: Bool { get set }
     var passwordManager: PasswordManager { get set }
     var debugScriptEnabled: Bool { get set }
+    var showInMenuBar: Bool { get set }
 }
 
 enum PasswordManager: String, CaseIterable {
@@ -79,6 +80,7 @@ extension NSNotification.Name {
     static let autofillAutoLockSettingsDidChange = NSNotification.Name("autofillAutoLockSettingsDidChange")
     static let autofillUserSettingsDidChange = NSNotification.Name("autofillUserSettingsDidChange")
     static let autofillScriptDebugSettingsDidChange = NSNotification.Name("autofillScriptDebugSettingsDidChange")
+    static let autofillShowInMenuBarDidChange = NSNotification.Name("autofillShowInMenuBarDidChange")
 }
 
 final class AutofillPreferences: AutofillPreferencesPersistor {
@@ -123,6 +125,22 @@ final class AutofillPreferences: AutofillPreferencesPersistor {
 
     @UserDefaultsWrapper(key: .autolockLocksFormFilling, defaultValue: false)
     var autolockLocksFormFilling: Bool
+
+    @UserDefaultsWrapper(key: .showPasswordsInMenuBar, defaultValue: false)
+    private var showInMenuBarWrapped: Bool
+
+    var showInMenuBar: Bool {
+        get {
+            return showInMenuBarWrapped
+        }
+        set {
+            let oldValue = showInMenuBarWrapped
+            showInMenuBarWrapped = newValue
+            if oldValue != newValue {
+                NotificationCenter.default.post(name: .autofillShowInMenuBarDidChange, object: nil)
+            }
+        }
+    }
 
 #if APPSTORE
     var passwordManager: PasswordManager {

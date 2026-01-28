@@ -63,6 +63,12 @@ final class AutofillPreferencesModel: ObservableObject {
         }
     }
 
+    @Published var showInMenuBar: Bool {
+        didSet {
+            persistor.showInMenuBar = showInMenuBar
+        }
+    }
+
     @MainActor
     @Published private(set) var passwordManager: PasswordManager {
         didSet {
@@ -163,6 +169,7 @@ final class AutofillPreferencesModel: ObservableObject {
         askToSaveAddresses = persistor.askToSaveAddresses
         askToSavePaymentMethods = persistor.askToSavePaymentMethods
         autolockLocksFormFilling = persistor.autolockLocksFormFilling
+        showInMenuBar = persistor.showInMenuBar
         passwordManager = persistor.passwordManager
         hasNeverPromptWebsites = !neverPromptWebsitesManager.neverPromptWebsites.isEmpty
         setShouldShowSyncPromo()

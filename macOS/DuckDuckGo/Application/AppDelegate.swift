@@ -112,6 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var appIconChanger: AppIconChanger!
     private var autoClearHandler: AutoClearHandler!
     private(set) var autofillPixelReporter: AutofillPixelReporter?
+    private var passwordsStatusBarMenu: PasswordsStatusBarMenu?
+    private var passwordsMenuBarCancellable: AnyCancellable?
 
     private(set) var syncDataProviders: SyncDataProvidersSource?
     private(set) var syncService: DDGSyncing?
@@ -1225,6 +1227,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         TipKitAppEventHandler(featureFlagger: featureFlagger).appDidFinishLaunching()
 
         setUpAutofillPixelReporter()
+        setUpPasswordsMenuBarVisibility()
 
         remoteMessagingClient?.startRefreshingRemoteMessages()
 
@@ -1805,6 +1808,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                    queue: nil) { [weak self] _ in
             self?.autofillPixelReporter?.updateAutofillEnabledStatus(AutofillPreferences().askToSaveUsernamesAndPasswords)
         }
+    }
+
+    @MainActor
+    private func setUpPasswordsMenuBarVisibility() {
+        let preferences = AutofillPreferences()
+        passwordsStatusBarMenu = PasswordsStatusBarMenu(preferences: preferences)
+
+        if preferences.showInMenuBar {
+            passwordsStatusBarMenu?.show()
+        } else {
+            passwordsStatusBarMenu?.hide()
+        }
+
+        passwordsMenuBarCancellable = NotificationCenter.default.publisher(for: .autofillShowInMenuBarDidChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    let showInMenuBar = AutofillPreferences().showInMenuBar
+                    if showInMenuBar {
+                        self?.passwordsStatusBarMenu?.show()
+                    } else {
+                        self?.passwordsStatusBarMenu?.hide()
+                    }
+                }
+            }
     }
 }
 
