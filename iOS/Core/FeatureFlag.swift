@@ -328,8 +328,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .showWhatsNewPromptOnDemand,
              .webViewFlashPrevention,
              .wideEventPostEndpoint,
-             .dataImportSummarySyncPromotion,
-             .aiChatAutoAttachContextByDefault:
+             .dataImportSummarySyncPromotion:
             true
         default:
             false
