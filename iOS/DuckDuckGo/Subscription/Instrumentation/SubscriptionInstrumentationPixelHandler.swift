@@ -80,12 +80,6 @@ final class SubscriptionInstrumentationPixelHandler {
         case .existingSubscriptionFound:
             Pixel.fire(pixel: .subscriptionRestoreAfterPurchaseAttempt)
 
-        case .restoreOfferPageEntry:
-            Pixel.fire(pixel: .subscriptionRestorePurchaseOfferPageEntry, debounce: 2)
-
-        case .restoreClickedInSettings:
-            Pixel.fire(pixel: .subscriptionRestorePurchaseClick)
-
         case .restoreStoreStart:
             DailyPixel.fireDailyAndCount(pixel: .subscriptionRestorePurchaseStoreStart,
                                          pixelNameSuffixes: DailyPixel.Constant.legacyDailyPixelSuffixes)

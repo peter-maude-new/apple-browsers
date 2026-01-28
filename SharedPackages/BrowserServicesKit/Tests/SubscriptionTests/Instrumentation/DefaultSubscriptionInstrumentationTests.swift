@@ -323,24 +323,6 @@ final class DefaultSubscriptionInstrumentationTests: XCTestCase {
 
     // MARK: - Restore Store Flow Tests
 
-    func testRestoreOfferPageEntry_FiresEvent() {
-        // When
-        sut.restoreOfferPageEntry()
-
-        // Then
-        XCTAssertEqual(mockInstrumentationPixelHandler.firedEvents.count, 1)
-        XCTAssertEqual(mockInstrumentationPixelHandler.firedEvents.first, .restoreOfferPageEntry)
-    }
-
-    func testRestoreClickedInSettings_FiresEvent() {
-        // When
-        sut.restoreClickedInSettings()
-
-        // Then
-        XCTAssertEqual(mockInstrumentationPixelHandler.firedEvents.count, 1)
-        XCTAssertEqual(mockInstrumentationPixelHandler.firedEvents.first, .restoreClickedInSettings)
-    }
-
     func testRestoreStoreStarted_FiresEventAndStartsWideEvent() throws {
         // Given
         let origin = "app_settings"
@@ -835,8 +817,6 @@ extension SubscriptionInstrumentationEvent: Equatable {
         case (.purchaseAttempt, .purchaseAttempt),
              (.purchasePendingTransaction, .purchasePendingTransaction),
              (.existingSubscriptionFound, .existingSubscriptionFound),
-             (.restoreOfferPageEntry, .restoreOfferPageEntry),
-             (.restoreClickedInSettings, .restoreClickedInSettings),
              (.restoreStoreStart, .restoreStoreStart),
              (.restoreStoreSuccess, .restoreStoreSuccess),
              (.restoreStoreFailureNotFound, .restoreStoreFailureNotFound),

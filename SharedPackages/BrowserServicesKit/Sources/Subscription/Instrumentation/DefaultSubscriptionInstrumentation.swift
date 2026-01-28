@@ -122,14 +122,6 @@ public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentati
 
     // MARK: - Restore Flow
 
-    public func restoreOfferPageEntry() {
-        pixelHandler.fire(.restoreOfferPageEntry)
-    }
-
-    public func restoreClickedInSettings() {
-        pixelHandler.fire(.restoreClickedInSettings)
-    }
-
     public func restoreStoreStarted(origin: String) {
         pixelHandler.fire(.restoreStoreStart)
 

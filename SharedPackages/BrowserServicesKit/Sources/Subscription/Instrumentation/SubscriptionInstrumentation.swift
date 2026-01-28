@@ -42,8 +42,6 @@ public protocol SubscriptionInstrumentation: AnyObject {
 
     // MARK: - Restore Flow
 
-    func restoreOfferPageEntry()
-    func restoreClickedInSettings()
     func restoreStoreStarted(origin: String)
     func restoreStoreSucceeded()
     func restoreStoreFailed(error: AppStoreRestoreFlowError)

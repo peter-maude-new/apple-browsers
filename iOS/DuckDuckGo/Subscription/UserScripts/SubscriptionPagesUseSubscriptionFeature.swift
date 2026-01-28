@@ -654,7 +654,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
 
     func activateSubscription(params: Any, original: WKScriptMessage) async -> Encodable? {
         Logger.subscription.log("Activating Subscription")
-        instrumentation.restoreOfferPageEntry()
+        Pixel.fire(pixel: .subscriptionRestorePurchaseOfferPageEntry, debounce: 2)
         onActivateSubscription?()
         return nil
     }

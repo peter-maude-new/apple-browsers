@@ -69,12 +69,6 @@ final class SubscriptionInstrumentationPixelHandler {
         case .existingSubscriptionFound:
             PixelKit.fire(SubscriptionPixel.subscriptionRestoreAfterPurchaseAttempt)
 
-        case .restoreOfferPageEntry:
-            PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseOfferPageEntry)
-
-        case .restoreClickedInSettings:
-            PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseClick)
-
         case .restoreStoreStart:
             PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreStart, frequency: .legacyDailyAndCount)
 

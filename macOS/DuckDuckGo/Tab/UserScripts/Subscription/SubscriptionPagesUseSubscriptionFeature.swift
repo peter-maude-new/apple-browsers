@@ -639,7 +639,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     // MARK: functions used in SubscriptionAccessActionHandlers
 
     func activateSubscription(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        instrumentation.restoreOfferPageEntry()
+        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseOfferPageEntry)
         Task { @MainActor in
             uiHandler.presentSubscriptionAccessViewController(handler: self, message: original)
         }

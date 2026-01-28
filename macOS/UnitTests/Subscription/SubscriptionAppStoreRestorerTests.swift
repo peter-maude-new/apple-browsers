@@ -346,8 +346,6 @@ private final class MockSubscriptionInstrumentation: SubscriptionInstrumentation
     func purchaseCancelled() {}
     func purchasePendingTransaction() {}
     func existingSubscriptionFoundDuringPurchase() {}
-    func restoreOfferPageEntry() {}
-    func restoreClickedInSettings() {}
     func restoreStoreStarted(origin: String) {}
     func restoreStoreSucceeded() {}
     func restoreStoreFailed(error: AppStoreRestoreFlowError) {}

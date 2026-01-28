@@ -34,8 +34,6 @@ public enum SubscriptionInstrumentationEvent {
 
     // MARK: - Restore Events
 
-    case restoreOfferPageEntry
-    case restoreClickedInSettings
     case restoreStoreStart
     case restoreStoreSuccess
     case restoreStoreFailureNotFound
