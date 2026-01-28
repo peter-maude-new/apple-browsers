@@ -550,7 +550,7 @@ private extension AIChatContextualSheetViewController {
 private extension AIChatContextualSheetViewController {
     
     func setupUI() {
-        view.backgroundColor = UIColor(designSystemColor: .duckAIContextualSheetBackground)
+        view.backgroundColor = UIColor(Color(singleUseColor: .duckAIContextualSheetBackground))
 
         view.layer.cornerRadius = Constants.sheetCornerRadius
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // Top corners only
