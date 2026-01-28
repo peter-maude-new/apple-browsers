@@ -79,8 +79,9 @@ final class PasswordsStatusBarMenu: NSObject {
 
     private func togglePopover() {
         if let popover, popover.isShown {
-            // Don't close if authentication is in progress
-            guard !DeviceAuthenticator.shared.isAuthenticating else { return }
+            // Don't close if authentication is required (lock screen showing) or in progress
+            guard !DeviceAuthenticator.shared.requiresAuthentication,
+                  !DeviceAuthenticator.shared.isAuthenticating else { return }
 
             popover.close()
             self.popover = nil
@@ -100,8 +101,9 @@ final class PasswordsStatusBarMenu: NSObject {
     // MARK: - Context Menu
 
     private func showContextMenu() {
-        // Don't show context menu if authentication is in progress
-        guard !DeviceAuthenticator.shared.isAuthenticating else { return }
+        // Don't show context menu if authentication is required or in progress
+        guard !DeviceAuthenticator.shared.requiresAuthentication,
+              !DeviceAuthenticator.shared.isAuthenticating else { return }
 
         if let popover, popover.isShown {
             popover.close()

@@ -71,8 +71,9 @@ final class PasswordsStatusBarPopover: NSPopover {
         clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self = self, self.isShown else { return }
 
-            // Don't close if authentication is in progress
-            guard !DeviceAuthenticator.shared.isAuthenticating else { return }
+            // Don't close if authentication is required (lock screen showing) or in progress
+            guard !DeviceAuthenticator.shared.requiresAuthentication,
+                  !DeviceAuthenticator.shared.isAuthenticating else { return }
 
             // Don't close if user is editing
             guard !self.viewController.isEditing else { return }
@@ -110,7 +111,9 @@ extension PasswordsStatusBarPopover: NSPopoverDelegate {
     }
 
     @MainActor func popoverShouldClose(_ popover: NSPopover) -> Bool {
-        // Don't close during authentication or editing
-        !DeviceAuthenticator.shared.isAuthenticating && !viewController.isEditing
+        // Don't close if authentication is required (lock screen showing) or in progress, or while editing
+        !DeviceAuthenticator.shared.requiresAuthentication &&
+        !DeviceAuthenticator.shared.isAuthenticating &&
+        !viewController.isEditing
     }
 }
