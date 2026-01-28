@@ -494,8 +494,11 @@ private extension AIChatNativeInputView {
     }
 
     func updateAttachButtonVisibility() {
-        let shouldHide = isAttachButtonHidden || attachActions.isEmpty || isContextChipVisible
+        let shouldHide = isAttachButtonHidden || attachActions.isEmpty
         attachButtonContainer.isHidden = shouldHide
+
+        attachButton.isEnabled = !isContextChipVisible
+        attachButtonContainer.alpha = isContextChipVisible ? 0.5 : 1.0
     }
 
     @objc func submitButtonTapped() {
