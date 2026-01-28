@@ -30,7 +30,7 @@ final class MockBrowserAutomationProvider: BrowserAutomationProvider {
     var isLoading: Bool = false
     var isContentBlockerReady: Bool = true
     var currentURL: URL? = URL(string: "https://example.com")
-    var currentWebView: WKWebView? = nil
+    var currentWebView: WKWebView?
 
     var tabHandles: [String] = ["mock-tab-1"]
 
@@ -48,7 +48,7 @@ final class MockBrowserAutomationProvider: BrowserAutomationProvider {
     var switchToTabResult: Bool = true
     var newTabResult: String? = "mock-new-tab"
     var executeScriptResult: Result<Any?, Error> = .success(nil)
-    var screenshotResult: Data? = nil
+    var screenshotResult: Data?
 
     // MARK: - BrowserAutomationProvider
 
