@@ -422,7 +422,6 @@ private extension AIChatContextualSheetViewController {
     func createContextChipView(snapshot: AIChatPageContextSnapshot, onRemove: @escaping () -> Void) -> AIChatContextChipView {
         let chipView = AIChatContextChipView()
         chipView.configure(title: snapshot.title, favicon: snapshot.favicon)
-        chipView.subtitle = UserText.aiChatContextChipSubtitle
         chipView.onRemove = onRemove
         return chipView
     }
