@@ -555,7 +555,7 @@ private extension AIChatContextualSheetViewController {
         view.layer.cornerRadius = Constants.sheetCornerRadius
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // Top corners only
 
-        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowColor = UIColor(designSystemColor: .shadowPrimary).cgColor
         view.layer.shadowOpacity = 0.08
         view.layer.shadowOffset = CGSize(width: 0, height: -3)
         view.layer.shadowRadius = 10
