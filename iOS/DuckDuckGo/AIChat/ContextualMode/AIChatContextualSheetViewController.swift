@@ -447,6 +447,8 @@ extension AIChatContextualSheetViewController: AIChatContextualInputViewControll
         switch action {
         case .summarize:
             attachPageContext()
+        case .attachPageContent:
+            attachPageContext()
         }
         contextualInputViewController.setText(action.prompt)
     }
