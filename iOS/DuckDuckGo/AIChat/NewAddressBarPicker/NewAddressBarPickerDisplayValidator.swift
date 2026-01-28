@@ -173,6 +173,7 @@ extension ProcessInfo {
     }
 
     static var isRunningAutomation: Bool {
-        UserDefaults.app.integer(forKey: "automationPort") != 0
+        let port = UserDefaults.app.integer(forKey: "automationPort")
+        return UInt16(exactly: port) != nil && port > 0
     }
 }
