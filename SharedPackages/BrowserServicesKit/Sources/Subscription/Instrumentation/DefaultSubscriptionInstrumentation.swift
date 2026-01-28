@@ -17,36 +17,37 @@
 //
 
 import Foundation
-import BrowserServicesKit
+import Common
 import PixelKit
-import Subscription
 
-final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
+/// Shared implementation of the subscription instrumentation facade.
+/// Handles all subscription-related wide event management and delegates pixel firing to platform-specific handlers.
+public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
 
     private let wideEvent: WideEventManaging
-    private let subscriptionSuccessPixelHandler: SubscriptionAttributionPixelHandling
+    private let pixelHandler: EventMapping<SubscriptionInstrumentationEvent>
 
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var restoreWideEventData: SubscriptionRestoreWideEventData?
     private var planChangeWideEventData: SubscriptionPlanChangeWideEventData?
     private var isRestoreEmailAttemptActive = false
 
-    init(wideEvent: WideEventManaging,
-         subscriptionSuccessPixelHandler: SubscriptionAttributionPixelHandling = SubscriptionAttributionPixelHandler()) {
+    public init(wideEvent: WideEventManaging,
+                pixelHandler: EventMapping<SubscriptionInstrumentationEvent>) {
         self.wideEvent = wideEvent
-        self.subscriptionSuccessPixelHandler = subscriptionSuccessPixelHandler
+        self.pixelHandler = pixelHandler
     }
 
     // MARK: - Purchase Flow
 
-    func purchaseAttempted() {
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseAttempt, frequency: .legacyDailyAndCount)
+    public func purchaseAttempted() {
+        pixelHandler.fire(.purchaseAttempt)
     }
 
-    func purchaseFlowStarted(subscriptionId: String?,
-                             freeTrialEligible: Bool,
-                             origin: String?,
-                             purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform) {
+    public func purchaseFlowStarted(subscriptionId: String?,
+                                    freeTrialEligible: Bool,
+                                    origin: String?,
+                                    purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform) {
         let data = SubscriptionPurchaseWideEventData(
             purchasePlatform: purchasePlatform,
             subscriptionIdentifier: subscriptionId,
@@ -55,15 +56,10 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         )
         self.purchaseWideEventData = data
         wideEvent.startFlow(data)
-
-        // Set origin for attribution pixel
-        subscriptionSuccessPixelHandler.origin = origin
     }
 
-    func purchaseSucceeded(origin: String?) {
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseSuccess, frequency: .legacyDailyAndCount)
-        PixelKit.fire(SubscriptionPixel.subscriptionActivated, frequency: .uniqueByName)
-        subscriptionSuccessPixelHandler.fireSuccessfulSubscriptionAttributionPixel()
+    public func purchaseSucceeded(origin: String?) {
+        pixelHandler.fire(.purchaseSuccess(origin: origin))
 
         if let purchaseWideEventData {
             purchaseWideEventData.activateAccountDuration?.complete()
@@ -73,9 +69,8 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.purchaseWideEventData = nil
     }
 
-    func purchaseSucceededStripe(origin: String?) {
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseStripeSuccess, frequency: .legacyDailyAndCount)
-        subscriptionSuccessPixelHandler.fireSuccessfulSubscriptionAttributionPixel()
+    public func purchaseSucceededStripe(origin: String?) {
+        pixelHandler.fire(.purchaseSuccessStripe(origin: origin))
 
         if let purchaseWideEventData {
             purchaseWideEventData.activateAccountDuration?.complete()
@@ -85,17 +80,8 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.purchaseWideEventData = nil
     }
 
-    func purchaseFailed(error: Error, step: SubscriptionPurchaseWideEventData.FailingStep) {
-        switch step {
-        case .flowStart:
-            PixelKit.fire(SubscriptionPixel.subscriptionPurchaseFailureOther, frequency: .legacyDailyAndCount)
-        case .accountCreate:
-            PixelKit.fire(SubscriptionPixel.subscriptionPurchaseFailureAccountNotCreated(error), frequency: .legacyDailyAndCount)
-        case .accountPayment:
-            PixelKit.fire(SubscriptionPixel.subscriptionPurchaseFailureStoreError(error), frequency: .legacyDailyAndCount)
-        case .accountActivation:
-            PixelKit.fire(SubscriptionPixel.subscriptionPurchaseFailureBackendError, frequency: .legacyDailyAndCount)
-        }
+    public func purchaseFailed(error: Error, step: SubscriptionPurchaseWideEventData.FailingStep) {
+        pixelHandler.fire(.purchaseFailure(step: step, error: error))
 
         if let purchaseWideEventData {
             if step == .accountActivation {
@@ -108,15 +94,15 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.purchaseWideEventData = nil
     }
 
-    func purchaseCancelled() {
+    public func purchaseCancelled() {
         if let purchaseWideEventData {
             wideEvent.completeFlow(purchaseWideEventData, status: .cancelled, onComplete: { _, _ in })
         }
         self.purchaseWideEventData = nil
     }
 
-    func purchasePendingTransaction() {
-        PixelKit.fire(SubscriptionPixel.subscriptionPurchaseFailureStoreError(AppStorePurchaseFlowError.transactionPendingAuthentication), frequency: .legacyDailyAndCount)
+    public func purchasePendingTransaction() {
+        pixelHandler.fire(.purchasePendingTransaction)
 
         if let purchaseWideEventData {
             purchaseWideEventData.markAsFailed(at: .accountPayment, error: AppStorePurchaseFlowError.transactionPendingAuthentication)
@@ -125,10 +111,9 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.purchaseWideEventData = nil
     }
 
-    func existingSubscriptionFoundDuringPurchase() {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestoreAfterPurchaseAttempt)
+    public func existingSubscriptionFoundDuringPurchase() {
+        pixelHandler.fire(.existingSubscriptionFound)
 
-        // Discard the purchase wide event since this is not a purchase flow
         if let purchaseWideEventData {
             wideEvent.discardFlow(purchaseWideEventData)
         }
@@ -137,44 +122,42 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
 
     // MARK: - Restore Flow
 
-    func restoreOfferPageEntry() {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseOfferPageEntry)
+    public func restoreOfferPageEntry() {
+        pixelHandler.fire(.restoreOfferPageEntry)
     }
 
-    func restoreClickedInSettings() {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseClick)
+    public func restoreClickedInSettings() {
+        pixelHandler.fire(.restoreClickedInSettings)
     }
 
-    func restoreStoreStarted(origin: String) {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreStart, frequency: .legacyDailyAndCount)
+    public func restoreStoreStarted(origin: String) {
+        pixelHandler.fire(.restoreStoreStart)
 
         let data = SubscriptionRestoreWideEventData(
             restorePlatform: .appleAccount,
             appleAccountRestoreDuration: WideEvent.MeasuredInterval.startingNow(),
             contextData: WideEventContextData(name: origin)
         )
-
         self.restoreWideEventData = data
         wideEvent.startFlow(data)
     }
 
-    func restoreStoreSucceeded() {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreSuccess, frequency: .legacyDailyAndCount)
+    public func restoreStoreSucceeded() {
+        pixelHandler.fire(.restoreStoreSuccess)
 
         if let restoreWideEventData {
             restoreWideEventData.appleAccountRestoreDuration?.complete()
             wideEvent.completeFlow(restoreWideEventData, status: .success, onComplete: { _, _ in })
         }
-
         self.restoreWideEventData = nil
     }
 
-    func restoreStoreFailed(error: AppStoreRestoreFlowError) {
+    public func restoreStoreFailed(error: AppStoreRestoreFlowError) {
         switch error {
         case .subscriptionExpired, .missingAccountOrTransactions:
-            PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreFailureNotFound, frequency: .legacyDailyAndCount)
+            pixelHandler.fire(.restoreStoreFailureNotFound)
         default:
-            PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseStoreFailureOther, frequency: .legacyDailyAndCount)
+            pixelHandler.fire(.restoreStoreFailureOther)
         }
 
         if let restoreWideEventData {
@@ -185,18 +168,18 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
-    func restoreStoreCancelled() {
+    public func restoreStoreCancelled() {
         if let restoreWideEventData {
             wideEvent.discardFlow(restoreWideEventData)
         }
         self.restoreWideEventData = nil
     }
 
-    func beginRestoreEmailAttempt(origin: String?) {
+    public func beginRestoreEmailAttempt(origin: String?) {
         guard !isRestoreEmailAttemptActive else { return }
         isRestoreEmailAttemptActive = true
 
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailStart, frequency: .legacyDailyAndCount)
+        pixelHandler.fire(.restoreEmailStart)
 
         let data = SubscriptionRestoreWideEventData(
             restorePlatform: .emailAddress,
@@ -207,7 +190,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         wideEvent.startFlow(data)
     }
 
-    func endRestoreEmailAttempt() {
+    public func endRestoreEmailAttempt() {
         if let restoreWideEventData, restoreWideEventData.restorePlatform == .emailAddress {
             wideEvent.discardFlow(restoreWideEventData)
             self.restoreWideEventData = nil
@@ -215,8 +198,8 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         isRestoreEmailAttemptActive = false
     }
 
-    func restoreEmailSucceeded() {
-        PixelKit.fire(SubscriptionPixel.subscriptionRestorePurchaseEmailSuccess, frequency: .legacyDailyAndCount)
+    public func restoreEmailSucceeded() {
+        pixelHandler.fire(.restoreEmailSuccess)
 
         if let restoreWideEventData {
             restoreWideEventData.emailAddressRestoreDuration?.complete()
@@ -226,7 +209,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         isRestoreEmailAttemptActive = false
     }
 
-    func restoreEmailFailed(error: Error?) {
+    public func restoreEmailFailed(error: Error?) {
         if let restoreWideEventData {
             restoreWideEventData.emailAddressRestoreDuration?.complete()
             if let error {
@@ -238,7 +221,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         isRestoreEmailAttemptActive = false
     }
 
-    func restoreBackgroundCheckStarted(origin: String) {
+    public func restoreBackgroundCheckStarted(origin: String) {
         let data = SubscriptionRestoreWideEventData(
             restorePlatform: .purchaseBackgroundTask,
             appleAccountRestoreDuration: WideEvent.MeasuredInterval.startingNow(),
@@ -248,7 +231,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         wideEvent.startFlow(data)
     }
 
-    func restoreBackgroundCheckSucceeded() {
+    public func restoreBackgroundCheckSucceeded() {
         if let restoreWideEventData {
             restoreWideEventData.appleAccountRestoreDuration?.complete()
             wideEvent.completeFlow(restoreWideEventData, status: .success(reason: nil), onComplete: { _, _ in })
@@ -256,7 +239,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.restoreWideEventData = nil
     }
 
-    func restoreBackgroundCheckFailed(error: Error) {
+    public func restoreBackgroundCheckFailed(error: Error) {
         if let restoreWideEventData {
             restoreWideEventData.appleAccountRestoreDuration?.complete()
             restoreWideEventData.errorData = WideEventErrorData(error: error)
@@ -267,11 +250,11 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
 
     // MARK: - Plan Change Flow
 
-    func planChangeStarted(from: String,
-                           to: String,
-                           changeType: SubscriptionPlanChangeWideEventData.ChangeType?,
-                           origin: String?,
-                           purchasePlatform: SubscriptionPlanChangeWideEventData.PurchasePlatform) {
+    public func planChangeStarted(from: String,
+                                  to: String,
+                                  changeType: SubscriptionPlanChangeWideEventData.ChangeType?,
+                                  origin: String?,
+                                  purchasePlatform: SubscriptionPlanChangeWideEventData.PurchasePlatform) {
         let data = SubscriptionPlanChangeWideEventData(
             purchasePlatform: purchasePlatform,
             changeType: changeType,
@@ -284,7 +267,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         wideEvent.startFlow(data)
     }
 
-    func planChangePaymentSucceeded() {
+    public func planChangePaymentSucceeded() {
         if let planChangeWideEventData {
             planChangeWideEventData.paymentDuration?.complete()
             planChangeWideEventData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
@@ -292,7 +275,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         }
     }
 
-    func planChangeSucceeded() {
+    public func planChangeSucceeded() {
         if let planChangeWideEventData {
             planChangeWideEventData.confirmationDuration?.complete()
             wideEvent.updateFlow(planChangeWideEventData)
@@ -301,7 +284,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.planChangeWideEventData = nil
     }
 
-    func planChangeFailed(error: Error, step: SubscriptionPlanChangeWideEventData.FailingStep) {
+    public func planChangeFailed(error: Error, step: SubscriptionPlanChangeWideEventData.FailingStep) {
         if let planChangeWideEventData {
             planChangeWideEventData.markAsFailed(at: step, error: error)
             wideEvent.updateFlow(planChangeWideEventData)
@@ -310,7 +293,7 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.planChangeWideEventData = nil
     }
 
-    func planChangeCancelled() {
+    public func planChangeCancelled() {
         if let planChangeWideEventData {
             wideEvent.completeFlow(planChangeWideEventData, status: .cancelled, onComplete: { _, _ in })
         }
@@ -319,28 +302,28 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
 
     // MARK: - Wide Event Updates
 
-    func updatePurchaseAccountCreationDuration(_ duration: WideEvent.MeasuredInterval) {
+    public func updatePurchaseAccountCreationDuration(_ duration: WideEvent.MeasuredInterval) {
         if let purchaseWideEventData {
             purchaseWideEventData.createAccountDuration = duration
             wideEvent.updateFlow(purchaseWideEventData)
         }
     }
 
-    func startPurchaseActivationTiming() {
+    public func startPurchaseActivationTiming() {
         if let purchaseWideEventData {
             purchaseWideEventData.activateAccountDuration = WideEvent.MeasuredInterval.startingNow()
             wideEvent.updateFlow(purchaseWideEventData)
         }
     }
 
-    func updateEmailRestoreURL(_ url: SubscriptionRestoreWideEventData.EmailAddressRestoreURL) {
+    public func updateEmailRestoreURL(_ url: SubscriptionRestoreWideEventData.EmailAddressRestoreURL) {
         if let restoreWideEventData {
             restoreWideEventData.emailAddressRestoreLastURL = url
             wideEvent.updateFlow(restoreWideEventData)
         }
     }
 
-    func discardPurchaseFlow() {
+    public func discardPurchaseFlow() {
         if let purchaseWideEventData {
             wideEvent.discardFlow(purchaseWideEventData)
         }

@@ -296,8 +296,7 @@
 		4B75EA9226A266CB00018634 /* PrintingUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B75EA9126A266CB00018634 /* PrintingUserScript.swift */; };
 		4B821FAC2E21CD3900685484 /* RunDBPDebugModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B821FAB2E21CD3600685484 /* RunDBPDebugModeViewController.swift */; };
 		4B82E4772E64E4CF00DE9F0C /* WideEventLaunchCleanupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B82E4762E64E4CF00DE9F0C /* WideEventLaunchCleanupTask.swift */; };
-		4B92C6F72F26968200108694 /* PrivacyStats in Frameworks */ = {isa = PBXBuildFile; productRef = AA3000060000000000000006 /* PrivacyStats */; };
-		4B92C6FD2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B92C6FB2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift */; };
+		4B8C91242F29ABB800D1606A /* SubscriptionInstrumentationPixelHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8C91232F29ABB800D1606A /* SubscriptionInstrumentationPixelHandler.swift */; };
 		4B92C7082F26F44000108694 /* AIChat in Frameworks */ = {isa = PBXBuildFile; productRef = 4B92C7072F26F44000108694 /* AIChat */; };
 		4B92C70A2F26F47300108694 /* AIChat in Frameworks */ = {isa = PBXBuildFile; productRef = 4B92C7092F26F47300108694 /* AIChat */; };
 		4B94B79E2D4831D90014AAB8 /* SyncUI-iOS in Frameworks */ = {isa = PBXBuildFile; productRef = 4B94B79D2D4831D90014AAB8 /* SyncUI-iOS */; };
@@ -577,7 +576,6 @@
 		805674FB2EEF790700152470 /* SettingsDataClearingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805674FA2EEF790700152470 /* SettingsDataClearingView.swift */; };
 		805674FF2EEFA0A500152470 /* DataClearingSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805674FD2EEFA0A500152470 /* DataClearingSettingsViewModel.swift */; };
 		8065741D2ED917410001497A /* FireExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8065741C2ED917350001497A /* FireExecutor.swift */; };
-		808DA4FF2F230170001D5F76 /* PrivacyStats in Frameworks */ = {isa = PBXBuildFile; productRef = AA3000060000000000000006 /* PrivacyStats */; };
 		808DA5012F230245001D5F76 /* TabViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808DA5002F230245001D5F76 /* TabViewModelTests.swift */; };
 		8097AA5A2EE652E400E995F9 /* FireConfirmationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8097AA592EE652DC00E995F9 /* FireConfirmationViewModelTests.swift */; };
 		809F9D152EE12CF600943E8A /* FireConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D122EE12CF600943E8A /* FireConfirmationView.swift */; };
@@ -2549,7 +2547,7 @@
 		4B7D0D542E86A4E60081E568 /* AttributedMetric */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AttributedMetric; path = ../SharedPackages/AttributedMetric; sourceTree = SOURCE_ROOT; };
 		4B821FAB2E21CD3600685484 /* RunDBPDebugModeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunDBPDebugModeViewController.swift; sourceTree = "<group>"; };
 		4B82E4762E64E4CF00DE9F0C /* WideEventLaunchCleanupTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideEventLaunchCleanupTask.swift; sourceTree = "<group>"; };
-		4B92C6FB2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSubscriptionInstrumentation.swift; sourceTree = "<group>"; };
+		4B8C91232F29ABB800D1606A /* SubscriptionInstrumentationPixelHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionInstrumentationPixelHandler.swift; sourceTree = "<group>"; };
 		4B94B79C2D4831700014AAB8 /* SyncUI-iOS */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "SyncUI-iOS"; sourceTree = "<group>"; };
 		4BB7CBAF2AF59C310014A35F /* VPNWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNWidget.swift; sourceTree = "<group>"; };
 		4BBBBA912B03291700D965DA /* VPNWaitlistUserText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNWaitlistUserText.swift; sourceTree = "<group>"; };
@@ -5824,7 +5822,7 @@
 		4B92C6FC2F2696A700108694 /* Instrumentation */ = {
 			isa = PBXGroup;
 			children = (
-				4B92C6FB2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift */,
+				4B8C91232F29ABB800D1606A /* SubscriptionInstrumentationPixelHandler.swift */,
 			);
 			path = Instrumentation;
 			sourceTree = "<group>";
@@ -11174,6 +11172,7 @@
 				83134D7D20E2D725006CE65D /* FeedbackSender.swift in Sources */,
 				B652DF12287C336E00C12A9C /* ContentBlockingUpdating.swift in Sources */,
 				CBF5D4232EA92031000530AF /* SceneDelegate.swift in Sources */,
+				4B8C91242F29ABB800D1606A /* SubscriptionInstrumentationPixelHandler.swift in Sources */,
 				C1E42C7B2C5CD8AE00509204 /* AutofillCredentialsDebugViewController.swift in Sources */,
 				314C92BA27C3E7CB0042EC96 /* QuickLookContainerViewController.swift in Sources */,
 				C1C18C082D972EED00FFBA2E /* LockScreenView.swift in Sources */,
@@ -11395,7 +11394,6 @@
 				31D2D2A42D40F98800549D12 /* WidgetSourceType.swift in Sources */,
 				F4D7221026F29A70007D6193 /* BookmarkDetailsCell.swift in Sources */,
 				F1617C131E572E0300DEDCAF /* TabSwitcherViewController.swift in Sources */,
-				4B92C6FD2F2696A700108694 /* DefaultSubscriptionInstrumentation.swift in Sources */,
 				AA2000010000000000000002 /* TabSwitcherTrackerInfoHeaderView.swift in Sources */,
 				AA2000010000000000000001 /* Components/InfoPanel/InfoPanelView.swift in Sources */,
 				AA2000020000000000000002 /* PrivacyStats/PrivacyStatsProviding.swift in Sources */,

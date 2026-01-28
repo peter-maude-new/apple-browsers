@@ -107,10 +107,12 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         self.wideEvent = wideEvent
         self.subscriptionEventReporter = subscriptionEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
-        self.instrumentation = instrumentation ?? DefaultSubscriptionInstrumentation(
-            wideEvent: wideEvent,
-            subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler
-        )
+        self.instrumentation = instrumentation ?? {
+            let pixelHandler = SubscriptionInstrumentationPixelHandler(
+                attributionPixelHandler: subscriptionSuccessPixelHandler
+            )
+            return DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
+        }()
     }
 
     func with(broker: UserScriptMessageBroker) {

@@ -173,11 +173,12 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         self.internalUserDecider = internalUserDecider
         self.tierEventReporter = tierEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
-        self.instrumentation = instrumentation
-            ?? DefaultSubscriptionInstrumentation(
-                wideEvent: wideEvent,
+        self.instrumentation = instrumentation ?? {
+            let pixelHandler = SubscriptionInstrumentationPixelHandler(
                 subscriptionDataReporter: subscriptionAttributionOrigin != nil ? subscriptionDataReporter : nil
             )
+            return DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
+        }()
     }
 
     // Transaction Status and errors are observed from ViewModels to handle errors in the UI

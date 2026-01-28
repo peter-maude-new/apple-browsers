@@ -62,7 +62,8 @@ enum SubscriptionContainerViewFactory {
         }()
 
         let origin = redirectURLComponents?.queryItems?.first(where: { $0.name == AttributionParameter.origin })?.value
-        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, subscriptionDataReporter: subscriptionDataReporter)
+        let pixelHandler = SubscriptionInstrumentationPixelHandler(subscriptionDataReporter: subscriptionDataReporter)
+        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
 
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
@@ -109,7 +110,8 @@ enum SubscriptionContainerViewFactory {
                                                                  appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
+        let pixelHandler = SubscriptionInstrumentationPixelHandler()
+        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
         let subscriptionPagesUseSubscriptionFeature = DefaultSubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                                                                      subscriptionFeatureAvailability: subscriptionFeatureAvailability,
                                                                                                      subscriptionAttributionOrigin: nil,
@@ -167,7 +169,8 @@ enum SubscriptionContainerViewFactory {
             }
         }
 
-        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
+        let pixelHandler = SubscriptionInstrumentationPixelHandler()
+        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             redirectPurchaseURL: plansURL,
@@ -212,7 +215,8 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent)
+        let pixelHandler = SubscriptionInstrumentationPixelHandler()
+        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, pixelHandler: pixelHandler.makeEventMapping())
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             isInternalUser: internalUserDecider.isInternalUser,
