@@ -147,7 +147,16 @@ class TabSwitcherViewController: UIViewController {
     var searchQuery: String = ""
     var filteredTabs: [Tab] = []
     var isSearchBarRevealed: Bool = false
-    
+
+    // Search bar container and constraints for showing/hiding
+    private var searchBarContainer: UIView!
+    private var searchBarContainerHeightConstraint: NSLayoutConstraint!
+    private var searchBarContainerTopConstraint: NSLayoutConstraint?
+    private var collectionViewTopConstraint: NSLayoutConstraint?
+    private var searchBarHeight: CGFloat {
+        return searchBar.intrinsicContentSize.height + 4 // 2pt padding top & bottom
+    }
+
     var selectedTabs: [IndexPath] {
         collectionView.indexPathsForSelectedItems ?? []
     }
@@ -244,6 +253,47 @@ class TabSwitcherViewController: UIViewController {
         let bottomOffset = 8.0
         let navHPadding = 10.0
 
+        // Deactivate old constraints if they exist
+        if let oldConstraint = searchBarContainerTopConstraint {
+            oldConstraint.isActive = false
+        }
+        if let oldConstraint = collectionViewTopConstraint {
+            oldConstraint.isActive = false
+        }
+
+        // Set search bar container top constraint based on bar position
+        // Initially positioned off-screen (hidden above visible area)
+        let searchBarTopOffset = isSearchBarRevealed ? 0 : -searchBarHeight
+        if isBottomBar {
+            // Title bar at bottom -> search bar at top safe area
+            searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor,
+                constant: searchBarTopOffset
+            )
+        } else {
+            // Title bar at top -> search bar below title bar
+            searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
+                equalTo: titleBarView.bottomAnchor,
+                constant: searchBarTopOffset
+            )
+        }
+        searchBarContainerTopConstraint?.isActive = true
+
+        // Collection view top constraint - adjust for search bar if revealed
+        let collectionViewOffset = Constants.trackerInfoTopSpacing + (isSearchBarRevealed ? searchBarHeight : 0)
+        if isBottomBar {
+            collectionViewTopConstraint = collectionView.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor,
+                constant: collectionViewOffset
+            )
+        } else {
+            collectionViewTopConstraint = collectionView.topAnchor.constraint(
+                equalTo: titleBarView.bottomAnchor,
+                constant: collectionViewOffset
+            )
+        }
+        collectionViewTopConstraint?.isActive = true
+
         // The constants here are to force the ai button to align between the tab switcher and this view
         NSLayoutConstraint.activate([
             titleBarView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: navHPadding),
@@ -251,7 +301,6 @@ class TabSwitcherViewController: UIViewController {
             isBottomBar ? titleBarView.bottomAnchor.constraint(equalTo: toolbar.topAnchor, constant: topOffset) : nil,
             !isBottomBar ? titleBarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: bottomOffset) : nil,
 
-            collectionView.topAnchor.constraint(equalTo: isBottomBar ? view.safeAreaLayoutGuide.topAnchor : titleBarView.bottomAnchor, constant: Constants.trackerInfoTopSpacing),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 
@@ -273,6 +322,37 @@ class TabSwitcherViewController: UIViewController {
         ].compactMap { $0 })
     }
 
+    private func setupSearchBar() {
+        // Create container for search bar
+        searchBarContainer = UIView()
+        searchBarContainer.translatesAutoresizingMaskIntoConstraints = false
+        searchBarContainer.backgroundColor = UIColor(designSystemColor: .background)
+        searchBarContainer.clipsToBounds = true
+        searchBarContainer.alpha = 0 // Start invisible
+        view.addSubview(searchBarContainer)
+
+        // Add search bar to container
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBarContainer.addSubview(searchBar)
+
+        // Height constraint - start at full height but positioned off-screen
+        searchBarContainerHeightConstraint = searchBarContainer.heightAnchor.constraint(equalToConstant: searchBarHeight)
+
+        NSLayoutConstraint.activate([
+            // Container horizontal constraints
+            searchBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            // Note: Top constraint will be set in activateLayoutConstraintsBasedOnBarPosition()
+            searchBarContainerHeightConstraint,
+
+            // Search bar inside container with padding: 2pt top/bottom, 8pt leading/trailing
+            searchBar.topAnchor.constraint(equalTo: searchBarContainer.topAnchor, constant: 2),
+            searchBar.leadingAnchor.constraint(equalTo: searchBarContainer.leadingAnchor, constant: 8),
+            searchBar.trailingAnchor.constraint(equalTo: searchBarContainer.trailingAnchor, constant: -8),
+            searchBar.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor, constant: -2)
+        ])
+    }
+
     private func setupBarsLayout() {
         // Remove existing constraints to avoid conflicts
         borderView.translatesAutoresizingMaskIntoConstraints = false
@@ -286,11 +366,16 @@ class TabSwitcherViewController: UIViewController {
             targetView.removeFromSuperview()
         }
 
-        // Re-add the views to the hierarchy
+        // Re-add the views to the hierarchy (search bar container added separately in setupSearchBar)
         view.addSubview(titleBarView)
         view.addSubview(toolbar)
         view.addSubview(collectionView)
         view.addSubview(borderView)
+
+        // Bring search bar container to front if it exists
+        if let searchBarContainer = searchBarContainer {
+            view.bringSubviewToFront(searchBarContainer)
+        }
 
         let toolbarAppearance = UIToolbarAppearance()
         toolbarAppearance.configureWithTransparentBackground()
@@ -309,15 +394,11 @@ class TabSwitcherViewController: UIViewController {
         // These should only be done once
         createTitleBar()
         setupBackgroundView()
+        setupSearchBar() // Set up search bar as separate view
         collectionView.register(
             TabSwitcherTrackerInfoHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TabSwitcherTrackerInfoHeaderView.reuseIdentifier
-        )
-        collectionView.register(
-            TabSwitcherSearchHeaderView.self,
-            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: TabSwitcherSearchHeaderView.reuseIdentifier
         )
         tabObserverCancellable = tabsModel.$tabs.receive(on: DispatchQueue.main).sink { [weak self] _ in
             guard let self = self else { return }
@@ -586,38 +667,17 @@ class TabSwitcherViewController: UIViewController {
 extension TabSwitcherViewController: TabViewCellDelegate {
 
     func deleteTabsAtIndexPaths(_ indexPaths: [IndexPath]) {
-        // If searching, convert filtered indices to actual model indices
-        let actualIndexPaths: [IndexPath]
-        if isSearching {
-            actualIndexPaths = indexPaths.compactMap { indexPath in
-                let tab = filteredTabs[indexPath.row]
-                if let actualIndex = tabsModel.indexOf(tab: tab) {
-                    return IndexPath(row: actualIndex, section: 0)
-                }
-                return nil
-            }
-        } else {
-            actualIndexPaths = indexPaths
-        }
-
-        let shouldDismiss = tabsModel.count == actualIndexPaths.count
+        let shouldDismiss = tabsModel.count == indexPaths.count
 
         collectionView.performBatchUpdates {
             isProcessingUpdates = true
-            tabManager.bulkRemoveTabs(actualIndexPaths)
-            collectionView.deleteItems(at: indexPaths) // Delete from collection view using original indices
+            tabManager.bulkRemoveTabs(indexPaths)
+            collectionView.deleteItems(at: indexPaths)
         } completion: { _ in
             self.currentSelection = self.tabsModel.currentIndex
             self.isProcessingUpdates = false
             if self.tabsModel.tabs.isEmpty {
                 self.tabsModel.add(tab: Tab())
-            }
-
-            // Update filtered tabs if searching
-            if self.isSearching {
-                let deletedUIDs = Set(indexPaths.map { self.filteredTabs[$0.row].uid })
-                self.filteredTabs.removeAll { deletedUIDs.contains($0.uid) }
-                self.updateSearchBackgroundView()
             }
 
             self.delegate?.tabSwitcherDidBulkCloseTabs(tabSwitcher: self)
@@ -630,16 +690,14 @@ extension TabSwitcherViewController: TabViewCellDelegate {
     }
     
     func deleteTab(tab: Tab) {
-        // Find the index in the current view (filtered or full)
-        let indexPath: IndexPath
-        if isSearching {
-            guard let filteredIndex = filteredTabs.firstIndex(where: { $0.uid == tab.uid }) else { return }
-            indexPath = IndexPath(row: filteredIndex, section: 0)
-        } else {
-            guard let modelIndex = tabsModel.indexOf(tab: tab) else { return }
-            indexPath = IndexPath(row: modelIndex, section: 0)
+        // If search is active, cancel it first
+        if isSearching || isSearchBarRevealed {
+            finishSearching()
         }
 
+        // Find the tab in the actual model and delete it
+        guard let modelIndex = tabsModel.indexOf(tab: tab) else { return }
+        let indexPath = IndexPath(row: modelIndex, section: 0)
         deleteTabsAtIndexPaths([indexPath])
     }
 
@@ -701,18 +759,18 @@ extension TabSwitcherViewController: UICollectionViewDataSource {
             return UICollectionReusableView()
         }
 
+        // Header now only shows tracker info (search bar is separate)
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
-            withReuseIdentifier: TabSwitcherSearchHeaderView.reuseIdentifier,
+            withReuseIdentifier: TabSwitcherTrackerInfoHeaderView.reuseIdentifier,
             for: indexPath
-        ) as? TabSwitcherSearchHeaderView else {
+        ) as? TabSwitcherTrackerInfoHeaderView else {
             return UICollectionReusableView()
         }
 
         // Don't show tracker info during multi-select mode
         let trackerModel = isEditing ? nil : trackerInfoModel
-        let showSearchBar = (isSearchBarRevealed || isSearching) && !isEditing
-        header.configure(in: self, searchBar: searchBar, trackerInfoModel: trackerModel, isSearchBarVisible: showSearchBar)
+        header.configure(in: self, model: trackerModel)
         return header
     }
 
@@ -765,6 +823,9 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
     }
 
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        // Disable context menu when search bar is visible to avoid crashes
+        guard !isSearchBarRevealed else { return nil }
+
         // This can happen if you long press in the whitespace
         guard !indexPaths.isEmpty else { return nil }
 
@@ -808,9 +869,21 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         guard !isSearchBarRevealed else { return }
         isSearchBarRevealed = true
 
-        UIView.animate(withDuration: 0.3) {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-            self.collectionView.layoutIfNeeded()
+        let isBottomBar = appSettings.currentAddressBarPosition.isBottom
+
+        // Update search bar constraint to slide it into view (from negative offset to 0)
+        searchBarContainerTopConstraint?.constant = 0
+
+        // Update collection view constraint to make room for search bar
+        let collectionViewOffset = Constants.trackerInfoTopSpacing + searchBarHeight
+        collectionViewTopConstraint?.constant = collectionViewOffset
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            self.searchBarContainer.alpha = 1.0 // Fade in
+            self.view.layoutIfNeeded()
+        }) { _ in
+            // Make search bar first responder after animation
+            self.searchBar.becomeFirstResponder()
         }
     }
 
@@ -820,10 +893,23 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
 
         isSearchBarRevealed = false
 
-        UIView.animate(withDuration: 0.3) {
-            self.collectionView.collectionViewLayout.invalidateLayout()
-            self.collectionView.layoutIfNeeded()
+        let isBottomBar = appSettings.currentAddressBarPosition.isBottom
+
+        // Resign first responder if needed
+        if searchBar.isFirstResponder {
+            searchBar.resignFirstResponder()
         }
+
+        // Update search bar constraint to slide it out of view (from 0 to negative offset)
+        searchBarContainerTopConstraint?.constant = -searchBarHeight
+
+        // Update collection view constraint back to original position
+        collectionViewTopConstraint?.constant = Constants.trackerInfoTopSpacing
+
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: {
+            self.searchBarContainer.alpha = 0.0 // Fade out
+            self.view.layoutIfNeeded()
+        })
     }
 
 }
@@ -877,20 +963,12 @@ extension TabSwitcherViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
-        var height: CGFloat = 0
-
-        // Show search bar if revealed or searching
-        if (isSearchBarRevealed || isSearching) && !isEditing {
-            height += TabSwitcherSearchHeaderView.searchBarHeight
+        // Header only shows tracker info now (search bar is separate)
+        guard !isEditing && trackerInfoModel != nil else {
+            return .zero
         }
 
-        // Add tracker info height if available and not in edit mode
-        if !isEditing && trackerInfoModel != nil {
-            height += TabSwitcherSearchHeaderView.trackerInfoHeight
-        }
-
-        guard height > 0 else { return .zero }
-        return CGSize(width: collectionView.bounds.width, height: height)
+        return CGSize(width: collectionView.bounds.width, height: TabSwitcherTrackerInfoHeaderView.estimatedHeight)
     }
 
 }
@@ -1031,7 +1109,7 @@ extension TabSwitcherViewController: UISearchBarDelegate {
             isSearching = false
             filteredTabs = []
             updateSearchBackgroundView()
-            reloadPreservingKeyboard()
+            collectionView.reloadData()
             return
         }
 
@@ -1043,7 +1121,7 @@ extension TabSwitcherViewController: UISearchBarDelegate {
         let searcher = TabsSearch()
         filteredTabs = searcher.search(query: query, in: tabsModel.tabs)
         updateSearchBackgroundView()
-        reloadPreservingKeyboard()
+        collectionView.reloadData()
 
         // Announce result count for accessibility
         let resultCount = filteredTabs.count
@@ -1052,20 +1130,6 @@ extension TabSwitcherViewController: UISearchBarDelegate {
         } else {
             let announcement = "\(resultCount) \(resultCount == 1 ? "tab" : "tabs") found"
             UIAccessibility.post(notification: .announcement, argument: announcement)
-        }
-    }
-
-    private func reloadPreservingKeyboard() {
-        // Save and restore first responder to prevent keyboard dismissal
-        let wasFirstResponder = searchBar.isFirstResponder
-
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        collectionView.reloadData()
-        CATransaction.commit()
-
-        if wasFirstResponder {
-            searchBar.becomeFirstResponder()
         }
     }
 
