@@ -271,8 +271,14 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211652685709102?focus=true
     case contextualDuckAIMode
 
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1211652685709102?focus=true
+    case aiChatAutoAttachContextByDefault
+
     /// https://app.asana.com/1/137249556945/project/1201462886803403/task/1211837879355661?focus=true
     case aiChatSync
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212745919983886?focus=true
+    case aiChatSuggestions
 
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212388316840466?focus=true
     case showWhatsNewPromptOnDemand
@@ -283,11 +289,21 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212556727029805
     case enhancedDataClearingSettings
 
+    // https://app.asana.com/1/137249556945/project/392891325557410/task/1211597475706631?focus=true
+    case webViewFlashPrevention
+
+    /// Whether the wide event POST endpoint is enabled
+    /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
+    case wideEventPostEndpoint
+
     /// Shows tracker count banner in Tab Switcher and related settings item
     case tabSwitcherTrackerCount
 
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212632627091091?focus=true
     case burnSingleTab
+    
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212875994217788?focus=true
+    case genericBackgroundTask
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -310,7 +326,10 @@ extension FeatureFlag: FeatureFlagDescribing {
              .appRatingPrompt,
              .autofillPasswordSearchPrioritizeDomain,
              .showWhatsNewPromptOnDemand,
-             .dataImportSummarySyncPromotion:
+             .webViewFlashPrevention,
+             .wideEventPostEndpoint,
+             .dataImportSummarySyncPromotion,
+             .aiChatAutoAttachContextByDefault:
             true
         default:
             false
@@ -375,11 +394,16 @@ extension FeatureFlag: FeatureFlagDescribing {
              .dataImportWideEventMeasurement,
              .appRatingPrompt,
              .contextualDuckAIMode,
+             .aiChatAutoAttachContextByDefault,
              .aiChatSync,
+             .aiChatSuggestions,
              .showWhatsNewPromptOnDemand,
+             .wideEventPostEndpoint,
              .dataImportSummarySyncPromotion,
              .aiChatAtb,
              .enhancedDataClearingSettings,
+             .genericBackgroundTask,
+             .webViewFlashPrevention,
              .tabSwitcherTrackerCount,
              .burnSingleTab:
             return true
@@ -589,17 +613,27 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.appRatingPrompt))
         case .contextualDuckAIMode:
             return .remoteReleasable(.subfeature(AIChatSubfeature.contextualDuckAIMode))
+        case .aiChatAutoAttachContextByDefault:
+            return .remoteReleasable(.subfeature(AIChatSubfeature.autoAttachContextByDefault))
         case .aiChatSync:
             return .disabled
+        case .aiChatSuggestions:
+            return .remoteReleasable(.feature(.duckAiChatHistory))
         case .showWhatsNewPromptOnDemand:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.showWhatsNewPromptOnDemand))
         case .aiChatAtb:
             return .remoteReleasable(.subfeature(AIChatSubfeature.aiChatAtb))
         case .enhancedDataClearingSettings:
             return .disabled
+        case .webViewFlashPrevention:
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.webViewFlashPrevention))
+        case .wideEventPostEndpoint:
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.wideEventPostEndpoint))
         case .tabSwitcherTrackerCount,
              .burnSingleTab:
             return .disabled
+        case .genericBackgroundTask:
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))
         }
     }
 }

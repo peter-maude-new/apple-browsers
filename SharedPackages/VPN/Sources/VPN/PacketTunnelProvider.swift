@@ -412,7 +412,7 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
                 providerEvents: EventMapping<Event>,
                 settings: VPNSettings,
                 defaults: UserDefaults,
-                wideEvent: WideEventManaging = WideEvent(),
+                wideEvent: WideEventManaging? = nil,
                 bandwidthAnalyzer: BandwidthAnalyzing? = nil,
                 latencyMonitor: LatencyMonitoring = NetworkProtectionLatencyMonitor(),
                 entitlementMonitor: EntitlementMonitoring = NetworkProtectionEntitlementMonitor(),
@@ -434,11 +434,12 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
         self.wireGuardInterface = wireGuardInterface
         self.settings = settings
         self.defaults = defaults
-        self.wideEvent = wideEvent
         self.bandwidthAnalyzer = bandwidthAnalyzer ?? NetworkProtectionConnectionBandwidthAnalyzer()
         self.latencyMonitor = latencyMonitor
         self.entitlementMonitor = entitlementMonitor
         self.entitlementCheck = entitlementCheck
+
+        self.wideEvent = wideEvent ?? WideEvent(featureFlagProvider: WideEventFeatureFlagProvider(settings: settings))
 
         let keyStore = keyStore ?? NetworkProtectionKeychainKeyStore(
             keychainType: keychainType,
@@ -517,6 +518,11 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     open func loadVendorOptions(from provider: NETunnelProviderProtocol?) throws {
+        // no-op, but can be overridden by subclasses
+    }
+
+    /// Called after the token check passes on iOS, indicating that protected data is available.
+    open func loadProtectedResources() async {
         // no-op, but can be overridden by subclasses
     }
 
@@ -672,6 +678,10 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
             if (try? await tokenHandlerProvider.getToken()) == nil {
                 throw TunnelError.startingTunnelWithoutAuthToken(internalError: nil)
             }
+
+            // Load resources that require the device to be unlocked.
+            // At this point, the token check has passed, so protected data is available.
+            await loadProtectedResources()
 #endif
         } catch {
             if startupOptions.startupMethod == .automaticOnDemand {
@@ -1842,6 +1852,17 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
                 let newError = NSError(domain: (error as NSError).domain, code: (error as NSError).code)
                 return [NSUnderlyingErrorKey: newError]
             }
+        }
+    }
+}
+
+private struct WideEventFeatureFlagProvider: WideEventFeatureFlagProviding {
+    let settings: VPNSettings
+
+    func isEnabled(_ flag: WideEventFeatureFlag) -> Bool {
+        switch flag {
+        case .postEndpoint:
+            return settings.wideEventPostEndpointEnabled
         }
     }
 }
