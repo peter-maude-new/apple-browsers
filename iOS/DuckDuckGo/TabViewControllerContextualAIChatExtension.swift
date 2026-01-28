@@ -93,4 +93,8 @@ extension TabViewController: AIChatContextualSheetCoordinatorDelegate {
         tabModel.contextualChatURL = url?.absoluteString
         delegate?.tabLoadingStateDidChange(tab: self)
     }
+
+    func aiChatContextualSheetCoordinator(_ coordinator: AIChatContextualSheetCoordinator, didRequestOpenDownloadWithFileName fileName: String) {
+        delegate?.tabDidRequestDownloads(tab: self)
+    }
 }

@@ -187,7 +187,7 @@ private extension AIChatContextualInputViewController {
         updateQuickActions()
     }
 
-    func updateQuickActions() {
+    internal func updateQuickActions() {
         let actions: [AIChatContextualQuickAction] = if isContextChipVisible {
             [.summarize]
         } else {

@@ -56,6 +56,9 @@ protocol AIChatContextualSheetViewControllerDelegate: AnyObject {
 
     /// Called when the contextual chat URL changes (e.g., user gets a chatID after prompt submission)
     func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didUpdateContextualChatURL url: URL?)
+
+    /// Called when the user requests to open a downloaded file
+    func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didRequestOpenDownloadWithFileName fileName: String)
 }
 
 /// Contextual sheet view controller. Configures UX and actions.
@@ -362,6 +365,7 @@ private extension AIChatContextualSheetViewController {
         }
 
         delegate?.aiChatContextualSheetViewControllerDidRequestAttachPage(self)
+        contextualInputViewController.updateQuickActions()
     }
 
     func embedChildViewController(_ childVC: UIViewController) {
@@ -490,6 +494,10 @@ extension AIChatContextualSheetViewController: AIChatContextualWebViewController
         Logger.aiChat.debug("[AIChatContextual] Received contextual chat URL update: \(String(describing: url?.absoluteString))")
         viewModel.didUpdateContextualChatURL(url)
         delegate?.aiChatContextualSheetViewController(self, didUpdateContextualChatURL: url)
+    }
+
+    func contextualWebViewController(_ viewController: AIChatContextualWebViewController, didRequestOpenDownloadWithFileName fileName: String) {
+        delegate?.aiChatContextualSheetViewController(self, didRequestOpenDownloadWithFileName: fileName)
     }
 }
 

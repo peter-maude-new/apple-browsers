@@ -42,6 +42,9 @@ protocol AIChatContextualSheetCoordinatorDelegate: AnyObject {
 
     /// Called when the contextual chat URL changes, used to persist for cold restore.
     func aiChatContextualSheetCoordinator(_ coordinator: AIChatContextualSheetCoordinator, didUpdateContextualChatURL url: URL?)
+
+    /// Called when the user requests to open a downloaded file.
+    func aiChatContextualSheetCoordinator(_ coordinator: AIChatContextualSheetCoordinator, didRequestOpenDownloadWithFileName fileName: String)
 }
 
 /// Coordinates the presentation and lifecycle of the contextual AI chat sheet.
@@ -275,12 +278,17 @@ private extension AIChatContextualSheetCoordinator {
 
     /// Factory method for creating web view controllers, avoids prop drilling through the Sheet VC.
     func makeWebViewController() -> AIChatContextualWebViewController {
+        let downloadsDirectoryHandler = DownloadsDirectoryHandler()
+        downloadsDirectoryHandler.createDownloadsDirectoryIfNeeded()
+        let downloadHandler = makeDownloadHandler(downloadsPath: downloadsDirectoryHandler.downloadsDirectory)
+
         let webVC = AIChatContextualWebViewController(
             aiChatSettings: aiChatSettings,
             privacyConfigurationManager: privacyConfigurationManager,
             contentBlockingAssetsPublisher: contentBlockingAssetsPublisher,
             featureDiscovery: featureDiscovery,
             featureFlagger: featureFlagger,
+            downloadHandler: downloadHandler,
             getPageContext: { [weak self] reason in
                 guard let self else { return nil }
                 let autoAttachEnabled = self.aiChatSettings.isAutomaticContextAttachmentEnabled
@@ -355,5 +363,12 @@ extension AIChatContextualSheetCoordinator: AIChatContextualSheetViewControllerD
 
     func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didUpdateContextualChatURL url: URL?) {
         delegate?.aiChatContextualSheetCoordinator(self, didUpdateContextualChatURL: url)
+    }
+
+    func aiChatContextualSheetViewController(_ viewController: AIChatContextualSheetViewController, didRequestOpenDownloadWithFileName fileName: String) {
+        viewController.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            self.delegate?.aiChatContextualSheetCoordinator(self, didRequestOpenDownloadWithFileName: fileName)
+        }
     }
 }
