@@ -454,7 +454,9 @@ extension AIChatContextualSheetViewController: AIChatContextualInputViewControll
         case .attachPageContent:
             attachPageContext()
         }
-        contextualInputViewController.setText(action.prompt)
+        if !action.prompt.isEmpty {
+            contextualInputViewController.setText(action.prompt)
+        }
     }
 
     func contextualInputViewControllerDidTapVoice(_ viewController: AIChatContextualInputViewController) {
@@ -548,7 +550,7 @@ private extension AIChatContextualSheetViewController {
 private extension AIChatContextualSheetViewController {
     
     func setupUI() {
-        view.backgroundColor = UIColor(designSystemColor: .surfaceTertiary)
+        view.backgroundColor = UIColor(designSystemColor: .duckAIContextualSheetBackground)
 
         view.layer.cornerRadius = Constants.sheetCornerRadius
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // Top corners only
