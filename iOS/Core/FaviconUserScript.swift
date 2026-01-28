@@ -42,6 +42,7 @@ public final class FaviconUserScript: NSObject, Subfeature {
     struct FaviconLink: Codable, Equatable {
         let href: URL
         let rel: String
+        let type: String?
     }
 
     // MARK: - Subfeature
@@ -85,12 +86,13 @@ public final class FaviconUserScript: NSObject, Subfeature {
 
     /// Selects the best favicon from the list, prioritizing apple-touch-icon variants.
     /// Filters out SVG images to match the original iOS behavior.
-    private func selectBestFavicon(from favicons: [FaviconLink]) -> URL? {
+    func selectBestFavicon(from favicons: [FaviconLink]) -> URL? {
         // Filter out SVGs (matching old iOS behavior)
+        // Check href, rel, and MIME type for SVG indicators
         let nonSvgFavicons = favicons.filter { favicon in
             let hrefString = favicon.href.absoluteString.lowercased()
-            let relString = favicon.rel.lowercased()
-            return !hrefString.contains("svg") && !relString.contains("svg")
+            let typeString = (favicon.type ?? "").lowercased()
+            return !hrefString.contains("svg") && !typeString.contains("svg")
         }
 
         // Priority order (matching old iOS script which popped from end of array):
@@ -101,7 +103,10 @@ public final class FaviconUserScript: NSObject, Subfeature {
         if let precomposed = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("apple-touch-icon-precomposed") }) {
             return precomposed.href
         }
-        if let appleTouch = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("apple-touch-icon") }) {
+        if let appleTouch = nonSvgFavicons.first(where: {
+            let rel = $0.rel.lowercased()
+            return rel.contains("apple-touch-icon") && !rel.contains("precomposed")
+        }) {
             return appleTouch.href
         }
         if let icon = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("icon") }) {
