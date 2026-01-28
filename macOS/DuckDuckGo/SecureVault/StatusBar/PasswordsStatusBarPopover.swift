@@ -24,15 +24,18 @@ final class PasswordsStatusBarPopover: NSPopover {
 
     let themeManager: ThemeManaging = NSApp.delegateTyped.themeManager
     var themeUpdateCancellable: AnyCancellable?
+    private var clickOutsideMonitor: Any?
 
     override init() {
         super.init()
 
         self.animates = false
-        self.behavior = .transient
+        // Use applicationDefined to prevent auto-dismiss during TouchID authentication
+        self.behavior = .applicationDefined
         self.delegate = self
 
         setupContentController()
+        setupClickOutsideMonitor()
 
         subscribeToThemeChanges()
         applyThemeStyle()
@@ -43,6 +46,9 @@ final class PasswordsStatusBarPopover: NSPopover {
     }
 
     deinit {
+        if let monitor = clickOutsideMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
 #if DEBUG
         contentViewController?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
 #endif
@@ -60,6 +66,21 @@ final class PasswordsStatusBarPopover: NSPopover {
         let controller = PasswordManagementViewController.create()
         contentViewController = controller
     }
+
+    private func setupClickOutsideMonitor() {
+        clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self = self, self.isShown else { return }
+
+            // Don't close if authentication is in progress
+            guard !DeviceAuthenticator.shared.isAuthenticating else { return }
+
+            // Don't close if user is editing
+            guard !self.viewController.isEditing else { return }
+
+            // Close the popover when clicking outside
+            self.performClose(nil)
+        }
+    }
 }
 
 extension PasswordsStatusBarPopover: ThemeUpdateListening {
@@ -72,6 +93,11 @@ extension PasswordsStatusBarPopover: ThemeUpdateListening {
 extension PasswordsStatusBarPopover: NSPopoverDelegate {
 
     func popoverDidClose(_ notification: Notification) {
+        if let monitor = clickOutsideMonitor {
+            NSEvent.removeMonitor(monitor)
+            clickOutsideMonitor = nil
+        }
+
         if let window = viewController.view.window {
             for sheet in window.sheets {
                 sheet.endSheet(window)
@@ -84,6 +110,7 @@ extension PasswordsStatusBarPopover: NSPopoverDelegate {
     }
 
     @MainActor func popoverShouldClose(_ popover: NSPopover) -> Bool {
-        !viewController.isEditing
+        // Don't close during authentication or editing
+        !DeviceAuthenticator.shared.isAuthenticating && !viewController.isEditing
     }
 }
