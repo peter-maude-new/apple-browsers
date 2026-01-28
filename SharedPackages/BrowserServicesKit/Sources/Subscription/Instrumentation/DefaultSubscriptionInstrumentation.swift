@@ -237,7 +237,7 @@ public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentati
             if !success, let error {
                 flowData.errorData = WideEventErrorData(error: error)
             }
-            let status: WideEvent.Status = success ? .success : .failure
+            let status: WideEventStatus = success ? .success : .failure
             wideEvent.completeFlow(flowData, status: status, onComplete: { _, _ in })
         }
     }
