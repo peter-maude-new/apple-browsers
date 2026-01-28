@@ -17,8 +17,9 @@
 //  limitations under the License.
 //
 
-import WebKit
+import Common
 import UserScript
+import WebKit
 
 public protocol FaviconUserScriptDelegate: NSObjectProtocol {
 
@@ -27,72 +28,86 @@ public protocol FaviconUserScriptDelegate: NSObjectProtocol {
 
 }
 
-public class FaviconUserScript: NSObject, UserScript {
+/// Receives favicon updates from C-S-S (Content Scope Scripts) via the `faviconFound` message.
+/// This is a subfeature that integrates with the ContentScopeUserScript isolated context.
+public final class FaviconUserScript: NSObject, Subfeature {
 
-    public var source: String = """
+    // MARK: - Payload Types (matching C-S-S schema)
 
-(function() {
-
-    function getFavicon() {
-        return findFavicons()[0];
-    };
-
-    function findFavicons() {
-
-         var selectors = [
-            "link[rel~='icon']",
-            "link[rel='apple-touch-icon']",
-            "link[rel='apple-touch-icon-precomposed']"
-        ];
-
-        var favicons = [];
-        while (selectors.length > 0) {
-            var selector = selectors.pop()
-            var icons = document.head.querySelectorAll(selector);
-            for (var i = 0; i < icons.length; i++) {
-                var href = icons[i].href;
-
-                // Exclude SVGs since we can't handle them
-                if (href.indexOf("svg") >= 0 || (icons[i].type && icons[i].type.indexOf("svg") >= 0)) {
-                    continue;
-                }
-
-                favicons.push(href)
-            }
-        }
-        return favicons;
-    };
-
-    try {
-        var favicon = getFavicon();
-        webkit.messageHandlers.faviconFound.postMessage(favicon);
-    } catch(error) {
-        // webkit might not be defined
+    struct FaviconsFoundPayload: Codable, Equatable {
+        let documentUrl: URL
+        let favicons: [FaviconLink]
     }
 
-}) ();
+    struct FaviconLink: Codable, Equatable {
+        let href: URL
+        let rel: String
+    }
 
-"""
+    // MARK: - Subfeature
 
-    public var injectionTime: WKUserScriptInjectionTime = .atDocumentEnd
+    public let messageOriginPolicy: MessageOriginPolicy = .all
+    public let featureName: String = "favicon"
 
-    public var forMainFrameOnly: Bool = true
-
-    public var messageNames: [String] = ["faviconFound"]
-
+    public weak var broker: UserScriptMessageBroker?
     public weak var delegate: FaviconUserScriptDelegate?
 
-    public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-
-        let url: URL?
-        if let body = message.body as? String {
-            url = URL(string: body)
-        } else {
-            url = nil
-        }
-
-        let host = message.messageHost
-        delegate?.faviconUserScript(self, didRequestUpdateFaviconForHost: host, withUrl: url)
+    enum MessageNames: String, CaseIterable {
+        case faviconFound
     }
 
+    public func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
+        switch MessageNames(rawValue: methodName) {
+        case .faviconFound:
+            return { [weak self] in try await self?.faviconFound(params: $0, original: $1) }
+        default:
+            return nil
+        }
+    }
+
+    // MARK: - Message Handling
+
+    @MainActor
+    private func faviconFound(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        guard let payload: FaviconsFoundPayload = DecodableHelper.decode(from: params) else { return nil }
+
+        // Derive host from documentUrl (matching old behavior that used message.messageHost)
+        guard let host = payload.documentUrl.host else { return nil }
+
+        // Pick the best favicon URL, filtering out SVGs (matching old iOS behavior)
+        let faviconUrl = selectBestFavicon(from: payload.favicons)
+
+        delegate?.faviconUserScript(self, didRequestUpdateFaviconForHost: host, withUrl: faviconUrl)
+        return nil
+    }
+
+    // MARK: - Favicon Selection
+
+    /// Selects the best favicon from the list, prioritizing apple-touch-icon variants.
+    /// Filters out SVG images to match the original iOS behavior.
+    private func selectBestFavicon(from favicons: [FaviconLink]) -> URL? {
+        // Filter out SVGs (matching old iOS behavior)
+        let nonSvgFavicons = favicons.filter { favicon in
+            let hrefString = favicon.href.absoluteString.lowercased()
+            let relString = favicon.rel.lowercased()
+            return !hrefString.contains("svg") && !relString.contains("svg")
+        }
+
+        // Priority order (matching old iOS script which popped from end of array):
+        // 1. apple-touch-icon-precomposed
+        // 2. apple-touch-icon
+        // 3. icon/favicon (any rel containing "icon")
+
+        if let precomposed = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("apple-touch-icon-precomposed") }) {
+            return precomposed.href
+        }
+        if let appleTouch = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("apple-touch-icon") }) {
+            return appleTouch.href
+        }
+        if let icon = nonSvgFavicons.first(where: { $0.rel.lowercased().contains("icon") }) {
+            return icon.href
+        }
+
+        return nil
+    }
 }

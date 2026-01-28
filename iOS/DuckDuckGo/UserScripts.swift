@@ -113,6 +113,7 @@ final class UserScripts: UserScriptsProvider {
             featureFlagProvider: subscriptionFeatureFlagAdapter,
             navigationDelegate: subscriptionNavigationHandler,
             debugHost: aiChatDebugSettings.messagePolicyHostname)
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: serpSettingsUserScript)
@@ -136,7 +137,6 @@ final class UserScripts: UserScriptsProvider {
         findInPageScript,
         surrogatesScript,
         contentBlockerUserScript,
-        faviconScript,
         fullScreenVideoScript,
         autofillUserScript,
         printingUserScript,
