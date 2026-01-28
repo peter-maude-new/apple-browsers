@@ -990,10 +990,17 @@ extension TabSwitcherViewController: UISearchBarDelegate {
 
     private func performSearch(query: String) {
         guard !query.isEmpty else {
+            // When search is cleared, show all tabs (not filtered)
+            isSearching = false
             filteredTabs = []
             updateSearchBackgroundView()
             reloadPreservingKeyboard()
             return
+        }
+
+        // Ensure we're in search mode when typing
+        if !isSearching {
+            isSearching = true
         }
 
         let searcher = TabsSearch()
