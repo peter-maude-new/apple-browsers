@@ -101,46 +101,14 @@ class TabSwitcherViewController: UIViewController {
     weak var previewsSource: TabPreviewsSource!
 
     // MARK: - Search Properties
-    private lazy var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.searchBarStyle = .minimal
-        searchBar.placeholder = UserText.tabSearchBarPlaceholder
-        searchBar.delegate = self
-        searchBar.accessibilityLabel = UserText.tabSearchBarAccessibilityLabel
-        searchBar.accessibilityHint = UserText.tabSearchBarAccessibilityHint
-
-        // Style to match mockup using Design System colors
-        if let textField = searchBar.searchTextField as UITextField? {
-            // Background - light gray rounded background
-            textField.backgroundColor = UIColor(designSystemColor: .surface)
-            textField.layer.cornerRadius = 10
-            textField.clipsToBounds = true
-
-            // Text color
-            textField.textColor = UIColor(designSystemColor: .textPrimary)
-
-            // Placeholder color
-            textField.attributedPlaceholder = NSAttributedString(
-                string: UserText.tabSearchBarPlaceholder,
-                attributes: [.foregroundColor: UIColor(designSystemColor: .textPlaceholder)]
-            )
-
-            // Search icon (left) - secondary icon color
-            if let leftView = textField.leftView as? UIImageView {
-                leftView.tintColor = UIColor(designSystemColor: .iconsSecondary)
-            }
-
-            // Clear button (X) - secondary icon color
-            if let clearButton = textField.value(forKey: "_clearButton") as? UIButton {
-                clearButton.tintColor = UIColor(designSystemColor: .iconsSecondary)
-            }
-        }
-
-        // Cancel button will be styled when it appears
-        searchBar.setShowsCancelButton(false, animated: false)
-
-        searchBar.sizeToFit()
-        return searchBar
+    private lazy var searchTextField: TabSearchTextField = {
+        let field = TabSearchTextField()
+        field.placeholder = UserText.tabSearchBarPlaceholder
+        field.delegate = self
+        field.accessibilityLabel = UserText.tabSearchBarAccessibilityLabel
+        field.accessibilityHint = UserText.tabSearchBarAccessibilityHint
+        field.translatesAutoresizingMaskIntoConstraints = false
+        return field
     }()
 
     var isSearching: Bool = false
@@ -154,7 +122,7 @@ class TabSwitcherViewController: UIViewController {
     private var searchBarContainerTopConstraint: NSLayoutConstraint?
     private var collectionViewTopConstraint: NSLayoutConstraint?
     private var searchBarHeight: CGFloat {
-        return searchBar.intrinsicContentSize.height + 4 // 2pt padding top & bottom
+        return 36 // Fixed height for custom search text field
     }
 
     var selectedTabs: [IndexPath] {
@@ -331,25 +299,24 @@ class TabSwitcherViewController: UIViewController {
         searchBarContainer.alpha = 0 // Start invisible
         view.addSubview(searchBarContainer)
 
-        // Add search bar to container
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBarContainer.addSubview(searchBar)
+        // Add search text field to container
+        searchBarContainer.addSubview(searchTextField)
 
         // Height constraint - start at full height but positioned off-screen
         searchBarContainerHeightConstraint = searchBarContainer.heightAnchor.constraint(equalToConstant: searchBarHeight)
 
         NSLayoutConstraint.activate([
-            // Container horizontal constraints
-            searchBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            // Container horizontal constraints - respect safe area
+            searchBarContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            searchBarContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             // Note: Top constraint will be set in activateLayoutConstraintsBasedOnBarPosition()
             searchBarContainerHeightConstraint,
 
-            // Search bar inside container with padding: 2pt top/bottom, 8pt leading/trailing
-            searchBar.topAnchor.constraint(equalTo: searchBarContainer.topAnchor, constant: 2),
-            searchBar.leadingAnchor.constraint(equalTo: searchBarContainer.leadingAnchor, constant: 8),
-            searchBar.trailingAnchor.constraint(equalTo: searchBarContainer.trailingAnchor, constant: -8),
-            searchBar.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor, constant: -2)
+            // Search text field inside container with padding: 0pt top/bottom, 8pt leading/trailing
+            searchTextField.topAnchor.constraint(equalTo: searchBarContainer.topAnchor),
+            searchTextField.leadingAnchor.constraint(equalTo: searchBarContainer.leadingAnchor, constant: 8),
+            searchTextField.trailingAnchor.constraint(equalTo: searchBarContainer.trailingAnchor, constant: -8),
+            searchTextField.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor)
         ])
     }
 
@@ -882,8 +849,8 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
             self.searchBarContainer.alpha = 1.0 // Fade in
             self.view.layoutIfNeeded()
         }) { _ in
-            // Make search bar first responder after animation
-            self.searchBar.becomeFirstResponder()
+            // Make search text field first responder after animation
+            self.searchTextField.becomeFirstResponder()
         }
     }
 
@@ -896,8 +863,8 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         let isBottomBar = appSettings.currentAddressBarPosition.isBottom
 
         // Resign first responder if needed
-        if searchBar.isFirstResponder {
-            searchBar.resignFirstResponder()
+        if searchTextField.isFirstResponder {
+            searchTextField.resignFirstResponder()
         }
 
         // Update search bar constraint to slide it out of view (from 0 to negative offset)
@@ -1071,36 +1038,29 @@ extension TabSwitcherViewController: UICollectionViewDropDelegate {
 }
 
 // MARK: - UISearchBarDelegate
-extension TabSwitcherViewController: UISearchBarDelegate {
+extension TabSwitcherViewController: TabSearchTextFieldDelegate {
 
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        searchQuery = searchText
+    func searchTextFieldDidChange(_ textField: TabSearchTextField, text: String) {
+        searchQuery = text
 
         // Ensure we're in search mode even if prepareForSearching wasn't called yet
         if !isSearching {
             prepareForSearching()
         }
 
-        performSearch(query: searchText)
+        performSearch(query: text)
     }
 
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.setShowsCancelButton(true, animated: true)
-
-        // Style the cancel button with textPrimary color
-        if let cancelButton = searchBar.value(forKey: "cancelButton") as? UIButton {
-            cancelButton.setTitleColor(UIColor(designSystemColor: .textPrimary), for: .normal)
-        }
-
+    func searchTextFieldDidBeginEditing(_ textField: TabSearchTextField) {
         prepareForSearching()
     }
 
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        finishSearching()
+    func searchTextFieldDidEndEditing(_ textField: TabSearchTextField) {
+        // No-op
     }
 
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
+    func searchTextFieldDidTapCancel(_ textField: TabSearchTextField) {
+        finishSearching()
     }
 
     private func performSearch(query: String) {
@@ -1140,18 +1100,13 @@ extension TabSwitcherViewController: UISearchBarDelegate {
         isSearching = true
         collectionView.dragDelegate = nil // Disable drag during search
 
-        // Ensure cancel button is styled with textPrimary
-        if let cancelButton = searchBar.value(forKey: "cancelButton") as? UIButton {
-            cancelButton.setTitleColor(UIColor(designSystemColor: .textPrimary), for: .normal)
-        }
-
         updateUIForSelectionMode()
     }
 
     func finishSearching() {
-        searchBar.text = ""
-        searchBar.resignFirstResponder()
-        searchBar.setShowsCancelButton(false, animated: true)
+        searchTextField.text = ""
+        searchTextField.resignFirstResponder()
+        searchTextField.hideCancelButton(animated: true)
         isSearching = false
         searchQuery = ""
         filteredTabs = []
