@@ -84,9 +84,6 @@ public final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentati
         pixelHandler.fire(.purchaseFailure(step: step, error: error))
 
         if let purchaseWideEventData {
-            if step == .accountActivation {
-                purchaseWideEventData.activateAccountDuration?.complete()
-            }
             purchaseWideEventData.markAsFailed(at: step, error: error)
             wideEvent.updateFlow(purchaseWideEventData)
             wideEvent.completeFlow(purchaseWideEventData, status: .failure, onComplete: { _, _ in })

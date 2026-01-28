@@ -193,24 +193,6 @@ final class DefaultSubscriptionInstrumentationTests: XCTestCase {
         XCTAssertEqual(completedData?.failingStep, .accountCreate)
     }
 
-    func testPurchaseFailed_AtAccountActivation_CompletesActivationDuration() throws {
-        // Given
-        sut.purchaseFlowStarted(subscriptionId: "test",
-                                freeTrialEligible: false,
-                                origin: nil,
-                                purchasePlatform: .appStore)
-        sut.startPurchaseActivationTiming()
-        let testError = NSError(domain: "test", code: 123)
-
-        // When
-        sut.purchaseFailed(error: testError, step: .accountActivation)
-
-        // Then
-        XCTAssertEqual(mockWideEvent.updates.count, 2) // One for startActivation, one for failure
-        let lastUpdate = mockWideEvent.updates.last as? SubscriptionPurchaseWideEventData
-        XCTAssertNotNil(lastUpdate?.activateAccountDuration?.end) // Duration was completed
-    }
-
     func testPurchaseCancelled_CompletesWideEventWithCancelled() throws {
         // Given
         sut.purchaseFlowStarted(subscriptionId: "test",
