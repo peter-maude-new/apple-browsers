@@ -19,7 +19,6 @@
 import Foundation
 import PixelKit
 
-/// A facade protocol that centralizes all subscription-related instrumentation (pixels and wide events).
 public protocol SubscriptionInstrumentation: AnyObject {
 
     // MARK: - Purchase Flow
@@ -33,11 +32,7 @@ public protocol SubscriptionInstrumentation: AnyObject {
                              origin: String?,
                              purchasePlatform: SubscriptionPurchaseWideEventData.PurchasePlatform)
 
-    /// Called when App Store purchase completes successfully.
-    /// - Parameter origin: The origin/source of the purchase flow (platform-specific)
     func purchaseSucceeded(origin: String?)
-
-    /// Called when Stripe purchase completes successfully (macOS only).
     func purchaseSucceededStripe(origin: String?)
 
     func purchaseFailed(error: Error, step: SubscriptionPurchaseWideEventData.FailingStep)
