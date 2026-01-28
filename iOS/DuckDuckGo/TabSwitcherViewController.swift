@@ -99,6 +99,23 @@ class TabSwitcherViewController: UIViewController {
 
     weak var delegate: TabSwitcherDelegate!
     weak var previewsSource: TabPreviewsSource!
+
+    // MARK: - Search Properties
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.searchBarStyle = .minimal
+        searchBar.placeholder = UserText.tabSearchBarPlaceholder
+        searchBar.delegate = self
+        searchBar.accessibilityLabel = UserText.tabSearchBarAccessibilityLabel
+        searchBar.accessibilityHint = UserText.tabSearchBarAccessibilityHint
+        searchBar.sizeToFit()
+        return searchBar
+    }()
+
+    var isSearching: Bool = false
+    var searchQuery: String = ""
+    var filteredTabs: [Tab] = []
+    var isSearchBarRevealed: Bool = false
     
     var selectedTabs: [IndexPath] {
         collectionView.indexPathsForSelectedItems ?? []
@@ -266,8 +283,17 @@ class TabSwitcherViewController: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TabSwitcherTrackerInfoHeaderView.reuseIdentifier
         )
+        collectionView.register(
+            TabSwitcherSearchHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: TabSwitcherSearchHeaderView.reuseIdentifier
+        )
         tabObserverCancellable = tabsModel.$tabs.receive(on: DispatchQueue.main).sink { [weak self] _ in
-            self?.collectionView.reloadData()
+            guard let self = self else { return }
+            // Don't auto-reload during search - search manages its own updates
+            if !self.isSearching {
+                self.collectionView.reloadData()
+            }
         }
 
         // These can be done more than once but don't need to
@@ -278,6 +304,8 @@ class TabSwitcherViewController: UIViewController {
         collectionView.allowsSelection = true
         collectionView.allowsMultipleSelection = true
         collectionView.allowsMultipleSelectionDuringEditing = true
+        collectionView.alwaysBounceVertical = true // Enable pull-to-reveal
+        collectionView.keyboardDismissMode = .none // Don't dismiss keyboard on scroll
         bindTrackerCount()
         trackerCountViewModel?.refresh()
 
@@ -363,6 +391,13 @@ class TabSwitcherViewController: UIViewController {
         updateUIForSelectionMode()
         setupBarsLayout()
         trackerCountViewModel?.refresh()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isSearching {
+            finishSearching()
+        }
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
@@ -520,18 +555,40 @@ class TabSwitcherViewController: UIViewController {
 extension TabSwitcherViewController: TabViewCellDelegate {
 
     func deleteTabsAtIndexPaths(_ indexPaths: [IndexPath]) {
-        let shouldDismiss = tabsModel.count == indexPaths.count
+        // If searching, convert filtered indices to actual model indices
+        let actualIndexPaths: [IndexPath]
+        if isSearching {
+            actualIndexPaths = indexPaths.compactMap { indexPath in
+                let tab = filteredTabs[indexPath.row]
+                if let actualIndex = tabsModel.indexOf(tab: tab) {
+                    return IndexPath(row: actualIndex, section: 0)
+                }
+                return nil
+            }
+        } else {
+            actualIndexPaths = indexPaths
+        }
+
+        let shouldDismiss = tabsModel.count == actualIndexPaths.count
 
         collectionView.performBatchUpdates {
             isProcessingUpdates = true
-            tabManager.bulkRemoveTabs(indexPaths)
-            collectionView.deleteItems(at: indexPaths)
+            tabManager.bulkRemoveTabs(actualIndexPaths)
+            collectionView.deleteItems(at: indexPaths) // Delete from collection view using original indices
         } completion: { _ in
             self.currentSelection = self.tabsModel.currentIndex
             self.isProcessingUpdates = false
             if self.tabsModel.tabs.isEmpty {
                 self.tabsModel.add(tab: Tab())
             }
+
+            // Update filtered tabs if searching
+            if self.isSearching {
+                let deletedUIDs = Set(indexPaths.map { self.filteredTabs[$0.row].uid })
+                self.filteredTabs.removeAll { deletedUIDs.contains($0.uid) }
+                self.updateSearchBackgroundView()
+            }
+
             self.delegate?.tabSwitcherDidBulkCloseTabs(tabSwitcher: self)
             self.refreshTitle()
             self.updateUIForSelectionMode()
@@ -542,10 +599,17 @@ extension TabSwitcherViewController: TabViewCellDelegate {
     }
     
     func deleteTab(tab: Tab) {
-        guard let index = tabsModel.indexOf(tab: tab) else { return }
-        deleteTabsAtIndexPaths([
-            IndexPath(row: index, section: 0)
-        ])
+        // Find the index in the current view (filtered or full)
+        let indexPath: IndexPath
+        if isSearching {
+            guard let filteredIndex = filteredTabs.firstIndex(where: { $0.uid == tab.uid }) else { return }
+            indexPath = IndexPath(row: filteredIndex, section: 0)
+        } else {
+            guard let modelIndex = tabsModel.indexOf(tab: tab) else { return }
+            indexPath = IndexPath(row: modelIndex, section: 0)
+        }
+
+        deleteTabsAtIndexPaths([indexPath])
     }
 
     func isCurrent(tab: Tab) -> Bool {
@@ -570,7 +634,7 @@ extension TabSwitcherViewController: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return tabsModel.count
+        return isSearching ? filteredTabs.count : tabsModel.count
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -580,16 +644,23 @@ extension TabSwitcherViewController: UICollectionViewDataSource {
         }
         cell.delegate = self
         cell.isDeleting = false
-        
-        if indexPath.row < tabsModel.count {
-            let tab = tabsModel.get(tabAt: indexPath.row)
-            tab.addObserver(self)
-            cell.update(withTab: tab,
-                        isSelectionModeEnabled: self.isEditing,
-                        preview: previewsSource.preview(for: tab))
-        }
-        
+
+        let tab = getTab(at: indexPath)
+        tab.addObserver(self)
+        cell.update(withTab: tab,
+                    isSelectionModeEnabled: self.isEditing,
+                    preview: previewsSource.preview(for: tab))
+
         return cell
+    }
+
+    /// Get the tab at a given index path, accounting for search filtering
+    private func getTab(at indexPath: IndexPath) -> Tab {
+        if isSearching {
+            return filteredTabs[indexPath.row]
+        } else {
+            return tabsModel.get(tabAt: indexPath.row)
+        }
     }
 
     public func collectionView(_ collectionView: UICollectionView,
@@ -601,13 +672,16 @@ extension TabSwitcherViewController: UICollectionViewDataSource {
 
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
-            withReuseIdentifier: TabSwitcherTrackerInfoHeaderView.reuseIdentifier,
+            withReuseIdentifier: TabSwitcherSearchHeaderView.reuseIdentifier,
             for: indexPath
-        ) as? TabSwitcherTrackerInfoHeaderView else {
+        ) as? TabSwitcherSearchHeaderView else {
             return UICollectionReusableView()
         }
 
-        header.configure(in: self, model: trackerInfoModel)
+        // Don't show tracker info during multi-select mode
+        let trackerModel = isEditing ? nil : trackerInfoModel
+        let showSearchBar = (isSearchBarRevealed || isSearching) && !isEditing
+        header.configure(in: self, searchBar: searchBar, trackerInfoModel: trackerModel, isSearchBarVisible: showSearchBar)
         return header
     }
 
@@ -622,9 +696,20 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
             updateUIForSelectionMode()
             refreshTitle()
         } else {
-            currentSelection = indexPath.row
-            Pixel.fire(pixel: .tabSwitcherSwitchTabs)
-            markCurrentAsViewedAndDismiss()
+            // Get the actual tab and find its index in the main model
+            let tab = getTab(at: indexPath)
+
+            // Clear search before switching tabs
+            if isSearching {
+                finishSearching()
+            }
+
+            // Find the index of the selected tab in the actual model
+            if let actualIndex = tabsModel.indexOf(tab: tab) {
+                currentSelection = actualIndex
+                Pixel.fire(pixel: .tabSwitcherSwitchTabs)
+                markCurrentAsViewedAndDismiss()
+            }
         }
     }
 
@@ -651,14 +736,63 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
         // This can happen if you long press in the whitespace
         guard !indexPaths.isEmpty else { return nil }
-        
+
+        // Convert search result index paths to actual model index paths
+        let actualIndexPaths: [IndexPath]
+        if isSearching {
+            actualIndexPaths = indexPaths.compactMap { indexPath in
+                let tab = filteredTabs[indexPath.row]
+                if let actualIndex = tabsModel.indexOf(tab: tab) {
+                    return IndexPath(row: actualIndex, section: 0)
+                }
+                return nil
+            }
+        } else {
+            actualIndexPaths = indexPaths
+        }
+
         let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             Pixel.fire(pixel: .tabSwitcherLongPress)
             DailyPixel.fire(pixel: .tabSwitcherLongPressDaily)
-            return self.createLongPressMenuForTabs(atIndexPaths: indexPaths)
+            return self.createLongPressMenuForTabs(atIndexPaths: actualIndexPaths)
         }
 
         return configuration
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // Only enable pull-to-reveal when not searching and not in edit mode
+        guard !isSearching && !isEditing && !isSearchBarRevealed else { return }
+
+        let offsetY = scrollView.contentOffset.y
+        let adjustedOffset = offsetY + scrollView.contentInset.top
+        let threshold: CGFloat = -60 // Pull down threshold
+
+        if adjustedOffset < threshold {
+            revealSearchBar()
+        }
+    }
+
+    private func revealSearchBar() {
+        guard !isSearchBarRevealed else { return }
+        isSearchBarRevealed = true
+
+        UIView.animate(withDuration: 0.3) {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+            self.collectionView.layoutIfNeeded()
+        }
+    }
+
+    private func hideSearchBar() {
+        guard isSearchBarRevealed else { return }
+        guard !isSearching else { return } // Don't hide while actively searching
+
+        isSearchBarRevealed = false
+
+        UIView.animate(withDuration: 0.3) {
+            self.collectionView.collectionViewLayout.invalidateLayout()
+            self.collectionView.layoutIfNeeded()
+        }
     }
 
 }
@@ -712,8 +846,20 @@ extension TabSwitcherViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
-        guard trackerInfoModel != nil else { return .zero }
-        return CGSize(width: collectionView.bounds.width, height: TabSwitcherTrackerInfoHeaderView.estimatedHeight)
+        var height: CGFloat = 0
+
+        // Show search bar if revealed or searching
+        if (isSearchBarRevealed || isSearching) && !isEditing {
+            height += TabSwitcherSearchHeaderView.searchBarHeight
+        }
+
+        // Add tracker info height if available and not in edit mode
+        if !isEditing && trackerInfoModel != nil {
+            height += TabSwitcherSearchHeaderView.trackerInfoHeight
+        }
+
+        guard height > 0 else { return .zero }
+        return CGSize(width: collectionView.bounds.width, height: height)
     }
 
 }
@@ -721,7 +867,15 @@ extension TabSwitcherViewController: UICollectionViewDelegateFlowLayout {
 extension TabSwitcherViewController: TabObserver {
     
     func didChange(tab: Tab) {
-        guard let index = self.tabsModel.indexOf(tab: tab),
+        // During search, find the tab in filtered results instead of the full model
+        let index: Int?
+        if isSearching {
+            index = filteredTabs.firstIndex(where: { $0.uid == tab.uid })
+        } else {
+            index = tabsModel.indexOf(tab: tab)
+        }
+
+        guard let index = index,
               let cell = collectionView.cellForItem(at: IndexPath(row: index, section: 0)) as? TabViewCell,
               // Check the current tab is the one we want to update, if not it might have been updated elsewhere
               cell.tab?.uid == tab.uid else {
@@ -807,8 +961,115 @@ extension TabSwitcherViewController: UICollectionViewDropDelegate {
 
 }
 
+// MARK: - UISearchBarDelegate
+extension TabSwitcherViewController: UISearchBarDelegate {
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchQuery = searchText
+
+        // Ensure we're in search mode even if prepareForSearching wasn't called yet
+        if !isSearching {
+            prepareForSearching()
+        }
+
+        performSearch(query: searchText)
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+        prepareForSearching()
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        finishSearching()
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+
+    private func performSearch(query: String) {
+        guard !query.isEmpty else {
+            filteredTabs = []
+            updateSearchBackgroundView()
+            reloadPreservingKeyboard()
+            return
+        }
+
+        let searcher = TabsSearch()
+        filteredTabs = searcher.search(query: query, in: tabsModel.tabs)
+        updateSearchBackgroundView()
+        reloadPreservingKeyboard()
+
+        // Announce result count for accessibility
+        let resultCount = filteredTabs.count
+        if resultCount == 0 {
+            UIAccessibility.post(notification: .announcement, argument: UserText.tabSearchEmptyTitle)
+        } else {
+            let announcement = "\(resultCount) \(resultCount == 1 ? "tab" : "tabs") found"
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
+    }
+
+    private func reloadPreservingKeyboard() {
+        // Save and restore first responder to prevent keyboard dismissal
+        let wasFirstResponder = searchBar.isFirstResponder
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        collectionView.reloadData()
+        CATransaction.commit()
+
+        if wasFirstResponder {
+            searchBar.becomeFirstResponder()
+        }
+    }
+
+    private func prepareForSearching() {
+        if isEditing {
+            transitionFromMultiSelect()
+        }
+        isSearching = true
+        collectionView.dragDelegate = nil // Disable drag during search
+        updateUIForSelectionMode()
+    }
+
+    func finishSearching() {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+        isSearching = false
+        searchQuery = ""
+        filteredTabs = []
+
+        collectionView.backgroundView = nil
+        collectionView.dragDelegate = self
+        collectionView.reloadData()
+
+        updateUIForSelectionMode()
+
+        // Hide search bar after a delay if user didn't type anything meaningful
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.hideSearchBar()
+        }
+    }
+
+    private func updateSearchBackgroundView() {
+        if isSearching && filteredTabs.isEmpty && !searchQuery.isEmpty {
+            // Show empty state
+            let emptyView = UIHostingController(rootView: TabSearchEmptyView(query: searchQuery))
+            emptyView.view.backgroundColor = .clear
+            collectionView.backgroundView = emptyView.view
+        } else {
+            collectionView.backgroundView = nil
+            setupBackgroundView() // Restore tap gesture
+        }
+    }
+}
+
+
 extension UITapGestureRecognizer {
-    
+
     func tappedInWhitespaceAtEndOfCollectionView(_ collectionView: UICollectionView) -> Bool {
         guard collectionView.indexPathForItem(at: self.location(in: collectionView)) == nil else { return false }
         let location = self.location(in: collectionView)

@@ -3697,6 +3697,21 @@ Take back control of your personal information with the browser designed for dat
 /* Accesibility label: first string is website title, second is address */
 "tab.open.with.title.and.address" = "Open \"%1$@\" at %2$@";
 
+/* Accessibility hint for tab search bar */
+"tab.search.bar.accessibility.hint" = "Search through open tabs by title or URL";
+
+/* Accessibility label for tab search bar */
+"tab.search.bar.accessibility.label" = "Search tabs";
+
+/* Placeholder text in the tab switcher search bar */
+"tab.search.bar.placeholder" = "Search Tabs";
+
+/* Message shown when tab search returns no results. %@ is replaced with the search query */
+"tab.search.empty.message" = "No tabs found for \"%@\"";
+
+/* Title shown when tab search returns no results */
+"tab.search.empty.title" = "No Tabs Found";
+
 /* Select all tabs */
 "tab.select.all" = "Select All";
 

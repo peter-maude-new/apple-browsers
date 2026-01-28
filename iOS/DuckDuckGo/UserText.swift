@@ -369,6 +369,15 @@ public struct UserText {
 
     public static let tabSwitcherAccessibilityLabel = NSLocalizedString("tab.switcher.accessibility.label", value: "Tab Switcher", comment: "Tab Switcher Accessibility Label")
 
+    public static let tabSearchBarPlaceholder = NSLocalizedString("tab.search.bar.placeholder", value: "Search Tabs", comment: "Placeholder text in the tab switcher search bar")
+    public static let tabSearchBarAccessibilityLabel = NSLocalizedString("tab.search.bar.accessibility.label", value: "Search tabs", comment: "Accessibility label for tab search bar")
+    public static let tabSearchBarAccessibilityHint = NSLocalizedString("tab.search.bar.accessibility.hint", value: "Search through open tabs by title or URL", comment: "Accessibility hint for tab search bar")
+    public static let tabSearchEmptyTitle = NSLocalizedString("tab.search.empty.title", value: "No Tabs Found", comment: "Title shown when tab search returns no results")
+    public static func tabSearchEmptyMessage(for query: String) -> String {
+        let message = NSLocalizedString("tab.search.empty.message", value: "No tabs found for \"%@\"", comment: "Message shown when tab search returns no results. %@ is replaced with the search query")
+        return String(format: message, query)
+    }
+
     public static let onboardingWidgetsHeader = NSLocalizedString("onboarding.widgets.header", value: "Using DuckDuckGo just got easier.", comment: "")
     public static let onboardingWidgetsContinueButtonText = NSLocalizedString("onboarding.widgets.continueButton", value: "Add Widget", comment: "")
     public static let onboardingWidgetsSkipButtonText = NSLocalizedString("onboarding.widgets.skipButton", value: "Maybe Later", comment: "")

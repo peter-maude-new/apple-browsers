@@ -128,6 +128,9 @@ extension TabSwitcherViewController {
     }
 
     func transitionToMultiSelect() {
+        if isSearching {
+            finishSearching()
+        }
         self.isEditing = true
         collectionView.reloadData()
         updateUIForSelectionMode()

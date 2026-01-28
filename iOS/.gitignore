@@ -83,3 +83,8 @@ DuckDuckGoTests/NetworkProtectionVPNLocationViewModelTests.swift*.plist
 *.profraw
 
 PixelDefinitions/pixels/pixel_processing_results
+
+# Claude code
+.claude/settings.local.json
+CLAUDE.md
+
