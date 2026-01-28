@@ -141,11 +141,10 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     func navigateToPlans(tier: String? = nil) {
         guard let platform = state.subscriptionInfo?.platform else { return }
 
-        // Fire appropriate pixel
         if tier != nil {
-            instrumentation.upgradeClicked()
+            Pixel.fire(pixel: .subscriptionUpgradeClick)
         } else {
-            instrumentation.viewAllPlansClicked()
+            Pixel.fire(pixel: .subscriptionViewAllPlansClick)
         }
 
         switch platform {

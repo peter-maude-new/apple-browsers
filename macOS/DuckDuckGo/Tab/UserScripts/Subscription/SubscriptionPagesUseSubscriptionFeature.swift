@@ -107,8 +107,10 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         self.wideEvent = wideEvent
         self.subscriptionEventReporter = subscriptionEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
-        self.instrumentation = instrumentation ?? DefaultSubscriptionInstrumentation(wideEvent: wideEvent,
-                                                                                     subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler)
+        self.instrumentation = instrumentation ?? DefaultSubscriptionInstrumentation(
+            wideEvent: wideEvent,
+            subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler
+        )
     }
 
     func with(broker: UserScriptMessageBroker) {
@@ -412,10 +414,8 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                         await uiHandler.dismissProgressViewController()
                         return nil
                     case .internalError(let internalError):
-                        instrumentation.completePurchaseActivationTiming()
                         instrumentation.purchaseFailed(error: internalError ?? error, step: .accountActivation)
                     default:
-                        instrumentation.completePurchaseActivationTiming()
                         instrumentation.purchaseFailed(error: error, step: .accountActivation)
                     }
 

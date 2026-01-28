@@ -62,10 +62,8 @@ enum SubscriptionContainerViewFactory {
         }()
 
         let origin = redirectURLComponents?.queryItems?.first(where: { $0.name == AttributionParameter.origin })?.value
+        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent, subscriptionDataReporter: subscriptionDataReporter)
 
-
-        let instrumentation = DefaultSubscriptionInstrumentation(wideEvent: wideEvent,
-                                                                 subscriptionDataReporter: subscriptionDataReporter)
         let viewModel = SubscriptionContainerViewModel(
             subscriptionManager: subscriptionManager,
             redirectPurchaseURL: redirectPurchaseURL,

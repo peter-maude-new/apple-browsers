@@ -368,11 +368,8 @@ private final class MockSubscriptionInstrumentation: SubscriptionInstrumentation
     func planChangeSucceeded() {}
     func planChangeFailed(error: Error, step: SubscriptionPlanChangeWideEventData.FailingStep) {}
     func planChangeCancelled() {}
-    func viewAllPlansClicked() {}
-    func upgradeClicked() {}
     func updatePurchaseAccountCreationDuration(_ duration: WideEvent.MeasuredInterval) {}
     func startPurchaseActivationTiming() {}
-    func completePurchaseActivationTiming() {}
     func updateEmailRestoreURL(_ url: SubscriptionRestoreWideEventData.EmailAddressRestoreURL) {}
     func discardPurchaseFlow() {}
 }

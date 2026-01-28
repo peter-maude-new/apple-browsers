@@ -103,8 +103,6 @@ final class SubscriptionRestoreViewModel: ObservableObject {
     
     @MainActor
     private func handleRestoreError(error: UseSubscriptionError) {
-        // Set the UI state based on the error type
-        // Note: Pixels are now fired by the instrumentation facade
         switch error {
         case .restoreFailedDueToExpiredSubscription:
             state.activationResult = .expired
@@ -117,7 +115,6 @@ final class SubscriptionRestoreViewModel: ObservableObject {
         }
     }
 
-    /// Maps UseSubscriptionError to AppStoreRestoreFlowError for instrumentation
     private func mapToRestoreFlowError(_ error: UseSubscriptionError) -> AppStoreRestoreFlowError {
         switch error {
         case .restoreFailedDueToExpiredSubscription:

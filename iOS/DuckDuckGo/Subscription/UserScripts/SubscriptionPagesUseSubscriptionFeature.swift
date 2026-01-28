@@ -511,7 +511,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             // If entitlements are missing, the app will check again later and send the pixel as a success if
             // they were fetched, or `unknown` if not
             if error != .missingEntitlements {
-                instrumentation.completePurchaseActivationTiming()
                 instrumentation.purchaseFailed(error: error, step: .accountActivation)
             }
         }

@@ -102,6 +102,9 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         }
 
         if let purchaseWideEventData {
+            if step == .accountActivation {
+                purchaseWideEventData.activateAccountDuration?.complete()
+            }
             purchaseWideEventData.markAsFailed(at: step, error: error)
             wideEvent.updateFlow(purchaseWideEventData)
             wideEvent.completeFlow(purchaseWideEventData, status: .failure, onComplete: { _, _ in })
@@ -323,14 +326,6 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
         self.planChangeWideEventData = nil
     }
 
-    func viewAllPlansClicked() {
-        Pixel.fire(pixel: .subscriptionViewAllPlansClick)
-    }
-
-    func upgradeClicked() {
-        Pixel.fire(pixel: .subscriptionUpgradeClick)
-    }
-
     // MARK: - Wide Event Updates
 
     func updatePurchaseAccountCreationDuration(_ duration: WideEvent.MeasuredInterval) {
@@ -343,13 +338,6 @@ final class DefaultSubscriptionInstrumentation: SubscriptionInstrumentation {
     func startPurchaseActivationTiming() {
         if let purchaseWideEventData {
             purchaseWideEventData.activateAccountDuration = WideEvent.MeasuredInterval.startingNow()
-            wideEvent.updateFlow(purchaseWideEventData)
-        }
-    }
-
-    func completePurchaseActivationTiming() {
-        if let purchaseWideEventData {
-            purchaseWideEventData.activateAccountDuration?.complete()
             wideEvent.updateFlow(purchaseWideEventData)
         }
     }
