@@ -41,6 +41,7 @@ final class MainView: NSView {
     let tabBarContainerView = NSView()
     let navigationBarContainerView = NSView()
     let webContainerView = NSView()
+    let secondaryWebContainerView = NSView()  // For split view
     let findInPageContainerView = NSView().hidden()
     let bookmarksBarContainerView = NSView()
     let bannerContainerView = NSView()
@@ -63,6 +64,10 @@ final class MainView: NSView {
     private var aiChatOmnibarContainerHeightConstraint: NSLayoutConstraint!
     private var aiChatOmnibarTextContainerBottomConstraint: NSLayoutConstraint!
 
+    // Split view constraints
+    var webContainerTrailingConstraint: NSLayoutConstraint!
+    var secondaryWebContainerWidthConstraint: NSLayoutConstraint!
+
     @Published var isMouseAboveWebView: Bool = false
 
     override init(frame frameRect: NSRect) {
@@ -73,6 +78,7 @@ final class MainView: NSView {
             divider,
             bookmarksBarContainerView,
             webContainerView,
+            secondaryWebContainerView,
             bannerContainerView,
             navigationBarContainerView,
             aiChatOmnibarContainerView,
@@ -101,6 +107,10 @@ final class MainView: NSView {
         navigationBarTopConstraint = navigationBarContainerView.topAnchor.constraint(equalTo: topAnchor, constant: navigationBarTopPadding)
         webContainerTopConstraint = webContainerView.topAnchor.constraint(equalTo: bannerContainerView.bottomAnchor)
         webContainerTopConstraintToNavigation = webContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor)
+
+        // Split view constraints - start with secondary container collapsed (width = 0)
+        secondaryWebContainerWidthConstraint = secondaryWebContainerView.widthAnchor.constraint(equalToConstant: 0)
+        webContainerTrailingConstraint = webContainerView.trailingAnchor.constraint(equalTo: trailingAnchor)
 
         webContainerTopConstraint.priority = .defaultHigh
         webContainerTopConstraintToNavigation.priority = .defaultLow
@@ -139,9 +149,15 @@ final class MainView: NSView {
             webContainerTopConstraintToNavigation,
             webContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             webContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            webContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            webContainerView.widthAnchor.constraint(greaterThanOrEqualToConstant: Constants.webContainerMinWidth),
             webContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: Constants.webContainerMinHeight),
+
+            // Split view: secondary container
+            secondaryWebContainerView.topAnchor.constraint(equalTo: webContainerView.topAnchor),
+            secondaryWebContainerView.bottomAnchor.constraint(equalTo: webContainerView.bottomAnchor),
+            secondaryWebContainerView.leadingAnchor.constraint(equalTo: webContainerView.trailingAnchor),
+            secondaryWebContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            secondaryWebContainerWidthConstraint,
+            webContainerTrailingConstraint,
 
             findInPageContainerView.topAnchor.constraint(equalTo: bookmarksBarContainerView.bottomAnchor, constant: Constants.findInPageContainerTopOffset),
             findInPageContainerView.topAnchor.constraint(equalTo: navigationBarContainerView.bottomAnchor, constant: Constants.findInPageContainerTopOffset).priority(900),

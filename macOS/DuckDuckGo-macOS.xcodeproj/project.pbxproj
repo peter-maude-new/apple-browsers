@@ -172,6 +172,14 @@
 		1D9FDEC42B9B63C90040B78C /* DataClearingPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC22B9B63C90040B78C /* DataClearingPreferencesTests.swift */; };
 		1D9FDEC62B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */; };
 		1D9FDEC72B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */; };
+		1DA1446A2F2A25E20021280F /* SplitViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144652F2A25E20021280F /* SplitViewPresenter.swift */; };
+		1DA1446B2F2A25E20021280F /* SplitViewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144672F2A25E20021280F /* SplitViewProvider.swift */; };
+		1DA1446C2F2A25E20021280F /* SplitViewHosting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144612F2A25E20021280F /* SplitViewHosting.swift */; };
+		1DA1446D2F2A25E20021280F /* SplitViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144632F2A25E20021280F /* SplitViewState.swift */; };
+		1DA1446E2F2A25E20021280F /* SplitViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144652F2A25E20021280F /* SplitViewPresenter.swift */; };
+		1DA1446F2F2A25E20021280F /* SplitViewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144672F2A25E20021280F /* SplitViewProvider.swift */; };
+		1DA144702F2A25E20021280F /* SplitViewHosting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144612F2A25E20021280F /* SplitViewHosting.swift */; };
+		1DA144712F2A25E20021280F /* SplitViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144632F2A25E20021280F /* SplitViewState.swift */; };
 		1DA6D0FD2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D0FE2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D1022A1FFA3700540406 /* HTTPCookieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */; };
@@ -4513,6 +4521,10 @@
 		1D9FDEBF2B9B5FEA0040B78C /* AccessibilityPreferencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessibilityPreferencesTests.swift; sourceTree = "<group>"; };
 		1D9FDEC22B9B63C90040B78C /* DataClearingPreferencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataClearingPreferencesTests.swift; sourceTree = "<group>"; };
 		1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyProtectionStatusTests.swift; sourceTree = "<group>"; };
+		1DA144612F2A25E20021280F /* SplitViewHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewHosting.swift; sourceTree = "<group>"; };
+		1DA144632F2A25E20021280F /* SplitViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewState.swift; sourceTree = "<group>"; };
+		1DA144652F2A25E20021280F /* SplitViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewPresenter.swift; sourceTree = "<group>"; };
+		1DA144672F2A25E20021280F /* SplitViewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewProvider.swift; sourceTree = "<group>"; };
 		1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookie.swift; sourceTree = "<group>"; };
 		1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookieTests.swift; sourceTree = "<group>"; };
 		1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateMenuItemFactory.swift; sourceTree = "<group>"; };
@@ -7170,6 +7182,49 @@
 				1D8C2FEF2B70F751005E4BBD /* MockTabSnapshotStore.swift */,
 			);
 			path = Mocks;
+			sourceTree = "<group>";
+		};
+		1DA144622F2A25E20021280F /* Hosting */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144612F2A25E20021280F /* SplitViewHosting.swift */,
+			);
+			path = Hosting;
+			sourceTree = "<group>";
+		};
+		1DA144642F2A25E20021280F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144632F2A25E20021280F /* SplitViewState.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		1DA144662F2A25E20021280F /* Presenter */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144652F2A25E20021280F /* SplitViewPresenter.swift */,
+			);
+			path = Presenter;
+			sourceTree = "<group>";
+		};
+		1DA144682F2A25E20021280F /* Provider */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144672F2A25E20021280F /* SplitViewProvider.swift */,
+			);
+			path = Provider;
+			sourceTree = "<group>";
+		};
+		1DA144692F2A25E20021280F /* SplitView */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144622F2A25E20021280F /* Hosting */,
+				1DA144642F2A25E20021280F /* Model */,
+				1DA144662F2A25E20021280F /* Presenter */,
+				1DA144682F2A25E20021280F /* Provider */,
+			);
+			path = SplitView;
 			sourceTree = "<group>";
 		};
 		1DB67F272B6FE21D003DF243 /* Model */ = {
@@ -10161,6 +10216,7 @@
 				3712091F2C232E2B003ADF3D /* RemoteMessaging */,
 				85890634267B6CC500D23B0D /* SecureVault */,
 				B6F7127C29F6776B00594A45 /* Sharing */,
+				1DA144692F2A25E20021280F /* SplitView */,
 				4B677422255DBEB800025BD8 /* SmarterEncryption */,
 				B68458AE25C7E75100DC17B6 /* StateRestoration */,
 				B6A9E44E26142AF90067D1B9 /* Statistics */,
@@ -15022,6 +15078,10 @@
 				4B4D60DD2A0C875E00BCD287 /* NetworkProtectionOptionKeyExtension.swift in Sources */,
 				31FC23522DB7A86F00900574 /* AddressBarMenuButton.swift in Sources */,
 				BBFE244A2EF08CF000D47B95 /* QuitSurveyReturnUserHandler.swift in Sources */,
+				1DA1446E2F2A25E20021280F /* SplitViewPresenter.swift in Sources */,
+				1DA1446F2F2A25E20021280F /* SplitViewProvider.swift in Sources */,
+				1DA144702F2A25E20021280F /* SplitViewHosting.swift in Sources */,
+				1DA144712F2A25E20021280F /* SplitViewState.swift in Sources */,
 				31267C6A2B640C4B00FEF811 /* DataBrokerProtectionFeatureDisabler.swift in Sources */,
 				9F5D4EC62DED3FA800B16D98 /* DefaultBrowserAndDockPromptPixelEvent.swift in Sources */,
 				3707C723294B5D2900682A9F /* URLSessionExtension.swift in Sources */,
@@ -16912,6 +16972,10 @@
 				EDCFFF822E9A61AB00ABD9F9 /* WatchdogSleepMonitor.swift in Sources */,
 				4BE5336C286912D40019DBFD /* BookmarksBarCollectionViewItem.swift in Sources */,
 				BB9BA2292D10C0A5009229F3 /* TabBarActiveRemoteMessage.swift in Sources */,
+				1DA1446A2F2A25E20021280F /* SplitViewPresenter.swift in Sources */,
+				1DA1446B2F2A25E20021280F /* SplitViewProvider.swift in Sources */,
+				1DA1446C2F2A25E20021280F /* SplitViewHosting.swift in Sources */,
+				1DA1446D2F2A25E20021280F /* SplitViewState.swift in Sources */,
 				B6C0B23926E742610031CB7F /* FileDownloadError.swift in Sources */,
 				B6CC26682BAD959500F53F8D /* DownloadProgress.swift in Sources */,
 				31BFDB6D2ECA423900ADFABD /* MouseBlockingBackgroundView.swift in Sources */,

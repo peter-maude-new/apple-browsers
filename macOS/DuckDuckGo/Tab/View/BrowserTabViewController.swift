@@ -124,6 +124,8 @@ final class BrowserTabViewController: NSViewController {
     private(set) var transientTabContentViewController: NSViewController?
 
     public weak var aiChatSidebarHostingDelegate: AIChatSidebarHostingDelegate?
+    weak var splitViewHostingDelegate: SplitViewHostingDelegate?
+    var activePaneIdentifier: PaneIdentifier = .primary
 
     var isInPopUpWindow: Bool {
         tabCollectionViewModel.isPopup

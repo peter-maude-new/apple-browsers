@@ -42,6 +42,14 @@ final class MainViewController: NSViewController {
     let aiChatSidebarPresenter: AIChatSidebarPresenting
     let aiChatSummarizer: AIChatSummarizer
     let aiChatTranslator: AIChatTranslator
+    private(set) lazy var splitViewProvider: SplitViewProviding = SplitViewProvider()
+    private(set) lazy var splitViewPresenter: SplitViewPresenting = {
+        SplitViewPresenter(
+            mainViewController: self,
+            splitViewProvider: splitViewProvider,
+            tabCollectionViewModel: tabCollectionViewModel
+        )
+    }()
     let findInPageViewController: FindInPageViewController
     let fireViewController: FireViewController
     let bookmarksBarViewController: BookmarksBarViewController
@@ -1016,6 +1024,12 @@ extension MainViewController {
         let key = event.charactersIgnoringModifiers?.lowercased() ?? ""
         let isWebViewFocused = view.window?.firstResponder is WebView
 
+        // Milestone 4: Test split view animation with Cmd+Shift+D
+        if key == "d" && flags == [.command, .shift] {
+            testToggleSplitView(self)
+            return true
+        }
+
         if handleReturnKey(event: event, flags: flags) {
             return true
         }
@@ -1143,6 +1157,12 @@ extension MainViewController {
     @objc func testNetworkQuality() {
         let windowController = NetworkQualitySwiftUIWindowController()
         windowController.showWindow(nil)
+    }
+
+    // MARK: - Split View Testing (Milestone 4)
+
+    @objc func testToggleSplitView(_ sender: Any?) {
+        splitViewPresenter.testToggleSplitView()
     }
 
 }
