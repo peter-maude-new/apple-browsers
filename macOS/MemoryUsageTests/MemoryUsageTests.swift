@@ -31,10 +31,6 @@ final class MemoryUsageTests: XCTestCase {
         UITests.firstRun()
     }
 
-    override func tearDown() {
-        super.tearDown()
-    }
-
     func testMemoryAllocationsAfterLaunch() throws {
         let (metric, options, work) = buildSnapshotMeasurement(iterations: 5) {
             self.buildAndLaunchApplication()
