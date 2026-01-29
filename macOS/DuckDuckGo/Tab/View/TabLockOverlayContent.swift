@@ -24,13 +24,15 @@ import AppKit
 @MainActor
 final class TabLockOverlayViewModel: ObservableObject {
     @Published var isVisible = false
+    @Published var shouldAnimateBounce = false
     var onUnlockRequested: (() -> Void)?
 
     func animateIn() {
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = true
         } else {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.75)) {
+            shouldAnimateBounce = true
+            withAnimation(.easeIn(duration: 0.36)) {
                 isVisible = true
             }
         }
@@ -54,6 +56,7 @@ final class TabLockOverlayViewModel: ObservableObject {
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction) {
+            shouldAnimateBounce = false
             isVisible = true
         }
     }
@@ -75,8 +78,8 @@ struct TabLockOverlayContent: View {
     @State private var blob1Rotation: Double = .random(in: 0..<360)
     @State private var blob2Rotation: Double = .random(in: 0..<360)
     @State private var blob3Rotation: Double = .random(in: 0..<360)
+    @State private var panelBounceOffset: CGFloat = 0
 
-    private let panelSpring = Animation.spring(response: 0.6, dampingFraction: 0.75)
     private let baseAnimation = Animation.easeOut(duration: 0.72)
     private let blobAnimation = Animation.easeOut(duration: 0.7).delay(0.1)
     private let contentAnimation = Animation.easeOut(duration: 0.36).delay(0.5)
@@ -88,13 +91,15 @@ struct TabLockOverlayContent: View {
 
                 leftPanelView
                     .frame(width: geometry.size.width * 0.5)
-                    .offset(x: viewModel.isVisible ? -geometry.size.width * 0.25 : -geometry.size.width)
-                    .animation(panelSpring, value: viewModel.isVisible)
+                    .offset(x: viewModel.isVisible
+                        ? -geometry.size.width * 0.25 - panelBounceOffset
+                        : -geometry.size.width)
 
                 rightPanelView
                     .frame(width: geometry.size.width * 0.5)
-                    .offset(x: viewModel.isVisible ? geometry.size.width * 0.25 : geometry.size.width)
-                    .animation(panelSpring, value: viewModel.isVisible)
+                    .offset(x: viewModel.isVisible
+                        ? geometry.size.width * 0.25 + panelBounceOffset
+                        : geometry.size.width)
 
                 centerContent
             }
@@ -105,6 +110,27 @@ struct TabLockOverlayContent: View {
         }
         .onAppear {
             startBlobRotations()
+        }
+        .onChange(of: viewModel.isVisible) { isVisible in
+            guard isVisible else {
+                panelBounceOffset = 0
+                return
+            }
+            guard viewModel.shouldAnimateBounce else { return }
+            guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+
+            // Phase 2: Bounce outward (after 360ms slam)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                withAnimation(.easeOut(duration: 0.12)) {
+                    panelBounceOffset = 10
+                }
+            }
+            // Phase 3: Settle back (after 480ms)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
+                withAnimation(.easeInOut(duration: 0.12)) {
+                    panelBounceOffset = 0
+                }
+            }
         }
     }
 

@@ -2105,6 +2105,8 @@
 		7B50FF512F2B68D800BC7DDD /* LockedTabImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50FF4F2F2B68D800BC7DDD /* LockedTabImageGenerator.swift */; };
 		7B50FF542F2B940600BC7DDD /* FlowCircular-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B50FF522F2B940600BC7DDD /* FlowCircular-Regular.ttf */; };
 		7B50FF552F2B940600BC7DDD /* FlowCircular-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B50FF522F2B940600BC7DDD /* FlowCircular-Regular.ttf */; };
+		7B50FF602F2BB26900BC7DDD /* TabLockOverlayContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50FF5F2F2BB26900BC7DDD /* TabLockOverlayContent.swift */; };
+		7B50FF612F2BB26900BC7DDD /* TabLockOverlayContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B50FF5F2F2BB26900BC7DDD /* TabLockOverlayContent.swift */; };
 		7B5886352EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886342EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift */; };
 		7B5886372EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886362EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift */; };
 		7B5886392EAFEF310079F8B1 /* SparkleDebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886382EAFEF310079F8B1 /* SparkleDebugHelper.swift */; };
@@ -5310,6 +5312,7 @@
 		7B4D8A202BDA857300852966 /* VPNOperationErrorRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNOperationErrorRecorder.swift; sourceTree = "<group>"; };
 		7B50FF4F2F2B68D800BC7DDD /* LockedTabImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockedTabImageGenerator.swift; sourceTree = "<group>"; };
 		7B50FF522F2B940600BC7DDD /* FlowCircular-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FlowCircular-Regular.ttf"; sourceTree = "<group>"; };
+		7B50FF5F2F2BB26900BC7DDD /* TabLockOverlayContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabLockOverlayContent.swift; sourceTree = "<group>"; };
 		7B5291892A169BC90022E406 /* DeveloperID.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DeveloperID.xcconfig; sourceTree = "<group>"; };
 		7B5886342EAFBF850079F8B1 /* SparkleUpdateCompletionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateCompletionValidator.swift; sourceTree = "<group>"; };
 		7B5886362EAFBFDE0079F8B1 /* SparkleUpdateCompletionValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateCompletionValidatorTests.swift; sourceTree = "<group>"; };
@@ -10591,6 +10594,7 @@
 				B6C0BB6929AF1C7000AE8E3C /* BrowserTabView.swift */,
 				AA585D83248FD31100E9A3E2 /* BrowserTabViewController.swift */,
 				B6BE9FA9293F7955006363C6 /* ModalSheetCancellable.swift */,
+				7B50FF5F2F2BB26900BC7DDD /* TabLockOverlayContent.swift */,
 				7B23AC742F27FFDB0012FAA1 /* TabLockOverlayView.swift */,
 				AA6FFB4524DC3B5A0028F4D0 /* WebView.swift */,
 				B6B2400D28083B49001B8F3A /* WebViewContainerView.swift */,
@@ -14444,6 +14448,7 @@
 				B6F1B0272BCE5A50005E863C /* TabContent.swift in Sources */,
 				3168506E2AF3AD1D009A2828 /* WaitlistViewControllerPresenter.swift in Sources */,
 				3706FB49293F65D500E42796 /* NSException+Catch.swift in Sources */,
+				7B50FF602F2BB26900BC7DDD /* TabLockOverlayContent.swift in Sources */,
 				BBDAA91A2DAD4E7400555E1E /* CurrentVPNNavigationBarIconProvider.swift in Sources */,
 				BB0B4EA42E7B17A1005A2F57 /* UpdateUserDriver.swift in Sources */,
 				B6B71C592B23379600487131 /* NSLayoutConstraintExtension.swift in Sources */,
@@ -16381,6 +16386,7 @@
 				CC26B6132F0BDEC600D380B6 /* NewTabPageNextStepsCardsPixelHandler.swift in Sources */,
 				7B7F5D242C52725A00826256 /* AddExcludedDomainButtonsView.swift in Sources */,
 				B6C0BB6729AEFF8100AE8E3C /* BookmarkExtension.swift in Sources */,
+				7B50FF612F2BB26900BC7DDD /* TabLockOverlayContent.swift in Sources */,
 				4BE6547F271FCD4D008D1D63 /* PasswordManagementCreditCardModel.swift in Sources */,
 				1E4EDA2F2DE9ED710019B6E8 /* AIChatSidebarViewController.swift in Sources */,
 				B68C92C1274E3EF4002AC6B0 /* PopUpWindow.swift in Sources */,
