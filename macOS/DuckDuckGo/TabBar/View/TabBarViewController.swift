@@ -1941,20 +1941,23 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
 extension TabBarViewController {
 
-    /// Shows the docked tab view in the right side of the tab bar
+    /// Shows the docked tab view in the right side of the tab bar (to the left of the fire button)
     func showDockedTabView(_ dockedTabView: DockedTabView) {
-        // Insert at the beginning of rightSideStackView (before fire button)
-        rightSideStackView.insertArrangedSubview(dockedTabView, at: 0)
+        // Add as subview of main view (NOT the stack view to avoid layout issues)
+        view.addSubview(dockedTabView)
 
-        // Center vertically
-        dockedTabView.centerYAnchor.constraint(equalTo: rightSideStackView.centerYAnchor).isActive = true
+        // Position to the left of the rightSideStackView
+        NSLayoutConstraint.activate([
+            dockedTabView.trailingAnchor.constraint(equalTo: rightSideStackView.leadingAnchor, constant: -4),
+            dockedTabView.centerYAnchor.constraint(equalTo: rightSideStackView.centerYAnchor),
+            dockedTabView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
 
         print("📌 TabBar: Showing docked tab view")
     }
 
     /// Hides the docked tab view from the tab bar
     func hideDockedTabView(_ dockedTabView: DockedTabView) {
-        rightSideStackView.removeArrangedSubview(dockedTabView)
         dockedTabView.removeFromSuperview()
 
         print("📌 TabBar: Hiding docked tab view")

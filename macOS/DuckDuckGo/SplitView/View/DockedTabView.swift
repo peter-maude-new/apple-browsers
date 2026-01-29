@@ -23,19 +23,22 @@ import DesignResourcesKitIcons
 /// A view that displays the docked tab in the tab bar area.
 /// Layout: [← undock] [favicon] [title] [✕ close]
 @MainActor
-final class DockedTabView: NSView {
+final class DockedTabView: NSView, ThemeUpdateListening {
+
+    // MARK: - Theme
+
+    let themeManager: ThemeManaging = NSApp.delegateTyped.themeManager
+    var themeUpdateCancellable: AnyCancellable?
 
     // MARK: - Constants
 
     private enum Metrics {
-        static let height: CGFloat = 28
-        static let buttonSize: CGFloat = 16
+        static let arrowButtonSize: CGFloat = 12
+        static let closeButtonSize: CGFloat = 16
         static let faviconSize: CGFloat = 16
-        static let horizontalPadding: CGFloat = 6
-        static let spacing: CGFloat = 4
-        static let minWidth: CGFloat = 100
-        static let maxWidth: CGFloat = 200
-        static let cornerRadius: CGFloat = 6
+        static let horizontalPadding: CGFloat = 8
+        static let spacing: CGFloat = 6
+        static let fixedWidth: CGFloat = 180
     }
 
     // MARK: - Callbacks
@@ -114,7 +117,12 @@ final class DockedTabView: NSView {
 
     private func setupView() {
         wantsLayer = true
-        layer?.cornerRadius = Metrics.cornerRadius
+
+        let tabStyle = theme.tabStyleProvider
+
+        // Round only top corners, keep bottom straight
+        layer?.cornerRadius = tabStyle.standardTabCornerRadius
+        layer?.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]  // Top-left and top-right
 
         // Add subviews
         addSubview(undockButton)
@@ -125,15 +133,14 @@ final class DockedTabView: NSView {
         // Setup constraints
         NSLayoutConstraint.activate([
             // Self sizing
-            heightAnchor.constraint(equalToConstant: Metrics.height),
-            widthAnchor.constraint(greaterThanOrEqualToConstant: Metrics.minWidth),
-            widthAnchor.constraint(lessThanOrEqualToConstant: Metrics.maxWidth),
+            heightAnchor.constraint(equalToConstant: tabStyle.standardTabHeight),
+            widthAnchor.constraint(equalToConstant: Metrics.fixedWidth),
 
             // Undock button (left)
             undockButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Metrics.horizontalPadding),
             undockButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            undockButton.widthAnchor.constraint(equalToConstant: Metrics.buttonSize),
-            undockButton.heightAnchor.constraint(equalToConstant: Metrics.buttonSize),
+            undockButton.widthAnchor.constraint(equalToConstant: Metrics.arrowButtonSize),
+            undockButton.heightAnchor.constraint(equalToConstant: Metrics.arrowButtonSize),
 
             // Favicon
             faviconImageView.leadingAnchor.constraint(equalTo: undockButton.trailingAnchor, constant: Metrics.spacing),
@@ -149,10 +156,12 @@ final class DockedTabView: NSView {
             // Close button (right)
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Metrics.horizontalPadding),
             closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            closeButton.widthAnchor.constraint(equalToConstant: Metrics.buttonSize),
-            closeButton.heightAnchor.constraint(equalToConstant: Metrics.buttonSize),
+            closeButton.widthAnchor.constraint(equalToConstant: Metrics.closeButtonSize),
+            closeButton.heightAnchor.constraint(equalToConstant: Metrics.closeButtonSize),
         ])
 
+        // Subscribe to theme changes
+        subscribeToThemeChanges()
         updateAppearance()
     }
 
@@ -190,11 +199,17 @@ final class DockedTabView: NSView {
     // MARK: - Appearance
 
     private func updateAppearance() {
-        layer?.backgroundColor = NSColor.buttonMouseOver.withAlphaComponent(0.5).cgColor
+        let tabStyle = theme.tabStyleProvider
+        layer?.backgroundColor = tabStyle.selectedTabColor.cgColor
+        layer?.cornerRadius = tabStyle.standardTabCornerRadius
     }
 
     override func updateLayer() {
         super.updateLayer()
+        updateAppearance()
+    }
+
+    func applyThemeStyle(theme: ThemeStyleProviding) {
         updateAppearance()
     }
 
