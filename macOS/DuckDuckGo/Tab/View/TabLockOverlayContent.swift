@@ -25,6 +25,7 @@ import AppKit
 final class TabLockOverlayViewModel: ObservableObject {
     @Published var isVisible = false
     @Published var shouldAnimateBounce = false
+    @Published var shouldAnimateOutBounce = false
     var onUnlockRequested: (() -> Void)?
 
     func animateIn(completion: (() -> Void)? = nil) {
@@ -33,11 +34,11 @@ final class TabLockOverlayViewModel: ObservableObject {
             completion?()
         } else {
             shouldAnimateBounce = true
-            withAnimation(.easeIn(duration: 0.36)) {
+            withAnimation(.easeOut(duration: 0.6)) {
                 isVisible = true
             }
-            // Call completion after full animation (0.36s slide + bounce sequence)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            // Call completion after full animation (0.6s slide + bounce sequence)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.84) {
                 completion?()
             }
         }
@@ -48,10 +49,12 @@ final class TabLockOverlayViewModel: ObservableObject {
             isVisible = false
             completion()
         } else {
-            withAnimation(.easeIn(duration: 0.6)) {
+            shouldAnimateOutBounce = true
+            // Phase 1: Slide out with easeIn (360ms)
+            withAnimation(.easeIn(duration: 0.36)) {
                 isVisible = false
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 completion()
             }
         }
@@ -136,21 +139,40 @@ struct TabLockOverlayContent: View {
                 guard viewModel.shouldAnimateBounce else { return }
                 guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
 
-                // Phase 2: Bounce outward (after 360ms slam)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                // Phase 2: Bounce outward (after 600ms slide completes)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     withAnimation(.easeOut(duration: 0.12)) {
                         panelBounceOffset = 10
                     }
                 }
-                // Phase 3: Settle back (after 480ms)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
+                // Phase 3: Settle back (after 720ms)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.72) {
                     withAnimation(.easeInOut(duration: 0.12)) {
                         panelBounceOffset = 0
                     }
                 }
             } else {
+                // Reset lock bounce
                 panelBounceOffset = 0
                 showElements = false
+
+                // Unlock bounce animation (panels bounce back toward center as they exit)
+                guard viewModel.shouldAnimateOutBounce else { return }
+                guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+                viewModel.shouldAnimateOutBounce = false
+
+                // Phase 2: Bounce back toward center (after 360ms slide)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                    withAnimation(.easeOut(duration: 0.12)) {
+                        panelBounceOffset = -10  // Negative = panels bounce back inward
+                    }
+                }
+                // Phase 3: Settle to final position (after 480ms)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
+                    withAnimation(.easeInOut(duration: 0.12)) {
+                        panelBounceOffset = 0
+                    }
+                }
             }
         }
     }
