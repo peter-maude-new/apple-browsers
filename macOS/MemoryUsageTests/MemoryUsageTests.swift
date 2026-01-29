@@ -31,6 +31,8 @@ final class MemoryUsageTests: XCTestCase {
         UITests.firstRun()
     }
 
+    // MARK: - Memory Allocation Tests
+
     func testMemoryAllocationsAfterLaunch() throws {
         /// Completion is invoked **after** measurement completes
         ///
@@ -73,6 +75,37 @@ final class MemoryUsageTests: XCTestCase {
         }
 
         measure(metrics: [metric], options: options, block: work)
+    }
+
+    // MARK: - Performance Tests
+
+    /// Measures the performance of opening a new window, repeated 10 times.
+    /// Uses XCTClockMetric to measure wall clock time.
+    func testPerformanceOfOpeningNewWindow() throws {
+        let application = buildAndLaunchApplication()
+        defer {
+            application.terminate()
+        }
+
+        let clockMetric = XCTClockMetric()
+        let options = XCTMeasureOptions.buildOptions(iterations: 10)
+
+        measure(metrics: [clockMetric], options: options) {
+            application.openNewWindow()
+        }
+    }
+
+    /// Measures the time it takes to launch the application.
+    /// Uses XCTApplicationLaunchMetric to measure app launch duration.
+    func testAppLaunchPerformance() throws {
+        let launchMetric = XCTApplicationLaunchMetric()
+        let options = XCTMeasureOptions.buildOptions(iterations: 5)
+
+        measure(metrics: [launchMetric], options: options) {
+            let application = buildAndLaunchApplication()
+            application.launch()
+            application.terminate()
+        }
     }
 }
 
