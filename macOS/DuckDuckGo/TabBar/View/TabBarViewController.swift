@@ -1580,10 +1580,26 @@ extension TabBarViewController: TabBarViewItemDelegate {
     }
 
     func tabBarViewItemCanBeDocked(_ tabBarViewItem: TabBarViewItem) -> Bool {
-        // Can dock if: at least 2 tabs exist and split view is not already showing
+        // Can dock if: at least 2 tabs exist, split view is not already showing,
+        // and the tab has external URL content (not internal pages like New Tab, Settings, etc.)
         let totalTabs = tabCollectionViewModel.tabCollection.tabs.count
         let isAlreadyDocked = mainViewController?.splitViewPresenter.isShowingSplitView ?? false
-        return totalTabs >= 2 && !isAlreadyDocked
+
+        // Check if tab content is an external URL (not internal pages)
+        guard let tabContent = tabBarViewItem.tabViewModel?.tabContent else {
+            return false
+        }
+        let isExternalContent: Bool
+        switch tabContent {
+        case .url, .webExtensionUrl:
+            isExternalContent = true
+        case .newtab, .settings, .bookmarks, .history, .onboarding, .none,
+             .dataBrokerProtection, .subscription, .identityTheftRestoration,
+             .releaseNotes, .aiChat:
+            isExternalContent = false
+        }
+
+        return totalTabs >= 2 && !isAlreadyDocked && isExternalContent
     }
 
     func tabBarViewItemDockToSplitViewAction(_ tabBarViewItem: TabBarViewItem) {
@@ -1941,23 +1957,38 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
 extension TabBarViewController {
 
+    private static var dockedTabViewConstraintsKey: UInt8 = 0
+
     /// Shows the docked tab view in the right side of the tab bar (to the left of the fire button)
     func showDockedTabView(_ dockedTabView: DockedTabView) {
-        // Add as subview of main view (NOT the stack view to avoid layout issues)
+        // Add as subview of main view
         view.addSubview(dockedTabView)
 
-        // Position to the left of the rightSideStackView
-        NSLayoutConstraint.activate([
+        // Position: |scrollView|dockedTabView|rightSideStackView|
+        let constraints = [
+            // Horizontal positioning
+            scrollView.trailingAnchor.constraint(equalTo: dockedTabView.leadingAnchor, constant: -4),
             dockedTabView.trailingAnchor.constraint(equalTo: rightSideStackView.leadingAnchor, constant: -4),
-            dockedTabView.centerYAnchor.constraint(equalTo: rightSideStackView.centerYAnchor),
-            dockedTabView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+            // Vertical: match the scrollView's vertical position (where tabs are)
+            dockedTabView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            dockedTabView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        ]
+
+        NSLayoutConstraint.activate(constraints)
+
+        // Store constraints for later removal
+        objc_setAssociatedObject(dockedTabView, &Self.dockedTabViewConstraintsKey, constraints, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
         print("📌 TabBar: Showing docked tab view")
     }
 
     /// Hides the docked tab view from the tab bar
     func hideDockedTabView(_ dockedTabView: DockedTabView) {
+        // Remove stored constraints
+        if let constraints = objc_getAssociatedObject(dockedTabView, &Self.dockedTabViewConstraintsKey) as? [NSLayoutConstraint] {
+            NSLayoutConstraint.deactivate(constraints)
+        }
+
         dockedTabView.removeFromSuperview()
 
         print("📌 TabBar: Hiding docked tab view")

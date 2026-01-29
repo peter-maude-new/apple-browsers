@@ -131,9 +131,12 @@ final class DockedTabView: NSView, ThemeUpdateListening {
         addSubview(closeButton)
 
         // Setup constraints
+        let heightConstraint = heightAnchor.constraint(equalToConstant: tabStyle.standardTabHeight)
+        heightConstraint.priority = .defaultLow  // Allow external constraints to override
+
         NSLayoutConstraint.activate([
             // Self sizing
-            heightAnchor.constraint(equalToConstant: tabStyle.standardTabHeight),
+            heightConstraint,
             widthAnchor.constraint(equalToConstant: Metrics.fixedWidth),
 
             // Undock button (left)

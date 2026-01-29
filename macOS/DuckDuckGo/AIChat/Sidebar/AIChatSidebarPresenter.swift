@@ -260,11 +260,42 @@ extension AIChatSidebarPresenter: AIChatSidebarViewControllerDelegate {
         toggleSidebar()
 
         Task { @MainActor in
-            if let data = restorationData {
-                aiChatTabOpener.openAIChatTab(with: .restoration(data), behavior: .newTab(selected: true))
-            } else {
-                aiChatTabOpener.openAIChatTab(with: .url(currentAIChatURL), behavior: .newTab(selected: true))
+            // Create the AI Chat tab
+            guard let mainViewController = windowControllersManager.lastKeyMainWindowController?.mainViewController else {
+                // Fallback to regular tab opening if we can't access split view
+                if let data = restorationData {
+                    aiChatTabOpener.openAIChatTab(with: .restoration(data), behavior: .newTab(selected: true))
+                } else {
+                    aiChatTabOpener.openAIChatTab(with: .url(currentAIChatURL), behavior: .newTab(selected: true))
+                }
+                return
             }
+
+            let tabCollectionViewModel = mainViewController.tabCollectionViewModel
+            let splitViewPresenter = mainViewController.splitViewPresenter
+
+            // Check if split view is already showing - if so, fall back to regular new tab
+            if splitViewPresenter.isShowingSplitView {
+                if let data = restorationData {
+                    aiChatTabOpener.openAIChatTab(with: .restoration(data), behavior: .newTab(selected: true))
+                } else {
+                    aiChatTabOpener.openAIChatTab(with: .url(currentAIChatURL), behavior: .newTab(selected: true))
+                }
+                return
+            }
+
+            // Create the new AI Chat tab with the appropriate URL
+            let aiChatRemoteSettings = AIChatRemoteSettings()
+            let tabURL = currentAIChatURL
+            let newAIChatTab = Tab(content: .url(tabURL, source: .ui), burnerMode: tabCollectionViewModel.burnerMode)
+
+            // Set restoration data if available
+            if let data = restorationData {
+                newAIChatTab.aiChat?.setAIChatRestorationData(data)
+            }
+
+            // Dock the AI Chat tab to split view
+            splitViewPresenter.dockTab(newAIChatTab, originalIndex: nil)
         }
     }
 
