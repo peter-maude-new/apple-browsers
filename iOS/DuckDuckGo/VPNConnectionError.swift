@@ -55,17 +55,32 @@ enum VPNConnectionError: Equatable {
 
     /// Initialize from an NSError, mapping the domain and error code to the appropriate case.
     ///
+    /// This handles both direct `TunnelError` instances and `SanitizedError` wrappers that
+    /// preserve the original error info in `userInfo`.
+    ///
     /// - Parameter error: The NSError from `fetchLastDisconnectError` or similar.
     /// - Returns: A `VPNConnectionError` case, or `nil` if the error should not be displayed
     ///            (e.g., user-initiated cancellation).
     ///
     init?(nsError error: NSError) {
-        guard error.domain == Self.tunnelErrorDomain else {
+        // First, try to get domain and code directly from the error
+        var domain = error.domain
+        var code = error.code
+
+        // Check if this is a SanitizedError wrapper - if so, extract the original domain/code from userInfo
+        if let originalDomain = error.userInfo["OriginalErrorDomain"] as? String,
+           let originalCode = error.userInfo["OriginalErrorCode"] as? Int {
+            domain = originalDomain
+            code = originalCode
+        }
+
+        // Check if this is a TunnelError
+        guard domain == Self.tunnelErrorDomain else {
             self = .unknown
             return
         }
 
-        guard let errorCode = TunnelErrorCode(rawValue: error.code) else {
+        guard let errorCode = TunnelErrorCode(rawValue: code) else {
             self = .unknown
             return
         }

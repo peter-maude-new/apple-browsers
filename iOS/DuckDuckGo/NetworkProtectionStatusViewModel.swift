@@ -233,6 +233,7 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
                 switch status {
                 case .connected:
                     self?.isNetPEnabled = true
+                    self?.error = nil
                 case .connecting:
                     self?.isNetPEnabled = true
                     self?.resetConnectionInformation()

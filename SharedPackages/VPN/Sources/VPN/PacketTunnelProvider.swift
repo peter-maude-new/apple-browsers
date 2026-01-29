@@ -489,8 +489,9 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
     // TODO: Remove this debug code before merging
     private func runDebugSimulations(options: StartupOptions) throws {
         // Force error on every startup for testing error UI
+        // Cycles through 5 error types, then 1 success case to verify UI clears
         let errorIndex = UserDefaults.standard.integer(forKey: "vpn.debug.errorIndex")
-        UserDefaults.standard.set((errorIndex + 1) % 5, forKey: "vpn.debug.errorIndex")
+        UserDefaults.standard.set((errorIndex + 1) % 6, forKey: "vpn.debug.errorIndex")
 
         switch errorIndex {
         case 0:
@@ -503,8 +504,11 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
             throw TunnelError.tokenReset
         case 4:
             throw TunnelError.vpnAccessRevoked(NSError(domain: "test", code: 0))
+        case 5:
+            // No error - allow VPN to connect successfully to test that error UI clears
+            break
         default:
-            throw TunnelError.simulateTunnelFailureError
+            break
         }
 
         if options.simulateCrash {
