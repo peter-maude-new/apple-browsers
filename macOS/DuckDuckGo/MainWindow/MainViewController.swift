@@ -805,19 +805,28 @@ final class MainViewController: NSViewController {
 
         self.tabLockView = lockView
 
-        // Hide content containers and show lock container
-        mainView.navigationBarContainerView.isHidden = true
-        mainView.bookmarksBarContainerView.isHidden = true
-        mainView.bannerContainerView.isHidden = true
-        mainView.webContainerView.isHidden = true
+        // Show lock container (content stays visible during animation)
         mainView.tabLockContainerView.isHidden = false
 
         // Trigger show after SwiftUI completes initial layout
         if animated {
             DispatchQueue.main.async {
-                lockView.animateIn()
+                lockView.animateIn { [weak self, weak tab] in
+                    // Hide content and unload after animation completes
+                    self?.mainView.navigationBarContainerView.isHidden = true
+                    self?.mainView.bookmarksBarContainerView.isHidden = true
+                    self?.mainView.bannerContainerView.isHidden = true
+                    self?.mainView.webContainerView.isHidden = true
+                    tab?.unloadContentForLock()
+                }
             }
         } else {
+            // Non-animated: hide and unload immediately
+            mainView.navigationBarContainerView.isHidden = true
+            mainView.bookmarksBarContainerView.isHidden = true
+            mainView.bannerContainerView.isHidden = true
+            mainView.webContainerView.isHidden = true
+            tab.unloadContentForLock()
             DispatchQueue.main.async {
                 lockView.showImmediately()
             }
@@ -839,6 +848,11 @@ final class MainViewController: NSViewController {
         }
 
         if animated {
+            // Unhide content before animation so it shows through as panels slide away
+            mainView.navigationBarContainerView.isHidden = false
+            mainView.bookmarksBarContainerView.isHidden = false
+            mainView.bannerContainerView.isHidden = false
+            mainView.webContainerView.isHidden = false
             lockView.animateOut(completion: cleanup)
         } else {
             lockView.hideImmediately()

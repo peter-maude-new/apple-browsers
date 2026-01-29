@@ -27,13 +27,18 @@ final class TabLockOverlayViewModel: ObservableObject {
     @Published var shouldAnimateBounce = false
     var onUnlockRequested: (() -> Void)?
 
-    func animateIn() {
+    func animateIn(completion: (() -> Void)? = nil) {
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = true
+            completion?()
         } else {
             shouldAnimateBounce = true
             withAnimation(.easeIn(duration: 0.36)) {
                 isVisible = true
+            }
+            // Call completion after full animation (0.36s slide + bounce sequence)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                completion?()
             }
         }
     }
@@ -88,8 +93,7 @@ struct TabLockOverlayContent: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                VisualEffectView(material: .fullScreenUI, blendingMode: .behindWindow)
-
+                Color.clear
                 rightPanelView
                     .frame(width: geometry.size.width * 0.5)
                     .offset(x: viewModel.isVisible
@@ -254,26 +258,6 @@ struct TabLockOverlayContent: View {
         withAnimation(.linear(duration: 30).repeatForever(autoreverses: false)) {
             blob3Rotation += 360
         }
-    }
-}
-
-// MARK: - Visual Effect View
-
-struct VisualEffectView: NSViewRepresentable {
-    let material: NSVisualEffectView.Material
-    let blendingMode: NSVisualEffectView.BlendingMode
-
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = material
-        view.blendingMode = blendingMode
-        view.state = .active
-        return view
-    }
-
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = material
-        nsView.blendingMode = blendingMode
     }
 }
 

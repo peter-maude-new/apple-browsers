@@ -38,14 +38,12 @@ final class BrowserLockCoordinator {
     func lockTab(_ tab: Tab, with config: TabLockConfig) {
         tab.lockConfig = config
         tab.isLocked = true
-        tab.unloadContentForLock()
     }
 
     /// Re-lock a tab that already has lock config (no prompt needed)
     func relockTab(_ tab: Tab) {
         guard tab.hasLockConfig else { return }
         tab.isLocked = true
-        tab.unloadContentForLock()
     }
 
     /// Unlock a single tab with biometric authentication
