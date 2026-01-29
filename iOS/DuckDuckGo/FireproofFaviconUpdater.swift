@@ -18,11 +18,13 @@
 //
 
 import BrowserServicesKit
-import Core
-import Persistence
 import Bookmarks
 import CoreData
+import Core
 import os.log
+import Persistence
+import UserScript
+import WebKit
 
 protocol TabNotifying {
     func didUpdateFavicon()
@@ -81,8 +83,16 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
     }
 
     @MainActor
-    func faviconUserScript(_ script: FaviconUserScript, didRequestUpdateFaviconForHost host: String, withUrl url: URL?) {
+    func faviconUserScript(_ faviconUserScript: FaviconUserScript,
+                           didFindFaviconLinks faviconLinks: [FaviconUserScript.FaviconLink],
+                           for documentUrl: URL,
+                           in webView: WKWebView?) {
         assert(Thread.isMainThread)
+
+        guard let host = documentUrl.host else { return }
+
+        // Use the first available favicon URL (C-S-S already filters SVGs for iOS)
+        let url = faviconLinks.first?.href
 
         favicons.loadFavicon(forDomain: host, fromURL: url, intoCache: .tabs) { [weak self] image in
             guard let self = self else { return }
