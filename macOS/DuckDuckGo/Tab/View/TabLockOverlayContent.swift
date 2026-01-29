@@ -79,6 +79,7 @@ struct TabLockOverlayContent: View {
     @State private var blob2Rotation: Double = .random(in: 0..<360)
     @State private var blob3Rotation: Double = .random(in: 0..<360)
     @State private var panelBounceOffset: CGFloat = 0
+    @State private var showElements = false
 
     private let baseAnimation = Animation.easeOut(duration: 0.72)
     private let blobAnimation = Animation.easeOut(duration: 0.7).delay(0.1)
@@ -89,19 +90,21 @@ struct TabLockOverlayContent: View {
             ZStack {
                 VisualEffectView(material: .fullScreenUI, blendingMode: .behindWindow)
 
-                leftPanelView
-                    .frame(width: geometry.size.width * 0.5)
-                    .offset(x: viewModel.isVisible
-                        ? -geometry.size.width * 0.25 - panelBounceOffset
-                        : -geometry.size.width)
-
                 rightPanelView
                     .frame(width: geometry.size.width * 0.5)
                     .offset(x: viewModel.isVisible
                         ? geometry.size.width * 0.25 + panelBounceOffset
                         : geometry.size.width)
 
-                centerContent
+                ZStack {
+                    leftPanelView
+                    centerContent
+                        .offset(x: geometry.size.width * 0.25)
+                }
+                .frame(width: geometry.size.width * 0.5)
+                .offset(x: viewModel.isVisible
+                    ? -geometry.size.width * 0.25 - panelBounceOffset
+                    : -geometry.size.width * 1.5)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -112,24 +115,38 @@ struct TabLockOverlayContent: View {
             startBlobRotations()
         }
         .onChange(of: viewModel.isVisible) { isVisible in
-            guard isVisible else {
-                panelBounceOffset = 0
-                return
-            }
-            guard viewModel.shouldAnimateBounce else { return }
-            guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+            if isVisible {
+                // Set showElements - with or without animation depending on mode
+                if viewModel.shouldAnimateBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+                    showElements = true
+                } else {
+                    // Immediate show or reduce motion - disable animations
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) {
+                        showElements = true
+                    }
+                }
 
-            // Phase 2: Bounce outward (after 360ms slam)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
-                withAnimation(.easeOut(duration: 0.12)) {
-                    panelBounceOffset = 10
+                // Bounce animation (only if animated mode)
+                guard viewModel.shouldAnimateBounce else { return }
+                guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+
+                // Phase 2: Bounce outward (after 360ms slam)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                    withAnimation(.easeOut(duration: 0.12)) {
+                        panelBounceOffset = 10
+                    }
                 }
-            }
-            // Phase 3: Settle back (after 480ms)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
-                withAnimation(.easeInOut(duration: 0.12)) {
-                    panelBounceOffset = 0
+                // Phase 3: Settle back (after 480ms)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
+                    withAnimation(.easeInOut(duration: 0.12)) {
+                        panelBounceOffset = 0
+                    }
                 }
+            } else {
+                panelBounceOffset = 0
+                showElements = false
             }
         }
     }
@@ -179,38 +196,39 @@ struct TabLockOverlayContent: View {
             blobView(imageName: "TabLock-Blob2", rotation: blob2Rotation, size: 206)
             blobView(imageName: "TabLock-Blob3", rotation: blob3Rotation, size: 204)
 
-            // Base circle - dark gradient with white border (drawn, not image)
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(white: 0.2, opacity: 0.9),
-                            Color(white: 0.1, opacity: 0.9)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
+            // Base circle with lock icon nested inside
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(white: 0.2, opacity: 0.9),
+                                Color(white: 0.1, opacity: 0.9)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                )
-                .frame(width: 198, height: 198)
-                .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
-                .scaleEffect(viewModel.isVisible ? 1 : 0.3)
-                .opacity(viewModel.isVisible ? 1 : 0)
-                .animation(baseAnimation, value: viewModel.isVisible)
+                    .frame(width: 198, height: 198)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 1.5))
 
-            // Lock icon and label - on top
-            VStack(spacing: 12) {
-                Image("TabLock-Illus")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 118, height: 68)
+                VStack(spacing: 12) {
+                    Image("TabLock-Illus")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 118, height: 68)
 
-                Text(UserText.tabLockClickToUnlock)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
+                    Text(UserText.tabLockClickToUnlock)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .opacity(showElements ? 1 : 0)
+                .offset(y: showElements ? 0 : 16)
+                .animation(contentAnimation, value: showElements)
             }
-            .opacity(viewModel.isVisible ? 1 : 0)
-            .offset(y: viewModel.isVisible ? 0 : 16)
-            .animation(contentAnimation, value: viewModel.isVisible)
+            .scaleEffect(showElements ? 1 : 0.3)
+            .opacity(showElements ? 1 : 0)
+            .animation(baseAnimation, value: showElements)
         }
     }
 
@@ -219,9 +237,9 @@ struct TabLockOverlayContent: View {
             .resizable()
             .frame(width: size, height: size)
             .rotationEffect(.degrees(rotation))
-            .scaleEffect(viewModel.isVisible ? 1 : 0.3)
-            .opacity(viewModel.isVisible ? 1 : 0)
-            .animation(blobAnimation, value: viewModel.isVisible)
+            .scaleEffect(showElements ? 1 : 0.3)
+            .opacity(showElements ? 1 : 0)
+            .animation(blobAnimation, value: showElements)
     }
 
     // MARK: - Blob Rotations
