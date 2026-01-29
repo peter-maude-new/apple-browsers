@@ -32,8 +32,12 @@ final class MemoryUsageTests: XCTestCase {
     }
 
     func testMemoryAllocationsAfterLaunch() throws {
-        let (metric, options, work) = buildSnapshotMeasurement(iterations: 5) {
+        /// Completion is invoked **after** measurement completes
+        ///
+        let (metric, options, work) = buildSnapshotMeasurement(iterations: 10) {
             self.buildAndLaunchApplication()
+        } completion: { application in
+            application.terminate()
         }
 
         measure(metrics: [metric], options: options, block: work)
