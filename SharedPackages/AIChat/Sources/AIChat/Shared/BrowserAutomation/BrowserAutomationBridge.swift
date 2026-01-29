@@ -57,8 +57,8 @@ public protocol BrowserAutomationBridgeProviding: AnyObject {
 
     /// Take a screenshot of the current webview
     /// - Parameter rect: Optional rect to crop the screenshot
-    /// - Returns: PNG image data, or nil if screenshot failed
-    func takeScreenshot(rect: CGRect?) async -> Data?
+    /// - Returns: PNG image data and size, or nil if screenshot failed
+    func takeScreenshot(rect: CGRect?) async -> (Data, CGSize)?
 }
 
 /// Errors that can occur during browser automation operations
@@ -120,12 +120,17 @@ public final class BrowserAutomationBridge {
             rect = nil
         }
 
-        guard let imageData = await provider.takeScreenshot(rect: rect) else {
+        guard let (imageData, size) = await provider.takeScreenshot(rect: rect) else {
             return .failure(.screenshotFailed)
         }
 
         let base64 = imageData.base64EncodedString()
-        return .success(BrowserScreenshotResponse(base64Image: base64, mimeType: "image/png"))
+        return .success(BrowserScreenshotResponse(
+            base64Image: base64,
+            mimeType: "image/png",
+            width: Int(size.width),
+            height: Int(size.height)
+        ))
     }
 
     // MARK: - Tab Management
@@ -139,14 +144,21 @@ public final class BrowserAutomationBridge {
         return .success(BrowserGetTabsResponse(tabs: tabs))
     }
 
-    public func switchTab(params: BrowserSwitchTabParams) -> Result<BrowserSuccessResponse, BrowserAutomationError> {
+    public func switchTab(params: BrowserSwitchTabParams) -> Result<BrowserSwitchTabResponse, BrowserAutomationError> {
         guard let provider else {
             return .failure(.noActiveTab)
         }
 
         let success = provider.switchToTab(handle: params.handle)
         if success {
-            return .success(BrowserSuccessResponse(success: true))
+            // Get info about the tab we switched to
+            let tabInfo = BrowserTabInfo(
+                handle: provider.currentTabHandle ?? params.handle,
+                url: provider.currentURL?.absoluteString,
+                title: provider.currentTitle,
+                active: true
+            )
+            return .success(BrowserSwitchTabResponse(success: true, tab: tabInfo))
         } else {
             return .failure(.tabNotFound)
         }
@@ -182,7 +194,7 @@ public final class BrowserAutomationBridge {
 
     // MARK: - Navigation
 
-    public func navigate(params: BrowserNavigateParams) -> Result<BrowserSuccessResponse, BrowserAutomationError> {
+    public func navigate(params: BrowserNavigateParams) -> Result<BrowserNavigateResponse, BrowserAutomationError> {
         guard let provider else {
             return .failure(.noActiveTab)
         }
@@ -193,7 +205,12 @@ public final class BrowserAutomationBridge {
 
         let success = provider.navigate(to: url)
         if success {
-            return .success(BrowserSuccessResponse(success: true))
+            // Return the URL we navigated to (may differ from final URL after redirects)
+            return .success(BrowserNavigateResponse(
+                success: true,
+                url: url.absoluteString,
+                title: provider.currentTitle
+            ))
         } else {
             return .failure(.navigationFailed)
         }

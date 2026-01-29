@@ -133,7 +133,7 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
         return tabCollectionViewModel.selectedTab?.uuid
     }
 
-    func takeScreenshot(rect: CGRect?) async -> Data? {
+    func takeScreenshot(rect: CGRect?) async -> (Data, CGSize)? {
         guard let webView = currentWebView else { return nil }
 
         return await withCheckedContinuation { continuation in
@@ -152,7 +152,7 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
                     continuation.resume(returning: nil)
                     return
                 }
-                continuation.resume(returning: pngData)
+                continuation.resume(returning: (pngData, image.size))
             }
         }
     }
