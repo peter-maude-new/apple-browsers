@@ -248,7 +248,8 @@ class TabSwitcherViewController: UIViewController {
         searchBarContainerTopConstraint?.isActive = true
 
         // Collection view top constraint - adjust for search bar if revealed
-        let collectionViewOffset = Constants.trackerInfoTopSpacing + (isSearchBarRevealed ? searchBarHeight : 0)
+        // Only add spacing when search bar is revealed
+        let collectionViewOffset = isSearchBarRevealed ? searchBarHeight : 0
         if isBottomBar {
             collectionViewTopConstraint = collectionView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
@@ -297,6 +298,7 @@ class TabSwitcherViewController: UIViewController {
         searchBarContainer.backgroundColor = UIColor(designSystemColor: .background)
         searchBarContainer.clipsToBounds = true
         searchBarContainer.alpha = 0 // Start invisible
+        searchBarContainer.isHidden = true // Start hidden
         view.addSubview(searchBarContainer)
 
         // Add search text field to container
@@ -842,12 +844,14 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
 
         let isBottomBar = appSettings.currentAddressBarPosition.isBottom
 
+        // Show the container before animating
+        searchBarContainer.isHidden = false
+
         // Update search bar constraint to slide it into view (from negative offset to 0)
         searchBarContainerTopConstraint?.constant = 0
 
         // Update collection view constraint to make room for search bar
-        let collectionViewOffset = Constants.trackerInfoTopSpacing + searchBarHeight
-        collectionViewTopConstraint?.constant = collectionViewOffset
+        collectionViewTopConstraint?.constant = searchBarHeight
 
         UIView.animate(
             withDuration: 0.35,
@@ -882,8 +886,8 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         // Update search bar constraint to slide it out of view (from 0 to negative offset)
         searchBarContainerTopConstraint?.constant = -searchBarHeight
 
-        // Update collection view constraint back to original position
-        collectionViewTopConstraint?.constant = Constants.trackerInfoTopSpacing
+        // Update collection view constraint back to original position (no spacing)
+        collectionViewTopConstraint?.constant = 0
 
         UIView.animate(
             withDuration: 0.35,
@@ -895,7 +899,10 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
                 self.searchBarContainer.alpha = 0.0
                 self.view.layoutIfNeeded()
             },
-            completion: nil
+            completion: { _ in
+                // Hide the container after animation completes
+                self.searchBarContainer.isHidden = true
+            }
         )
     }
 
