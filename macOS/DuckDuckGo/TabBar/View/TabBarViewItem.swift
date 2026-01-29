@@ -112,6 +112,9 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool)
+
+    @MainActor func tabBarViewItemCanBeDocked(_: TabBarViewItem) -> Bool
+    @MainActor func tabBarViewItemDockToSplitViewAction(_: TabBarViewItem)
 }
 
 final class TabBarItemCellView: NSView {
@@ -1404,12 +1407,13 @@ extension TabBarViewItem: NSMenuDelegate {
         let areThereOtherTabs = otherItemsState.hasItemsToTheLeft || otherItemsState.hasItemsToTheRight
 
         // Menu Items
-        // Duplicate, Pin, Mute Section
+        // Duplicate, Pin, Mute, Dock Section
         addDuplicateMenuItem(to: menu)
         if !isBurner {
             addPinMenuItem(to: menu)
         }
         addMuteUnmuteMenuItem(to: menu)
+        addDockToSplitViewMenuItem(to: menu)
         menu.addItem(.separator())
 
         // Bookmark/Fireproof Section
@@ -1524,6 +1528,17 @@ extension TabBarViewItem: NSMenuDelegate {
         let muteUnmuteMenuItem = NSMenuItem(title: menuItemTitle, action: #selector(muteUnmuteSiteAction(_:)), keyEquivalent: "")
         muteUnmuteMenuItem.target = self
         menu.addItem(muteUnmuteMenuItem)
+    }
+
+    private func addDockToSplitViewMenuItem(to menu: NSMenu) {
+        let dockMenuItem = NSMenuItem(title: UserText.dockToSplitView, action: #selector(dockToSplitViewAction(_:)), keyEquivalent: "")
+        dockMenuItem.target = self
+        dockMenuItem.isEnabled = delegate?.tabBarViewItemCanBeDocked(self) ?? false
+        menu.addItem(dockMenuItem)
+    }
+
+    @objc private func dockToSplitViewAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemDockToSplitViewAction(self)
     }
 
     private func addCloseMenuItem(to menu: NSMenu) {
@@ -1950,6 +1965,8 @@ extension TabBarViewItem {
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
         func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem) {}
         func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool) {}
+        func tabBarViewItemCanBeDocked(_: TabBarViewItem) -> Bool { false }
+        func tabBarViewItemDockToSplitViewAction(_: TabBarViewItem) {}
     }
 }
 #endif

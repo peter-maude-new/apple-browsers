@@ -180,6 +180,8 @@
 		1DA1446F2F2A25E20021280F /* SplitViewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144672F2A25E20021280F /* SplitViewProvider.swift */; };
 		1DA144702F2A25E20021280F /* SplitViewHosting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144612F2A25E20021280F /* SplitViewHosting.swift */; };
 		1DA144712F2A25E20021280F /* SplitViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144632F2A25E20021280F /* SplitViewState.swift */; };
+		1DA144772F2AC32D0021280F /* DockedTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144752F2AC32D0021280F /* DockedTabView.swift */; };
+		1DA144782F2AC32D0021280F /* DockedTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA144752F2AC32D0021280F /* DockedTabView.swift */; };
 		1DA6D0FD2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D0FE2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D1022A1FFA3700540406 /* HTTPCookieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */; };
@@ -4525,6 +4527,7 @@
 		1DA144632F2A25E20021280F /* SplitViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewState.swift; sourceTree = "<group>"; };
 		1DA144652F2A25E20021280F /* SplitViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewPresenter.swift; sourceTree = "<group>"; };
 		1DA144672F2A25E20021280F /* SplitViewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewProvider.swift; sourceTree = "<group>"; };
+		1DA144752F2AC32D0021280F /* DockedTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockedTabView.swift; sourceTree = "<group>"; };
 		1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookie.swift; sourceTree = "<group>"; };
 		1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookieTests.swift; sourceTree = "<group>"; };
 		1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateMenuItemFactory.swift; sourceTree = "<group>"; };
@@ -7219,12 +7222,21 @@
 		1DA144692F2A25E20021280F /* SplitView */ = {
 			isa = PBXGroup;
 			children = (
+				1DA144762F2AC32D0021280F /* View */,
 				1DA144622F2A25E20021280F /* Hosting */,
 				1DA144642F2A25E20021280F /* Model */,
 				1DA144662F2A25E20021280F /* Presenter */,
 				1DA144682F2A25E20021280F /* Provider */,
 			);
 			path = SplitView;
+			sourceTree = "<group>";
+		};
+		1DA144762F2AC32D0021280F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				1DA144752F2AC32D0021280F /* DockedTabView.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		1DB67F272B6FE21D003DF243 /* Model */ = {
@@ -14251,6 +14263,7 @@
 				3706FAC8293F65D500E42796 /* AppTrackerDataSetProvider.swift in Sources */,
 				C1CE846A2C887CF60068913B /* FreemiumDBPScanResultPolling.swift in Sources */,
 				BBFE24482EF0622600D47B95 /* QuitSurveyPixels.swift in Sources */,
+				1DA144772F2AC32D0021280F /* DockedTabView.swift in Sources */,
 				3706FACA293F65D500E42796 /* TabLazyLoader.swift in Sources */,
 				3706FACC293F65D500E42796 /* SaveCredentialsViewController.swift in Sources */,
 				3706FACD293F65D500E42796 /* PopUpButton.swift in Sources */,
@@ -16537,6 +16550,7 @@
 				1DDF076328F815AD00EDFBE3 /* NativeMessagingCommunicator.swift in Sources */,
 				9FEE98652B846870002E44E8 /* AddEditBookmarkView.swift in Sources */,
 				B626A7602992407D00053070 /* CancellableExtension.swift in Sources */,
+				1DA144782F2AC32D0021280F /* DockedTabView.swift in Sources */,
 				4BB99CFE26FE191E001E4761 /* FirefoxBookmarksReader.swift in Sources */,
 				F1DA518C2BF607D200CF29FA /* SubscriptionRedirectManager.swift in Sources */,
 				F17E63352DCCDB150072B3BC /* MainViewController+LogExporter.swift in Sources */,

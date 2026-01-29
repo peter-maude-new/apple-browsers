@@ -1575,6 +1575,42 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
     }
 
+    private var mainViewController: MainViewController? {
+        view.window?.contentViewController as? MainViewController
+    }
+
+    func tabBarViewItemCanBeDocked(_ tabBarViewItem: TabBarViewItem) -> Bool {
+        // Can dock if: at least 2 tabs exist and split view is not already showing
+        let totalTabs = tabCollectionViewModel.tabCollection.tabs.count
+        let isAlreadyDocked = mainViewController?.splitViewPresenter.isShowingSplitView ?? false
+        return totalTabs >= 2 && !isAlreadyDocked
+    }
+
+    func tabBarViewItemDockToSplitViewAction(_ tabBarViewItem: TabBarViewItem) {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+            assertionFailure("TabBarViewController: Failed to get index path for docking")
+            return
+        }
+
+        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+
+        guard let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab else {
+            assertionFailure("TabBarViewController: Failed to get tab for docking")
+            return
+        }
+
+        // Remove the tab from the collection
+        tabCollectionViewModel.remove(at: tabIndex, published: true)
+
+        // Dock the tab (defer to let collection view update)
+        DispatchQueue.main.async { [weak self] in
+            self?.mainViewController?.splitViewPresenter.dockTab(tab)
+        }
+    }
+
     func tabBarViewItem(_ tabBarViewItem: TabBarViewItem, isMouseOver: Bool) {
         if isMouseOver {
             // Show tab preview for visible tab bar items
@@ -1898,6 +1934,30 @@ extension TabBarViewController: TabBarViewItemDelegate {
                      hasItemsToTheRight: indexPath.item + 1 < (tabCollection?.tabs.count ?? 0))
     }
 
+}
+
+// MARK: - Docked Tab View (Split View)
+
+extension TabBarViewController {
+
+    /// Shows the docked tab view in the right side of the tab bar
+    func showDockedTabView(_ dockedTabView: DockedTabView) {
+        // Insert at the beginning of rightSideStackView (before fire button)
+        rightSideStackView.insertArrangedSubview(dockedTabView, at: 0)
+
+        // Center vertically
+        dockedTabView.centerYAnchor.constraint(equalTo: rightSideStackView.centerYAnchor).isActive = true
+
+        print("📌 TabBar: Showing docked tab view")
+    }
+
+    /// Hides the docked tab view from the tab bar
+    func hideDockedTabView(_ dockedTabView: DockedTabView) {
+        rightSideStackView.removeArrangedSubview(dockedTabView)
+        dockedTabView.removeFromSuperview()
+
+        print("📌 TabBar: Hiding docked tab view")
+    }
 }
 
 extension TabBarViewController {

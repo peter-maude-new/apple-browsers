@@ -24,11 +24,17 @@ protocol SplitViewPresenting: AnyObject {
     /// Whether split view is currently showing
     var isShowingSplitView: Bool { get }
 
+    /// The currently docked tab, if any
+    var dockedTab: Tab? { get }
+
     /// Dock a tab to the secondary pane (removes it from tab bar, shows split view)
     func dockTab(_ tab: Tab)
 
     /// Undock the secondary tab and return it to the tab bar
     func undockAndRestoreTab()
+
+    /// Close the docked tab without returning it to the tab bar
+    func closeDockedTab()
 
     /// Toggle split view - if showing, close it; if not, dock the provided tab
     func toggleSplitView(with tab: Tab?)
@@ -46,9 +52,14 @@ final class SplitViewPresenter: SplitViewPresenting {
 
     private var isAnimating: Bool = false
     private weak var dockedWebView: NSView?
+    private var dockedTabView: DockedTabView?
 
     var isShowingSplitView: Bool {
         splitViewProvider.isShowingSplitView
+    }
+
+    var dockedTab: Tab? {
+        splitViewProvider.dockedTab
     }
 
     init(
@@ -111,6 +122,9 @@ final class SplitViewPresenter: SplitViewPresenting {
         // Force layout
         mainView.layoutSubtreeIfNeeded()
 
+        // Show the docked tab view in the tab bar
+        showDockedTabView(for: tab)
+
         isAnimating = false
         print("✅ SplitView: Split view active - secondary tab docked on RIGHT")
     }
@@ -126,6 +140,9 @@ final class SplitViewPresenter: SplitViewPresenting {
         print("🎬 SplitView: Undocking and restoring tab")
 
         isAnimating = true
+
+        // Hide the docked tab view
+        hideDockedTabView()
 
         // Remove webView from container
         if let webView = dockedWebView {
@@ -155,8 +172,8 @@ final class SplitViewPresenter: SplitViewPresenting {
             // Clamp to valid range (0...tabCount)
             insertionIndex = min(insertionIndex, tabCount)
 
-            // Insert the tab back into the collection (unpinned tabs)
-            tabCollectionViewModel.tabCollection.insert(tab, at: insertionIndex)
+            // Insert the tab back using the view model's method (handles UI updates properly)
+            tabCollectionViewModel.insert(tab, at: .unpinned(insertionIndex), selected: false)
             print("📋 SplitView: Restored tab to tab bar at index \(insertionIndex)")
         }
 
@@ -171,6 +188,79 @@ final class SplitViewPresenter: SplitViewPresenting {
         print("✅ SplitView: Split view closed - tab restored to tab bar")
     }
 
+    func closeDockedTab() {
+        guard !isAnimating,
+              let mainViewController = mainViewController else {
+            return
+        }
+
+        let mainView = mainViewController.mainView
+
+        print("🎬 SplitView: Closing docked tab (not restoring)")
+
+        isAnimating = true
+
+        // Hide the docked tab view
+        hideDockedTabView()
+
+        // Remove webView from container
+        if let webView = dockedWebView {
+            webView.removeFromSuperview()
+            dockedWebView = nil
+        }
+
+        // Just undock without restoring - tab will be deallocated
+        let _ = splitViewProvider.undockTab()
+
+        // Reset widths: secondary to 0, primary to full width
+        mainView.secondaryWebContainerWidthConstraint?.constant = 0
+        mainView.webContainerTrailingConstraint?.isActive = true
+
+        // Force layout
+        mainView.layoutSubtreeIfNeeded()
+
+        isAnimating = false
+        print("✅ SplitView: Split view closed - tab discarded")
+    }
+
+    // MARK: - Docked Tab View Management
+
+    private func showDockedTabView(for tab: Tab) {
+        guard let tabBarViewController = mainViewController?.tabBarViewController else {
+            return
+        }
+
+        // Create the docked tab view if needed
+        if dockedTabView == nil {
+            let view = DockedTabView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            view.onUndock = { [weak self] in
+                self?.undockAndRestoreTab()
+            }
+            view.onClose = { [weak self] in
+                self?.closeDockedTab()
+            }
+            dockedTabView = view
+        }
+
+        guard let dockedTabView = dockedTabView else { return }
+
+        // Configure with the tab
+        dockedTabView.configure(with: tab)
+
+        // Add to the tab bar's right side stack view
+        tabBarViewController.showDockedTabView(dockedTabView)
+    }
+
+    private func hideDockedTabView() {
+        guard let dockedTabView = dockedTabView,
+              let tabBarViewController = mainViewController?.tabBarViewController else {
+            return
+        }
+
+        tabBarViewController.hideDockedTabView(dockedTabView)
+    }
+
     // MARK: - Testing
 
     func testToggleSplitView() {
@@ -180,27 +270,26 @@ final class SplitViewPresenter: SplitViewPresenting {
         } else {
             print("🎬 SplitView Test: Opening split view")
 
-            // Find a tab to dock (use second tab, or create one)
-            let tabs = tabCollectionViewModel.tabCollection.tabs
-            let currentTabID = tabCollectionViewModel.selectedTabViewModel?.tab.uuid
+            // Dock the CURRENT (selected) tab
+            guard let currentTab = tabCollectionViewModel.selectedTabViewModel?.tab,
+                  let currentIndex = tabCollectionViewModel.selectionIndex else {
+                print("⚠️ SplitView Test: No current tab to dock")
+                return
+            }
 
-            if tabs.count >= 2 {
-                // Use an existing tab (not the current one)
-                if let tabToDock = tabs.first(where: { $0.uuid != currentTabID }) {
-                    // Remove it from the tab collection first
-                    if let index = tabs.firstIndex(where: { $0.uuid == tabToDock.uuid }) {
-                        tabCollectionViewModel.tabCollection.removeTab(at: index)
-                    }
-                    dockTab(tabToDock)
-                }
-            } else if tabs.count == 1 {
-                // Create a new tab for testing
-                print("🆕 SplitView Test: Creating new tab with duckduckgo.com")
-                let newTab = Tab(content: .url(URL(string: "https://duckduckgo.com")!, source: .ui),
-                                 burnerMode: tabCollectionViewModel.burnerMode)
-                dockTab(newTab)
-            } else {
-                print("⚠️ SplitView Test: No tabs available")
+            // Need at least 2 tabs to dock one (so there's still a tab left in the tab bar)
+            let totalTabs = tabCollectionViewModel.tabCollection.tabs.count
+            guard totalTabs >= 2 else {
+                print("⚠️ SplitView Test: Need at least 2 tabs to dock one")
+                return
+            }
+
+            // Remove the current tab using the view model's method (handles selection properly)
+            tabCollectionViewModel.remove(at: currentIndex, published: true)
+
+            // Defer docking to let collection view complete its update
+            DispatchQueue.main.async { [weak self] in
+                self?.dockTab(currentTab)
             }
         }
     }

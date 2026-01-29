@@ -348,6 +348,7 @@ struct UserText {
     static let closeTab = NSLocalizedString("close.tab", value: "Close Tab", comment: "Menu item")
     static let muteTab = NSLocalizedString("mute.tab", value: "Mute Tab", comment: "Menu item. Mute tab")
     static let unmuteTab = NSLocalizedString("unmute.tab", value: "Unmute Tab", comment: "Menu item. Unmute tab")
+    static let dockToSplitView = NSLocalizedString("dock.to.split.view", value: "Dock to Split View", comment: "Menu item. Dock tab to split view on the right side")
     static let closeOtherTabs = NSLocalizedString("close.other.tabs", value: "Close Other Tabs", comment: "Menu item")
     static let closeAllOtherTabs = NSLocalizedString("close.all.other.tabs", value: "Close All Other Tabs", comment: "Menu item")
     static let closeTabsToTheLeft = NSLocalizedString("close.tabs.to.the.left", value: "Close Tabs to the Left", comment: "Menu item")

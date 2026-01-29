@@ -20851,6 +20851,18 @@
         }
       }
     },
+    "dock.to.split.view" : {
+      "comment" : "Menu item. Dock tab to split view on the right side",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Dock to Split View"
+          }
+        }
+      }
+    },
     "domain-is-fireproof" : {
       "comment" : "Domain fireproof status",
       "extractionState" : "extracted_with_value",
