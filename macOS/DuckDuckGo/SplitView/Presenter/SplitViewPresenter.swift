@@ -28,7 +28,10 @@ protocol SplitViewPresenting: AnyObject {
     var dockedTab: Tab? { get }
 
     /// Dock a tab to the secondary pane (removes it from tab bar, shows split view)
-    func dockTab(_ tab: Tab)
+    /// - Parameters:
+    ///   - tab: The tab to dock
+    ///   - originalIndex: The original index of the tab in the tab bar (for restoring later)
+    func dockTab(_ tab: Tab, originalIndex: Int?)
 
     /// Undock the secondary tab and return it to the tab bar
     func undockAndRestoreTab()
@@ -76,11 +79,11 @@ final class SplitViewPresenter: SplitViewPresenting {
         if isShowingSplitView {
             undockAndRestoreTab()
         } else if let tab = tab {
-            dockTab(tab)
+            dockTab(tab, originalIndex: nil)
         }
     }
 
-    func dockTab(_ tab: Tab) {
+    func dockTab(_ tab: Tab, originalIndex: Int? = nil) {
         guard !isAnimating,
               let mainViewController = mainViewController else {
             return
@@ -88,12 +91,12 @@ final class SplitViewPresenter: SplitViewPresenting {
 
         let mainView = mainViewController.mainView
 
-        print("🔲 SplitView: Docking tab \(tab.uuid)")
+        print("🔲 SplitView: Docking tab \(tab.uuid) from original index \(originalIndex ?? -1)")
 
         isAnimating = true
 
-        // Dock the tab in the provider
-        splitViewProvider.dockTab(tab)
+        // Dock the tab in the provider (with original index for later restoration)
+        splitViewProvider.dockTab(tab, originalIndex: originalIndex)
 
         // Calculate 50% width
         let totalWidth = mainView.bounds.width
@@ -151,30 +154,31 @@ final class SplitViewPresenter: SplitViewPresenting {
         }
 
         // Get the undocked tab and restore it to the tab bar
-        if let tab = splitViewProvider.undockTab() {
-            // Find a good insertion point (after the currently selected tab)
+        if let result = splitViewProvider.undockTab() {
+            let tab = result.tab
             let tabCount = tabCollectionViewModel.tabCollection.tabs.count
-            var insertionIndex: Int
 
-            if let currentIndex = tabCollectionViewModel.selectionIndex {
-                // If current tab is unpinned, insert after it
-                // If current tab is pinned, insert at beginning of unpinned tabs
+            // Use original index if available, otherwise insert after current selection
+            var insertionIndex: Int
+            if let originalIndex = result.originalIndex {
+                // Clamp original index to valid range (tabs may have been closed while docked)
+                insertionIndex = min(originalIndex, tabCount)
+            } else if let currentIndex = tabCollectionViewModel.selectionIndex {
                 switch currentIndex {
                 case .unpinned(let idx):
                     insertionIndex = idx + 1
                 case .pinned:
                     insertionIndex = 0
                 }
+                insertionIndex = min(insertionIndex, tabCount)
             } else {
                 insertionIndex = tabCount
             }
 
-            // Clamp to valid range (0...tabCount)
-            insertionIndex = min(insertionIndex, tabCount)
-
             // Insert the tab back using the view model's method (handles UI updates properly)
-            tabCollectionViewModel.insert(tab, at: .unpinned(insertionIndex), selected: false)
-            print("📋 SplitView: Restored tab to tab bar at index \(insertionIndex)")
+            // Select the tab so it becomes active after undocking
+            tabCollectionViewModel.insert(tab, at: .unpinned(insertionIndex), selected: true)
+            print("📋 SplitView: Restored tab to tab bar at index \(insertionIndex) (original was \(result.originalIndex ?? -1))")
         }
 
         // Reset widths: secondary to 0, primary to full width
@@ -284,12 +288,21 @@ final class SplitViewPresenter: SplitViewPresenting {
                 return
             }
 
+            // Get the original index before removing
+            let originalIndex: Int
+            switch currentIndex {
+            case .unpinned(let idx):
+                originalIndex = idx
+            case .pinned(let idx):
+                originalIndex = idx
+            }
+
             // Remove the current tab using the view model's method (handles selection properly)
             tabCollectionViewModel.remove(at: currentIndex, published: true)
 
             // Defer docking to let collection view complete its update
             DispatchQueue.main.async { [weak self] in
-                self?.dockTab(currentTab)
+                self?.dockTab(currentTab, originalIndex: originalIndex)
             }
         }
     }

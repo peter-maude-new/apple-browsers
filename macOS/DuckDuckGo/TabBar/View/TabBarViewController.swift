@@ -1596,6 +1596,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
 
         let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+        let originalIndex = indexPath.item  // Remember original position
 
         guard let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab else {
             assertionFailure("TabBarViewController: Failed to get tab for docking")
@@ -1607,7 +1608,7 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
         // Dock the tab (defer to let collection view update)
         DispatchQueue.main.async { [weak self] in
-            self?.mainViewController?.splitViewPresenter.dockTab(tab)
+            self?.mainViewController?.splitViewPresenter.dockTab(tab, originalIndex: originalIndex)
         }
     }
 

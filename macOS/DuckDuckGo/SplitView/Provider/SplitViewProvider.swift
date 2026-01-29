@@ -27,16 +27,19 @@ protocol SplitViewProviding: AnyObject {
     /// The currently docked secondary tab, or nil if split view is not active
     var dockedTab: Tab? { get }
 
+    /// The original index of the docked tab (for restoring to original position)
+    var originalTabIndex: Int? { get }
+
     /// Whether split view is currently showing
     var isShowingSplitView: Bool { get }
 
     /// Dock a tab to the secondary pane (activates split view)
-    func dockTab(_ tab: Tab)
+    func dockTab(_ tab: Tab, originalIndex: Int?)
 
     /// Undock the secondary tab (deactivates split view)
-    /// Returns the previously docked tab so it can be restored to the tab bar
+    /// Returns the previously docked tab and its original index so it can be restored
     @discardableResult
-    func undockTab() -> Tab?
+    func undockTab() -> (tab: Tab, originalIndex: Int?)?
 }
 
 @MainActor
@@ -45,22 +48,26 @@ final class SplitViewProvider: SplitViewProviding {
     /// The tab docked to the secondary pane
     private(set) var dockedTab: Tab?
 
+    /// The original index of the docked tab (for restoring to original position)
+    private(set) var originalTabIndex: Int?
+
     var isShowingSplitView: Bool {
         dockedTab != nil
     }
 
-    func dockTab(_ tab: Tab) {
+    func dockTab(_ tab: Tab, originalIndex: Int? = nil) {
         dockedTab = tab
-        print("🔲 SplitView: Docked tab \(tab.uuid)")
+        originalTabIndex = originalIndex
+        print("🔲 SplitView: Docked tab \(tab.uuid) from index \(originalIndex ?? -1)")
     }
 
     @discardableResult
-    func undockTab() -> Tab? {
-        let tab = dockedTab
+    func undockTab() -> (tab: Tab, originalIndex: Int?)? {
+        guard let tab = dockedTab else { return nil }
+        let index = originalTabIndex
         dockedTab = nil
-        if let tab = tab {
-            print("🔲 SplitView: Undocked tab \(tab.uuid)")
-        }
-        return tab
+        originalTabIndex = nil
+        print("🔲 SplitView: Undocked tab \(tab.uuid), original index was \(index ?? -1)")
+        return (tab, index)
     }
 }
