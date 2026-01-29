@@ -102,8 +102,7 @@ final class MemoryUsageTests: XCTestCase {
         let options = XCTMeasureOptions.buildOptions(iterations: 5)
 
         measure(metrics: [launchMetric], options: options) {
-            let application = buildAndLaunchApplication()
-            application.launch()
+            let application = XCUIApplication.setUp(featureFlags: [:])
             application.terminate()
         }
     }
