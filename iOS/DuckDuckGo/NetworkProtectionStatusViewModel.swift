@@ -369,21 +369,36 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
     }
 
     private func setUpErrorPublishers() {
-        guard AppDependencyProvider.shared.internalUserDecider.isInternalUser else {
-            return
-        }
-
         errorObserver.publisher
-            .map { errorMessage in
+            .map { [weak self] errorMessage -> ErrorItem? in
                 guard let errorMessage else {
                     return nil
                 }
 
-                return ErrorItem(title: "Failed to Connect", message: errorMessage)
+                let localizedMessage = self?.localizedErrorMessage(for: errorMessage) ?? errorMessage
+                return ErrorItem(title: UserText.netPStatusViewErrorConnectionFailedTitle, message: localizedMessage)
             }
             .receive(on: DispatchQueue.main)
             .assign(to: \.error, onWeaklyHeld: self)
             .store(in: &cancellables)
+    }
+
+    /// Maps raw error strings from the tunnel extension to user-friendly localized messages.
+    private func localizedErrorMessage(for rawMessage: String) -> String {
+        switch rawMessage {
+        case let msg where msg.contains("Missing auth token"):
+            return UserText.vpnErrorAuthenticationFailed
+        case let msg where msg.contains("Failed to generate a tunnel configuration"):
+            return UserText.vpnErrorConnectionFailed
+        case "VPN settings are missing or invalid":
+            return UserText.vpnErrorConfigurationIncomplete
+        case "Abnormal situation caused the token to be reset":
+            return UserText.vpnErrorSessionInterrupted
+        case "VPN disconnected due to expired subscription":
+            return UserText.vpnAccessRevokedAlertTitle
+        default:
+            return UserText.vpnErrorUnknown
+        }
     }
 
     private func setUpLocationPublishers() {

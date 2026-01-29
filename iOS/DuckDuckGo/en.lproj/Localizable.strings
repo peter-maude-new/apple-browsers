@@ -2188,6 +2188,21 @@ https://duckduckgo.com/mac";
 /* The body of the notification when Privacy Pro subscription expired */
 "network.protection.entitlement.expired.notification.body" = "VPN disconnected due to expired subscription. Subscribe to DuckDuckGo to reconnect the VPN.";
 
+/* Error shown when VPN cannot authenticate the user */
+"network.protection.error.authentication.failed" = "Unable to authenticate. Please try reconnecting.";
+
+/* Error shown when VPN settings are missing */
+"network.protection.error.configuration.incomplete" = "VPN configuration is incomplete. Please reinstall the VPN.";
+
+/* Error shown when VPN fails to generate tunnel configuration */
+"network.protection.error.connection.failed" = "Unable to connect to VPN server. Please try again.";
+
+/* Error shown when VPN token is reset unexpectedly */
+"network.protection.error.session.interrupted" = "Your session was interrupted. Please reconnect.";
+
+/* Generic fallback error message for VPN failures */
+"network.protection.error.unknown" = "An error occurred. Please try again.";
+
 /* The body of the notification shown when VPN fails to reconnect */
 "network.protection.failure.notification.body" = "DuckDuckGo VPN failed to connect. Please try again later.";
 

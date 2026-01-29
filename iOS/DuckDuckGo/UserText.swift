@@ -646,6 +646,13 @@ public struct UserText {
     static let netPStatusViewShareFeedback = NSLocalizedString("network.protection.status.menu.share.feedback", value: "Share Feedback", comment: "The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text")
     static let netPStatusViewErrorConnectionFailedTitle = NSLocalizedString("network.protection.status.view.error.connection.failed.title", value: "Failed to Connect.", comment: "Generic connection failed error title shown in NetworkProtection's status view.")
     static let netPStatusViewErrorConnectionFailedMessage = NSLocalizedString("network.protection.status.view.error.connection.failed.message", value: "Please try again later.", comment: "Generic connection failed error message shown in NetworkProtection's status view.")
+
+    // MARK: - VPN Error Messages
+    static let vpnErrorAuthenticationFailed = NSLocalizedString("network.protection.error.authentication.failed", value: "Unable to authenticate. Please try reconnecting.", comment: "Error shown when VPN cannot authenticate the user")
+    static let vpnErrorConnectionFailed = NSLocalizedString("network.protection.error.connection.failed", value: "Unable to connect to VPN server. Please try again.", comment: "Error shown when VPN fails to generate tunnel configuration")
+    static let vpnErrorConfigurationIncomplete = NSLocalizedString("network.protection.error.configuration.incomplete", value: "VPN configuration is incomplete. Please reinstall the VPN.", comment: "Error shown when VPN settings are missing")
+    static let vpnErrorSessionInterrupted = NSLocalizedString("network.protection.error.session.interrupted", value: "Your session was interrupted. Please reconnect.", comment: "Error shown when VPN token is reset unexpectedly")
+    static let vpnErrorUnknown = NSLocalizedString("network.protection.error.unknown", value: "An error occurred. Please try again.", comment: "Generic fallback error message for VPN failures")
     static let netPPreferredLocationSettingTitle = NSLocalizedString("network.protection.vpn.preferred.location.title", value: "Preferred Location", comment: "Title for the Preferred Location VPN Settings item.")
     static let netPPreferredLocationNearest = NSLocalizedString("network.protection.vpn.preferred.location.nearest", value: "Nearest Location", comment: "Label for the Preferred Location VPN Settings item when the nearest available location is selected.")
     static let netPVPNLocationTitle = NSLocalizedString("network.protection.vpn.location.title", value: "VPN Location", comment: "Title for the VPN Location screen.")
