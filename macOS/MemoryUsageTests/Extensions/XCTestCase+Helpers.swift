@@ -30,7 +30,7 @@ extension XCTestCase {
     /// - Parameters:
     ///     - application: Instance we'll be measuring
     ///     - iterations: Number of times the work closure will be invoked
-    ///     - work: Closure expected to return a (new) XCUIApplication instance
+    ///     - work: Closure that performs the action to be measured on the provided application instance
     ///
     func buildMemoryMeasurement(application: XCUIApplication, iterations: Int, work: @escaping (_ application: XCUIApplication) -> Void) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
         let metric = MemoryAllocationStatsMetric(memoryStatsURL: application.memoryStatsURL)
@@ -58,6 +58,7 @@ extension XCTestCase {
     /// - Parameters:
     ///     - iterations: Number of times the work closure will be invoked
     ///     - applicationProvider: Closure expected to return a (new) XCUIApplication instance
+    ///     - completion: Closure to be invoked after Measurement is complete
     ///
     func buildSnapshotMeasurement(iterations: Int, applicationProvider: @escaping () -> XCUIApplication, completion: ((XCUIApplication) -> Void)? = nil) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
         let statsURLProvider = MemoryStatsURLProvider()
