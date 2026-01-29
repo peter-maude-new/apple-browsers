@@ -29,7 +29,6 @@ public protocol LegacyFaviconUserScriptDelegate: NSObjectProtocol {
 
 /// Legacy page-world favicon user script. Used as fallback when cssFaviconMessaging feature flag is OFF.
 /// This script runs in the page world and exposes webkit.messageHandlers.faviconFound to pages.
-/// The newer approach uses C-S-S isolated world scripts for better security.
 public class LegacyFaviconUserScript: NSObject, UserScript {
 
     public var source: String = """
