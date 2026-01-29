@@ -644,6 +644,11 @@ final class TabBarItemCellView: NSView {
         titleView.setTitleFont(font)
     }
 
+    func setTitleTextColor(_ color: NSColor) {
+        titleTextField.textColor = color
+        titleView.setTitleTextColor(color)
+    }
+
     func refreshProgressColors(rendered: Bool, url: URL?) {
         faviconView.refreshSpinnerColorsIfNeeded(rendered: rendered)
     }
@@ -1386,16 +1391,18 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func displayTabTitle(_ title: String, isLoading: Bool) {
-        // When tab is locked, use Flow Circular font and show the disguise title
+        // When tab is locked, use Flow Circular font with tertiary color and show the disguise title
         if isTabLocked, let lockConfig = lockConfig {
             let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
             cell.setTitleFont(lockedFont)
+            cell.setTitleTextColor(NSColor(designSystemColor: .textTertiary))
             cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
             return
         }
 
-        // Reset to default font for unlocked tabs
+        // Reset to default font and color for unlocked tabs
         cell.setTitleFont(.systemFont(ofSize: 13))
+        cell.setTitleTextColor(.labelColor)
         let url = tabViewModel?.url
         cell.displayTabTitleIfNeeded(title: title, url: url, isLoading: isLoading)
     }
@@ -1405,11 +1412,13 @@ final class TabBarViewItem: NSCollectionViewItem {
         if isTabLocked, let lockConfig = lockConfig {
             let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
             cell.setTitleFont(lockedFont)
+            cell.setTitleTextColor(NSColor(designSystemColor: .textTertiary))
             cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
             displayLockedIcon()
         } else {
-            // Restore real title and favicon
+            // Restore real title and font color
             cell.setTitleFont(.systemFont(ofSize: 13))
+            cell.setTitleTextColor(.labelColor)
             if let tabViewModel = tabViewModel {
                 displayTabTitle(tabViewModel.title, isLoading: false)
                 updateFavicon(tabViewModel.favicon)

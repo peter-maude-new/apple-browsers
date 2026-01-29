@@ -85,6 +85,11 @@ extension TabTitleView {
         titleTextField.font = font
         previousTextField.font = font
     }
+
+    func setTitleTextColor(_ color: NSColor) {
+        titleTextField.textColor = color
+        previousTextField.textColor = color
+    }
 }
 
 private extension TabTitleView {
