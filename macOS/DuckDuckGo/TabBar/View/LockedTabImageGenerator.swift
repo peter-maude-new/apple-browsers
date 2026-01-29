@@ -23,15 +23,13 @@ enum LockedTabImageGenerator {
 
     /// Generates a locked tab icon with colored circle background and lock overlay.
     /// - Parameters:
-    ///   - colorIndex: Index into the 8-color palette (0-7)
+    ///   - colorIndex: Index into the 7-color palette (0-6)
     ///   - size: The size of the generated image (default 16pt)
     /// - Returns: An NSImage with a colored circle and lock icon overlay
     static func generateImage(colorIndex: Int, size: CGFloat = 16) -> NSImage {
         let safeIndex = colorIndex % palette.count
 
-        let isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-        let colorHex = isDarkMode ? palette[safeIndex].dark : palette[safeIndex].light
-        let circleColor = NSColor(hex: colorHex)
+        let circleColor = NSColor(hex: palette[safeIndex])
 
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { rect in
             // Draw colored circle background
@@ -58,17 +56,16 @@ enum LockedTabImageGenerator {
         return image
     }
 
-    // 8-color palette using theme accent colors (designed for good contrast on tab backgrounds)
-    // Each tuple: (lightModeHex, darkModeHex)
-    private static let palette: [(light: UInt32, dark: UInt32)] = [
-        (0x3869ef, 0x8fabf9),  // Figma (Blue)
-        (0x273145, 0xa0b6e3),  // CoolGray (Slate Blue)
-        (0xd14200, 0xffa43d),  // Desert (Orange-Brown)
-        (0x377f55, 0x6ec7a2),  // Green
-        (0xff9f19, 0xff8133),  // Orange
-        (0xc1008e, 0xfa7ddd),  // Rose (Pink)
-        (0x39719c, 0x74b5e6),  // SlateBlue (Blue)
-        (0x5c17e5, 0xa17fff),  // Violet (Purple)
+    // 7-color palette for lock icons (same in light and dark mode)
+    // Ordered to maximize contrast between adjacent colors
+    private static let palette: [UInt32] = [
+        0x4397E0,  // Blue
+        0xF05F2B,  // Orange
+        0x589D88,  // Green
+        0xEC434F,  // Red
+        0x9F6EB8,  // Purple
+        0xFAB341,  // Yellow
+        0x888888,  // Gray
     ]
 }
 
