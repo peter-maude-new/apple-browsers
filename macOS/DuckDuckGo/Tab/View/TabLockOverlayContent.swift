@@ -49,6 +49,22 @@ final class TabLockOverlayViewModel: ObservableObject {
             }
         }
     }
+
+    func showImmediately() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            isVisible = true
+        }
+    }
+
+    func hideImmediately() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            isVisible = false
+        }
+    }
 }
 
 // MARK: - SwiftUI View

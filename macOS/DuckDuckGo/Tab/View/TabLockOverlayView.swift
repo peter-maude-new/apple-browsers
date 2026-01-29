@@ -17,38 +17,17 @@
 //
 
 import AppKit
+import SwiftUI
 
 /// Overlay view that covers locked tab content and triggers unlock on interaction
 final class TabLockOverlayView: NSView {
 
-    var onUnlockRequested: (() -> Void)?
+    var onUnlockRequested: (() -> Void)? {
+        didSet { viewModel.onUnlockRequested = onUnlockRequested }
+    }
 
-    private let visualEffectView: NSVisualEffectView = {
-        let view = NSVisualEffectView()
-        view.material = .fullScreenUI
-        view.blendingMode = .behindWindow
-        view.state = .active
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
-    private let lockImageView: NSImageView = {
-        let imageView = NSImageView()
-        let config = NSImage.SymbolConfiguration(pointSize: 64, weight: .regular)
-        imageView.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Locked")?.withSymbolConfiguration(config)
-        imageView.contentTintColor = .white
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-
-    private let instructionLabel: NSTextField = {
-        let label = NSTextField(labelWithString: UserText.tabLockClickToUnlock)
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .white
-        label.alignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    private let viewModel = TabLockOverlayViewModel()
+    private var hostingView: NSHostingView<TabLockOverlayContent>?
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -63,54 +42,64 @@ final class TabLockOverlayView: NSView {
     private func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
 
-        addSubview(visualEffectView)
-
-        let stackView = NSStackView(views: [lockImageView, instructionLabel])
-        stackView.orientation = .vertical
-        stackView.alignment = .centerX
-        stackView.spacing = 16
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(stackView)
+        let content = TabLockOverlayContent(viewModel: viewModel)
+        let hosting = NSHostingView(rootView: content)
+        hosting.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(hosting)
 
         NSLayoutConstraint.activate([
-            visualEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            visualEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            visualEffectView.topAnchor.constraint(equalTo: topAnchor),
-            visualEffectView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor)
+            hosting.leadingAnchor.constraint(equalTo: leadingAnchor),
+            hosting.trailingAnchor.constraint(equalTo: trailingAnchor),
+            hosting.topAnchor.constraint(equalTo: topAnchor),
+            hosting.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+
+        self.hostingView = hosting
     }
 
-    // MARK: - Input Blocking
+    // MARK: - Animation API
 
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        // Return self for any point in bounds - blocks events from reaching views below
-        return bounds.contains(point) ? self : nil
+    /// Animate the overlay in (called after adding to view hierarchy)
+    func animateIn(completion: (() -> Void)? = nil) {
+        viewModel.animateIn()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.86) {
+            completion?()
+        }
     }
+
+    /// Animate the overlay out before removal
+    func animateOut(completion: (() -> Void)? = nil) {
+        viewModel.animateOut {
+            completion?()
+        }
+    }
+
+    /// Show overlay immediately without animation
+    func showImmediately() {
+        viewModel.showImmediately()
+    }
+
+    /// Hide overlay immediately without animation
+    func hideImmediately() {
+        viewModel.hideImmediately()
+    }
+
+    // MARK: - Input Handling
 
     override var acceptsFirstResponder: Bool { true }
-
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
     override func keyDown(with event: NSEvent) {
-        // Trigger unlock on any key press
         onUnlockRequested?()
     }
 
-    override func keyUp(with event: NSEvent) {
-        // Consume
-    }
-
-    override func flagsChanged(with event: NSEvent) {
-        // Consume modifier key changes
-    }
+    override func keyUp(with event: NSEvent) {}
+    override func flagsChanged(with event: NSEvent) {}
 
     override func mouseDown(with event: NSEvent) {
         onUnlockRequested?()
     }
 
-    // Consume all other mouse events
     override func mouseUp(with event: NSEvent) {}
     override func rightMouseDown(with event: NSEvent) {}
     override func rightMouseUp(with event: NSEvent) {}
@@ -118,23 +107,14 @@ final class TabLockOverlayView: NSView {
     override func otherMouseUp(with event: NSEvent) {}
     override func mouseDragged(with event: NSEvent) {}
     override func scrollWheel(with event: NSEvent) {}
-
-    // MARK: - Mouse Tracking
-
     override func mouseMoved(with event: NSEvent) {}
     override func mouseEntered(with event: NSEvent) {}
     override func mouseExited(with event: NSEvent) {}
     override func cursorUpdate(with event: NSEvent) {}
-
-    // MARK: - Gesture Event Blocking
-
     override func magnify(with event: NSEvent) {}
     override func rotate(with event: NSEvent) {}
     override func swipe(with event: NSEvent) {}
     override func smartMagnify(with event: NSEvent) {}
-
-    // MARK: - Drag & Drop Blocking
-
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation { [] }
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool { false }
 }
