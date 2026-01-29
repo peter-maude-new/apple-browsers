@@ -19,6 +19,7 @@
 
 import Foundation
 import Combine
+import NetworkExtension
 import VPN
 import WidgetKit
 import BrowserServicesKit
@@ -370,34 +371,67 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
 
     private func setUpErrorPublishers() {
         errorObserver.publisher
-            .map { [weak self] errorMessage -> ErrorItem? in
+            .sink { [weak self] errorMessage in
+                guard let self else { return }
+
                 guard let errorMessage else {
-                    return nil
+                    Task { @MainActor in
+                        self.error = nil
+                    }
+                    return
                 }
 
-                let localizedMessage = self?.localizedErrorMessage(for: errorMessage) ?? errorMessage
-                return ErrorItem(title: UserText.netPStatusViewErrorConnectionFailedTitle, message: localizedMessage)
+                Task {
+                    let errorItem = await self.createErrorItem(fallbackMessage: errorMessage)
+                    await MainActor.run {
+                        self.error = errorItem
+                    }
+                }
             }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.error, onWeaklyHeld: self)
             .store(in: &cancellables)
     }
 
-    /// Maps raw error strings from the tunnel extension to user-friendly localized messages.
-    private func localizedErrorMessage(for rawMessage: String) -> String {
-        switch rawMessage {
-        case let msg where msg.contains("Missing auth token"):
-            return UserText.vpnErrorAuthenticationFailed
-        case let msg where msg.contains("Failed to generate a tunnel configuration"):
-            return UserText.vpnErrorConnectionFailed
-        case "VPN settings are missing or invalid":
-            return UserText.vpnErrorConfigurationIncomplete
-        case "Abnormal situation caused the token to be reset":
-            return UserText.vpnErrorSessionInterrupted
-        case "VPN disconnected due to expired subscription":
-            return UserText.vpnAccessRevokedAlertTitle
-        default:
-            return UserText.vpnErrorUnknown
+    /// Creates an ErrorItem by first trying to fetch the disconnect error from the tunnel session,
+    /// falling back to string-based mapping if the NSError is not available.
+    private func createErrorItem(fallbackMessage: String) async -> ErrorItem? {
+        // Try to get the actual NSError from the tunnel session (iOS 16+)
+        if #available(iOS 16.0, *), let session = await tunnelController.activeSession() {
+            let connectionError = await fetchConnectionError(from: session, fallbackMessage: fallbackMessage)
+
+            if let connectionError {
+                return ErrorItem(
+                    title: UserText.netPStatusViewErrorConnectionFailedTitle,
+                    message: connectionError.localizedMessage
+                )
+            } else {
+                // VPNConnectionError init returned nil, meaning we shouldn't show an error
+                return nil
+            }
+        }
+
+        // Fallback to string-based mapping (iOS 15 or when session unavailable)
+        if let connectionError = VPNConnectionError(errorMessage: fallbackMessage) {
+            return ErrorItem(
+                title: UserText.netPStatusViewErrorConnectionFailedTitle,
+                message: connectionError.localizedMessage
+            )
+        }
+
+        return nil
+    }
+
+    /// Fetches the last disconnect error from the tunnel session and converts it to a VPNConnectionError.
+    @available(iOS 16.0, *)
+    private func fetchConnectionError(from session: NETunnelProviderSession, fallbackMessage: String) async -> VPNConnectionError? {
+        await withCheckedContinuation { continuation in
+            session.fetchLastDisconnectError { error in
+                if let nsError = error as? NSError {
+                    continuation.resume(returning: VPNConnectionError(nsError: nsError))
+                } else {
+                    // Fall back to string-based mapping
+                    continuation.resume(returning: VPNConnectionError(errorMessage: fallbackMessage))
+                }
+            }
         }
     }
 
