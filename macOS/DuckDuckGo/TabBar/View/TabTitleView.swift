@@ -80,6 +80,11 @@ extension TabTitleView {
         previousTextField.stringValue = ""
         sourceURL = nil
     }
+
+    func setTitleFont(_ font: NSFont) {
+        titleTextField.font = font
+        previousTextField.font = font
+    }
 }
 
 private extension TabTitleView {

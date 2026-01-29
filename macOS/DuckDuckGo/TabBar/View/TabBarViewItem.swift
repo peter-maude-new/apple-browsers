@@ -639,6 +639,11 @@ final class TabBarItemCellView: NSView {
         titleView.displayTitleIfNeeded(title: title, url: url, isLoading: isLoading)
     }
 
+    func setTitleFont(_ font: NSFont) {
+        titleTextField.font = font
+        titleView.setTitleFont(font)
+    }
+
     func refreshProgressColors(rendered: Bool, url: URL?) {
         faviconView.refreshSpinnerColorsIfNeeded(rendered: rendered)
     }
@@ -1347,9 +1352,9 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func updateFavicon(_ favicon: NSImage?) {
-        // Skip favicon update when tab is locked (show emoji instead)
-        if isTabLocked, let lockConfig = lockConfig {
-            displayLockEmoji(lockConfig.emoji)
+        // Skip favicon update when tab is locked (show locked icon instead)
+        if isTabLocked, lockConfig != nil {
+            displayLockedIcon()
             return
         }
 
@@ -1381,11 +1386,16 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func displayTabTitle(_ title: String, isLoading: Bool) {
-        // When tab is locked, show the disguise title instead
+        // When tab is locked, use Flow Circular font and show the disguise title
         if isTabLocked, let lockConfig = lockConfig {
+            let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
+            cell.setTitleFont(lockedFont)
             cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
             return
         }
+
+        // Reset to default font for unlocked tabs
+        cell.setTitleFont(.systemFont(ofSize: 13))
         let url = tabViewModel?.url
         cell.displayTabTitleIfNeeded(title: title, url: url, isLoading: isLoading)
     }
@@ -1393,10 +1403,13 @@ final class TabBarViewItem: NSCollectionViewItem {
     private func updateLockStateDisplay() {
         // Refresh title and favicon to show/hide lock disguise
         if isTabLocked, let lockConfig = lockConfig {
+            let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
+            cell.setTitleFont(lockedFont)
             cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
-            displayLockEmoji(lockConfig.emoji)
+            displayLockedIcon()
         } else {
             // Restore real title and favicon
+            cell.setTitleFont(.systemFont(ofSize: 13))
             if let tabViewModel = tabViewModel {
                 displayTabTitle(tabViewModel.title, isLoading: false)
                 updateFavicon(tabViewModel.favicon)
@@ -1405,30 +1418,20 @@ final class TabBarViewItem: NSCollectionViewItem {
         cell.needsLayout = true
     }
 
-    private func displayLockEmoji(_ emoji: String) {
-        let emojiImage = emojiToImage(emoji)
+    private func displayLockedIcon() {
+        guard let colorIndex = lockConfig?.colorIndex else { return }
+        let lockedImage = LockedTabImageGenerator.generateImage(colorIndex: colorIndex)
         cell.needsLayout = true
 
         if cell.displaysTabsProgressIndicator {
-            cell.faviconView.displayFavicon(favicon: emojiImage, url: nil)
+            cell.faviconView.displayFavicon(favicon: lockedImage, url: nil)
             cell.faviconView.imageTintColor = nil
         } else {
             cell.faviconImageView.isHidden = false
-            cell.faviconImageView.image = emojiImage
+            cell.faviconImageView.image = lockedImage
             cell.faviconImageView.contentTintColor = nil
             cell.faviconPlaceholderView.isHidden = true
         }
-    }
-
-    private func emojiToImage(_ emoji: String) -> NSImage {
-        let font = NSFont.systemFont(ofSize: 14)
-        let attributes: [NSAttributedString.Key: Any] = [.font: font]
-        let size = (emoji as NSString).size(withAttributes: attributes)
-        let image = NSImage(size: size)
-        image.lockFocus()
-        (emoji as NSString).draw(at: .zero, withAttributes: attributes)
-        image.unlockFocus()
-        return image
     }
 
     private func startSpinnerIfNeeded(isLoading: Bool, error: WKError?) {
