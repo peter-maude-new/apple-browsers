@@ -27,9 +27,14 @@ extension XCTestCase {
     ///     This API does NOT invoke  `measure(...)`  directly, as the Xcode measurement reports would end up being printed right here,
     ///     rather than in the caller Test. Unfortunately, there's no API that accepts the `line number` / `class`.
     ///
+    /// - Parameters:
+    ///     - application: Instance we'll be measuring
+    ///     - iterations: Number of times the work closure will be invoked
+    ///     - work: Closure expected to return a (new) XCUIApplication instance
+    ///
     func buildMemoryMeasurement(application: XCUIApplication, iterations: Int, work: @escaping (_ application: XCUIApplication) -> Void) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
-        let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
         let metric = MemoryAllocationStatsMetric(memoryStatsURL: application.memoryStatsURL)
+        let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
 
         let block: () -> Void = {
             application.cleanExportMemoryStats()
@@ -44,10 +49,20 @@ extension XCTestCase {
         return (metric, options, block)
     }
 
+    /// Builds the Memory `Measurement Metric + Options + Block` to track the Memory Allocations at a specific point in time.
+    ///
+    /// - Important:
+    ///     This will only track `com.duckduckgo.memory.allocations.used.final`, and was designed to measure Allocations right after Launch,
+    ///     where the "delta" is meaningless, since we go from Memory Usage 0mb.
+    ///
+    /// - Parameters:
+    ///     - iterations: Number of times the work closure will be invoked
+    ///     - work: Closure expected to return a (new) XCUIApplication instance
+    ///
     func buildSnapshotMeasurement(iterations: Int, work: @escaping () -> XCUIApplication) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
-        let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
         let statsURLProvider = MemoryStatsURLProvider()
         let metric = MemoryAllocationStatsMetric(measureOnlyFinalState: true, memoryStatsURLProvider: statsURLProvider)
+        let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
 
         let block: () -> Void = {
             self.startMeasuring()
