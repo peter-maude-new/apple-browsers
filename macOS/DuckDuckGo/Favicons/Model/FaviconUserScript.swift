@@ -16,54 +16,7 @@
 //  limitations under the License.
 //
 
-import Common
-import UserScript
-import WebKit
+import BrowserServicesKit
 
-protocol FaviconUserScriptDelegate: AnyObject {
-    @MainActor
-    func faviconUserScript(_ faviconUserScript: FaviconUserScript,
-                           didFindFaviconLinks faviconLinks: [FaviconUserScript.FaviconLink],
-                           for documentUrl: URL,
-                           in webView: WKWebView?)
-}
-
-final class FaviconUserScript: NSObject, Subfeature {
-
-    struct FaviconsFoundPayload: Codable, Equatable {
-        let documentUrl: URL
-        let favicons: [FaviconLink]
-    }
-
-    struct FaviconLink: Codable, Equatable {
-        let href: URL
-        let rel: String
-    }
-
-    let messageOriginPolicy: MessageOriginPolicy = .all
-    let featureName: String = "favicon"
-
-    weak var broker: UserScriptMessageBroker?
-    weak var delegate: FaviconUserScriptDelegate?
-
-    enum MessageNames: String, CaseIterable {
-        case faviconFound
-    }
-
-    func handler(forMethodNamed methodName: String) -> Subfeature.Handler? {
-        switch MessageNames(rawValue: methodName) {
-        case .faviconFound:
-            return { [weak self] in try await self?.faviconFound(params: $0, original: $1) }
-        default:
-            return nil
-        }
-    }
-
-    @MainActor
-    private func faviconFound(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        guard let faviconsPayload: FaviconsFoundPayload = DecodableHelper.decode(from: params) else { return nil }
-
-        delegate?.faviconUserScript(self, didFindFaviconLinks: faviconsPayload.favicons, for: faviconsPayload.documentUrl, in: original.webView)
-        return nil
-    }
-}
+typealias FaviconUserScript = BrowserServicesKit.FaviconUserScript
+typealias FaviconUserScriptDelegate = BrowserServicesKit.FaviconUserScriptDelegate

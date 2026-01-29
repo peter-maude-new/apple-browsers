@@ -23,6 +23,7 @@ import Persistence
 import Bookmarks
 import CoreData
 import os.log
+import WebKit
 
 protocol TabNotifying {
     func didUpdateFavicon()
@@ -81,10 +82,16 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
     }
 
     @MainActor
-    func faviconUserScript(_ script: FaviconUserScript, didRequestUpdateFaviconForHost host: String, withUrl url: URL?) {
+    func faviconUserScript(_ faviconUserScript: FaviconUserScript,
+                           didFindFaviconLinks faviconLinks: [FaviconUserScript.FaviconLink],
+                           for documentUrl: URL,
+                           in webView: WKWebView?) {
         assert(Thread.isMainThread)
 
-        favicons.loadFavicon(forDomain: host, fromURL: url, intoCache: .tabs) { [weak self] image in
+        guard let host = documentUrl.host else { return }
+        let faviconUrl = preferredFaviconURL(from: faviconLinks)
+
+        favicons.loadFavicon(forDomain: host, fromURL: faviconUrl, intoCache: .tabs) { [weak self] image in
             guard let self = self else { return }
             self.tab.didUpdateFavicon()
             guard featureFlagger.isFeatureOn(.createFireproofFaviconUpdaterSecureVaultInBackground) else {
@@ -93,6 +100,23 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
             }
             replaceFireproofFaviconIfNecessary(image, forHost: host)
         }
+    }
+
+    private func preferredFaviconURL(from faviconLinks: [FaviconUserScript.FaviconLink]) -> URL? {
+        guard !faviconLinks.isEmpty else { return nil }
+
+        let normalizedLinks = faviconLinks.map { (link: $0, rel: $0.rel.lowercased()) }
+        if let link = normalizedLinks.first(where: { $0.rel.contains("apple-touch-icon-precomposed") })?.link {
+            return link.href
+        }
+        if let link = normalizedLinks.first(where: { $0.rel.contains("apple-touch-icon") })?.link {
+            return link.href
+        }
+        if let link = normalizedLinks.first(where: { $0.rel.contains("icon") || $0.rel.contains("favicon") })?.link {
+            return link.href
+        }
+
+        return faviconLinks.first?.href
     }
 
     private func replaceFireproofFaviconIfNecessary(_ image: UIImage?, forHost host: String) {
