@@ -288,7 +288,6 @@ struct TabLockOverlayContent: View {
                 .offset(y: showElements ? 0 : 16)
             }
             .scaleEffect(showElements ? 1 : 0.3)
-            .opacity(showElements ? 1 : 0)
             .animation(baseAnimation, value: showElements)
         }
     }
