@@ -165,15 +165,15 @@ final class TabSearchTextField: UIView {
     }
 
     func showCancelButton(animated: Bool = true) {
-        let duration = animated ? 0.3 : 0
-        UIView.animate(withDuration: duration) {
+        let duration = animated ? 0.25 : 0
+        UIView.animate(withDuration: duration, delay: 0, options: .curveEaseOut) {
             self.cancelButton.alpha = 1.0
         }
     }
 
     func hideCancelButton(animated: Bool = true) {
-        let duration = animated ? 0.3 : 0
-        UIView.animate(withDuration: duration) {
+        let duration = animated ? 0.25 : 0
+        UIView.animate(withDuration: duration, delay: 0, options: .curveEaseIn) {
             self.cancelButton.alpha = 0.0
         }
     }

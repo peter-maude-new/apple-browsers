@@ -713,6 +713,10 @@ extension TabSwitcherViewController: UICollectionViewDataSource {
     /// Get the tab at a given index path, accounting for search filtering
     private func getTab(at indexPath: IndexPath) -> Tab {
         if isSearching {
+            guard indexPath.row < filteredTabs.count else {
+                // Fallback to prevent crash if data is inconsistent
+                return tabsModel.get(tabAt: 0)
+            }
             return filteredTabs[indexPath.row]
         } else {
             return tabsModel.get(tabAt: indexPath.row)
@@ -845,13 +849,21 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         let collectionViewOffset = Constants.trackerInfoTopSpacing + searchBarHeight
         collectionViewTopConstraint?.constant = collectionViewOffset
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
-            self.searchBarContainer.alpha = 1.0 // Fade in
-            self.view.layoutIfNeeded()
-        }) { _ in
-            // Make search text field first responder after animation
-            self.searchTextField.becomeFirstResponder()
-        }
+        UIView.animate(
+            withDuration: 0.35,
+            delay: 0,
+            usingSpringWithDamping: 0.85,
+            initialSpringVelocity: 0.0,
+            options: [.curveEaseInOut, .allowUserInteraction],
+            animations: {
+                self.searchBarContainer.alpha = 1.0
+                self.view.layoutIfNeeded()
+            },
+            completion: { _ in
+                // Focus search field after animation completes
+                self.searchTextField.becomeFirstResponder()
+            }
+        )
     }
 
     private func hideSearchBar() {
@@ -873,10 +885,18 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         // Update collection view constraint back to original position
         collectionViewTopConstraint?.constant = Constants.trackerInfoTopSpacing
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: {
-            self.searchBarContainer.alpha = 0.0 // Fade out
-            self.view.layoutIfNeeded()
-        })
+        UIView.animate(
+            withDuration: 0.35,
+            delay: 0,
+            usingSpringWithDamping: 0.85,
+            initialSpringVelocity: 0.3,
+            options: [.curveEaseInOut, .beginFromCurrentState],
+            animations: {
+                self.searchBarContainer.alpha = 0.0
+                self.view.layoutIfNeeded()
+            },
+            completion: nil
+        )
     }
 
 }
@@ -1064,18 +1084,17 @@ extension TabSwitcherViewController: TabSearchTextFieldDelegate {
     }
 
     private func performSearch(query: String) {
-        guard !query.isEmpty else {
-            // When search is cleared, show all tabs (not filtered)
-            isSearching = false
-            filteredTabs = []
+        // Ensure we're in search mode
+        if !isSearching {
+            prepareForSearching()
+        }
+
+        if query.isEmpty {
+            // When search is cleared, show all tabs
+            filteredTabs = tabsModel.tabs
             updateSearchBackgroundView()
             collectionView.reloadData()
             return
-        }
-
-        // Ensure we're in search mode when typing
-        if !isSearching {
-            isSearching = true
         }
 
         let searcher = TabsSearch()
@@ -1098,7 +1117,10 @@ extension TabSwitcherViewController: TabSearchTextFieldDelegate {
             transitionFromMultiSelect()
         }
         isSearching = true
+        // Initialize with all tabs to prevent data inconsistency
+        filteredTabs = tabsModel.tabs
         collectionView.dragDelegate = nil // Disable drag during search
+        collectionView.reloadData() // Reload with search data source
 
         updateUIForSelectionMode()
     }
@@ -1117,10 +1139,8 @@ extension TabSwitcherViewController: TabSearchTextFieldDelegate {
 
         updateUIForSelectionMode()
 
-        // Hide search bar after a delay if user didn't type anything meaningful
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.hideSearchBar()
-        }
+        // Hide search bar immediately
+        hideSearchBar()
     }
 
     private func updateSearchBackgroundView() {
