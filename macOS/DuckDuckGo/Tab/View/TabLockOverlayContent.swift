@@ -98,6 +98,10 @@ struct TabLockOverlayContent: View {
     private let animationSpeed: Double = 1.0
     #endif
 
+    // Circle sizes: Blob1=210, Blob2=206, Blob3=204, BlackCircle=198
+    // Use half of widest (Blob1) to ensure all circles are hidden when retracted
+    private let lockCircleRadius: CGFloat = 105  // 210 / 2
+
     @ObservedObject var viewModel: TabLockOverlayViewModel
 
     @State private var blob1Rotation: Double = .random(in: 0..<360)
@@ -111,23 +115,27 @@ struct TabLockOverlayContent: View {
 
     var body: some View {
         GeometryReader { geometry in
+            let panelWidth = geometry.size.width * 0.5
+            let visibleOffset = panelWidth / 2  // 0.25w - positions panel edge at center
+            let hiddenOffset = visibleOffset + panelWidth + lockCircleRadius  // 0.75w + 105
+
             ZStack {
                 Color.clear
                 rightPanelView
-                    .frame(width: geometry.size.width * 0.5)
+                    .frame(width: panelWidth)
                     .offset(x: viewModel.isVisible
-                        ? geometry.size.width * 0.25 + panelBounceOffset
-                        : geometry.size.width)
+                        ? visibleOffset + panelBounceOffset
+                        : hiddenOffset)
 
                 ZStack {
                     leftPanelView
                     centerContent
-                        .offset(x: geometry.size.width * 0.25)
+                        .offset(x: visibleOffset)
                 }
-                .frame(width: geometry.size.width * 0.5)
+                .frame(width: panelWidth)
                 .offset(x: viewModel.isVisible
-                    ? -geometry.size.width * 0.25 - panelBounceOffset
-                    : -geometry.size.width * 1.5)
+                    ? -visibleOffset - panelBounceOffset
+                    : -hiddenOffset)
             }
             .contentShape(Rectangle())
             .onTapGesture {
