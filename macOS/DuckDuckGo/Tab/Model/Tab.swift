@@ -305,6 +305,13 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         self.lockConfig = lockConfig
         self.isLocked = lockConfig != nil
 
+        // For locked tabs being restored, save interaction state for unlock instead of loading it
+        if lockConfig != nil, let data = interactionStateData {
+            self.savedInteractionStateForReload = data
+            self.isContentUnloaded = true
+            self.interactionState = .none
+        }
+
         self.specialPagesUserScript = SpecialPagesUserScript()
         specialPagesUserScript?
             .withAllSubfeatures()
@@ -719,6 +726,9 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     }
 
     private func handleUrlDidChange() {
+        // Locked tabs preserve their original content for state restoration
+        guard !isLocked else { return }
+
         if let url = webView.url {
             let content = TabContent.contentFromURL(url, source: .webViewUpdated)
 
@@ -829,6 +839,11 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     }
 
     func getActualInteractionStateData() -> Data? {
+        // Return saved state when content is unloaded (e.g., locked tabs)
+        if isContentUnloaded, let savedState = savedInteractionStateForReload {
+            return savedState
+        }
+
         if let pinnedTabsManager = pinnedTabsManagerProvider.pinnedTabsManager(for: self),
            pinnedTabsManager.isTabPinned(self) {
             // To optimize the performance, don't save interaction state data for pinned tabs
@@ -1094,6 +1109,14 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     @MainActor(unsafe)
     @discardableResult
     private func reloadIfNeeded(source reloadIfNeededSource: ReloadIfNeededSource) -> ExpectedNavigation? {
+        // Locked tabs with unloaded content should show about:blank, not the actual URL
+        if isLocked && isContentUnloaded {
+            if webView.url != .blankPage {
+                webView.load(URLRequest(url: .blankPage))
+            }
+            return nil
+        }
+
         guard let url = content.urlForWebView,
               shouldReload(url, source: reloadIfNeededSource) else { return nil }
 

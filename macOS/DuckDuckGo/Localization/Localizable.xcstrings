@@ -14519,30 +14519,6 @@
         }
       }
     },
-    "browser.lock.click" : {
-      "comment" : "Lock screen instruction label",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Click to unlock"
-          }
-        }
-      }
-    },
-    "browser.unlock.reason" : {
-      "comment" : "Touch ID prompt reason",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock DuckDuckGo"
-          }
-        }
-      }
-    },
     "burn.fireproofing.explanation.message" : {
       "comment" : "Explanation of what Fireproofing site cookies and data means.",
       "localizations" : {

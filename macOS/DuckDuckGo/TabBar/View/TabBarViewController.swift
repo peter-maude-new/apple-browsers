@@ -1979,7 +1979,11 @@ extension TabBarViewController: TabBarViewItemDelegate {
               let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
 
         Task {
-            _ = await BrowserLockCoordinator.shared.unlockTab(tab)
+            let success = await BrowserLockCoordinator.shared.unlockTab(tab)
+            if success {
+                let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+                tabCollectionViewModel.select(at: tabIndex)
+            }
         }
     }
 
@@ -2012,42 +2016,46 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
         let alert = NSAlert()
         alert.messageText = "Lock Tab"
-        alert.informativeText = "Enter a disguise title and emoji for this tab."
+        alert.informativeText = "Enter a disguise title for this tab."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Lock")
         alert.addButton(withTitle: "Cancel")
 
-        // Create accessory view with text field and emoji picker
-        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 70))
+        // Create accessory view with text field
+        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 30))
 
         let titleLabel = NSTextField(labelWithString: "Title:")
-        titleLabel.frame = NSRect(x: 0, y: 45, width: 50, height: 20)
+        titleLabel.frame = NSRect(x: 0, y: 5, width: 50, height: 20)
         accessoryView.addSubview(titleLabel)
 
-        let titleField = NSTextField(frame: NSRect(x: 55, y: 42, width: 245, height: 24))
+        let titleField = NSTextField(frame: NSRect(x: 55, y: 2, width: 245, height: 24))
         titleField.placeholderString = "Enter disguise title"
         accessoryView.addSubview(titleField)
 
-        let emojiLabel = NSTextField(labelWithString: "Emoji:")
-        emojiLabel.frame = NSRect(x: 0, y: 10, width: 50, height: 20)
-        accessoryView.addSubview(emojiLabel)
-
-        let emojiField = NSTextField(frame: NSRect(x: 55, y: 7, width: 50, height: 24))
-        emojiField.stringValue = "🔒"
-        emojiField.alignment = .center
-        accessoryView.addSubview(emojiField)
-
         alert.accessoryView = accessoryView
 
+        let colorIndex = nextAvailableColorIndex()
         alert.beginSheetModal(for: window) { response in
             guard response == .alertFirstButtonReturn else { return }
 
             let title = titleField.stringValue.isEmpty ? "Locked Tab" : titleField.stringValue
-            let emoji = emojiField.stringValue.isEmpty ? "🔒" : String(emojiField.stringValue.prefix(2))
-
-            let config = TabLockConfig(title: title, emoji: emoji)
+            let config = TabLockConfig(title: title, colorIndex: colorIndex)
             BrowserLockCoordinator.shared.lockTab(tab, with: config)
         }
+    }
+
+    private func nextAvailableColorIndex() -> Int {
+        let regularTabs = tabCollectionViewModel.tabCollection.tabs
+        let pinnedTabs = tabCollectionViewModel.pinnedTabsCollection?.tabs ?? []
+        let allTabs = regularTabs + pinnedTabs
+
+        let usedIndices = Set(allTabs.compactMap { $0.lockConfig?.colorIndex })
+
+        // Find first unused index, or random if all 8 used
+        for i in 0..<8 where !usedIndices.contains(i) {
+            return i
+        }
+        return Int.random(in: 0..<8)
     }
 
     func otherTabBarViewItemsState(for tabBarViewItem: TabBarViewItem) -> OtherTabBarViewItemsState {

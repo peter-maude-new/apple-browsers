@@ -24,36 +24,31 @@ import Foundation
 struct TabLockConfig: Equatable, Codable {
     /// The custom title displayed in the tab bar when locked
     let title: String
+    /// Index into the 8-color palette (0-7) for the lock icon
+    let colorIndex: Int
 
-    /// The emoji displayed as the favicon when locked
-    let emoji: String
-
-    init(title: String, emoji: String) {
+    init(title: String, colorIndex: Int) {
         self.title = title
-        self.emoji = emoji
+        self.colorIndex = colorIndex
     }
 }
 
 // MARK: - NSSecureCoding Support
 
 extension TabLockConfig {
-    private enum CodingKeys: String, CodingKey {
-        case title
-        case emoji
-    }
 
     /// Encode to NSCoder for Tab persistence
     func encode(with coder: NSCoder, prefix: String) {
         coder.encode(title, forKey: "\(prefix).title")
-        coder.encode(emoji, forKey: "\(prefix).emoji")
+        coder.encode(colorIndex, forKey: "\(prefix).colorIndex")
     }
 
     /// Decode from NSCoder for Tab restoration
     static func decode(from decoder: NSCoder, prefix: String) -> TabLockConfig? {
-        guard let title = decoder.decodeObject(of: NSString.self, forKey: "\(prefix).title") as? String,
-              let emoji = decoder.decodeObject(of: NSString.self, forKey: "\(prefix).emoji") as? String else {
+        guard let title = decoder.decodeObject(of: NSString.self, forKey: "\(prefix).title") as? String else {
             return nil
         }
-        return TabLockConfig(title: title, emoji: emoji)
+        let colorIndex = decoder.decodeInteger(forKey: "\(prefix).colorIndex")
+        return TabLockConfig(title: title, colorIndex: colorIndex)
     }
 }

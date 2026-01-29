@@ -24,6 +24,7 @@ extension Tab {
         $content.asVoid()
             .merge(with: $favicon.asVoid())
             .merge(with: $title.asVoid())
+            .merge(with: $lockConfig.asVoid())
             .eraseToAnyPublisher()
     }
 }

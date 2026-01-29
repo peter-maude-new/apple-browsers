@@ -1751,8 +1751,6 @@ struct UserText {
     static let newTabTooltip = NSLocalizedString("tooltip.tab.new-tab", value: "Open a new tab", comment: "Tooltip for the New Tab button")
     static let clearBrowsingHistoryTooltip = NSLocalizedString("tooltip.fire.clear-browsing-history", value: "Clear browsing history", comment: "Tooltip for the Fire button")
     static let lockBrowserTooltip = NSLocalizedString("tooltip.lock.browser", value: "Lock Browser", comment: "Tooltip for lock browser button")
-    static let browserUnlockReason = NSLocalizedString("browser.unlock.reason", value: "Unlock DuckDuckGo", comment: "Touch ID prompt reason")
-    static let browserLockClickToUnlock = NSLocalizedString("browser.lock.click", value: "Click to unlock", comment: "Lock screen instruction label")
 
     // Tab Lock
     static let tabLockClickToUnlock = NSLocalizedString("tab.lock.click", value: "Click to unlock", comment: "Tab lock overlay instruction label")
