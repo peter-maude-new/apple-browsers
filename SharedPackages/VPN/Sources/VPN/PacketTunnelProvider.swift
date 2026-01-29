@@ -486,8 +486,24 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
         protocolConfiguration as? NETunnelProviderProtocol
     }
 
+    // TODO: Remove this debug code before merging
     private func runDebugSimulations(options: StartupOptions) throws {
-        if options.simulateError {
+        // Force error on every startup for testing error UI
+        let errorIndex = UserDefaults.standard.integer(forKey: "vpn.debug.errorIndex")
+        UserDefaults.standard.set((errorIndex + 1) % 5, forKey: "vpn.debug.errorIndex")
+
+        switch errorIndex {
+        case 0:
+            throw TunnelError.startingTunnelWithoutAuthToken(internalError: NSError(domain: "test", code: 0))
+        case 1:
+            throw TunnelError.couldNotGenerateTunnelConfiguration(internalError: NSError(domain: "test", code: 0))
+        case 2:
+            throw TunnelError.settingsMissing
+        case 3:
+            throw TunnelError.tokenReset
+        case 4:
+            throw TunnelError.vpnAccessRevoked(NSError(domain: "test", code: 0))
+        default:
             throw TunnelError.simulateTunnelFailureError
         }
 
@@ -1368,17 +1384,42 @@ open class PacketTunnelProvider: NEPacketTunnelProvider {
         try await manager.loadFromPreferences()
     }
 
+    // TODO: Remove this debug code before merging
     private func simulateTunnelFailure(completionHandler: ((Data?) -> Void)? = nil) {
-        Task {
+        Task { @MainActor in
             Logger.networkProtection.log("Simulating tunnel failure")
 
-            adapter.stop { [weak self] error in
-                if let error {
-                    self?.debugEvents.fire(error.networkProtectionError)
-                    Logger.networkProtection.error("🔴 Failed to stop WireGuard adapter: \(error.localizedDescription, privacy: .public)")
+            // Cycle through different error types for testing the error UI
+            let errorIndex = UserDefaults.standard.integer(forKey: "vpn.debug.errorIndex")
+            UserDefaults.standard.set((errorIndex + 1) % 5, forKey: "vpn.debug.errorIndex")
+
+            let error: TunnelError
+            switch errorIndex {
+            case 0:
+                error = .startingTunnelWithoutAuthToken(internalError: NSError(domain: "test", code: 0))
+            case 1:
+                error = .couldNotGenerateTunnelConfiguration(internalError: NSError(domain: "test", code: 0))
+            case 2:
+                error = .settingsMissing
+            case 3:
+                error = .tokenReset
+            case 4:
+                error = .vpnAccessRevoked(NSError(domain: "test", code: 0))
+            default:
+                error = .simulateTunnelFailureError
+            }
+
+            Logger.networkProtection.log("Simulating error: \(error.localizedDescription ?? "unknown", privacy: .public)")
+            self.controllerErrorStore.lastErrorMessage = error.localizedDescription
+            self.connectionStatus = .disconnected
+
+            adapter.stop { [weak self] adapterError in
+                if let adapterError {
+                    self?.debugEvents.fire(adapterError.networkProtectionError)
+                    Logger.networkProtection.error("🔴 Failed to stop WireGuard adapter: \(adapterError.localizedDescription, privacy: .public)")
                 }
 
-                completionHandler?(error.map { ExtensionMessageString($0.localizedDescription).rawValue })
+                completionHandler?(ExtensionMessageString(error.localizedDescription).rawValue)
             }
         }
     }
