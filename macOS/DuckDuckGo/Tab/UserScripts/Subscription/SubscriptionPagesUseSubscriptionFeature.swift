@@ -45,7 +45,7 @@ public struct GetFeatureValue: Encodable {
     let useSubscriptionsAuthV2: Bool = true
     let usePaidDuckAi: Bool
     let useAlternateStripePaymentFlow: Bool
-    let useGetSubscriptionTierOptions: Bool
+    let useGetSubscriptionTierOptions: Bool = true
 }
 
 /// Use Subscription sub-feature
@@ -124,7 +124,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         static let getAuthAccessToken = "getAuthAccessToken"
         static let getFeatureConfig = "getFeatureConfig"
         static let backToSettings = "backToSettings"
-        static let getSubscriptionOptions = "getSubscriptionOptions"
         static let getSubscriptionTierOptions = "getSubscriptionTierOptions"
         static let subscriptionSelected = "subscriptionSelected"
         static let subscriptionChangeSelected = "subscriptionChangeSelected"
@@ -149,7 +148,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         case Handlers.getAuthAccessToken: return getAuthAccessToken
         case Handlers.getFeatureConfig: return getFeatureConfig
         case Handlers.backToSettings: return backToSettings
-        case Handlers.getSubscriptionOptions: return getSubscriptionOptions
         case Handlers.getSubscriptionTierOptions: return getSubscriptionTierOptions
         case Handlers.subscriptionSelected: return subscriptionSelected
         case Handlers.subscriptionChangeSelected: return subscriptionChangeSelected
@@ -208,8 +206,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
     func getFeatureConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         return GetFeatureValue(usePaidDuckAi: subscriptionFeatureAvailability.isPaidAIChatEnabled,
-                               useAlternateStripePaymentFlow: subscriptionFeatureAvailability.isSupportsAlternateStripePaymentFlowEnabled,
-                               useGetSubscriptionTierOptions: subscriptionFeatureAvailability.isTierMessagingEnabled
+                               useAlternateStripePaymentFlow: subscriptionFeatureAvailability.isSupportsAlternateStripePaymentFlowEnabled
         )
     }
 
@@ -222,30 +219,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             self?.notificationCenter.post(name: .subscriptionPageCloseAndOpenPreferences, object: self)
         }
         return nil
-    }
-
-    func getSubscriptionOptions(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        var subscriptionOptions: SubscriptionOptions?
-
-        switch subscriptionPlatform {
-        case .appStore:
-            guard #available(macOS 12.0, *) else { break }
-            subscriptionOptions = await subscriptionManager.storePurchaseManager().subscriptionOptions()
-        case .stripe:
-            switch await stripePurchaseFlow.subscriptionOptions() {
-            case .success(let stripeSubscriptionOptions):
-                subscriptionOptions = stripeSubscriptionOptions
-            case .failure:
-                break
-            }
-        }
-
-        if let subscriptionOptions {
-            guard subscriptionFeatureAvailability.isSubscriptionPurchaseAllowed else { return subscriptionOptions.withoutPurchaseOptions() }
-            return subscriptionOptions
-        } else {
-            return SubscriptionOptions.empty
-        }
     }
 
     func getSubscriptionTierOptions(params: Any, original: WKScriptMessage) async throws -> Encodable? {
