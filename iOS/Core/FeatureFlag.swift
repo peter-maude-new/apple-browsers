@@ -231,9 +231,6 @@ public enum FeatureFlag: String {
     /// https://app.asana.com/1/137249556945/project/1201141132935289/task/1210497696306780?focus=true
     case standaloneMigration
 
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211998610726855?focus=true
-    case tierMessagingEnabled
-
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211998614203542?focus=true
     case allowProTierPurchase
 
@@ -328,7 +325,9 @@ extension FeatureFlag: FeatureFlagDescribing {
              .showWhatsNewPromptOnDemand,
              .webViewFlashPrevention,
              .wideEventPostEndpoint,
-             .dataImportSummarySyncPromotion:
+             .dataImportSummarySyncPromotion,
+             .tabSwitcherTrackerCount,
+             .aiChatAutoAttachContextByDefault:
             true
         default:
             false
@@ -382,7 +381,6 @@ extension FeatureFlag: FeatureFlagDescribing {
              .showHideAIGeneratedImagesSection,
              .standaloneMigration,
              .blackFridayCampaign,
-             .tierMessagingEnabled,
              .allowProTierPurchase,
              .browsingMenuSheetPresentation,
              .browsingMenuSheetEnabledByDefault,
@@ -584,8 +582,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(AIChatSubfeature.showHideAiGeneratedImages))
         case .standaloneMigration:
             return .remoteReleasable(.subfeature(AIChatSubfeature.standaloneMigration))
-        case .tierMessagingEnabled:
-            return .remoteReleasable(.subfeature(PrivacyProSubfeature.tierMessagingEnabled))
         case .allowProTierPurchase:
             return .remoteReleasable(.subfeature(PrivacyProSubfeature.allowProTierPurchase))
         case .browsingMenuSheetPresentation:
@@ -628,8 +624,9 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.webViewFlashPrevention))
         case .wideEventPostEndpoint:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.wideEventPostEndpoint))
-        case .tabSwitcherTrackerCount,
-             .burnSingleTab:
+        case .tabSwitcherTrackerCount:
+            return .internalOnly()
+        case .burnSingleTab:
             return .disabled
         case .genericBackgroundTask:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))

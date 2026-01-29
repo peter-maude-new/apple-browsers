@@ -47,6 +47,7 @@ final class AIChatContextualWebViewController: UIViewController {
     private let featureDiscovery: FeatureDiscovery
     private let featureFlagger: FeatureFlagger
     private var downloadHandler: DownloadHandling
+    private let pixelHandler: AIChatContextualModePixelFiring
 
     private(set) var aiChatContentHandler: AIChatContentHandling
 
@@ -105,19 +106,22 @@ final class AIChatContextualWebViewController: UIViewController {
     ///   - featureFlagger: Feature flagger
     ///   - downloadHandler: Download handler for managing file downloads
     ///   - getPageContext: Closure to get page context (used by ContentHandler for JS getAIChatPageContext requests)
+    ///   - pixelHandler: Pixel handler for contextual mode analytics
     init(aiChatSettings: AIChatSettingsProvider,
          privacyConfigurationManager: PrivacyConfigurationManaging,
          contentBlockingAssetsPublisher: AnyPublisher<ContentBlockingUpdating.NewContent, Never>,
          featureDiscovery: FeatureDiscovery,
          featureFlagger: FeatureFlagger,
          downloadHandler: DownloadHandling,
-         getPageContext: ((PageContextRequestReason) -> AIChatPageContextData?)?) {
+         getPageContext: ((PageContextRequestReason) -> AIChatPageContextData?)?,
+         pixelHandler: AIChatContextualModePixelFiring) {
         self.aiChatSettings = aiChatSettings
         self.privacyConfigurationManager = privacyConfigurationManager
         self.contentBlockingAssetsPublisher = contentBlockingAssetsPublisher
         self.featureDiscovery = featureDiscovery
         self.featureFlagger = featureFlagger
         self.downloadHandler = downloadHandler
+        self.pixelHandler = pixelHandler
 
         let productSurfaceTelemetry = PixelProductSurfaceTelemetry(featureFlagger: featureFlagger, dailyPixelFiring: DailyPixel.self)
         self.aiChatContentHandler = AIChatContentHandler(
@@ -140,6 +144,7 @@ final class AIChatContextualWebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        aiChatContentHandler.fireAIChatTelemetry()
         setupURLObservation()
         setupDownloadHandler()
         if let restoreURL = initialRestoreURL {
@@ -379,6 +384,7 @@ extension AIChatContextualWebViewController: UserContentControllerDelegate {
         }
 
         aiChatContentHandler.setup(with: userScripts.aiChatUserScript, webView: webView, displayMode: .contextual)
+        userScripts.aiChatUserScript.setContextualModePixelHandler(pixelHandler)
 
         isContentHandlerReady = true
         submitPendingPromptIfReady()
