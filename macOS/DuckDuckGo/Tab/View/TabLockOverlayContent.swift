@@ -27,8 +27,10 @@ final class TabLockOverlayViewModel: ObservableObject {
     @Published var shouldAnimateBounce = false
     @Published var shouldAnimateOutBounce = false
     var onUnlockRequested: (() -> Void)?
+    var onViewReady: (() -> Void)?
 
     func animateIn(completion: (() -> Void)? = nil) {
+        print("[LOCK DEBUG] animateIn called, isVisible=\(isVisible), shouldAnimateBounce=\(shouldAnimateBounce)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = true
             completion?()
@@ -45,6 +47,7 @@ final class TabLockOverlayViewModel: ObservableObject {
     }
 
     func animateOut(completion: @escaping () -> Void) {
+        print("[LOCK DEBUG] animateOut called, isVisible=\(isVisible)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = false
             completion()
@@ -61,6 +64,7 @@ final class TabLockOverlayViewModel: ObservableObject {
     }
 
     func showImmediately() {
+        print("[LOCK DEBUG] showImmediately called")
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction) {
@@ -70,6 +74,7 @@ final class TabLockOverlayViewModel: ObservableObject {
     }
 
     func hideImmediately() {
+        print("[LOCK DEBUG] hideImmediately called")
         var transaction = Transaction()
         transaction.disablesAnimations = true
         withTransaction(transaction) {
@@ -120,9 +125,12 @@ struct TabLockOverlayContent: View {
         }
         .onAppear {
             startBlobRotations()
+            viewModel.onViewReady?()
         }
         .onChange(of: viewModel.isVisible) { isVisible in
+            print("[LOCK DEBUG] onChange fired, isVisible=\(isVisible), shouldAnimateBounce=\(viewModel.shouldAnimateBounce), showElements=\(showElements)")
             if isVisible {
+                print("[LOCK DEBUG] Setting showElements to true")
                 // Set showElements - with or without animation depending on mode
                 if viewModel.shouldAnimateBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
                     showElements = true
@@ -152,6 +160,7 @@ struct TabLockOverlayContent: View {
                     }
                 }
             } else {
+                print("[LOCK DEBUG] Setting showElements to false")
                 // Reset lock bounce
                 panelBounceOffset = 0
                 showElements = false

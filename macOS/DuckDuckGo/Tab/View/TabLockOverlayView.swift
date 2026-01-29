@@ -28,6 +28,8 @@ final class TabLockOverlayView: NSView {
 
     private let viewModel = TabLockOverlayViewModel()
     private var hostingView: NSHostingView<TabLockOverlayContent>?
+    private var pendingAnimateIn: (completion: (() -> Void)?, animated: Bool)?
+    private var viewIsReady = false
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -55,15 +57,27 @@ final class TabLockOverlayView: NSView {
         ])
 
         self.hostingView = hosting
+
+        viewModel.onViewReady = { [weak self] in
+            self?.viewIsReady = true
+            guard let pending = self?.pendingAnimateIn else { return }
+            self?.pendingAnimateIn = nil
+            if pending.animated {
+                self?.viewModel.animateIn(completion: pending.completion)
+            } else {
+                self?.viewModel.showImmediately()
+            }
+        }
     }
 
     // MARK: - Animation API
 
     /// Animate the overlay in (called after adding to view hierarchy)
     func animateIn(completion: (() -> Void)? = nil) {
-        viewModel.animateIn()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.86) {
-            completion?()
+        if viewIsReady {
+            viewModel.animateIn(completion: completion)
+        } else {
+            pendingAnimateIn = (completion, true)
         }
     }
 
@@ -76,7 +90,11 @@ final class TabLockOverlayView: NSView {
 
     /// Show overlay immediately without animation
     func showImmediately() {
-        viewModel.showImmediately()
+        if viewIsReady {
+            viewModel.showImmediately()
+        } else {
+            pendingAnimateIn = (nil, false)
+        }
     }
 
     /// Hide overlay immediately without animation

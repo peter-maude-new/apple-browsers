@@ -787,7 +787,12 @@ final class MainViewController: NSViewController {
     }
 
     private func showTabLockView(for tab: Tab, animated: Bool = true) {
-        guard tabLockView == nil else { return }
+        print("[LOCK DEBUG] showTabLockView called, animated=\(animated), tabLockView==nil: \(tabLockView == nil)")
+        guard tabLockView == nil else {
+            print("[LOCK DEBUG] showTabLockView: guard FAILED, returning early")
+            return
+        }
+        print("[LOCK DEBUG] showTabLockView: creating new lock view")
 
         let lockView = TabLockOverlayView()
         lockView.onUnlockRequested = { [weak self, weak tab] in
@@ -808,17 +813,14 @@ final class MainViewController: NSViewController {
         // Show lock container (content stays visible during animation)
         mainView.tabLockContainerView.isHidden = false
 
-        // Trigger show after SwiftUI completes initial layout
         if animated {
-            DispatchQueue.main.async {
-                lockView.animateIn { [weak self, weak tab] in
-                    // Hide content and unload after animation completes
-                    self?.mainView.navigationBarContainerView.isHidden = true
-                    self?.mainView.bookmarksBarContainerView.isHidden = true
-                    self?.mainView.bannerContainerView.isHidden = true
-                    self?.mainView.webContainerView.isHidden = true
-                    tab?.unloadContentForLock()
-                }
+            lockView.animateIn { [weak self, weak tab] in
+                // Hide content and unload after animation completes
+                self?.mainView.navigationBarContainerView.isHidden = true
+                self?.mainView.bookmarksBarContainerView.isHidden = true
+                self?.mainView.bannerContainerView.isHidden = true
+                self?.mainView.webContainerView.isHidden = true
+                tab?.unloadContentForLock()
             }
         } else {
             // Non-animated: hide and unload immediately
@@ -827,16 +829,16 @@ final class MainViewController: NSViewController {
             mainView.bannerContainerView.isHidden = true
             mainView.webContainerView.isHidden = true
             tab.unloadContentForLock()
-            DispatchQueue.main.async {
-                lockView.showImmediately()
-            }
+            lockView.showImmediately()
         }
     }
 
     private func hideTabLockView(animated: Bool = true) {
+        print("[LOCK DEBUG] hideTabLockView called, animated=\(animated)")
         guard let lockView = tabLockView else { return }
 
         let cleanup = { [weak self, weak lockView] in
+            print("[LOCK DEBUG] hideTabLockView cleanup executing")
             guard let self, let lockView, self.tabLockView === lockView else { return }
             lockView.removeFromSuperview()
             self.tabLockView = nil
