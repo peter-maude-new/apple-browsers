@@ -30,7 +30,10 @@ struct MemoryAllocationStatsSnapshot: Codable {
     let totalUsedBytes: UInt64
 }
 
+/// Allows us to provide the `memoryStatsURL` at a `deferred` time.
 ///
+/// - Important:
+///     This is required as `XCTestCase.measure` will create a copy of the `XCTMetric`, and the "root / parent" object cannot be accessed directly.
 ///
 final class MemoryStatsURLProvider {
     var memoryStatsURL: URL?
@@ -38,6 +41,17 @@ final class MemoryStatsURLProvider {
     init(statsURL: URL? = nil) {
         memoryStatsURL = statsURL
     }
+}
+
+/// Measurement Options
+///
+struct MemoryAllocationStatsOptions: OptionSet {
+    let rawValue: Int
+
+    static let measuresInitialState = MemoryAllocationStatsOptions(rawValue: 1 << 0)
+    static let measuresFinalState = MemoryAllocationStatsOptions(rawValue: 1 << 1)
+
+    static let `default`: MemoryAllocationStatsOptions = [.measuresInitialState, .measuresFinalState]
 }
 
 /// `XCMetric` that processes the `MemoryAllocationStats` JSON file, as exported by `MemoryAllocationStatsExporter`.
@@ -49,20 +63,19 @@ final class MemoryAllocationStatsMetric: NSObject, XCTMetric {
     private var finalStatsSnapshot: MemoryAllocationStatsSnapshot?
     private(set) var initialStatsAttachment: XCTAttachment?
     private(set) var finalStatsAttachment: XCTAttachment?
-    private(set) var measureOnlyFinalState: Bool
+    private(set) var options: MemoryAllocationStatsOptions
 
     private var memoryStatsURL: URL {
         memoryStatsURLProvider.memoryStatsURL!
     }
 
-    init(measureOnlyFinalState: Bool = false, memoryStatsURL: URL) {
-        self.measureOnlyFinalState = measureOnlyFinalState
-        self.memoryStatsURLProvider = MemoryStatsURLProvider(statsURL: memoryStatsURL)
-        super.init()
+    convenience init(options: MemoryAllocationStatsOptions = .default, memoryStatsURL: URL) {
+        let provider = MemoryStatsURLProvider(statsURL: memoryStatsURL)
+        self.init(options: options, memoryStatsURLProvider: provider)
     }
 
-    init(measureOnlyFinalState: Bool = false, memoryStatsURLProvider: MemoryStatsURLProvider) {
-        self.measureOnlyFinalState = measureOnlyFinalState
+    init(options: MemoryAllocationStatsOptions = .default, memoryStatsURLProvider: MemoryStatsURLProvider) {
+        self.options = options
         self.memoryStatsURLProvider = memoryStatsURLProvider
         super.init()
     }
@@ -70,13 +83,13 @@ final class MemoryAllocationStatsMetric: NSObject, XCTMetric {
     // MARK: - NSCopying
 
     func copy(with zone: NSZone? = nil) -> Any {
-        MemoryAllocationStatsMetric(measureOnlyFinalState: measureOnlyFinalState, memoryStatsURLProvider: memoryStatsURLProvider)
+        MemoryAllocationStatsMetric(options: options, memoryStatsURLProvider: memoryStatsURLProvider)
     }
 
     // MARK: - XCTMetric
 
     func willBeginMeasuring() {
-        guard measureOnlyFinalState == false, let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Initial Memory Stats") else {
+        guard options.contains(.measuresInitialState), let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Initial Memory Stats") else {
             return
         }
 
@@ -85,7 +98,7 @@ final class MemoryAllocationStatsMetric: NSObject, XCTMetric {
     }
 
     func didStopMeasuring() {
-        guard let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Final Memory Stats") else {
+        guard options.contains(.measuresFinalState), let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Final Memory Stats") else {
             return
         }
 

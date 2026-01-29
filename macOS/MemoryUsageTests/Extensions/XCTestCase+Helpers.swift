@@ -61,7 +61,7 @@ extension XCTestCase {
     ///
     func buildSnapshotMeasurement(iterations: Int, work: @escaping () -> XCUIApplication) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
         let statsURLProvider = MemoryStatsURLProvider()
-        let metric = MemoryAllocationStatsMetric(measureOnlyFinalState: true, memoryStatsURLProvider: statsURLProvider)
+        let metric = MemoryAllocationStatsMetric(options: .measuresFinalState, memoryStatsURLProvider: statsURLProvider)
         let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
 
         let block: () -> Void = {
