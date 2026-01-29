@@ -91,10 +91,13 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate, LegacyFavico
 
         guard let host = documentUrl.host else { return }
 
-        // Use the first available favicon URL (C-S-S already filters SVGs for iOS)
-        let url = faviconLinks.first?.href
+        // Select the best favicon URL - prefer icon over apple-touch-icon
+        let faviconURL: URL? = faviconLinks
+            .first { $0.rel.contains("icon") && !$0.rel.contains("apple-touch") }
+            .map { $0.href }
+            ?? faviconLinks.first.map { $0.href }
 
-        favicons.loadFavicon(forDomain: host, fromURL: url, intoCache: .tabs) { [weak self] image in
+        favicons.loadFavicon(forDomain: host, fromURL: faviconURL, intoCache: .tabs) { [weak self] image in
             guard let self = self else { return }
             self.tab.didUpdateFavicon()
             guard featureFlagger.isFeatureOn(.createFireproofFaviconUpdaterSecureVaultInBackground) else {
