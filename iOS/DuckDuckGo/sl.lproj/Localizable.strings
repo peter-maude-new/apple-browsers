@@ -8,6 +8,9 @@
 "%@ " = "%@ ";
 
 /* No comment provided by engineer. */
+"%@ items" = "%@ items";
+
+/* No comment provided by engineer. */
 "%@%%" = "%@%%";
 
 /* No comment provided by engineer. */
@@ -1426,9 +1429,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Poslano z vašim sporočilom Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Vsebina strani";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai vam zdaj lahko pomaga odgovoriti na vprašanja o strani, ki si jo ogledujete.\n\nVsebina strani je vključena le, če jo priložite. To lahko kadar koli spremenite v nastavitvah.";
 
@@ -1443,6 +1443,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Funkcije umetne inteligence DuckDuckGo so zasebne in neobvezne. Vaši podatki se ne uporabljajo za usposabljanje umetne inteligence.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Priloži vsebino strani";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Povzemi to stran";
@@ -2998,9 +3001,6 @@
 /* Settings screen cell title for toggling full URL visibility in address bar */
 "settings.address.full.url" = "Prikaži polni naslov spletnega mesta";
 
-/* Settings screen cell title for toggling tracker blocking animation in address bar */
-"settings.address.trackers.animation" = "Prikaži v naslovni vrstici";
-
 /* Title for the 'Search & Duck.ai' option in the AI experimental picker */
 "settings.ai.experimental.picker.search_and_duckai" = "Iskanje in Duck.ai";
 
@@ -3376,9 +3376,6 @@
 /* Settings screen cell text for sync and backup */
 "settings.sync" = "Sinhronizacija in varnostno kopiranje";
 
-/* Settings screen cell title for toggling tracker blocking animation in tabs manager */
-"settings.tab.switcher.show.tracker.count" = "Prikaži v upravitelju zavihkov";
-
 /* Settings screen section title for tab-related appearance options */
 "settings.tabs" = "Zavihki";
 
@@ -3390,9 +3387,6 @@
 
 /* Title for the Settings View */
 "settings.title" = "Nastavitve";
-
-/* Settings screen section title for tracker blocking animation options */
-"settings.tracker.blocking.animation.section" = "Animacija blokiranih sledilnikov";
 
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Pomaga blokirati sledilnike tretjih oseb, ki se poskušajo prikriti znotraj spletnega mesta z uporabo DNS.";
@@ -3960,6 +3954,9 @@
 
 /* Confirmation of an action - populated with a domain name */
 "toast.protection.enabled" = "Zaščita zasebnosti je omogočena za %@";
+
+/* No comment provided by engineer. */
+"Total stored: %@" = "Total stored: %@";
 
 /* No comment provided by engineer. */
 "UIAlert" = "UIAlert";

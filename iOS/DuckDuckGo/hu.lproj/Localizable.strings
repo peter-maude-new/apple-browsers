@@ -8,6 +8,9 @@
 "%@ " = "%@ ";
 
 /* No comment provided by engineer. */
+"%@ items" = "%@ items";
+
+/* No comment provided by engineer. */
 "%@%%" = "%@%%";
 
 /* No comment provided by engineer. */
@@ -1426,9 +1429,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Üzeneteddel együtt elküldve a Duck.ai-nak";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Oldal tartalma";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "A Duck.ai mostantól segíthet az éppen megtekintett oldallal kapcsolatos kérdések megválaszolásában.\n\nAz oldal tartalma csak akkor kerül továbbításra, ha csatolod. Ezt bármikor megváltoztathatod a Beállításokban.";
 
@@ -1443,6 +1443,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "A DuckDuckGo AI-funkciói privátak és opcionálisak. Az adataidat nem használjuk fel az AI tanítására.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Oldal tartalmának csatolása";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Oldal összefoglalása";
@@ -2998,9 +3001,6 @@
 /* Settings screen cell title for toggling full URL visibility in address bar */
 "settings.address.full.url" = "Teljes webhelycím megjelenítése";
 
-/* Settings screen cell title for toggling tracker blocking animation in address bar */
-"settings.address.trackers.animation" = "Megjelenítés a címsorban";
-
 /* Title for the 'Search & Duck.ai' option in the AI experimental picker */
 "settings.ai.experimental.picker.search_and_duckai" = "Keresés és Duck.ai";
 
@@ -3376,9 +3376,6 @@
 /* Settings screen cell text for sync and backup */
 "settings.sync" = "Szinkronizálás és biztonsági mentés";
 
-/* Settings screen cell title for toggling tracker blocking animation in tabs manager */
-"settings.tab.switcher.show.tracker.count" = "Megjelenítés a Lapkezelőben";
-
 /* Settings screen section title for tab-related appearance options */
 "settings.tabs" = "Lapok";
 
@@ -3390,9 +3387,6 @@
 
 /* Title for the Settings View */
 "settings.title" = "Beállítások";
-
-/* Settings screen section title for tracker blocking animation options */
-"settings.tracker.blocking.animation.section" = "Blokkolt nyomkövetők animációja";
 
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Segít blokkolni a harmadik féltől származó olyan nyomkövetőket, amelyek DNS segítségével próbálják elrejteni magukat egy webhelyen.";
@@ -3960,6 +3954,9 @@
 
 /* Confirmation of an action - populated with a domain name */
 "toast.protection.enabled" = "Adatvédelem engedélyezve a következőhöz: %@";
+
+/* No comment provided by engineer. */
+"Total stored: %@" = "Total stored: %@";
 
 /* No comment provided by engineer. */
 "UIAlert" = "UIAlert";

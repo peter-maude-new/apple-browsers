@@ -8,6 +8,9 @@
 "%@ " = "%@ ";
 
 /* No comment provided by engineer. */
+"%@ items" = "%@ items";
+
+/* No comment provided by engineer. */
 "%@%%" = "%@%%";
 
 /* No comment provided by engineer. */
@@ -1426,9 +1429,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Envoyé avec votre message à Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Contenu de la page";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai peut désormais vous aider à répondre aux questions concernant la page que vous consultez.\n\nLe contenu de la page n'est inclus que lorsque vous le joignez. Vous pouvez modifier cela à tout moment dans Réglages.";
 
@@ -1443,6 +1443,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Les fonctionnalités de DuckDuckGo AI sont privées et facultatives. Vos données ne servent pas à entraîner l'IA.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Joindre le contenu de la page";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Résumer cette page";
@@ -2998,9 +3001,6 @@
 /* Settings screen cell title for toggling full URL visibility in address bar */
 "settings.address.full.url" = "Afficher l'adresse complète du site";
 
-/* Settings screen cell title for toggling tracker blocking animation in address bar */
-"settings.address.trackers.animation" = "Afficher dans la barre d'adresse";
-
 /* Title for the 'Search & Duck.ai' option in the AI experimental picker */
 "settings.ai.experimental.picker.search_and_duckai" = "Recherche et Duck.ai";
 
@@ -3376,9 +3376,6 @@
 /* Settings screen cell text for sync and backup */
 "settings.sync" = "Synchronisation et sauvegarde";
 
-/* Settings screen cell title for toggling tracker blocking animation in tabs manager */
-"settings.tab.switcher.show.tracker.count" = "Afficher dans le Gestionnaire d'onglets";
-
 /* Settings screen section title for tab-related appearance options */
 "settings.tabs" = "Onglets";
 
@@ -3390,9 +3387,6 @@
 
 /* Title for the Settings View */
 "settings.title" = "Paramètres";
-
-/* Settings screen section title for tracker blocking animation options */
-"settings.tracker.blocking.animation.section" = "Animation des traqueurs bloqués";
 
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Permet de bloquer les traqueurs tiers qui tentent de se dissimuler sur un site Web à l'aide du DNS.";
@@ -3960,6 +3954,9 @@
 
 /* Confirmation of an action - populated with a domain name */
 "toast.protection.enabled" = "Protection de la confidentialité activée pour %@";
+
+/* No comment provided by engineer. */
+"Total stored: %@" = "Total stored: %@";
 
 /* No comment provided by engineer. */
 "UIAlert" = "AlerteIU";

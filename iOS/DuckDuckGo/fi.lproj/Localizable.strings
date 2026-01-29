@@ -8,6 +8,9 @@
 "%@ " = "%@ ";
 
 /* No comment provided by engineer. */
+"%@ items" = "%@ items";
+
+/* No comment provided by engineer. */
 "%@%%" = "%@%%";
 
 /* No comment provided by engineer. */
@@ -1426,9 +1429,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Lähetetty viestisi mukana Duck.ai:lle";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Sivun sisältö";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai voi nyt auttaa vastaamaan katselemaasi sivuun liittyviin kysymyksiin.\n\nSivun sisältö sisällytetään vain, kun liität sen. Voit muuttaa tätä milloin tahansa asetuksista.";
 
@@ -1443,6 +1443,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "DuckDuckGo-tekoälyominaisuudet ovat yksityisiä ja valinnaisia. Tietojasi ei käytetä tekoälyn kouluttamiseen.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Liitä sivun sisältö";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Yhteenveto tästä sivusta";
@@ -2998,9 +3001,6 @@
 /* Settings screen cell title for toggling full URL visibility in address bar */
 "settings.address.full.url" = "Näytä sivuston osoite kokonaan";
 
-/* Settings screen cell title for toggling tracker blocking animation in address bar */
-"settings.address.trackers.animation" = "Näytä osoitekentässä";
-
 /* Title for the 'Search & Duck.ai' option in the AI experimental picker */
 "settings.ai.experimental.picker.search_and_duckai" = "Haku ja Duck.ai";
 
@@ -3376,9 +3376,6 @@
 /* Settings screen cell text for sync and backup */
 "settings.sync" = "Synkronoi ja varmuuskopioi";
 
-/* Settings screen cell title for toggling tracker blocking animation in tabs manager */
-"settings.tab.switcher.show.tracker.count" = "Näytä välilehtien hallinnassa";
-
 /* Settings screen section title for tab-related appearance options */
 "settings.tabs" = "Välilehdet";
 
@@ -3390,9 +3387,6 @@
 
 /* Title for the Settings View */
 "settings.title" = "Asetukset";
-
-/* Settings screen section title for tracker blocking animation options */
-"settings.tracker.blocking.animation.section" = "Seurantaohjelmien estetty animaatio";
 
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Auttaa estämään kolmannen osapuolen seurantalaitteet, jotka yrittävät naamioida itsensä verkkosivustolla DNS:n avulla.";
@@ -3960,6 +3954,9 @@
 
 /* Confirmation of an action - populated with a domain name */
 "toast.protection.enabled" = "Yksityisyydensuoja otettu käyttöön osoitteessa %@";
+
+/* No comment provided by engineer. */
+"Total stored: %@" = "Total stored: %@";
 
 /* No comment provided by engineer. */
 "UIAlert" = "UIAlert";

@@ -8,6 +8,9 @@
 "%@ " = "%@ ";
 
 /* No comment provided by engineer. */
+"%@ items" = "%@ items";
+
+/* No comment provided by engineer. */
 "%@%%" = "%@%%";
 
 /* No comment provided by engineer. */
@@ -1426,9 +1429,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Отправляется вместе с сообщением для Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Содержание страницы";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai теперь отвечает на вопросы о просматриваемых страницах.\n\nСодержимое страницы добавляется только после ее прикрепления. Этот параметр всегда можно изменить в «Настройках».";
 
@@ -1443,6 +1443,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "DuckDuckGo AI — дополнительный конфиденциальный сервис. Ваши данные не применяются для обучения ИИ.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Добавить содержимое страницы";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Кратко изложи содержимое страницы";
@@ -2998,9 +3001,6 @@
 /* Settings screen cell title for toggling full URL visibility in address bar */
 "settings.address.full.url" = "Показывать полный адрес сайта";
 
-/* Settings screen cell title for toggling tracker blocking animation in address bar */
-"settings.address.trackers.animation" = "Показывать в адресной строке";
-
 /* Title for the 'Search & Duck.ai' option in the AI experimental picker */
 "settings.ai.experimental.picker.search_and_duckai" = "Поиск и Duck.ai";
 
@@ -3376,9 +3376,6 @@
 /* Settings screen cell text for sync and backup */
 "settings.sync" = "Синхронизация и резервное копирование";
 
-/* Settings screen cell title for toggling tracker blocking animation in tabs manager */
-"settings.tab.switcher.show.tracker.count" = "Показывать в диспетчере вкладок";
-
 /* Settings screen section title for tab-related appearance options */
 "settings.tabs" = "Вкладки";
 
@@ -3390,9 +3387,6 @@
 
 /* Title for the Settings View */
 "settings.title" = "Настройки";
-
-/* Settings screen section title for tracker blocking animation options */
-"settings.tracker.blocking.animation.section" = "Анимация блокировки трекеров";
 
 /* Description for CNAME cloaking protection feature */
 "settings.tracking.protection.cname.cloaking.description" = "Помогает блокировать сторонние трекеры, которые пытаются маскироваться на сайтах с помощью DNS.";
@@ -3960,6 +3954,9 @@
 
 /* Confirmation of an action - populated with a domain name */
 "toast.protection.enabled" = "Защита конфиденциальности на %@ включена";
+
+/* No comment provided by engineer. */
+"Total stored: %@" = "Total stored: %@";
 
 /* No comment provided by engineer. */
 "UIAlert" = "UIAlert";
