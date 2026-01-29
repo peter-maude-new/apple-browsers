@@ -127,12 +127,30 @@ extension TabSwitcherViewController {
         presentFireConfirmation()
     }
 
-    func transitionToMultiSelect() {
+    func transitionToMultiSelect(preselectTabs: [Tab]? = nil) {
+        // If we have filtered tabs from search, find their indices in the model
+        let preselectIndexPaths: [IndexPath]? = {
+            guard let tabs = preselectTabs else { return nil }
+            return tabs.compactMap { tab in
+                guard let index = tabsModel.indexOf(tab: tab) else { return nil }
+                return IndexPath(row: index, section: 0)
+            }
+        }()
+
         if isSearching {
             finishSearching()
         }
+
         self.isEditing = true
         collectionView.reloadData()
+
+        // Pre-select tabs if specified
+        if let indexPaths = preselectIndexPaths {
+            indexPaths.forEach { path in
+                collectionView.selectItem(at: path, animated: false, scrollPosition: [])
+            }
+        }
+
         updateUIForSelectionMode()
     }
 
@@ -147,6 +165,44 @@ extension TabSwitcherViewController {
         Pixel.fire(pixel: .tabSwitcherCloseAll)
         DailyPixel.fire(pixel: .tabSwitcherCloseAllDaily)
 
+        // Only apply to filtered tabs if there's an actual search query with results
+        let hasActiveSearch = isSearching && !searchQuery.isEmpty && !filteredTabs.isEmpty
+
+        if hasActiveSearch {
+            let tabCount = filteredTabs.count
+            let tabsToClose = filteredTabs
+
+            let alert = UIAlertController(
+                title: UserText.alertTitleCloseAllTabs(withCount: tabCount),
+                message: UserText.alertMessageCloseAllTabs(withCount: tabCount),
+                preferredStyle: .alert)
+
+            alert.addAction(UIAlertAction(title: UserText.closeTabs(withCount: tabCount),
+                                          style: .destructive) { [weak self] _ in
+                guard let self else { return }
+                self.fireConfirmCloseTabsPixel()
+
+                // Find index paths for filtered tabs in the actual model
+                let indexPaths = tabsToClose.compactMap { tab -> IndexPath? in
+                    guard let index = self.tabsModel.indexOf(tab: tab) else { return nil }
+                    return IndexPath(row: index, section: 0)
+                }
+
+                // Cancel search first
+                self.finishSearching()
+
+                // Delete the tabs
+                self.deleteTabsAtIndexPaths(indexPaths)
+            })
+
+            alert.addAction(UIAlertAction(title: UserText.actionCancel,
+                                          style: .cancel) { _ in })
+
+            present(alert, animated: true)
+            return
+        }
+
+        // Default behavior: close all tabs
         let alert = UIAlertController(
             title: UserText.alertTitleCloseAllTabs(withCount: tabsModel.count),
             message: UserText.alertMessageCloseAllTabs(withCount: tabsModel.count),
@@ -520,7 +576,11 @@ extension TabSwitcherViewController {
     func editMenuEnterSelectMode() {
         Pixel.fire(pixel: .tabSwitcherEditMenuSelectTabs)
         DailyPixel.fire(pixel: .tabSwitcherEditMenuSelectTabsDaily)
-        transitionToMultiSelect()
+
+        // Only pre-select filtered tabs if there's an actual search query with results
+        let hasActiveSearch = isSearching && !searchQuery.isEmpty && !filteredTabs.isEmpty
+        let tabsToPreselect = hasActiveSearch ? filteredTabs : nil
+        transitionToMultiSelect(preselectTabs: tabsToPreselect)
     }
 
     func editMenuCloseAllTabs() {
