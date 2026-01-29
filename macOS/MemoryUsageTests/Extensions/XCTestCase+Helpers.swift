@@ -28,8 +28,8 @@ extension XCTestCase {
     ///     rather than in the caller Test. Unfortunately, there's no API that accepts the `line number` / `class`.
     ///
     func buildMemoryMeasurement(application: XCUIApplication, iterations: Int, work: @escaping (_ application: XCUIApplication) -> Void) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
-        let metric = MemoryAllocationStatsMetric(memoryStatsURL: application.memoryStatsURL)
         let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
+        let metric = MemoryAllocationStatsMetric(memoryStatsURL: application.memoryStatsURL)
 
         let block: () -> Void = {
             application.cleanExportMemoryStats()
@@ -38,6 +38,24 @@ extension XCTestCase {
             work(application)
 
             application.cleanExportMemoryStats()
+            self.stopMeasuring()
+        }
+
+        return (metric, options, block)
+    }
+
+    func buildSnapshotMeasurement(iterations: Int, work: @escaping () -> XCUIApplication) -> (metric: MemoryAllocationStatsMetric, options: XCTMeasureOptions, block: () -> Void) {
+        let options = XCTMeasureOptions.buildOptions(iterations: iterations, manualEvents: true)
+        let statsURLProvider = MemoryStatsURLProvider()
+        let metric = MemoryAllocationStatsMetric(measureOnlyFinalState: true, memoryStatsURLProvider: statsURLProvider)
+
+        let block: () -> Void = {
+            self.startMeasuring()
+
+            let application = work()
+            statsURLProvider.memoryStatsURL = application.memoryStatsURL
+            application.cleanExportMemoryStats()
+
             self.stopMeasuring()
         }
 

@@ -30,31 +30,53 @@ struct MemoryAllocationStatsSnapshot: Codable {
     let totalUsedBytes: UInt64
 }
 
+///
+///
+final class MemoryStatsURLProvider {
+    var memoryStatsURL: URL?
+
+    init(statsURL: URL? = nil) {
+        memoryStatsURL = statsURL
+    }
+}
+
 /// `XCMetric` that processes the `MemoryAllocationStats` JSON file, as exported by `MemoryAllocationStatsExporter`.
 ///
 final class MemoryAllocationStatsMetric: NSObject, XCTMetric {
 
-    private let memoryStatsURL: URL
+    private let memoryStatsURLProvider: MemoryStatsURLProvider
     private var initialStatsSnapshot: MemoryAllocationStatsSnapshot?
     private var finalStatsSnapshot: MemoryAllocationStatsSnapshot?
     private(set) var initialStatsAttachment: XCTAttachment?
     private(set) var finalStatsAttachment: XCTAttachment?
+    private(set) var measureOnlyFinalState: Bool
 
-    init(memoryStatsURL: URL) {
-        self.memoryStatsURL = memoryStatsURL
+    private var memoryStatsURL: URL {
+        memoryStatsURLProvider.memoryStatsURL!
+    }
+
+    init(measureOnlyFinalState: Bool = false, memoryStatsURL: URL) {
+        self.measureOnlyFinalState = measureOnlyFinalState
+        self.memoryStatsURLProvider = MemoryStatsURLProvider(statsURL: memoryStatsURL)
+        super.init()
+    }
+
+    init(measureOnlyFinalState: Bool = false, memoryStatsURLProvider: MemoryStatsURLProvider) {
+        self.measureOnlyFinalState = measureOnlyFinalState
+        self.memoryStatsURLProvider = memoryStatsURLProvider
         super.init()
     }
 
     // MARK: - NSCopying
 
     func copy(with zone: NSZone? = nil) -> Any {
-        MemoryAllocationStatsMetric(memoryStatsURL: memoryStatsURL)
+        MemoryAllocationStatsMetric(measureOnlyFinalState: measureOnlyFinalState, memoryStatsURLProvider: memoryStatsURLProvider)
     }
 
     // MARK: - XCTMetric
 
     func willBeginMeasuring() {
-        guard let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Initial Memory Stats") else {
+        guard measureOnlyFinalState == false, let (snapshot, attachment) = try? loadAndDecodeStats(sourceURL: memoryStatsURL, description: "Initial Memory Stats") else {
             return
         }
 
@@ -72,34 +94,28 @@ final class MemoryAllocationStatsMetric: NSObject, XCTMetric {
     }
 
     func reportMeasurements(from startTime: XCTPerformanceMeasurementTimestamp, to endTime: XCTPerformanceMeasurementTimestamp) throws -> [XCTPerformanceMeasurement] {
-        guard let initialStatsSnapshot else {
-            XCTFail("Missing Initial Memory Measurement")
-            return []
+        let initialMemoryUsed = initialStatsSnapshot.map { snapshot in
+            XCTPerformanceMeasurement(
+                identifier: "com.duckduckgo.memory.allocations.used.initial",
+                displayName: "Initial Memory Used",
+                doubleValue: Double(snapshot.totalUsedBytes),
+                unitSymbol: "Bytes"
+            )
         }
 
-        guard let finalStatsSnapshot else {
-            XCTFail("Missing Final Memory Measurement")
-            return []
+        let finalMemoryUsed = finalStatsSnapshot.map { snapshot in
+            XCTPerformanceMeasurement(
+                identifier: "com.duckduckgo.memory.allocations.used.final",
+                displayName: "Final Memory Used",
+                doubleValue: Double(snapshot.totalUsedBytes),
+                unitSymbol: "Bytes"
+            )
         }
-
-        let initialMemoryUsed = XCTPerformanceMeasurement(
-            identifier: "com.duckduckgo.memory.allocations.used.initial",
-            displayName: "Initial Memory Used",
-            doubleValue: Double(initialStatsSnapshot.totalUsedBytes),
-            unitSymbol: "Bytes"
-        )
-
-        let finalMemoryUsed = XCTPerformanceMeasurement(
-            identifier: "com.duckduckgo.memory.allocations.used.final",
-            displayName: "Final Memory Used",
-            doubleValue: Double(finalStatsSnapshot.totalUsedBytes),
-            unitSymbol: "Bytes"
-        )
 
         // Add attachments to test results
         runAllocationAttachmentsActivity()
 
-        return [finalMemoryUsed, initialMemoryUsed]
+        return [finalMemoryUsed, initialMemoryUsed].compactMap { $0 }
     }
 }
 
