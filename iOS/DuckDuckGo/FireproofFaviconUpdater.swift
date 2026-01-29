@@ -47,7 +47,7 @@ extension Favicons: FaviconProviding {
 
 }
 
-class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
+class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate, LegacyFaviconUserScriptDelegate {
 
     public static let deleteFireproofFaviconNotification = Notification.Name("com.duckduckgo.app.FireproofFaviconUpdaterDeleteBookmarkFavicon")
 
@@ -104,6 +104,25 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
             replaceFireproofFaviconIfNecessary(image, forHost: host)
         }
     }
+
+    // MARK: - LegacyFaviconUserScriptDelegate (fallback when cssFaviconMessaging is OFF)
+
+    @MainActor
+    func legacyFaviconUserScript(_ script: LegacyFaviconUserScript, didRequestUpdateFaviconForHost host: String, withUrl url: URL?) {
+        assert(Thread.isMainThread)
+
+        favicons.loadFavicon(forDomain: host, fromURL: url, intoCache: .tabs) { [weak self] image in
+            guard let self = self else { return }
+            self.tab.didUpdateFavicon()
+            guard featureFlagger.isFeatureOn(.createFireproofFaviconUpdaterSecureVaultInBackground) else {
+                legacyReplaceFireproofFaviconIfNecessary(image, forHost: host)
+                return
+            }
+            replaceFireproofFaviconIfNecessary(image, forHost: host)
+        }
+    }
+
+    // MARK: - Common favicon replacement logic
 
     private func replaceFireproofFaviconIfNecessary(_ image: UIImage?, forHost host: String) {
         guard let image = image else { return }

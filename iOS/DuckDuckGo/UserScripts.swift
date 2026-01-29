@@ -55,7 +55,8 @@ final class UserScripts: UserScriptsProvider {
     var youtubePlayerUserScript: YoutubePlayerUserScript?
     var specialErrorPageUserScript: SpecialErrorPageUserScript?
 
-    private(set) var faviconScript = FaviconUserScript()
+    private(set) var faviconScript: FaviconUserScript?
+    private(set) var legacyFaviconScript: LegacyFaviconUserScript?
     private(set) var findInPageScript = FindInPageUserScript()
     private(set) var fullScreenVideoScript = FullScreenVideoUserScript()
     private(set) var printingUserScript = PrintingUserScript()
@@ -113,7 +114,15 @@ final class UserScripts: UserScriptsProvider {
             featureFlagProvider: subscriptionFeatureFlagAdapter,
             navigationDelegate: subscriptionNavigationHandler,
             debugHost: aiChatDebugSettings.messagePolicyHostname)
-        contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
+
+        // Conditionally instantiate favicon script based on feature flag
+        if featureFlagger.isFeatureOn(.cssFaviconMessaging) {
+            faviconScript = FaviconUserScript()
+            contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript!)
+        } else {
+            legacyFaviconScript = LegacyFaviconUserScript()
+        }
+
         contentScopeUserScriptIsolated.registerSubfeature(delegate: aiChatUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: subscriptionUserScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: serpSettingsUserScript)
@@ -137,6 +146,7 @@ final class UserScripts: UserScriptsProvider {
         findInPageScript,
         surrogatesScript,
         contentBlockerUserScript,
+        legacyFaviconScript,  // Only included when feature flag is OFF
         fullScreenVideoScript,
         autofillUserScript,
         printingUserScript,
