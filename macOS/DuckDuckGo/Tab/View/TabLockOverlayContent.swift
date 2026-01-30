@@ -278,7 +278,7 @@ struct TabLockOverlayContent: View {
                         .frame(width: 118, height: 68)
 
                     Text(UserText.tabLockClickToUnlock)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white)
                 }
                 .opacity(viewModel.contentVisible ? 1 : 0)
