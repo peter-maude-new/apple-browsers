@@ -129,22 +129,3 @@ extension OnboardingTheme.ColorPalette {
     )
 
 }
-
-// MARK: - SwiftUI Environment
-
-private struct OnboardingThemeKey: EnvironmentKey {
-    static let defaultValue: OnboardingTheme = .rebranding2026
-}
-
-extension EnvironmentValues {
-    var onboardingTheme: OnboardingTheme {
-        get { self[OnboardingThemeKey.self] }
-        set { self[OnboardingThemeKey.self] = newValue }
-    }
-}
-
-extension View {
-    func onboardingTheme(_ theme: OnboardingTheme) -> some View {
-        environment(\.onboardingTheme, theme)
-    }
-}
