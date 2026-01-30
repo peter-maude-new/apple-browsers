@@ -18,11 +18,11 @@
 //
 
 import BrowserServicesKit
+import Core
+import Persistence
 import Bookmarks
 import CoreData
-import Core
 import os.log
-import Persistence
 import UserScript
 import WebKit
 
