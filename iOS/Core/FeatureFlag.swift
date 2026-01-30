@@ -304,6 +304,9 @@ public enum FeatureFlag: String {
     
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212875994217788?focus=true
     case genericBackgroundTask
+
+    /// Tab search functionality in tab switcher
+    case searchTabs
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -329,7 +332,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .webViewFlashPrevention,
              .wideEventPostEndpoint,
              .dataImportSummarySyncPromotion,
-             .aiChatAutoAttachContextByDefault:
+             .aiChatAutoAttachContextByDefault,
+             .searchTabs:
             true
         default:
             false
@@ -405,7 +409,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .genericBackgroundTask,
              .webViewFlashPrevention,
              .tabSwitcherTrackerCount,
-             .burnSingleTab:
+             .burnSingleTab,
+             .searchTabs:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -634,6 +639,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .genericBackgroundTask:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))
+        case .searchTabs:
+            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.searchTabs))
         }
     }
 }

@@ -229,27 +229,30 @@ class TabSwitcherViewController: UIViewController {
             oldConstraint.isActive = false
         }
 
-        // Set search bar container top constraint based on bar position
-        // Initially positioned off-screen (hidden above visible area)
-        let searchBarTopOffset = isSearchBarRevealed ? 0 : -searchBarHeight
-        if isBottomBar {
-            // Title bar at bottom -> search bar at top safe area
-            searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: searchBarTopOffset
-            )
-        } else {
-            // Title bar at top -> search bar below title bar
-            searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
-                equalTo: titleBarView.bottomAnchor,
-                constant: searchBarTopOffset
-            )
+        // Set search bar container constraints only if feature is enabled and container exists
+        if let searchBarContainer = searchBarContainer {
+            // Set search bar container top constraint based on bar position
+            // Initially positioned off-screen (hidden above visible area)
+            let searchBarTopOffset = isSearchBarRevealed ? 0 : -searchBarHeight
+            if isBottomBar {
+                // Title bar at bottom -> search bar at top safe area
+                searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
+                    equalTo: view.safeAreaLayoutGuide.topAnchor,
+                    constant: searchBarTopOffset
+                )
+            } else {
+                // Title bar at top -> search bar below title bar
+                searchBarContainerTopConstraint = searchBarContainer.topAnchor.constraint(
+                    equalTo: titleBarView.bottomAnchor,
+                    constant: searchBarTopOffset
+                )
+            }
+            searchBarContainerTopConstraint?.isActive = true
         }
-        searchBarContainerTopConstraint?.isActive = true
 
         // Collection view top constraint - adjust for search bar if revealed
         // Only add spacing when search bar is revealed
-        let collectionViewOffset = isSearchBarRevealed ? searchBarHeight : 0
+        let collectionViewOffset = (searchBarContainer != nil && isSearchBarRevealed) ? searchBarHeight : 0
         if isBottomBar {
             collectionViewTopConstraint = collectionView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
@@ -292,6 +295,11 @@ class TabSwitcherViewController: UIViewController {
     }
 
     private func setupSearchBar() {
+        // Check feature flag - exit early if search tabs feature is disabled
+        guard featureFlagger.isFeatureOn(.searchTabs) else {
+            return
+        }
+
         // Create container for search bar
         searchBarContainer = UIView()
         searchBarContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -840,6 +848,8 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
 
     private func revealSearchBar() {
         guard !isSearchBarRevealed else { return }
+        guard featureFlagger.isFeatureOn(.searchTabs) else { return }
+        guard searchBarContainer != nil else { return } // Exit if search bar wasn't created
         isSearchBarRevealed = true
 
         let isBottomBar = appSettings.currentAddressBarPosition.isBottom
@@ -876,6 +886,7 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
     private func hideSearchBar() {
         guard isSearchBarRevealed else { return }
         guard !isSearching else { return } // Don't hide while actively searching
+        guard searchBarContainer != nil else { return } // Exit if search bar wasn't created
 
         isSearchBarRevealed = false
 
@@ -1126,6 +1137,9 @@ extension TabSwitcherViewController: TabSearchTextFieldDelegate {
     }
 
     private func prepareForSearching() {
+        // Exit early if search feature is disabled
+        guard featureFlagger.isFeatureOn(.searchTabs), searchBarContainer != nil else { return }
+
         if isEditing {
             transitionFromMultiSelect()
         }
@@ -1139,6 +1153,15 @@ extension TabSwitcherViewController: TabSearchTextFieldDelegate {
     }
 
     func finishSearching() {
+        // Exit early if search feature is disabled or search isn't active
+        guard featureFlagger.isFeatureOn(.searchTabs), searchBarContainer != nil else {
+            // Still reset search state flags
+            isSearching = false
+            searchQuery = ""
+            filteredTabs = []
+            return
+        }
+
         searchTextField.text = ""
         searchTextField.resignFirstResponder()
         searchTextField.hideCancelButton(animated: true)

@@ -214,6 +214,9 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Whether the wide event POST endpoint is enabled
     /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
     case wideEventPostEndpoint
+
+    /// Tab search functionality in tab switcher
+    case searchTabs
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
