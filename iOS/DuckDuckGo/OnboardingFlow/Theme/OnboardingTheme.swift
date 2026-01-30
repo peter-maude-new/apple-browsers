@@ -88,26 +88,35 @@ extension OnboardingTheme.Typography {
 extension OnboardingTheme {
 
     struct ColorPalette: Equatable {
-        // Background
-        let backgroundGradientTop: Color
-        let backgroundGradientBottom: Color
-        let cardBackground: Color
-
-        // Text
-        let textPrimary: Color
-        let textSecondary: Color
-
         // Buttons
-        let primaryButtonBackground: Color
-        let primaryButtonBackgroundPressed: Color
-        let primaryButtonText: Color
+        let defaultButton: Color
+        let secondaryButton: Color
+        let defaultButtonText: Color
         let secondaryButtonText: Color
 
-        // Accents
-        let accent: Color
+        // Layout
+        let border: Color
+        let backgroundAccent: Color
+        let tableSurface: Color
+        let tableSurfaceAccent: Color
 
-        // Legacy
-        let backgroundColor: Color
+        // Icons
+        let iconOrange: Color
+        let iconPink: Color
+        let iconYellow: Color
+        let iconGreen: Color
+        let iconBlue: Color
+        let iconPurple: Color
+        let iconBlack: Color
+
+        // Checkmark
+        let checkMark: Color
+        let checkMarkText: Color
+
+        // Text
+        let title: Color
+        let text: Color
+        let subtext: Color
     }
 
 }
@@ -115,17 +124,26 @@ extension OnboardingTheme {
 extension OnboardingTheme.ColorPalette {
 
     static let rebranding2026 = OnboardingTheme.ColorPalette(
-        backgroundGradientTop: Color(singleUseColor: .onboardingBackgroundGradientTop),
-        backgroundGradientBottom: Color(singleUseColor: .onboardingBackgroundGradientBottom),
-        cardBackground: Color(singleUseColor: .onboardingCardBackground),
-        textPrimary: Color(singleUseColor: .onboardingTextPrimary),
-        textSecondary: Color(singleUseColor: .onboardingTextSecondary),
-        primaryButtonBackground: Color(singleUseColor: .onboardingPrimaryButtonBackground),
-        primaryButtonBackgroundPressed: Color(singleUseColor: .onboardingPrimaryButtonBackgroundPressed),
-        primaryButtonText: Color(singleUseColor: .onboardingPrimaryButtonText),
+        defaultButton: Color(singleUseColor: .onboardingDefaultButton),
+        secondaryButton: Color(singleUseColor: .onboardingSecondaryButton),
+        defaultButtonText: Color(singleUseColor: .onboardingDefaultButtonText),
         secondaryButtonText: Color(singleUseColor: .onboardingSecondaryButtonText),
-        accent: Color(singleUseColor: .onboardingAccent),
-        backgroundColor: Color(singleUseColor: .onboardingBackgroundColor)
+        border: Color(singleUseColor: .onboardingBorder),
+        backgroundAccent: Color(singleUseColor: .onboardingBackgroundAccent),
+        tableSurface: Color(singleUseColor: .onboardingTableSurface),
+        tableSurfaceAccent: Color(singleUseColor: .onboardingTableSurfaceAccent),
+        iconOrange: Color(singleUseColor: .onboardingIconOrange),
+        iconPink: Color(singleUseColor: .onboardingIconPink),
+        iconYellow: Color(singleUseColor: .onboardingIconYellow),
+        iconGreen: Color(singleUseColor: .onboardingIconGreen),
+        iconBlue: Color(singleUseColor: .onboardingIconBlue),
+        iconPurple: Color(singleUseColor: .onboardingIconPurple),
+        iconBlack: Color(singleUseColor: .onboardingIconBlack),
+        checkMark: Color(singleUseColor: .onboardingCheckMark),
+        checkMarkText: Color(singleUseColor: .onboardingCheckMarkText),
+        title: Color(singleUseColor: .onboardingTitle),
+        text: Color(singleUseColor: .onboardingText),
+        subtext: Color(singleUseColor: .onboardingSubtext)
     )
 
 }

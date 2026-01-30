@@ -258,28 +258,46 @@ struct DefaultColorPalette: ColorPaletteDefinition {
             return DynamicColor(lightColor: .white, darkColor: .x161616)
 
         // Onboarding
-        case .onboardingBackgroundGradientTop:
-            return OnboardingColorPalette.backgroundGradientTop
-        case .onboardingBackgroundGradientBottom:
-            return OnboardingColorPalette.backgroundGradientBottom
-        case .onboardingCardBackground:
-            return OnboardingColorPalette.cardBackground
-        case .onboardingTextPrimary:
-            return OnboardingColorPalette.textPrimary
-        case .onboardingTextSecondary:
-            return OnboardingColorPalette.textSecondary
-        case .onboardingPrimaryButtonBackground:
-            return OnboardingColorPalette.primaryButtonBackground
-        case .onboardingPrimaryButtonBackgroundPressed:
-            return OnboardingColorPalette.primaryButtonBackgroundPressed
-        case .onboardingPrimaryButtonText:
-            return OnboardingColorPalette.primaryButtonText
+        case .onboardingDefaultButton:
+            return Onboarding.Colors.defaultButton
+        case .onboardingSecondaryButton:
+            return Onboarding.Colors.secondaryButton
+        case .onboardingDefaultButtonText:
+            return Onboarding.Colors.defaultButtonText
         case .onboardingSecondaryButtonText:
-            return OnboardingColorPalette.secondaryButtonText
-        case .onboardingAccent:
-            return OnboardingColorPalette.accent
-        case .onboardingBackgroundColor:
-            return OnboardingColorPalette.backgroundColor
+            return Onboarding.Colors.secondaryButtonText
+        case .onboardingBorder:
+            return Onboarding.Colors.border
+        case .onboardingBackgroundAccent:
+            return Onboarding.Colors.backgroundAccent
+        case .onboardingTableSurface:
+            return Onboarding.Colors.tableSurface
+        case .onboardingTableSurfaceAccent:
+            return Onboarding.Colors.tableSurfaceAccent
+        case .onboardingIconOrange:
+            return Onboarding.Colors.iconOrange
+        case .onboardingIconPink:
+            return Onboarding.Colors.iconPink
+        case .onboardingIconYellow:
+            return Onboarding.Colors.iconYellow
+        case .onboardingIconGreen:
+            return Onboarding.Colors.iconGreen
+        case .onboardingIconBlue:
+            return Onboarding.Colors.iconBlue
+        case .onboardingIconPurple:
+            return Onboarding.Colors.iconPurple
+        case .onboardingIconBlack:
+            return Onboarding.Colors.iconBlack
+        case .onboardingCheckMark:
+            return Onboarding.Colors.checkMark
+        case .onboardingCheckMarkText:
+            return Onboarding.Colors.checkMarkText
+        case .onboardingTitle:
+            return Onboarding.Colors.title
+        case .onboardingText:
+            return Onboarding.Colors.text
+        case .onboardingSubtext:
+            return Onboarding.Colors.subtext
         }
     }
 }

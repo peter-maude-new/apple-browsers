@@ -81,8 +81,8 @@ struct RebrandedOnboardingView: View {
     private var themedBackground: some View {
         LinearGradient(
             gradient: Gradient(colors: [
-                theme.colorPalette.backgroundGradientTop,
-                theme.colorPalette.backgroundGradientBottom
+                theme.colorPalette.backgroundAccent,
+                theme.colorPalette.backgroundAccent
             ]),
             startPoint: .top,
             endPoint: .bottom

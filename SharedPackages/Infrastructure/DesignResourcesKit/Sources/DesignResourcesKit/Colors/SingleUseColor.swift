@@ -35,15 +35,24 @@ public enum SingleUseColor {
 
     // MARK: - Onboarding Colors
 
-    case onboardingBackgroundGradientTop
-    case onboardingBackgroundGradientBottom
-    case onboardingCardBackground
-    case onboardingTextPrimary
-    case onboardingTextSecondary
-    case onboardingPrimaryButtonBackground
-    case onboardingPrimaryButtonBackgroundPressed
-    case onboardingPrimaryButtonText
+    case onboardingDefaultButton
+    case onboardingSecondaryButton
+    case onboardingDefaultButtonText
     case onboardingSecondaryButtonText
-    case onboardingAccent
-    case onboardingBackgroundColor
+    case onboardingBorder
+    case onboardingBackgroundAccent
+    case onboardingTableSurface
+    case onboardingTableSurfaceAccent
+    case onboardingIconOrange
+    case onboardingIconPink
+    case onboardingIconYellow
+    case onboardingIconGreen
+    case onboardingIconBlue
+    case onboardingIconPurple
+    case onboardingIconBlack
+    case onboardingCheckMark
+    case onboardingCheckMarkText
+    case onboardingTitle
+    case onboardingText
+    case onboardingSubtext
 }
