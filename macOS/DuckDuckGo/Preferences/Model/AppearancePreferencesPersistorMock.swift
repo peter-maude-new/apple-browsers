@@ -42,6 +42,7 @@ final class AppearancePreferencesPersistorMock: AppearancePreferencesPersistor {
     var didDismissHomePagePromotion: Bool
     var showTabsAndBookmarksBarOnFullScreen: Bool
     var syncAppIconWithTheme: Bool
+    var adaptiveDarkModeEnabled: Bool
     var didChangeAnyNewTabPageCustomizationSetting: Bool
 
     init(
@@ -65,6 +66,7 @@ final class AppearancePreferencesPersistorMock: AppearancePreferencesPersistor {
         didDismissHomePagePromotion: Bool = true,
         showTabsAndBookmarksBarOnFullScreen: Bool = false,
         syncAppIconWithTheme: Bool = false,
+        adaptiveDarkModeEnabled: Bool = false,
         didChangeAnyNewTabPageCustomizationSetting: Bool = false
     ) {
         self.showFullURL = showFullURL
@@ -87,6 +89,7 @@ final class AppearancePreferencesPersistorMock: AppearancePreferencesPersistor {
         self.didDismissHomePagePromotion = didDismissHomePagePromotion
         self.showTabsAndBookmarksBarOnFullScreen = showTabsAndBookmarksBarOnFullScreen
         self.syncAppIconWithTheme = syncAppIconWithTheme
+        self.adaptiveDarkModeEnabled = adaptiveDarkModeEnabled
         self.didChangeAnyNewTabPageCustomizationSetting = didChangeAnyNewTabPageCustomizationSetting
     }
 }

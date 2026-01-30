@@ -1266,6 +1266,12 @@ struct UserText {
     static let themeSystem = NSLocalizedString("preferences.appearance.theme.system", value: "System", comment: "In the preferences for themes, the option to select for use the change the mode based on the system preferences.")
     static let themeReset = NSLocalizedString("preferences.appearance.theme.reset", value: "Reset Theme", comment: "In the preferences for themes, the option to reset to the Default Theme Colors.")
     static let syncAppIconWithTheme = NSLocalizedString("preferences.appearance.sync-app-icon-with-theme", value: "Change app icon to match theme", comment: "Checkbox option to sync the app icon with the selected theme")
+
+    static let websiteAppearance = NSLocalizedString("preferences.appearance.website-appearance", value: "Website Appearance", comment: "Website Appearance section header in preferences")
+    static let adaptiveDarkMode = NSLocalizedString("preferences.appearance.adaptive-dark-mode", value: "Use Adaptive Dark Mode", comment: "Toggle label for adaptive dark mode setting")
+    static let adaptiveDarkModeDescription = NSLocalizedString("preferences.appearance.adaptive-dark-mode.description", value: "Adaptive Dark Mode will try to make all websites you visit use a dark color scheme based on your browser appearance settings. Adaptive Dark Mode is powered by ", comment: "Description for adaptive dark mode setting, followed by Dark Reader link")
+    static let darkReaderLinkText = NSLocalizedString("preferences.appearance.dark-reader", value: "Dark Reader", comment: "Dark Reader link text in adaptive dark mode description")
+
     static let addressBar = NSLocalizedString("preferences.appearance.address-bar", value: "Address Bar", comment: "Theme preferences")
     static let showAIChatInAddress = NSLocalizedString("preferences.appearance.show-aichat", value: "Duck.ai", comment: "Option to show AI Chat the address bar")
     static let showAIChatShortcutInAddress = NSLocalizedString("preferences.appearance.show-aichat-shortcut", value: "Duck.ai Shortcut", comment: "Option to show AI Chat shortcut in the address bar")

@@ -88,6 +88,8 @@ final class WebExtensionNavigationBarUpdater {
         }
 
         for (index, context) in loadedExtensions.enumerated() where !buttonIdentifiers.contains(context.uniqueIdentifier) {
+            // Skip bundled extensions - they don't get toolbar buttons
+            guard !webExtensionManager.isBundledExtension(context) else { continue }
 
             let newButton = webExtensionManager.toolbarButton(for: context)
             container.insertArrangedSubview(newButton, at: index)

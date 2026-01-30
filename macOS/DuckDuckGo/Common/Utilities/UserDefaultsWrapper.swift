@@ -87,6 +87,7 @@ extension UserDefaults {
         case themeName = "preferences.appearance.theme-name"
         case showFullURL = "preferences.appearance.show-full-url"
         case syncAppIconWithTheme = "preferences.appearance.sync-app-icon-with-theme"
+        case adaptiveDarkModeEnabled = "preferences.appearance.adaptive-dark-mode-enabled"
         case showAutocompleteSuggestions = "preferences.appearance.show-autocomplete-suggestions"
         case preferNewTabsToWindows = "preferences.tabs.prefer-new-tabs-to-windows"
         case switchToNewTabWhenOpened = "preferences.tabs.switch-to-new-tab-when-opened"

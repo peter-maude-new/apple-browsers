@@ -285,6 +285,24 @@ extension Preferences {
                     }
                 }
 
+                // SECTION: Website Appearance
+                PreferencePaneSection(UserText.websiteAppearance) {
+                    ToggleMenuItem(UserText.adaptiveDarkMode, isOn: $model.adaptiveDarkModeEnabled)
+                        .accessibilityIdentifier("Preferences.AppearanceView.adaptiveDarkModeToggle")
+
+                    // Description with inline Dark Reader link
+                    HStack(spacing: 0) {
+                        Text(UserText.adaptiveDarkModeDescription)
+                            .foregroundColor(Color(.greyText))
+                        TextButton(UserText.darkReaderLinkText) {
+                            NSWorkspace.shared.open(URL(string: "https://darkreader.org")!)
+                        }
+                        Text(".")
+                            .foregroundColor(Color(.greyText))
+                    }
+                    .padding(.leading, 19)
+                }
+
                 // SECTION 2: Address Bar
                 PreferencePaneSection(UserText.addressBar) {
                     ToggleMenuItem(UserText.showFullWebsiteAddress, isOn: $model.showFullURL)

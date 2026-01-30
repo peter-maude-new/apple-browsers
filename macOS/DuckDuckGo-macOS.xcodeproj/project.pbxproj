@@ -172,6 +172,8 @@
 		1D9FDEC42B9B63C90040B78C /* DataClearingPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC22B9B63C90040B78C /* DataClearingPreferencesTests.swift */; };
 		1D9FDEC62B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */; };
 		1D9FDEC72B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */; };
+		1DA1470A2F2CF3E40021280F /* darkreader-4.9.119 in Resources */ = {isa = PBXBuildFile; fileRef = 1DA147092F2CF3D80021280F /* darkreader-4.9.119 */; };
+		1DA1470B2F2CF3E40021280F /* darkreader-4.9.119 in Resources */ = {isa = PBXBuildFile; fileRef = 1DA147092F2CF3D80021280F /* darkreader-4.9.119 */; };
 		1DA6D0FD2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D0FE2A1FF9A100540406 /* HTTPCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */; };
 		1DA6D1022A1FFA3700540406 /* HTTPCookieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */; };
@@ -4512,6 +4514,7 @@
 		1D9FDEBF2B9B5FEA0040B78C /* AccessibilityPreferencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessibilityPreferencesTests.swift; sourceTree = "<group>"; };
 		1D9FDEC22B9B63C90040B78C /* DataClearingPreferencesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataClearingPreferencesTests.swift; sourceTree = "<group>"; };
 		1D9FDEC52B9B64DB0040B78C /* PrivacyProtectionStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyProtectionStatusTests.swift; sourceTree = "<group>"; };
+		1DA147092F2CF3D80021280F /* darkreader-4.9.119 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "darkreader-4.9.119"; sourceTree = "<group>"; };
 		1DA6D0FC2A1FF9A100540406 /* HTTPCookie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookie.swift; sourceTree = "<group>"; };
 		1DA6D0FF2A1FF9DC00540406 /* HTTPCookieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPCookieTests.swift; sourceTree = "<group>"; };
 		1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleUpdateMenuItemFactory.swift; sourceTree = "<group>"; };
@@ -6980,8 +6983,8 @@
 		1D2DB9A22CE26B7A00F73E96 /* WebExtensions */ = {
 			isa = PBXGroup;
 			children = (
+				1DA147092F2CF3D80021280F /* darkreader-4.9.119 */,
 				1D6860512D36BD38006FC53E /* View */,
-				1EC3209F2F27BC5700A38D09 /* InternalSite */,
 				1EC3208E2F23F12200A38D09 /* AppWebExtensionLifecycleDelegate.swift */,
 				1DF78E0E2CE6197200AB898E /* WKWebExtensionTab.swift */,
 				1DF78E112CE61DB000AB898E /* WKWebExtensionWindow.swift */,
@@ -7219,13 +7222,6 @@
 				1D3A2B622D2D225B00F06679 /* WebExtensionInternalSiteNavigationDelegate.swift */,
 			);
 			path = "WebExtensionManager+macOS";
-			sourceTree = "<group>";
-		};
-		1EC3209F2F27BC5700A38D09 /* InternalSite */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = InternalSite;
 			sourceTree = "<group>";
 		};
 		31521ABE2CC0139C00248E6F /* AIChat */ = {
@@ -13372,6 +13368,7 @@
 				37EE56082D5F197300D53C7C /* dark-trackers-3.json in Resources */,
 				37EE56092D5F197300D53C7C /* flame-mouse-over.json in Resources */,
 				37EE560A2D5F197300D53C7C /* shield.json in Resources */,
+				1DA1470B2F2CF3E40021280F /* darkreader-4.9.119 in Resources */,
 				37EE560B2D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE560C2D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,
 				D6229C312ED0E213001DAE71 /* shield.new.json in Resources */,
@@ -13602,6 +13599,7 @@
 				37EE55DF2D5F197300D53C7C /* dark-trackers-3.json in Resources */,
 				37EE55E02D5F197300D53C7C /* flame-mouse-over.json in Resources */,
 				7BE2073A2DCCC4230037394C /* DeveloperID.xcstrings in Resources */,
+				1DA1470A2F2CF3E40021280F /* darkreader-4.9.119 in Resources */,
 				37EE55E12D5F197300D53C7C /* shield.json in Resources */,
 				37EE55E22D5F197300D53C7C /* shield-dot.json in Resources */,
 				37EE55E32D5F197300D53C7C /* shield-dot-mouse-over.json in Resources */,

@@ -41,6 +41,9 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
     /// Optional internal site handler for platform-specific URL handling.
     public var internalSiteHandler: (any WebExtensionInternalSiteHandling)?
 
+    /// Identifiers of bundled extensions with restricted capabilities (no tabs, windows, toolbar button).
+    private var bundledExtensionIdentifiers: Set<String> = []
+
     // MARK: - AsyncStream
 
     private var continuation: AsyncStream<Void>.Continuation?
@@ -126,6 +129,43 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
         }
     }
 
+    // MARK: - Bundled Extensions
+
+    /// Installs a bundled extension with restricted capabilities.
+    /// Bundled extensions cannot open new tabs/windows and don't appear in the toolbar.
+    public func installBundledExtension(path: String) async {
+        let identifier = identifierHash(forPath: path)
+        bundledExtensionIdentifiers.insert(identifier)
+
+        do {
+            _ = try await loader.loadWebExtension(path: path, into: controller)
+        } catch {
+            bundledExtensionIdentifiers.remove(identifier)
+            assertionFailure("Failed to load bundled web extension \(path): \(error)")
+        }
+
+        notifyUpdate()
+    }
+
+    /// Uninstalls a bundled extension.
+    public func uninstallBundledExtension(path: String) throws {
+        let identifier = identifierHash(forPath: path)
+        bundledExtensionIdentifiers.remove(identifier)
+
+        do {
+            try loader.unloadExtension(at: path, from: controller)
+        } catch {
+            throw WebExtensionError.failedToUnloadWebExtension(error)
+        }
+
+        notifyUpdate()
+    }
+
+    /// Returns whether the given extension context is a bundled extension with restricted capabilities.
+    public func isBundledExtension(_ context: WKWebExtensionContext) -> Bool {
+        bundledExtensionIdentifiers.contains(context.uniqueIdentifier)
+    }
+
     // MARK: - Loading
 
     @MainActor
@@ -195,13 +235,21 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
     public func webExtensionController(_ controller: WKWebExtensionController,
                                        openNewWindowUsing configuration: WKWebExtension.WindowConfiguration,
                                        for extensionContext: WKWebExtensionContext) async throws -> (any WKWebExtensionWindow)? {
-        try await windowTabProvider.openNewWindow(using: configuration, for: extensionContext)
+        // Bundled extensions cannot open new windows
+        guard !isBundledExtension(extensionContext) else {
+            throw WebExtensionControllerDelegateError.notSupported
+        }
+        return try await windowTabProvider.openNewWindow(using: configuration, for: extensionContext)
     }
 
     public func webExtensionController(_ controller: WKWebExtensionController,
                                        openNewTabUsing configuration: WKWebExtension.TabConfiguration,
                                        for extensionContext: WKWebExtensionContext) async throws -> (any WKWebExtensionTab)? {
-        try await windowTabProvider.openNewTab(using: configuration, for: extensionContext)
+        // Bundled extensions cannot open new tabs
+        guard !isBundledExtension(extensionContext) else {
+            throw WebExtensionControllerDelegateError.notSupported
+        }
+        return try await windowTabProvider.openNewTab(using: configuration, for: extensionContext)
     }
 
     public func webExtensionController(_ controller: WKWebExtensionController,
@@ -212,6 +260,10 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
     public func webExtensionController(_ controller: WKWebExtensionController,
                                        presentActionPopup action: WKWebExtension.Action,
                                        for extensionContext: WKWebExtensionContext) async throws {
+        // Bundled extensions cannot present action popups
+        guard !isBundledExtension(extensionContext) else {
+            throw WebExtensionControllerDelegateError.notSupported
+        }
         try await windowTabProvider.presentPopup(action, for: extensionContext)
     }
 

@@ -48,6 +48,7 @@ protocol AppearancePreferencesPersistor {
     var centerAlignedBookmarksBar: Bool { get set }
     var showTabsAndBookmarksBarOnFullScreen: Bool { get set }
     var didChangeAnyNewTabPageCustomizationSetting: Bool { get set }
+    var adaptiveDarkModeEnabled: Bool { get set }
 }
 
 struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersistor {
@@ -137,6 +138,9 @@ struct AppearancePreferencesUserDefaultsPersistor: AppearancePreferencesPersisto
 
     @UserDefaultsWrapper(key: .showTabsAndBookmarksBarOnFullScreen, defaultValue: true)
     var showTabsAndBookmarksBarOnFullScreen: Bool
+
+    @UserDefaultsWrapper(key: .adaptiveDarkModeEnabled, defaultValue: false)
+    var adaptiveDarkModeEnabled: Bool
 
     /**
      * Initializes Appearance Preferences persistor.
@@ -251,6 +255,7 @@ final class AppearancePreferences: ObservableObject {
         static let bookmarksBarSettingAppearanceChanged = NSNotification.Name("BookmarksBarSettingAppearanceChanged")
         static let bookmarksBarAlignmentChanged = NSNotification.Name("BookmarksBarAlignmentChanged")
         static let showTabsAndBookmarksBarOnFullScreenChanged = NSNotification.Name("ShowTabsAndBookmarksBarOnFullScreenChanged")
+        static let adaptiveDarkModeSettingChanged = NSNotification.Name("AdaptiveDarkModeSettingChanged")
     }
 
     struct Constants {
@@ -285,6 +290,17 @@ final class AppearancePreferences: ObservableObject {
         didSet {
             persistor.showFullURL = showFullURL
             pixelFiring?.fire(SettingsPixel.showFullURLSettingToggled, frequency: .uniqueByName)
+        }
+    }
+
+    @Published var adaptiveDarkModeEnabled: Bool {
+        didSet {
+            persistor.adaptiveDarkModeEnabled = adaptiveDarkModeEnabled
+            NotificationCenter.default.post(
+                name: Notifications.adaptiveDarkModeSettingChanged,
+                object: nil,
+                userInfo: ["enabled": adaptiveDarkModeEnabled]
+            )
         }
     }
 
@@ -491,6 +507,7 @@ final class AppearancePreferences: ObservableObject {
         themeName = .init(rawValue: persistor.themeName) ?? .default
         syncAppIconWithTheme = persistor.syncAppIconWithTheme
         showFullURL = persistor.showFullURL
+        adaptiveDarkModeEnabled = persistor.adaptiveDarkModeEnabled
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
         isOmnibarVisible = persistor.isOmnibarVisible
         isFavoriteVisible = persistor.isFavoriteVisible
@@ -518,6 +535,7 @@ final class AppearancePreferences: ObservableObject {
         themeName = .init(rawValue: persistor.themeName) ?? .default
         syncAppIconWithTheme = persistor.syncAppIconWithTheme
         showFullURL = persistor.showFullURL
+        adaptiveDarkModeEnabled = persistor.adaptiveDarkModeEnabled
         favoritesDisplayMode = persistor.favoritesDisplayMode.flatMap(FavoritesDisplayMode.init) ?? .default
         isOmnibarVisible = persistor.isOmnibarVisible
         isFavoriteVisible = persistor.isFavoriteVisible

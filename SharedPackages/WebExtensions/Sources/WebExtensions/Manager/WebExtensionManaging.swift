@@ -63,6 +63,19 @@ public protocol WebExtensionManaging: AnyObject {
     @discardableResult
     func uninstallAllExtensions() -> [Result<Void, Error>]
 
+    /// Installs a bundled extension with restricted capabilities.
+    /// Bundled extensions cannot open new tabs/windows and don't appear in the toolbar.
+    @available(macOS 15.4, *)
+    func installBundledExtension(path: String) async
+
+    /// Uninstalls a bundled extension.
+    @available(macOS 15.4, *)
+    func uninstallBundledExtension(path: String) throws
+
+    /// Returns whether the given extension context is a bundled extension with restricted capabilities.
+    @available(macOS 15.4, *)
+    func isBundledExtension(_ context: WKWebExtensionContext) -> Bool
+
     /// Returns the extension name from the given path.
     @available(macOS 15.4, *)
     func extensionName(from path: String) -> String?

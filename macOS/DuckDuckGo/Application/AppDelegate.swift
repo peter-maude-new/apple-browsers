@@ -1136,6 +1136,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppDelegate.firstLaunchDate = Date()
         }
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAdaptiveDarkModeChanged(_:)),
+            name: AppearancePreferences.Notifications.adaptiveDarkModeSettingChanged,
+            object: nil
+        )
+
         setupWebExtensions()
 
         vpnUpsellVisibilityManager.setup(isFirstLaunch: isFirstLaunch)
@@ -1557,9 +1564,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
             Task {
                 await webExtensionManager.loadInstalledExtensions()
+                // Load DarkReader if adaptive dark mode is enabled
+//                if appearancePreferences.adaptiveDarkModeEnabled {
+//                    await updateDarkReaderExtension(enabled: true)
+//                }
             }
         } else {
             self.webExtensionManager = nil
+        }
+    }
+
+    @MainActor
+    @objc private func handleAdaptiveDarkModeChanged(_ notification: Notification) {
+        guard let enabled = notification.userInfo?["enabled"] as? Bool else { return }
+        Task {
+            await updateDarkReaderExtension(enabled: enabled)
+        }
+    }
+
+    @MainActor
+    private func updateDarkReaderExtension(enabled: Bool) async {
+        guard #available(macOS 15.4, *),
+              let webExtensionManager = webExtensionManager as? WebExtensionManager else { return }
+
+        guard let path = Bundle.main.path(forResource: "darkreader-4.9.119", ofType: nil) else {
+            assertionFailure("DarkReader extension not found in bundle")
+            return
+        }
+
+        let extensionPath = "file://" + path
+
+        if enabled {
+            // Install as bundled extension (no toolbar button, no new tabs/windows)
+            await webExtensionManager.installBundledExtension(path: extensionPath)
+        } else {
+            try? webExtensionManager.uninstallBundledExtension(path: extensionPath)
         }
     }
 
