@@ -257,8 +257,31 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         setupScrollButtons()
         setupTabsContainersHeight()
         subscribeToThemeChanges()
+        subscribeToTabGroupChanges()
 
         applyThemeStyle()
+    }
+
+    private func subscribeToTabGroupChanges() {
+        NSApp.delegateTyped.tabGroupManager.$tabToGroup
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshTabGroupBackgrounds()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func refreshTabGroupBackgrounds() {
+        for indexPath in collectionView.indexPathsForVisibleItems() {
+            if let item = collectionView.item(at: indexPath) as? TabBarViewItem {
+                item.updateGroupBackground()
+            }
+        }
+        for indexPath in pinnedTabsCollectionView?.indexPathsForVisibleItems() ?? [] {
+            if let item = pinnedTabsCollectionView?.item(at: indexPath) as? TabBarViewItem {
+                item.updateGroupBackground()
+            }
+        }
     }
 
     override func viewWillAppear() {
@@ -1896,6 +1919,55 @@ extension TabBarViewController: TabBarViewItemDelegate {
         }
         return .init(hasItemsToTheLeft: indexPath.item > 0,
                      hasItemsToTheRight: indexPath.item + 1 < (tabCollection?.tabs.count ?? 0))
+    }
+
+    // MARK: - Tab Groups
+
+    private func tab(for tabBarViewItem: TabBarViewItem) -> Tab? {
+        let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
+        let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
+        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tab = tabCollection?.tabs[safe: indexPath.item] else {
+            return nil
+        }
+        return tab
+    }
+
+    func tabBarViewItemCurrentTabGroup(_ tabBarViewItem: TabBarViewItem) -> TabGroup? {
+        guard let tab = tab(for: tabBarViewItem) else { return nil }
+        return NSApp.delegateTyped.tabGroupManager.group(for: tab)
+    }
+
+    func tabBarViewItemManageTabGroups(_ tabBarViewItem: TabBarViewItem) {
+        guard let tab = tab(for: tabBarViewItem),
+              let window = view.window else { return }
+
+        let tabGroupManager = NSApp.delegateTyped.tabGroupManager
+
+        var hostingController: NSHostingController<TabGroupsManagementView>?
+
+        let onAddToGroup: (TabGroup) -> Void = { [weak tabGroupManager] group in
+            tabGroupManager?.setGroup(group.id, for: tab)
+        }
+
+        let onRemoveFromGroup: () -> Void = { [weak tabGroupManager] in
+            tabGroupManager?.setGroup(nil, for: tab)
+        }
+
+        let tabGroupsView = TabGroupsManagementView(
+            tabGroupManager: tabGroupManager,
+            currentTabUUID: tab.uuid,
+            onAddToGroup: onAddToGroup,
+            onRemoveFromGroup: onRemoveFromGroup,
+            onDismiss: {
+                hostingController?.dismiss(nil)
+            }
+        )
+
+        hostingController = NSHostingController(rootView: tabGroupsView)
+        window.contentViewController?.presentAsSheet(hostingController!)
     }
 
 }

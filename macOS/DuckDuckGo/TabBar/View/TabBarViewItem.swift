@@ -112,6 +112,10 @@ protocol TabBarViewItemDelegate: AnyObject {
     @MainActor func tabBarViewItemCrashAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem)
     @MainActor func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool)
+
+    // Tab Groups
+    @MainActor func tabBarViewItemCurrentTabGroup(_ tabBarViewItem: TabBarViewItem) -> TabGroup?
+    @MainActor func tabBarViewItemManageTabGroups(_ tabBarViewItem: TabBarViewItem)
 }
 
 final class TabBarItemCellView: NSView {
@@ -256,6 +260,13 @@ final class TabBarItemCellView: NSView {
         return view
     }()
 
+    fileprivate let groupBackgroundColorView = {
+        let view = ColorView(frame: .zero, backgroundColor: nil, cornerRadius: 6)
+        view.alphaValue = 0.5
+        view.isHidden = true
+        return view
+    }()
+
     fileprivate let rightSeparatorView = ColorView(frame: .zero)
 
     fileprivate lazy var rightRampView: RampView = {
@@ -334,6 +345,10 @@ final class TabBarItemCellView: NSView {
         }
 
         addSubview(mouseOverView)
+
+        // Group background color view (above mouseOverView)
+        addSubview(groupBackgroundColorView)
+
         if theme.tabStyleProvider.isRoundedBackgroundPresentOnHover {
             roundedBackgroundColorView.cornerRadius = 6
             addSubview(roundedBackgroundColorView)
@@ -414,6 +429,15 @@ final class TabBarItemCellView: NSView {
                                                       width: bounds.width - (padding * 2),
                                                       height: height)
         }
+
+        // Group background uses same frame as roundedBackgroundColorView
+        let padding: CGFloat = 4
+        let height = bounds.height - (padding * 2)
+        let y = bounds.midY - (height / 2)
+        groupBackgroundColorView.frame = NSRect(x: bounds.origin.x + padding,
+                                                y: y,
+                                                width: bounds.width - (padding * 2),
+                                                height: height)
 
         if theme.tabStyleProvider.shouldShowSShapedTab {
             withoutAnimation {
@@ -1094,6 +1118,21 @@ final class TabBarViewItem: NSCollectionViewItem {
         representedObject = nil
     }
 
+    func updateGroupBackground() {
+        withoutAnimation {
+            updateGroupBackgroundInternal()
+        }
+    }
+
+    private func updateGroupBackgroundInternal() {
+        if let group = delegate?.tabBarViewItemCurrentTabGroup(self) {
+            cell.groupBackgroundColorView.backgroundColor = group.color.nsColor
+            cell.groupBackgroundColorView.isHidden = false
+        } else {
+            cell.groupBackgroundColorView.isHidden = true
+        }
+    }
+
     private func updateSubviews() {
         withoutAnimation {
             if isSelected || isDragged {
@@ -1112,6 +1151,8 @@ final class TabBarViewItem: NSCollectionViewItem {
                 }
 
             }
+
+            updateGroupBackgroundInternal()
 
             if theme.tabStyleProvider.shouldShowSShapedTab {
                 cell.rightRampView.isHidden = !(isSelected || isDragged)
@@ -1425,6 +1466,10 @@ extension TabBarViewItem: NSMenuDelegate {
             // Bookmark All Section
             addBookmarkAllTabsMenuItem(to: menu)
             menu.addItem(.separator())
+
+            // Tab Groups Section
+            addTabGroupsMenuItem(to: menu)
+            menu.addItem(.separator())
         }
 
         // Close Section
@@ -1575,6 +1620,21 @@ extension TabBarViewItem: NSMenuDelegate {
         moveToNewWindowMenuItem.target = self
         moveToNewWindowMenuItem.isEnabled = areThereOtherTabs
         menu.addItem(moveToNewWindowMenuItem)
+    }
+
+    // MARK: - Tab Groups
+
+    private func addTabGroupsMenuItem(to menu: NSMenu) {
+        let currentGroup = delegate?.tabBarViewItemCurrentTabGroup(self)
+        let title = currentGroup != nil ? "Edit Tab Group…" : "Add to Tab Group…"
+
+        let tabGroupsMenuItem = NSMenuItem(title: title, action: #selector(manageTabGroupsAction(_:)), keyEquivalent: "")
+        tabGroupsMenuItem.target = self
+        menu.addItem(tabGroupsMenuItem)
+    }
+
+    @objc private func manageTabGroupsAction(_ sender: NSMenuItem) {
+        delegate?.tabBarViewItemManageTabGroups(self)
     }
 
 }
@@ -1950,6 +2010,10 @@ extension TabBarViewItem {
         func tabBarViewItemCrashAction(_: TabBarViewItem) {}
         func tabBarViewItemCrashMultipleTimesAction(_: TabBarViewItem) {}
         func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_: TabBarViewItem, sender: NSButton, shouldShow: Bool) {}
+
+        // Tab Groups
+        func tabBarViewItemCurrentTabGroup(_ tabBarViewItem: TabBarViewItem) -> TabGroup? { nil }
+        func tabBarViewItemManageTabGroups(_ tabBarViewItem: TabBarViewItem) {}
     }
 }
 #endif
