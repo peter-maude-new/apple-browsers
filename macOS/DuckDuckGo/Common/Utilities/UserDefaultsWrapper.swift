@@ -264,22 +264,6 @@ extension UserDefaults {
         case networkProtectionRegistrationKeyValidity = "com.duckduckgo.network-protection.NetworkProtectionTunnelController.registrationKeyValidityKey"
         case shouldShowNetworkProtectionSystemExtensionUpgradePrompt = "network-protection.show-system-extension-upgrade-prompt"
         case vpnRedditWorkaroundInstalled = "com.duckduckgo.ios.vpn.workaroundInstalled"
-
-        // Updates - migrated to KeyValueStoring (UpdateControllerStorageKeys)
-        case automaticUpdates = "updates.automatic"
-        case pendingUpdateShown = "pending.update.shown"
-        case pendingUpdateSince = "pending.update.since"
-        case updateValidityStartDate = "update.validity.start.date"
-        case lastSuccessfulUpdateDate = "updates.last.successful.date"
-        case debugSparkleCustomFeedURL = "debug.sparkle.custom-feed-url"
-        case previousAppVersion = "previous.app.version"
-        case previousBuild = "previous.build"
-        case pendingUpdateSourceVersion = "pending.update.source.version"
-        case pendingUpdateSourceBuild = "pending.update.source.build"
-        case pendingUpdateExpectedVersion = "pending.update.expected.version"
-        case pendingUpdateExpectedBuild = "pending.update.expected.build"
-        case pendingUpdateInitiationType = "pending.update.initiation.type"
-        case pendingUpdateConfiguration = "pending.update.configuration"
     }
 
 }
