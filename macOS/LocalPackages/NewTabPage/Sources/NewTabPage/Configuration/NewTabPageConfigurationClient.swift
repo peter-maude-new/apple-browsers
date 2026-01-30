@@ -74,6 +74,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
     private let linkOpener: NewTabPageLinkOpening
     private let eventMapper: EventMapping<NewTabPageConfigurationEvent>?
     private let stateProvider: NewTabPageStateProviding
+    private let multiInstanceConfigStore: MultiInstanceWidgetConfigStoring?
 
     public init(
         sectionsAvailabilityProvider: NewTabPageSectionsAvailabilityProviding,
@@ -83,7 +84,8 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         contextMenuPresenter: NewTabPageContextMenuPresenting = DefaultNewTabPageContextMenuPresenter(),
         linkOpener: NewTabPageLinkOpening,
         eventMapper: EventMapping<NewTabPageConfigurationEvent>?,
-        stateProvider: NewTabPageStateProviding
+        stateProvider: NewTabPageStateProviding,
+        multiInstanceConfigStore: MultiInstanceWidgetConfigStoring? = nil
     ) {
         self.sectionsAvailabilityProvider = sectionsAvailabilityProvider
         self.sectionsVisibilityProvider = sectionsVisibilityProvider
@@ -93,6 +95,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         self.linkOpener = linkOpener
         self.eventMapper = eventMapper
         self.stateProvider = stateProvider
+        self.multiInstanceConfigStore = multiInstanceConfigStore
         super.init()
 
         Publishers.Merge3(
@@ -127,6 +130,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         case telemetryEvent
         case widgetsSetConfig = "widgets_setConfig"
         case widgetsOnConfigUpdated = "widgets_onConfigUpdated"
+        case multiInstanceWidgetsSetConfig = "multiInstanceWidgets_setConfig"
     }
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
@@ -137,7 +141,8 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             MessageName.reportInitException.rawValue: { [weak self] in try await self?.reportException(params: $0, original: $1) },
             MessageName.reportPageException.rawValue: { [weak self] in try await self?.reportException(params: $0, original: $1) },
             MessageName.telemetryEvent.rawValue: { [weak self] in try await self?.processTelemetryEvent(params: $0, original: $1) },
-            MessageName.widgetsSetConfig.rawValue: { [weak self] in try await self?.widgetsSetConfig(params: $0, original: $1) }
+            MessageName.widgetsSetConfig.rawValue: { [weak self] in try await self?.widgetsSetConfig(params: $0, original: $1) },
+            MessageName.multiInstanceWidgetsSetConfig.rawValue: { [weak self] in try await self?.multiInstanceWidgetsSetConfig(params: $0, original: $1) }
         ])
     }
 
@@ -148,7 +153,10 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             .init(id: .subscriptionWinBackBanner),
             sectionsAvailabilityProvider.isNextStepsListWidgetAvailable ? .init(id: .nextStepsList) : .init(id: .nextSteps),
             .init(id: .favorites),
-            .init(id: .protections)
+            .init(id: .protections),
+            .init(id: .weather),
+            .init(id: .news),
+            .init(id: .stock)
         ]
 
         if sectionsAvailabilityProvider.isOmnibarAvailable {
@@ -173,6 +181,10 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
     private func notifyWidgetConfigsDidChange() {
         let widgetConfigs = fetchWidgetConfigs()
+        Logger.general.debug("NTP Config: Pushing widgetsOnConfigUpdated to FE with \(widgetConfigs.count) configs")
+        for config in widgetConfigs {
+            Logger.general.debug("NTP Config: Pushing - id: \(config.id.rawValue, privacy: .public), visible: \(config.visibility.isVisible)")
+        }
         pushMessage(named: MessageName.widgetsOnConfigUpdated.rawValue, params: widgetConfigs)
     }
 
@@ -277,6 +289,8 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
     @MainActor
     private func initialSetup(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        Logger.general.debug("NTP Config: Received initialSetup request")
+
 #if DEBUG || REVIEW
         let env = "development"
 #else
@@ -285,8 +299,21 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
         let widgets = fetchWidgets()
         let widgetConfigs = fetchWidgetConfigs()
+        let multiInstanceWidgetConfigs = multiInstanceConfigStore?.getConfigs()
         let customizerData = customBackgroundProvider.customizerData
         customBackgroundProvider.processNewTabPageInitialized()
+
+        Logger.general.debug("NTP Config: Sending \(widgets.count) widgets: \(widgets.map { $0.id.rawValue }.joined(separator: ", "), privacy: .public)")
+        Logger.general.debug("NTP Config: Sending \(widgetConfigs.count) widget configs")
+        for config in widgetConfigs {
+            Logger.general.debug("NTP Config: WidgetConfig - id: \(config.id.rawValue, privacy: .public), visible: \(config.visibility.isVisible)")
+        }
+        if let multiConfigs = multiInstanceWidgetConfigs {
+            Logger.general.debug("NTP Config: Sending \(multiConfigs.count) multi-instance widget configs")
+            for config in multiConfigs {
+                Logger.general.debug("NTP Config: MultiInstanceConfig - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId, privacy: .public), visible: \(config.visibility.isVisible)")
+            }
+        }
 
         let tabs = stateProvider
             .getState()?
@@ -295,6 +322,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         let config = NewTabPageDataModel.NewTabPageConfiguration(
             widgets: widgets,
             widgetConfigs: widgetConfigs,
+            multiInstanceWidgetConfigs: multiInstanceWidgetConfigs,
             env: env,
             locale: Bundle.main.preferredLocalizations.first ?? "en",
             platform: .init(name: "macos"),
@@ -307,10 +335,16 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
     @MainActor
     private func widgetsSetConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        Logger.general.debug("NTP Config: Received widgetsSetConfig request with params: \(String(describing: params), privacy: .public)")
+
         guard let widgetConfigs: [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] = DecodableHelper.decode(from: params) else {
+            Logger.general.error("NTP Config: Failed to decode widgetsSetConfig params")
             return nil
         }
+
+        Logger.general.debug("NTP Config: Processing \(widgetConfigs.count) widget configs from FE")
         for widgetConfig in widgetConfigs {
+            Logger.general.debug("NTP Config: Setting \(widgetConfig.id.rawValue, privacy: .public) visible: \(widgetConfig.visibility.isVisible)")
             switch widgetConfig.id {
             case .omnibar:
                 sectionsVisibilityProvider.isOmnibarVisible = widgetConfig.visibility.isVisible
@@ -348,6 +382,26 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             return nil
         }
         eventMapper?.fire(.newTabPageTelemetry(payload: event))
+        return nil
+    }
+
+    @MainActor
+    private func multiInstanceWidgetsSetConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+        Logger.general.debug("NTP MultiInstance: Received setConfig request with params: \(String(describing: params), privacy: .public)")
+
+        guard let configs: [NewTabPageDataModel.MultiInstanceWidgetConfig] = DecodableHelper.decode(from: params) else {
+            Logger.general.error("NTP MultiInstance: Failed to decode config params")
+            return nil
+        }
+
+        Logger.general.debug("NTP MultiInstance: Saving \(configs.count) widget configs")
+        for config in configs {
+            Logger.general.debug("NTP MultiInstance: Config - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId, privacy: .public), visibility: \(config.visibility.rawValue, privacy: .public)")
+        }
+
+        multiInstanceConfigStore?.saveConfigs(configs)
+        Logger.general.debug("NTP MultiInstance: Configs saved successfully")
+        // Per the design: no echo back - native persists config but does NOT send widgets_onConfigUpdated back
         return nil
     }
 }

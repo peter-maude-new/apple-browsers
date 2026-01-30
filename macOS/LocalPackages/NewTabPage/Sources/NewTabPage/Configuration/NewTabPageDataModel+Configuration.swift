@@ -31,8 +31,37 @@ public extension NewTabPageDataModel {
 
 extension NewTabPageDataModel {
 
-    enum WidgetId: String, Codable {
+    public enum WidgetId: String, Codable {
         case rmf, freemiumPIRBanner, subscriptionWinBackBanner, nextSteps, nextStepsList, omnibar, favorites, protections
+        case weather, news, stock
+    }
+
+    public struct MultiInstanceWidgetConfig: Codable, Equatable {
+        public var id: WidgetId
+        public var instanceId: String
+        public var visibility: WidgetVisibility
+
+        // Weather-specific
+        public var location: String?
+        public var temperatureUnit: TemperatureUnit?
+
+        // News-specific
+        public var query: String?
+
+        // Stock-specific
+        public var symbol: String?
+
+        public enum WidgetVisibility: String, Codable {
+            case visible, hidden
+
+            public var isVisible: Bool {
+                self == .visible
+            }
+        }
+
+        public enum TemperatureUnit: String, Codable {
+            case celsius, fahrenheit
+        }
     }
 
     struct ContextMenuParams: Codable {
@@ -51,6 +80,7 @@ extension NewTabPageDataModel {
     struct NewTabPageConfiguration: Encodable {
         var widgets: [Widget]
         var widgetConfigs: [WidgetConfig]
+        var multiInstanceWidgetConfigs: [MultiInstanceWidgetConfig]?
         var env: String
         var locale: String
         var platform: Platform
