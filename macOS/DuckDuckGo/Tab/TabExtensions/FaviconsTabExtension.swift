@@ -19,7 +19,6 @@
 import Combine
 import Foundation
 import Navigation
-import UserScript
 import WebKit
 
 protocol FaviconUserScriptProvider {
