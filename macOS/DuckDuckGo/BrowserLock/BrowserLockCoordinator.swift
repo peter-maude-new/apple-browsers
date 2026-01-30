@@ -108,7 +108,6 @@ final class BrowserLockCoordinator {
     func lockAllConfiguredTabs(in tabCollection: TabCollection) {
         for tab in tabCollection.tabs where tab.hasLockConfig {
             tab.isLocked = true
-            tab.unloadContentForLock()
         }
     }
 
