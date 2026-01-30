@@ -429,7 +429,7 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         } ?? true
 
         let allLocked = regularAllLocked && pinnedAllLocked
-        let iconName = allLocked ? "lock" : "lock.open"
+        let iconName = allLocked ? "lock.fill" : "lock.open.fill"
         lockButton.image = NSImage(systemSymbolName: iconName, accessibilityDescription: UserText.lockBrowserTooltip)
     }
 
