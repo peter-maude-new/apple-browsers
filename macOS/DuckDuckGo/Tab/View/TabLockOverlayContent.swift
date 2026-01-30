@@ -24,9 +24,9 @@ import AppKit
 @MainActor
 final class TabLockOverlayViewModel: ObservableObject {
     #if DEBUG
-    private let animationSpeed: Double = 0.2  // 5x slower for debugging
+    let animationSpeed: Double = 1.0  // 5x slower for debugging
     #else
-    private let animationSpeed: Double = 1.0
+    let animationSpeed: Double = 1.0
     #endif
 
     @Published var isVisible = false
@@ -92,12 +92,6 @@ final class TabLockOverlayViewModel: ObservableObject {
 // MARK: - SwiftUI View
 
 struct TabLockOverlayContent: View {
-    #if DEBUG
-    private let animationSpeed: Double = 0.2  // 5x slower for debugging
-    #else
-    private let animationSpeed: Double = 1.0
-    #endif
-
     // Circle sizes: Blob1=210, Blob2=206, Blob3=204, BlackCircle=198
     // Use half of widest (Blob1) to ensure all circles are hidden when retracted
     private let lockCircleRadius: CGFloat = 105  // 210 / 2
@@ -110,8 +104,8 @@ struct TabLockOverlayContent: View {
     @State private var panelBounceOffset: CGFloat = 0
     @State private var showElements = false
 
-    private var baseAnimation: Animation { .easeOut(duration: 0.72 / animationSpeed) }
-    private var blobAnimation: Animation { .easeOut(duration: 0.7 / animationSpeed).delay(0.1 / animationSpeed) }
+    private var baseAnimation: Animation { .easeOut(duration: 0.72 / viewModel.animationSpeed) }
+    private var blobAnimation: Animation { .easeOut(duration: 0.7 / viewModel.animationSpeed).delay(0.1 / viewModel.animationSpeed) }
 
     var body: some View {
         GeometryReader { geometry in
@@ -152,7 +146,7 @@ struct TabLockOverlayContent: View {
                 print("[LOCK DEBUG] Setting showElements to true")
                 // Set showElements - with or without animation depending on mode
                 if viewModel.shouldAnimateBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                    withAnimation(.easeOut(duration: 0.36 / animationSpeed).delay(0.5 / animationSpeed)) {
+                    withAnimation(.easeOut(duration: 0.36 / viewModel.animationSpeed).delay(0.5 / viewModel.animationSpeed)) {
                         showElements = true
                     }
                 } else {
@@ -169,14 +163,14 @@ struct TabLockOverlayContent: View {
                 guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
 
                 // Phase 2: Bounce outward (after 600ms slide completes)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 / animationSpeed) {
-                    withAnimation(.easeOut(duration: 0.12 / self.animationSpeed)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 / viewModel.animationSpeed) {
+                    withAnimation(.easeOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 10
                     }
                 }
                 // Phase 3: Settle back (after 720ms)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.72 / animationSpeed) {
-                    withAnimation(.easeInOut(duration: 0.12 / self.animationSpeed)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.72 / viewModel.animationSpeed) {
+                    withAnimation(.easeInOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 0
                     }
                 }
@@ -184,7 +178,7 @@ struct TabLockOverlayContent: View {
                 print("[LOCK DEBUG] Setting showElements to false")
                 // Animate inner content out with fast easeIn (no delay)
                 if viewModel.shouldAnimateOutBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                    withAnimation(.easeIn(duration: 0.15 / animationSpeed)) {
+                    withAnimation(.easeIn(duration: 0.15 / viewModel.animationSpeed)) {
                         showElements = false
                     }
                 } else {
@@ -198,14 +192,14 @@ struct TabLockOverlayContent: View {
                 viewModel.shouldAnimateOutBounce = false
 
                 // Phase 2: Bounce back toward center (after 360ms slide)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36 / animationSpeed) {
-                    withAnimation(.easeOut(duration: 0.12 / self.animationSpeed)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36 / viewModel.animationSpeed) {
+                    withAnimation(.easeOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = -10  // Negative = panels bounce back inward
                     }
                 }
                 // Phase 3: Settle to final position (after 480ms)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48 / animationSpeed) {
-                    withAnimation(.easeInOut(duration: 0.12 / self.animationSpeed)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48 / viewModel.animationSpeed) {
+                    withAnimation(.easeInOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 0
                     }
                 }
@@ -305,13 +299,13 @@ struct TabLockOverlayContent: View {
     // MARK: - Blob Rotations
 
     private func startBlobRotations() {
-        withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
+        withAnimation(.linear(duration: 20 / viewModel.animationSpeed).repeatForever(autoreverses: false)) {
             blob1Rotation += 360
         }
-        withAnimation(.linear(duration: 25).repeatForever(autoreverses: false)) {
+        withAnimation(.linear(duration: 25 / viewModel.animationSpeed).repeatForever(autoreverses: false)) {
             blob2Rotation -= 360
         }
-        withAnimation(.linear(duration: 30).repeatForever(autoreverses: false)) {
+        withAnimation(.linear(duration: 30 / viewModel.animationSpeed).repeatForever(autoreverses: false)) {
             blob3Rotation += 360
         }
     }
