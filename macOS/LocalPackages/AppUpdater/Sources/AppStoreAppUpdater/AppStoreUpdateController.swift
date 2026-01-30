@@ -121,11 +121,11 @@ extension UpdateControllerFactory: UpdateControllerFactoryTypeGetter {
                 internalUserDecider: InternalUserDecider? = nil,
                 featureFlagger: FeatureFlagger? = nil,
                 eventMapping: EventMapping<UpdateControllerEvent>? = nil,
-                notificationPresenter: (any UpdateNotificationPresenting)? = nil,
+                notificationPresenter: any UpdateNotificationPresenting,
                 keyValueStore: (any Persistence.ThrowingKeyValueStoring)? = nil) {
         self.updateCheckState = UpdateCheckState()
         self.updaterChecker = AppStoreUpdaterAvailabilityChecker()
-        self.notificationPresenter = notificationPresenter ?? MockNotificationPresenter()
+        self.notificationPresenter = notificationPresenter
         self.releaseChecker = LatestReleaseChecker()
         self.featureFlagger = featureFlagger ?? MockFeatureFlagger()
         self.eventMapping = eventMapping

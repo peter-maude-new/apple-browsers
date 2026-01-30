@@ -306,7 +306,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         self.buildType = buildType
         self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
         self.applicationUpdateDetector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
-        
+
         // Capture the current value before initializing updateWideEvent
         let currentAutomaticUpdatesEnabled = (try? settings.automaticUpdates) ?? true
         self.updateWideEvent = SparkleUpdateWideEvent(

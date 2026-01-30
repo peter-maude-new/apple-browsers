@@ -15,7 +15,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-#if DEBUG
+
 import BrowserServicesKit
 import Combine
 import Common
@@ -24,6 +24,7 @@ import Persistence
 import PixelKit
 import PrivacyConfig
 import Subscription
+import AppUpdaterShared
 
 /// Mock UpdateController for testing - fully implements the protocol.
 public class MockUpdateController: UpdateController {
@@ -123,4 +124,3 @@ public class MockUpdateController: UpdateController {
     }
 
 }
-#endif

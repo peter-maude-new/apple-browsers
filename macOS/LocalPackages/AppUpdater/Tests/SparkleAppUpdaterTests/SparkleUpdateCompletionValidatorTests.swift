@@ -38,7 +38,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         testStore = InMemoryThrowingKeyValueStore()
         testSettings = testStore.throwingKeyedStoring()
         validator = SparkleUpdateCompletionValidator(settings: testSettings!)
-        
+
         // Setup mock event mapping
         firedEvents = []
         mockEventMapping = MockEventMapping { [weak self] event in

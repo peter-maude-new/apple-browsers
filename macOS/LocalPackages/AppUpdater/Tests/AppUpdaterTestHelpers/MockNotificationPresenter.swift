@@ -15,8 +15,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-#if DEBUG
+
 import Foundation
+import AppUpdaterShared
 
 /// Mock notification presenter for testing - does not show any notifications.
 public struct MockNotificationPresenter: UpdateNotificationPresenting {
@@ -27,4 +28,3 @@ public struct MockNotificationPresenter: UpdateNotificationPresenting {
     public func dismissIfPresented() {}
     public func openUpdatesPage() {}
 }
-#endif

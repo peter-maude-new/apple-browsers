@@ -100,7 +100,7 @@ final class SparkleUpdateControllerTests: XCTestCase {
         // but we need to simulate finding an update. Since we can't easily create a mock SUAppcastItem,
         // we'll use the controller's public methods to set up the flow, then verify via the shared manager.
         updateController.checkForUpdateSkippingRollout()
-        
+
         // Access the controller's internal updateWideEvent via reflection to simulate finding an update
         // This is a workaround since we can't inject mockWideEvent directly anymore
         let mirror = Mirror(reflecting: updateController)

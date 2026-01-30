@@ -36,7 +36,10 @@ final class AppStoreUpdateControllerTests: XCTestCase {
         autoreleasepool {
             // Use mocked dependencies to prevent actual App Store from opening
             mockAppStoreOpener = MockAppStoreOpener()
-            controller = AppStoreUpdateController(appStoreOpener: mockAppStoreOpener)
+            controller = AppStoreUpdateController(
+                appStoreOpener: mockAppStoreOpener,
+                notificationPresenter: MockNotificationPresenter()
+            )
             cancellables = Set<AnyCancellable>()
         }
     }
@@ -248,7 +251,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When
@@ -269,7 +273,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When
@@ -290,7 +295,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When
@@ -310,7 +316,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When
@@ -331,7 +338,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
             // When
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // Then - Should initialize without setting up automatic checks
@@ -351,7 +359,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
             // When
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // Then - Should initialize and set up automatic checks
@@ -367,7 +376,10 @@ final class AppStoreUpdateControllerTests: XCTestCase {
         autoreleasepool {
             // Given
             let mockAppStoreOpener = MockAppStoreOpener()
-            let controller = AppStoreUpdateController(appStoreOpener: mockAppStoreOpener)
+            let controller = AppStoreUpdateController(
+                appStoreOpener: mockAppStoreOpener,
+                notificationPresenter: MockNotificationPresenter()
+            )
 
             // When
             controller.runUpdate()
@@ -387,7 +399,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                featureFlagger: mockFeatureFlagger
+                featureFlagger: mockFeatureFlagger,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When
@@ -403,7 +416,10 @@ final class AppStoreUpdateControllerTests: XCTestCase {
         autoreleasepool {
             // Given
             let mockAppStoreOpener = MockAppStoreOpener()
-            let controller = AppStoreUpdateController(appStoreOpener: mockAppStoreOpener)
+            let controller = AppStoreUpdateController(
+                appStoreOpener: mockAppStoreOpener,
+                notificationPresenter: MockNotificationPresenter()
+            )
 
             // When
             controller.openUpdatesPage()
@@ -418,7 +434,10 @@ final class AppStoreUpdateControllerTests: XCTestCase {
         autoreleasepool {
             // Given
             let mockAppStoreOpener = MockAppStoreOpener()
-            let controller = AppStoreUpdateController(appStoreOpener: mockAppStoreOpener)
+            let controller = AppStoreUpdateController(
+                appStoreOpener: mockAppStoreOpener,
+                notificationPresenter: MockNotificationPresenter()
+            )
 
             // When
             controller.openUpdatesPage()
@@ -442,7 +461,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                internalUserDecider: mockInternalUserDecider
+                internalUserDecider: mockInternalUserDecider,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When - enabling force update debug setting
@@ -479,7 +499,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                internalUserDecider: mockInternalUserDecider
+                internalUserDecider: mockInternalUserDecider,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When - enabling force update debug setting (but user is external)
@@ -518,7 +539,8 @@ final class AppStoreUpdateControllerTests: XCTestCase {
 
             let controller = AppStoreUpdateController(
                 appStoreOpener: mockAppStoreOpener,
-                internalUserDecider: mockInternalUserDecider
+                internalUserDecider: mockInternalUserDecider,
+                notificationPresenter: MockNotificationPresenter()
             )
 
             // When & Then - should follow normal version comparison logic
