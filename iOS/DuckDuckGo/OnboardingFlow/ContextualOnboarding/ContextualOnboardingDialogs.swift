@@ -154,7 +154,7 @@ struct OnboardingFirstSearchDoneDialog: View {
                         )
                     }
                 }
-            )
+            })
             .padding()
         }
     }
@@ -200,7 +200,7 @@ struct OnboardingTrackersDoneDialog: View {
                         )
                     }
                 }
-            )
+            })
             .padding()
         }
     }
