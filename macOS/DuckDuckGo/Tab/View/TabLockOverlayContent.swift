@@ -30,6 +30,7 @@ final class TabLockOverlayViewModel: ObservableObject {
     #endif
 
     @Published var isVisible = false
+    @Published var contentVisible = false
     @Published var shouldAnimateBounce = false
     @Published var shouldAnimateOutBounce = false
     var onUnlockRequested: (() -> Void)?
@@ -39,13 +40,19 @@ final class TabLockOverlayViewModel: ObservableObject {
         print("[LOCK DEBUG] animateIn called, isVisible=\(isVisible), shouldAnimateBounce=\(shouldAnimateBounce)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = true
+            contentVisible = true
             completion?()
         } else {
             shouldAnimateBounce = true
             withAnimation(.easeOut(duration: 0.6 / animationSpeed)) {
                 isVisible = true
             }
-            // Call completion after full animation (0.6s slide + bounce sequence)
+            // Content fades in after 500ms delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 / animationSpeed) {
+                withAnimation(.easeOut(duration: 0.36 / self.animationSpeed)) {
+                    self.contentVisible = true
+                }
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.84 / animationSpeed) {
                 completion?()
             }
@@ -56,14 +63,21 @@ final class TabLockOverlayViewModel: ObservableObject {
         print("[LOCK DEBUG] animateOut called, isVisible=\(isVisible)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = false
+            contentVisible = false
             completion()
         } else {
-            shouldAnimateOutBounce = true
-            // Phase 1: Slide out with easeIn (360ms)
-            withAnimation(.easeIn(duration: 0.36 / animationSpeed)) {
-                isVisible = false
+            // Content fades at t=0 (150ms, easeIn)
+            withAnimation(.easeIn(duration: 0.15 / animationSpeed)) {
+                contentVisible = false
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 / animationSpeed) {
+            // Panels slide at t=180ms (600ms, easeOut)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18 / animationSpeed) {
+                withAnimation(.easeOut(duration: 0.6 / self.animationSpeed)) {
+                    self.isVisible = false
+                }
+            }
+            // Complete at t=780ms
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.78 / animationSpeed) {
                 completion()
             }
         }
@@ -76,6 +90,7 @@ final class TabLockOverlayViewModel: ObservableObject {
         withTransaction(transaction) {
             shouldAnimateBounce = false
             isVisible = true
+            contentVisible = true
         }
     }
 
@@ -85,6 +100,7 @@ final class TabLockOverlayViewModel: ObservableObject {
         transaction.disablesAnimations = true
         withTransaction(transaction) {
             isVisible = false
+            contentVisible = false
         }
     }
 }
@@ -102,10 +118,6 @@ struct TabLockOverlayContent: View {
     @State private var blob2Rotation: Double = .random(in: 0..<360)
     @State private var blob3Rotation: Double = .random(in: 0..<360)
     @State private var panelBounceOffset: CGFloat = 0
-    @State private var showElements = false
-
-    private var baseAnimation: Animation { .easeOut(duration: 0.72 / viewModel.animationSpeed) }
-    private var blobAnimation: Animation { .easeOut(duration: 0.7 / viewModel.animationSpeed).delay(0.1 / viewModel.animationSpeed) }
 
     var body: some View {
         GeometryReader { geometry in
@@ -141,68 +153,24 @@ struct TabLockOverlayContent: View {
             viewModel.onViewReady?()
         }
         .onChange(of: viewModel.isVisible) { isVisible in
-            print("[LOCK DEBUG] onChange fired, isVisible=\(isVisible), shouldAnimateBounce=\(viewModel.shouldAnimateBounce), showElements=\(showElements)")
+            print("[LOCK DEBUG] onChange fired, isVisible=\(isVisible)")
             if isVisible {
-                print("[LOCK DEBUG] Setting showElements to true")
-                // Set showElements - with or without animation depending on mode
-                if viewModel.shouldAnimateBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                    withAnimation(.easeOut(duration: 0.36 / viewModel.animationSpeed).delay(0.5 / viewModel.animationSpeed)) {
-                        showElements = true
-                    }
-                } else {
-                    // Immediate show or reduce motion - disable animations
-                    var transaction = Transaction()
-                    transaction.disablesAnimations = true
-                    withTransaction(transaction) {
-                        showElements = true
-                    }
-                }
-
-                // Bounce animation (only if animated mode)
+                // Bounce animation (only if animated lock)
                 guard viewModel.shouldAnimateBounce else { return }
                 guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
 
-                // Phase 2: Bounce outward (after 600ms slide completes)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 / viewModel.animationSpeed) {
                     withAnimation(.easeOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 10
                     }
                 }
-                // Phase 3: Settle back (after 720ms)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.72 / viewModel.animationSpeed) {
                     withAnimation(.easeInOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 0
                     }
                 }
             } else {
-                print("[LOCK DEBUG] Setting showElements to false")
-                // Animate inner content out with fast easeIn (no delay)
-                if viewModel.shouldAnimateOutBounce && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                    withAnimation(.easeIn(duration: 0.15 / viewModel.animationSpeed)) {
-                        showElements = false
-                    }
-                } else {
-                    panelBounceOffset = 0
-                    showElements = false
-                }
-
-                // Unlock bounce animation (panels bounce back toward center as they exit)
-                guard viewModel.shouldAnimateOutBounce else { return }
-                guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
-                viewModel.shouldAnimateOutBounce = false
-
-                // Phase 2: Bounce back toward center (after 360ms slide)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36 / viewModel.animationSpeed) {
-                    withAnimation(.easeOut(duration: 0.12 / self.viewModel.animationSpeed)) {
-                        panelBounceOffset = -10  // Negative = panels bounce back inward
-                    }
-                }
-                // Phase 3: Settle to final position (after 480ms)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48 / viewModel.animationSpeed) {
-                    withAnimation(.easeInOut(duration: 0.12 / self.viewModel.animationSpeed)) {
-                        panelBounceOffset = 0
-                    }
-                }
+                panelBounceOffset = 0
             }
         }
     }
@@ -278,11 +246,10 @@ struct TabLockOverlayContent: View {
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white)
                 }
-                .opacity(showElements ? 1 : 0)
-                .offset(y: showElements ? 0 : 16)
+                .opacity(viewModel.contentVisible ? 1 : 0)
+                .offset(y: viewModel.contentVisible ? 0 : 16)
             }
-            .scaleEffect(showElements ? 1 : 0.3)
-            .animation(baseAnimation, value: showElements)
+            .scaleEffect(viewModel.isVisible ? 1 : 0.3)
         }
     }
 
@@ -291,9 +258,8 @@ struct TabLockOverlayContent: View {
             .resizable()
             .frame(width: size, height: size)
             .rotationEffect(.degrees(rotation))
-            .scaleEffect(showElements ? 1 : 0.3)
-            .opacity(showElements ? 1 : 0)
-            .animation(blobAnimation, value: showElements)
+            .scaleEffect(viewModel.contentVisible ? 1 : 0.3)
+            .opacity(viewModel.contentVisible ? 1 : 0)
     }
 
     // MARK: - Blob Rotations
