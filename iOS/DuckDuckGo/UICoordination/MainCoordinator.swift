@@ -98,9 +98,9 @@ final class MainCoordinator {
                                                           subscriptionDataReporter: reportingService.subscriptionDataReporter,
                                                           isStillOnboarding: { daxDialogsManager.isStillOnboarding() })
         let previewsSource = DefaultTabPreviewsSource()
-        let historyManager = try Self.makeHistoryManager()
         let tabsPersistence = try TabsModelPersistence()
         let tabsModel = try Self.prepareTabsModel(previewsSource: previewsSource, tabsPersistence: tabsPersistence)
+        let historyManager = try Self.makeHistoryManager(tabsModel: tabsModel)
         reportingService.subscriptionDataReporter.injectTabsModel(tabsModel)
         let daxDialogsFactory = ContextualDaxDialogProvider(featureFlagger: featureFlagger,
                                                          contextualOnboardingLogic: daxDialogs,
@@ -206,10 +206,11 @@ final class MainCoordinator {
         controller.loadViewIfNeeded()
     }
 
-    private static func makeHistoryManager() throws -> HistoryManaging {
+    private static func makeHistoryManager(tabsModel: TabsModel) throws -> HistoryManaging {
         let provider = AppDependencyProvider.shared
         switch HistoryManager.make(isAutocompleteEnabledByUser: provider.appSettings.autocomplete,
                                    isRecentlyVisitedSitesEnabledByUser: provider.appSettings.recentlyVisitedSites,
+                                   openTabIDsProvider: { tabsModel.tabs.map { $0.uid } },
                                    tld: provider.storageCache.tld) {
         case .failure(let error):
             throw TerminationError.historyDatabase(error)
