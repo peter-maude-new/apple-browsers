@@ -217,6 +217,14 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
 
     /// Tab search functionality in tab switcher
     case searchTabs
+
+    /// Failsafe flag to bring back keys sorting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037849588149
+    case crashCollectionDisableKeysSorting
+
+    /// Failsafe flag for disabling call stack tree depth limiting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764805
+    case crashCollectionLimitCallStackTreeDepth
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -443,7 +451,6 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case winBackOffer
     case vpnMenuItem
     case blackFridayCampaign
-    case tierMessagingEnabled
     case allowProTierPurchase
 }
 
