@@ -576,16 +576,20 @@
 		80437D6D2EFB3BDA00D3E896 /* AutoClearSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80437D6C2EFB3BD600D3E896 /* AutoClearSettingsViewModelTests.swift */; };
 		805674FB2EEF790700152470 /* SettingsDataClearingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805674FA2EEF790700152470 /* SettingsDataClearingView.swift */; };
 		805674FF2EEFA0A500152470 /* DataClearingSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805674FD2EEFA0A500152470 /* DataClearingSettingsViewModel.swift */; };
+		805DF6B12F28E807004F1F41 /* GranularFireConfirmationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805DF6B02F28E807004F1F41 /* GranularFireConfirmationViewModelTests.swift */; };
 		8065741D2ED917410001497A /* FireExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8065741C2ED917350001497A /* FireExecutor.swift */; };
 		808DA5012F230245001D5F76 /* TabViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 808DA5002F230245001D5F76 /* TabViewModelTests.swift */; };
-		8097AA5A2EE652E400E995F9 /* FireConfirmationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8097AA592EE652DC00E995F9 /* FireConfirmationViewModelTests.swift */; };
-		809F9D152EE12CF600943E8A /* FireConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D122EE12CF600943E8A /* FireConfirmationView.swift */; };
+		809F9D152EE12CF600943E8A /* GranularFireConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D122EE12CF600943E8A /* GranularFireConfirmationView.swift */; };
 		809F9D162EE12CF600943E8A /* FireConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D112EE12CF600943E8A /* FireConfirmationPresenter.swift */; };
-		809F9D172EE12CF600943E8A /* FireConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D132EE12CF600943E8A /* FireConfirmationViewModel.swift */; };
+		809F9D172EE12CF600943E8A /* GranularFireConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F9D132EE12CF600943E8A /* GranularFireConfirmationViewModel.swift */; };
 		80A198C72F1AB3A90015521B /* TabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A198C62F1AB3A10015521B /* TabViewModel.swift */; };
 		80BADA432EEA2B3500BA6CDB /* FireConfirmationSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80BADA422EEA2B3500BA6CDB /* FireConfirmationSettingsStore.swift */; };
 		80CDFA1D2EF0AEB600375E73 /* MockTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E8D5D42EEA659300820EB0 /* MockTabManager.swift */; };
 		80CDFA1E2EF0AEB600375E73 /* MockTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E8D5D42EEA659300820EB0 /* MockTabManager.swift */; };
+		80DD30342F27F435006E1A78 /* ScopedFireConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DD30332F27F435006E1A78 /* ScopedFireConfirmationView.swift */; };
+		80DD30362F27F457006E1A78 /* ScopedFireConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DD30352F27F457006E1A78 /* ScopedFireConfirmationViewModel.swift */; };
+		80DD30382F281161006E1A78 /* ScopedFireConfirmationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DD30372F281161006E1A78 /* ScopedFireConfirmationViewModelTests.swift */; };
+		80DD303B2F2839D7006E1A78 /* fire-icon.json in Resources */ = {isa = PBXBuildFile; fileRef = 80DD303A2F2839D7006E1A78 /* fire-icon.json */; };
 		80DD839F2EF0FEF400DAB108 /* DataClearingSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DD839E2EF0FEF400DAB108 /* DataClearingSettingsViewModelTests.swift */; };
 		80E8D5D32EEA655900820EB0 /* FireExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E8D5D22EEA655900820EB0 /* FireExecutorTests.swift */; };
 		80E8D5D52EEA659300820EB0 /* MockTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E8D5D42EEA659300820EB0 /* MockTabManager.swift */; };
@@ -2786,14 +2790,18 @@
 		80437D6C2EFB3BD600D3E896 /* AutoClearSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoClearSettingsViewModelTests.swift; sourceTree = "<group>"; };
 		805674FA2EEF790700152470 /* SettingsDataClearingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDataClearingView.swift; sourceTree = "<group>"; };
 		805674FD2EEFA0A500152470 /* DataClearingSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingSettingsViewModel.swift; sourceTree = "<group>"; };
+		805DF6B02F28E807004F1F41 /* GranularFireConfirmationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GranularFireConfirmationViewModelTests.swift; sourceTree = "<group>"; };
 		8065741C2ED917350001497A /* FireExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireExecutor.swift; sourceTree = "<group>"; };
 		808DA5002F230245001D5F76 /* TabViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModelTests.swift; sourceTree = "<group>"; };
-		8097AA592EE652DC00E995F9 /* FireConfirmationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireConfirmationViewModelTests.swift; sourceTree = "<group>"; };
 		809F9D112EE12CF600943E8A /* FireConfirmationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireConfirmationPresenter.swift; sourceTree = "<group>"; };
-		809F9D122EE12CF600943E8A /* FireConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireConfirmationView.swift; sourceTree = "<group>"; };
-		809F9D132EE12CF600943E8A /* FireConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireConfirmationViewModel.swift; sourceTree = "<group>"; };
+		809F9D122EE12CF600943E8A /* GranularFireConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GranularFireConfirmationView.swift; sourceTree = "<group>"; };
+		809F9D132EE12CF600943E8A /* GranularFireConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GranularFireConfirmationViewModel.swift; sourceTree = "<group>"; };
 		80A198C62F1AB3A10015521B /* TabViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViewModel.swift; sourceTree = "<group>"; };
 		80BADA422EEA2B3500BA6CDB /* FireConfirmationSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireConfirmationSettingsStore.swift; sourceTree = "<group>"; };
+		80DD30332F27F435006E1A78 /* ScopedFireConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedFireConfirmationView.swift; sourceTree = "<group>"; };
+		80DD30352F27F457006E1A78 /* ScopedFireConfirmationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedFireConfirmationViewModel.swift; sourceTree = "<group>"; };
+		80DD30372F281161006E1A78 /* ScopedFireConfirmationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopedFireConfirmationViewModelTests.swift; sourceTree = "<group>"; };
+		80DD303A2F2839D7006E1A78 /* fire-icon.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fire-icon.json"; sourceTree = "<group>"; };
 		80DD839E2EF0FEF400DAB108 /* DataClearingSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingSettingsViewModelTests.swift; sourceTree = "<group>"; };
 		80E8D5D22EEA655900820EB0 /* FireExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireExecutorTests.swift; sourceTree = "<group>"; };
 		80E8D5D42EEA659300820EB0 /* MockTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTabManager.swift; sourceTree = "<group>"; };
@@ -6258,9 +6266,10 @@
 			isa = PBXGroup;
 			children = (
 				80437D6C2EFB3BD600D3E896 /* AutoClearSettingsViewModelTests.swift */,
-				80E8D5D22EEA655900820EB0 /* FireExecutorTests.swift */,
 				80DD839E2EF0FEF400DAB108 /* DataClearingSettingsViewModelTests.swift */,
-				8097AA592EE652DC00E995F9 /* FireConfirmationViewModelTests.swift */,
+				80E8D5D22EEA655900820EB0 /* FireExecutorTests.swift */,
+				805DF6B02F28E807004F1F41 /* GranularFireConfirmationViewModelTests.swift */,
+				80DD30372F281161006E1A78 /* ScopedFireConfirmationViewModelTests.swift */,
 			);
 			path = Fire;
 			sourceTree = "<group>";
@@ -6268,13 +6277,24 @@
 		809F9D142EE12CF600943E8A /* Fire */ = {
 			isa = PBXGroup;
 			children = (
+				80DD30392F2839B3006E1A78 /* Animation */,
 				8065741C2ED917350001497A /* FireExecutor.swift */,
 				809F9D112EE12CF600943E8A /* FireConfirmationPresenter.swift */,
-				809F9D122EE12CF600943E8A /* FireConfirmationView.swift */,
+				809F9D122EE12CF600943E8A /* GranularFireConfirmationView.swift */,
+				809F9D132EE12CF600943E8A /* GranularFireConfirmationViewModel.swift */,
 				80BADA422EEA2B3500BA6CDB /* FireConfirmationSettingsStore.swift */,
-				809F9D132EE12CF600943E8A /* FireConfirmationViewModel.swift */,
+				80DD30332F27F435006E1A78 /* ScopedFireConfirmationView.swift */,
+				80DD30352F27F457006E1A78 /* ScopedFireConfirmationViewModel.swift */,
 			);
 			path = Fire;
+			sourceTree = "<group>";
+		};
+		80DD30392F2839B3006E1A78 /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				80DD303A2F2839D7006E1A78 /* fire-icon.json */,
+			);
+			path = Animation;
 			sourceTree = "<group>";
 		};
 		830FA79B1F8E81FB00FCE105 /* ContentBlocker */ = {
@@ -10725,6 +10745,7 @@
 				85F98F98296F4CB100742F4A /* SyncAssets.xcassets in Resources */,
 				31BC5F412C2B0B540004DF37 /* DuckPlayer.xcassets in Resources */,
 				7BDBAD0E2CBFB3F1000379B7 /* VPN.xcassets in Resources */,
+				80DD303B2F2839D7006E1A78 /* fire-icon.json in Resources */,
 				310C24E42E6B6AD100D5A372 /* toggle-ipad-dark.json in Resources */,
 				98B001B3251EABB40090EC07 /* InfoPlist.strings in Resources */,
 				D65CEA702B6AC6C9008A759B /* Subscription.xcassets in Resources */,
@@ -11388,6 +11409,7 @@
 				8536A1FD2ACF114B003AC5BA /* Theme+DesignSystem.swift in Sources */,
 				F114C55B1E66EB020018F95F /* NibLoading.swift in Sources */,
 				D6BFCB612B7525160051FF81 /* SubscriptionPIRViewModel.swift in Sources */,
+				80DD30342F27F435006E1A78 /* ScopedFireConfirmationView.swift in Sources */,
 				D668D9252B693778008E2FF2 /* SubscriptionITPView.swift in Sources */,
 				9F5E5AAC2C3D0FCD00165F54 /* ContextualDaxDialogsFactory.swift in Sources */,
 				C10CB5F32A1A5BDF0048E503 /* AutofillViews.swift in Sources */,
@@ -11794,6 +11816,7 @@
 				CB14D5832E269A7F002E897E /* UserAgentConfiguration.swift in Sources */,
 				9F74B7922D49E43A00A7F174 /* MaliciousSiteProtection+Pixel.swift in Sources */,
 				BDE219E62C406D19005D5884 /* SubscriptionDataReporting.swift in Sources */,
+				80DD30362F27F457006E1A78 /* ScopedFireConfirmationViewModel.swift in Sources */,
 				D6E83C312B1EA309006C8AFB /* SettingsCell.swift in Sources */,
 				CBF259BB2D4D020200AC63E4 /* AutoClearService.swift in Sources */,
 				6F87A7942D96AEA3006BFD71 /* OmniBarViewController.swift in Sources */,
@@ -11954,9 +11977,9 @@
 				1DEAADEA2BA4539800E25A97 /* SettingsAppearanceView.swift in Sources */,
 				B623C1C22862CA9E0043013E /* DownloadSession.swift in Sources */,
 				6F5938982DB1028200C8C068 /* BrowserChromeButton.swift in Sources */,
-				809F9D152EE12CF600943E8A /* FireConfirmationView.swift in Sources */,
+				809F9D152EE12CF600943E8A /* GranularFireConfirmationView.swift in Sources */,
 				809F9D162EE12CF600943E8A /* FireConfirmationPresenter.swift in Sources */,
-				809F9D172EE12CF600943E8A /* FireConfirmationViewModel.swift in Sources */,
+				809F9D172EE12CF600943E8A /* GranularFireConfirmationViewModel.swift in Sources */,
 				7B16810C2D10CF44005EAE24 /* WidgetVPNIntents.swift in Sources */,
 				317CA3432CFF82E100F88848 /* SettingsAIFeaturesView.swift in Sources */,
 				9F7CFF7F2C8A94F70012833E /* OnboardingView+AddressBarPositionContent.swift in Sources */,
@@ -12053,7 +12076,6 @@
 				9F16230B2CA0F0190093C4FC /* DebouncerTests.swift in Sources */,
 				9F63BABB2D7EC0EF00BD31F4 /* DefaultBrowserInfoStoreTests.swift in Sources */,
 				9F254ADC2CF6120E0063B308 /* MockSpecialErrorPageNavigationDelegate.swift in Sources */,
-				8097AA5A2EE652E400E995F9 /* FireConfirmationViewModelTests.swift in Sources */,
 				1CB7B82323CEA28300AA24EA /* DateExtensionTests.swift in Sources */,
 				D6D357012DC4385200B91D35 /* DuckPlayerViewModelTests.swift in Sources */,
 				85F996D02E54C268006B4641 /* OpenAIChatFromAddressBarHandlingTests.swift in Sources */,
@@ -12086,6 +12108,7 @@
 				9FCFCD802C6AF56D006EB7A0 /* LaunchOptionsHandlerTests.swift in Sources */,
 				983C52E72C2C0ACB007B5747 /* BookmarkStateRepairTests.swift in Sources */,
 				6F81F61F2F1FB0790007CADD /* BrowsingMenuHeaderDataSourceTests.swift in Sources */,
+				80DD30382F281161006E1A78 /* ScopedFireConfirmationViewModelTests.swift in Sources */,
 				9F387DE02EA881D1006861F8 /* PromptCooldownMocks.swift in Sources */,
 				652CEDE62D89B71300235B4C /* FaviconsHelperTests.swift in Sources */,
 				9F2D99E42EA9F9EE003950CC /* DefaultBrowserModalPromptProviderTests.swift in Sources */,
@@ -12338,6 +12361,7 @@
 				F1D477C91F2139410031ED49 /* SmallOmniBarStateTests.swift in Sources */,
 				F164BCD42E3CFAF9001DF95A /* AdAttributionPixelReporterTests.swift in Sources */,
 				F164BCD52E3CFAF9001DF95A /* AdAttributionFetcherTests.swift in Sources */,
+				805DF6B12F28E807004F1F41 /* GranularFireConfirmationViewModelTests.swift in Sources */,
 				F164BCD62E3CFAF9001DF95A /* AdClickExternalOpenDetectorTests.swift in Sources */,
 				987130C9294AAB9F00AB05E0 /* BookmarkUtilsTests.swift in Sources */,
 				C1BF0BA929B63E2200482B73 /* AutofillLoginPromptViewModelTests.swift in Sources */,

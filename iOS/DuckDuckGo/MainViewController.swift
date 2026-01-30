@@ -1206,6 +1206,7 @@ class MainViewController: UIViewController {
             presenter.presentFireConfirmation(
                 on: self,
                 attachPopoverTo: source,
+                tabViewModel: tabManager.viewModelForCurrentTab(),
                 onConfirm: { [weak self] fireRequest in
                     self?.forgetAllWithAnimation(request: fireRequest) {}
                 },
@@ -3832,7 +3833,14 @@ extension MainViewController: FireExecutorDelegate {
     
     func didFinishBurningTabs(fireRequest: FireRequest) {
         guard fireRequest.trigger == .manualFire else { return }
-        refreshUIAfterClear()
+                
+        switch fireRequest.scope {
+        case .all:
+            refreshUIAfterClear()
+        case .tab:
+            // TODO: - Custom logic if needed
+            return
+        }
     }
     
     func willStartBurningData(fireRequest: FireRequest) {
@@ -3846,22 +3854,34 @@ extension MainViewController: FireExecutorDelegate {
     }
 
     func willStartBurningAIHistory(fireRequest: FireRequest) {
-        Task {
-            if autoClearInProgress {
-                await aiChatSyncCleaner.recordLocalClearFromAutoClearBackgroundTimestampIfPresent()
-            } else {
-                await aiChatSyncCleaner.recordLocalClear(date: Date())
+        switch fireRequest.scope {
+        case .all:
+            Task {
+                if autoClearInProgress {
+                    await aiChatSyncCleaner.recordLocalClearFromAutoClearBackgroundTimestampIfPresent()
+                } else {
+                    await aiChatSyncCleaner.recordLocalClear(date: Date())
+                }
             }
+        case .tab:
+            // TODO: - Custom logic if needed
+            return
         }
     }
     
     func didFinishBurningAIHistory(fireRequest: FireRequest) {
-        Task {
-            await aiChatViewControllerManager.killSessionAndResetTimer()
-        }
+        switch fireRequest.scope {
+        case .all:
+            Task {
+                await aiChatViewControllerManager.killSessionAndResetTimer()
+            }
 
-        if syncService.authState != .inactive {
-            syncService.scheduler.requestSyncImmediately()
+            if syncService.authState != .inactive {
+                syncService.scheduler.requestSyncImmediately()
+            }
+        case .tab:
+            // TODO: - Custom logic if needed
+            return
         }
     }
     
