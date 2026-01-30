@@ -35,24 +35,28 @@ public enum SingleUseColor {
 
     // MARK: - Onboarding Colors
 
-    case onboardingDefaultButton
-    case onboardingSecondaryButton
-    case onboardingDefaultButtonText
-    case onboardingSecondaryButtonText
-    case onboardingBorder
-    case onboardingBackgroundAccent
-    case onboardingTableSurface
-    case onboardingTableSurfaceAccent
-    case onboardingIconOrange
-    case onboardingIconPink
-    case onboardingIconYellow
-    case onboardingIconGreen
-    case onboardingIconBlue
-    case onboardingIconPurple
-    case onboardingIconBlack
-    case onboardingCheckMark
-    case onboardingCheckMarkText
-    case onboardingTitle
-    case onboardingText
-    case onboardingSubtext
+    public enum Onboarding {
+        public enum Colors: CaseIterable {
+            case defaultButton
+            case secondaryButton
+            case defaultButtonText
+            case secondaryButtonText
+            case border
+            case backgroundAccent
+            case tableSurface
+            case tableSurfaceAccent
+            case iconOrange
+            case iconPink
+            case iconYellow
+            case iconGreen
+            case iconBlue
+            case iconPurple
+            case iconBlack
+            case checkMark
+            case checkMarkText
+            case title
+            case text
+            case subtext
+        }
+    }
 }

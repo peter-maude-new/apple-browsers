@@ -48,6 +48,39 @@ public extension UIColor {
     }
 }
 
+public extension Color {
+    init(onboardingColor: SingleUseColor.Onboarding.Colors) {
+        self = Onboarding.Colors.color(for: onboardingColor).color
+    }
+}
+
+extension Onboarding.Colors {
+    static func color(for colorCase: SingleUseColor.Onboarding.Colors) -> DynamicColor {
+        switch colorCase {
+        case .defaultButton: return defaultButton
+        case .secondaryButton: return secondaryButton
+        case .defaultButtonText: return defaultButtonText
+        case .secondaryButtonText: return secondaryButtonText
+        case .border: return border
+        case .backgroundAccent: return backgroundAccent
+        case .tableSurface: return tableSurface
+        case .tableSurfaceAccent: return tableSurfaceAccent
+        case .iconOrange: return iconOrange
+        case .iconPink: return iconPink
+        case .iconYellow: return iconYellow
+        case .iconGreen: return iconGreen
+        case .iconBlue: return iconBlue
+        case .iconPurple: return iconPurple
+        case .iconBlack: return iconBlack
+        case .checkMark: return checkMark
+        case .checkMarkText: return checkMarkText
+        case .title: return title
+        case .text: return text
+        case .subtext: return subtext
+        }
+    }
+}
+
 #endif
 
 #if canImport(AppKit)

@@ -124,26 +124,26 @@ extension OnboardingTheme {
 extension OnboardingTheme.ColorPalette {
 
     static let rebranding2026 = OnboardingTheme.ColorPalette(
-        defaultButton: Color(singleUseColor: .onboardingDefaultButton),
-        secondaryButton: Color(singleUseColor: .onboardingSecondaryButton),
-        defaultButtonText: Color(singleUseColor: .onboardingDefaultButtonText),
-        secondaryButtonText: Color(singleUseColor: .onboardingSecondaryButtonText),
-        border: Color(singleUseColor: .onboardingBorder),
-        backgroundAccent: Color(singleUseColor: .onboardingBackgroundAccent),
-        tableSurface: Color(singleUseColor: .onboardingTableSurface),
-        tableSurfaceAccent: Color(singleUseColor: .onboardingTableSurfaceAccent),
-        iconOrange: Color(singleUseColor: .onboardingIconOrange),
-        iconPink: Color(singleUseColor: .onboardingIconPink),
-        iconYellow: Color(singleUseColor: .onboardingIconYellow),
-        iconGreen: Color(singleUseColor: .onboardingIconGreen),
-        iconBlue: Color(singleUseColor: .onboardingIconBlue),
-        iconPurple: Color(singleUseColor: .onboardingIconPurple),
-        iconBlack: Color(singleUseColor: .onboardingIconBlack),
-        checkMark: Color(singleUseColor: .onboardingCheckMark),
-        checkMarkText: Color(singleUseColor: .onboardingCheckMarkText),
-        title: Color(singleUseColor: .onboardingTitle),
-        text: Color(singleUseColor: .onboardingText),
-        subtext: Color(singleUseColor: .onboardingSubtext)
+        defaultButton: Color(onboardingColor: .defaultButton),
+        secondaryButton: Color(onboardingColor: .secondaryButton),
+        defaultButtonText: Color(onboardingColor: .defaultButtonText),
+        secondaryButtonText: Color(onboardingColor: .secondaryButtonText),
+        border: Color(onboardingColor: .border),
+        backgroundAccent: Color(onboardingColor: .backgroundAccent),
+        tableSurface: Color(onboardingColor: .tableSurface),
+        tableSurfaceAccent: Color(onboardingColor: .tableSurfaceAccent),
+        iconOrange: Color(onboardingColor: .iconOrange),
+        iconPink: Color(onboardingColor: .iconPink),
+        iconYellow: Color(onboardingColor: .iconYellow),
+        iconGreen: Color(onboardingColor: .iconGreen),
+        iconBlue: Color(onboardingColor: .iconBlue),
+        iconPurple: Color(onboardingColor: .iconPurple),
+        iconBlack: Color(onboardingColor: .iconBlack),
+        checkMark: Color(onboardingColor: .checkMark),
+        checkMarkText: Color(onboardingColor: .checkMarkText),
+        title: Color(onboardingColor: .title),
+        text: Color(onboardingColor: .text),
+        subtext: Color(onboardingColor: .subtext)
     )
 
 }
