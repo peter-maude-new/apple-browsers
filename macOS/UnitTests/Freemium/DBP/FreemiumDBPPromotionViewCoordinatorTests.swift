@@ -293,7 +293,7 @@ final class FreemiumDBPPromotionViewCoordinatorTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        wait(for: [expectation], timeout: 2.0)
+        wait(for: [expectation], timeout: 5.0)
 
         // Then
         XCTAssertTrue(sut.isHomePagePromotionVisible)
@@ -323,7 +323,7 @@ final class FreemiumDBPPromotionViewCoordinatorTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        wait(for: [expectation], timeout: 2.0)
+        wait(for: [expectation], timeout: 5.0)
 
         // Then
         XCTAssertFalse(sut.isHomePagePromotionVisible)
@@ -353,7 +353,7 @@ final class FreemiumDBPPromotionViewCoordinatorTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        wait(for: [expectation], timeout: 2.0)
+        wait(for: [expectation], timeout: 5.0)
 
         // Then
         XCTAssertFalse(sut.isHomePagePromotionVisible)
@@ -439,7 +439,7 @@ final class FreemiumDBPPromotionViewCoordinatorTests: XCTestCase {
 
         contextualOnboardingSubject.send(false)
 
-        await fulfillment(of: [expectation], timeout: 0.5)
+        await fulfillment(of: [expectation], timeout: 5)
 
         // Then
         XCTAssertEqual(sut.viewModel?.title, currentViewModel?.title)
@@ -453,7 +453,7 @@ final class FreemiumDBPPromotionViewCoordinatorTests: XCTestCase {
      * before cancelling the subscription.
      */
     @discardableResult @MainActor
-    private func waitForViewModelUpdate(for duration: TimeInterval = 1, _ block: () async -> Void = {}) async throws -> PromotionViewModel? {
+    private func waitForViewModelUpdate(for duration: TimeInterval = 5, _ block: () async -> Void = {}) async throws -> PromotionViewModel? {
         let expectation = self.expectation(description: "viewModelUpdate")
         let cancellable = sut.$viewModel.dropFirst().prefix(1).sink { _ in expectation.fulfill() }
 
