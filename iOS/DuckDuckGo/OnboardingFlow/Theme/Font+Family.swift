@@ -22,7 +22,7 @@ import SwiftUI
 extension Font {
 
     enum Family: Equatable {
-        enum Custom {
+        enum Custom: Equatable {
             case duckSansDisplay
             case duckSansProduct
         }

@@ -279,7 +279,7 @@ struct DefaultColorPalette: ColorPaletteDefinition {
         case .onboardingAccent:
             return DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
         case .onboardingBackgroundColor:
-            return DynamicColor(staticColor: .white)
+            return DynamicColor(lightColor: .white, darkColor: Color(0x0C1420))
         }
     }
 }

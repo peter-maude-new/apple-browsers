@@ -62,7 +62,7 @@ struct RebrandedOnboardingView: View {
                     }
 #endif
             }
-
+            #if DEBUG
             // DEBUG: Red indicator for rebranded onboarding
             VStack {
                 Rectangle()
@@ -71,6 +71,7 @@ struct RebrandedOnboardingView: View {
                 Spacer()
             }
             .ignoresSafeArea()
+            #endif
         }
         .onboardingTheme(.rebranding2026)
     }
