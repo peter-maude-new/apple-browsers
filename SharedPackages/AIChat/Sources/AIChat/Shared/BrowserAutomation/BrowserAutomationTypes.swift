@@ -140,12 +140,14 @@ public struct BrowserTabInfo: Codable, Equatable {
     public let url: String?
     public let title: String?
     public let active: Bool
+    public let hidden: Bool
 
-    public init(handle: String, url: String? = nil, title: String? = nil, active: Bool = false) {
+    public init(handle: String, url: String? = nil, title: String? = nil, active: Bool = false, hidden: Bool = false) {
         self.handle = handle
         self.url = url
         self.title = title
         self.active = active
+        self.hidden = hidden
     }
 }
 

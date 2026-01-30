@@ -173,6 +173,7 @@ final class MainWindowController: NSWindowController {
 
     private func setupWindow(_ window: NSWindow) {
         window.delegate = self
+        mainViewController.tabCollectionViewModel.setWindowVisible(!window.isMiniaturized)
 
         if shouldShowOnboarding {
             mainViewController.tabCollectionViewModel.selectedTabViewModel?.tab.startOnboarding()
@@ -446,6 +447,14 @@ extension MainWindowController: NSWindowDelegate {
 
     func windowWillMiniaturize(_ notification: Notification) {
         mainViewController.windowWillMiniaturize()
+    }
+
+    func windowDidMiniaturize(_ notification: Notification) {
+        mainViewController.tabCollectionViewModel.setWindowVisible(false)
+    }
+
+    func windowDidDeminiaturize(_ notification: Notification) {
+        mainViewController.tabCollectionViewModel.setWindowVisible(true)
     }
 
     func windowDidEnterFullScreen(_ notification: Notification) {

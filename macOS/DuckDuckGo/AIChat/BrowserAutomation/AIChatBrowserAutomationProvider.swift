@@ -82,7 +82,8 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
                 handle: tab.uuid,
                 url: tab.webView?.url?.absoluteString,
                 title: tab.title,
-                active: tab.uuid == currentHandle
+                active: tab.uuid == currentHandle,
+                hidden: tab.isHidden
             )
             tabs.append(info)
         }

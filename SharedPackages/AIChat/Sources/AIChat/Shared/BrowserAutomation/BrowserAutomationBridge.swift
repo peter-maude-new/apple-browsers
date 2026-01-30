@@ -156,7 +156,8 @@ public final class BrowserAutomationBridge {
                 handle: provider.currentTabHandle ?? params.handle,
                 url: provider.currentURL?.absoluteString,
                 title: provider.currentTitle,
-                active: true
+                active: true,
+                hidden: false
             )
             return .success(BrowserSwitchTabResponse(success: true, tab: tabInfo))
         } else {
