@@ -533,11 +533,16 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func browserGetTabs(params: Any, message: UserScriptMessage) async -> Encodable? {
+        Logger.aiChat.info("[browserGetTabs] Called from UserScript")
         guard #available(macOS 12.0, *) else {
+            Logger.aiChat.error("[browserGetTabs] FAILED - unsupported OS version")
             return AIChatErrorResponse(reason: "unsupported_os_version")
         }
         let result = await getBrowserAutomationBridge().getTabs()
-        return browserAutomationResult(result)
+        Logger.aiChat.info("[browserGetTabs] Bridge returned result, converting to response")
+        let response = browserAutomationResult(result)
+        Logger.aiChat.info("[browserGetTabs] Returning response: \(Swift.type(of: response))")
+        return response
     }
 
     func browserSwitchTab(params: Any, message: UserScriptMessage) async -> Encodable? {
@@ -619,18 +624,30 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func browserGetHTML(params: Any, message: UserScriptMessage) async -> Encodable? {
+        Logger.aiChat.info("[browserGetHTML] Called from UserScript")
         guard #available(macOS 12.0, *) else {
+            Logger.aiChat.error("[browserGetHTML] FAILED - unsupported OS version")
             return AIChatErrorResponse(reason: "unsupported_os_version")
         }
         let htmlParams: BrowserGetHTMLParams
         if let decoded: BrowserGetHTMLParams = DecodableHelper.decode(from: params) {
             htmlParams = decoded
+            Logger.aiChat.info("[browserGetHTML] Decoded params - selector: \(htmlParams.selector ?? "nil"), handle: \(htmlParams.handle ?? "nil")")
         } else {
             htmlParams = BrowserGetHTMLParams()
+            Logger.aiChat.info("[browserGetHTML] Using default params")
         }
 
+        Logger.aiChat.info("[browserGetHTML] Calling bridge.getHTML")
         let result = await getBrowserAutomationBridge().getHTML(params: htmlParams)
-        return browserAutomationResult(result)
+        Logger.aiChat.info("[browserGetHTML] Bridge returned result")
+        let response = browserAutomationResult(result)
+        if let payloadResponse = response as? AIChatPayloadResponse {
+            Logger.aiChat.info("[browserGetHTML] SUCCESS - returning AIChatPayloadResponse")
+        } else if let errorResponse = response as? AIChatErrorResponse {
+            Logger.aiChat.error("[browserGetHTML] FAILED - returning AIChatErrorResponse: \(errorResponse.reason)")
+        }
+        return response
     }
 
     func browserNavigate(params: Any, message: UserScriptMessage) async -> Encodable? {
@@ -648,8 +665,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private func browserAutomationResult<T: Encodable>(_ result: Result<T, BrowserAutomationError>) -> Encodable {
         switch result {
         case .success(let response):
+            Logger.aiChat.info("[browserAutomationResult] SUCCESS - wrapping \(Swift.type(of: response)) in AIChatPayloadResponse")
             return AIChatPayloadResponse(payload: response)
         case .failure(let error):
+            Logger.aiChat.error("[browserAutomationResult] FAILURE - error: \(error.localizedDescription)")
             return AIChatErrorResponse(reason: error.localizedDescription)
         }
     }

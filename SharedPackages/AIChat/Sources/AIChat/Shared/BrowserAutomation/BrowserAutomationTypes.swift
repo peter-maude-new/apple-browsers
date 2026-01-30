@@ -229,9 +229,11 @@ public struct BrowserNavigateResponse: Codable, Equatable {
 /// Response for creating a new tab
 public struct BrowserNewTabResponse: Codable, Equatable {
     public let handle: String
+    public let hidden: Bool?
 
-    public init(handle: String) {
+    public init(handle: String, hidden: Bool? = nil) {
         self.handle = handle
+        self.hidden = hidden
     }
 }
 

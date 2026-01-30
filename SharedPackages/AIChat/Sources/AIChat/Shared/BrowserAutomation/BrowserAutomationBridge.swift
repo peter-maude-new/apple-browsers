@@ -130,9 +130,11 @@ public final class BrowserAutomationBridge {
     public init(provider: BrowserAutomationBridgeProviding?, isDebugEnabled: Bool = false) {
         self.provider = provider
         self.isDebugEnabled = isDebugEnabled
+        Self.logger.info("[init] BrowserAutomationBridge created, provider: \(provider != nil ? "SET" : "NIL", privacy: .public), debug: \(isDebugEnabled)")
     }
 
     public func setProvider(_ provider: BrowserAutomationBridgeProviding?) {
+        Self.logger.info("[setProvider] Setting provider to: \(provider != nil ? "non-nil (\(Swift.type(of: provider!)))" : "nil", privacy: .public)")
         self.provider = provider
     }
 
@@ -218,11 +220,18 @@ public final class BrowserAutomationBridge {
                 contentWorld: .page
             )
 
-            if isDebugEnabled {
-                let elapsed = CFAbsoluteTimeGetCurrent() - startTime
-                Self.logger.info("'\(description, privacy: .public)' completed in \(elapsed)s")
+            let elapsed = CFAbsoluteTimeGetCurrent() - startTime
+            Self.logger.info("'\(description, privacy: .public)' completed in \(elapsed)s")
 
-                if let dict = result as? [String: Any] {
+            // Debug: Log the raw result type
+            if let result = result {
+                Self.logger.info("  Raw result type: \(Swift.type(of: result)), isDict: \(result is [String: Any])")
+            } else {
+                Self.logger.warning("  Raw result is nil from callAsyncJavaScript")
+            }
+
+            if let dict = result as? [String: Any] {
+                if isDebugEnabled {
                     // Log any captured console output
                     if let logs = dict["__consoleLogs"] as? [[String: String]], !logs.isEmpty {
                         for log in logs {
@@ -309,20 +318,33 @@ public final class BrowserAutomationBridge {
     // MARK: - Tab Management
 
     public func getTabs() -> Result<BrowserGetTabsResponse, BrowserAutomationError> {
+        Self.logger.info("[getTabs] Called, provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[getTabs] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         let tabs = provider.getAllTabs()
+        Self.logger.info("[getTabs] Returning \(tabs.count) tabs")
+        if isDebugEnabled {
+            for tab in tabs {
+                Self.logger.info("[getTabs]   - \(tab.handle, privacy: .public): \(tab.url ?? "nil", privacy: .public) active=\(tab.active) hidden=\(tab.hidden)")
+            }
+        }
         return .success(BrowserGetTabsResponse(tabs: tabs))
     }
 
     public func switchTab(params: BrowserSwitchTabParams) -> Result<BrowserSwitchTabResponse, BrowserAutomationError> {
+        Self.logger.info("[switchTab] Called with handle: \(params.handle, privacy: .public), provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[switchTab] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         let success = provider.switchToTab(handle: params.handle)
+        Self.logger.info("[switchTab] switchToTab returned: \(success)")
         if success {
             // Get info about the tab we switched to
             let tabInfo = BrowserTabInfo(
@@ -332,14 +354,19 @@ public final class BrowserAutomationBridge {
                 active: true,
                 hidden: false
             )
+            Self.logger.info("[switchTab] SUCCESS - now on tab: \(tabInfo.handle, privacy: .public)")
             return .success(BrowserSwitchTabResponse(success: true, tab: tabInfo))
         } else {
+            Self.logger.error("[switchTab] FAILED - tab not found: \(params.handle, privacy: .public)")
             return .failure(.tabNotFound)
         }
     }
 
     public func newTab(params: BrowserNewTabParams) -> Result<BrowserNewTabResponse, BrowserAutomationError> {
+        Self.logger.info("[newTab] Called with url: \(params.url ?? "nil", privacy: .public), hidden: \(params.hidden ?? false), provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[newTab] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
@@ -353,38 +380,52 @@ public final class BrowserAutomationBridge {
         let wantsHidden = params.hidden ?? false
         let handle = wantsHidden ? provider.newHiddenTab(url: url) : provider.newTab(url: url)
         guard let handle else {
+            Self.logger.error("[newTab] FAILED - provider returned nil handle")
             return .failure(.noActiveTab)
         }
 
-        return .success(BrowserNewTabResponse(handle: handle))
+        Self.logger.info("[newTab] SUCCESS - created tab with handle: \(handle, privacy: .public), hidden: \(wantsHidden)")
+        return .success(BrowserNewTabResponse(handle: handle, hidden: wantsHidden))
     }
 
     public func closeTab(params: BrowserCloseTabParams) -> Result<BrowserSuccessResponse, BrowserAutomationError> {
+        Self.logger.info("[closeTab] Called with handle: \(params.handle ?? "nil", privacy: .public), provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[closeTab] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         let success = provider.closeTab(handle: params.handle)
+        Self.logger.info("[closeTab] Result: \(success ? "SUCCESS" : "FAILED", privacy: .public)")
         return .success(BrowserSuccessResponse(success: success))
     }
 
     public func setTabHidden(params: BrowserSetTabHiddenParams) -> Result<BrowserSuccessResponse, BrowserAutomationError> {
+        Self.logger.info("[setTabHidden] Called with handle: \(params.handle, privacy: .public), hidden: \(params.hidden), provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[setTabHidden] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         let success = provider.setTabHidden(handle: params.handle, hidden: params.hidden)
+        Self.logger.info("[setTabHidden] Result: \(success ? "SUCCESS" : "FAILED", privacy: .public)")
         return .success(BrowserSuccessResponse(success: success))
     }
 
     // MARK: - Navigation
 
     public func navigate(params: BrowserNavigateParams) -> Result<BrowserNavigateResponse, BrowserAutomationError> {
+        Self.logger.info("[navigate] Called with url: \(params.url, privacy: .public), handle: \(params.handle ?? "nil", privacy: .public), provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[navigate] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         guard let url = URL(string: params.url) else {
+            Self.logger.error("[navigate] FAILED - invalid URL: \(params.url, privacy: .public)")
             return .failure(.invalidParameters("Invalid URL"))
         }
 
@@ -399,6 +440,7 @@ public final class BrowserAutomationBridge {
         }
 
         let success = provider.navigate(to: url, handle: params.handle)
+        Self.logger.info("[navigate] Result: \(success ? "SUCCESS" : "FAILED", privacy: .public)")
         if success {
             // Return the URL we navigated to (may differ from final URL after redirects)
             return .success(BrowserNavigateResponse(
@@ -580,11 +622,15 @@ public final class BrowserAutomationBridge {
     }
 
     public func getHTML(params: BrowserGetHTMLParams) async -> Result<BrowserGetHTMLResponse, BrowserAutomationError> {
+        Self.logger.info("[getHTML] Called, provider: \(self.provider != nil ? "SET" : "NIL", privacy: .public)")
+
         guard let provider else {
+            Self.logger.error("[getHTML] FAILED - provider is nil")
             return .failure(.noActiveTab)
         }
 
         guard let webView = resolveWebView(handle: params.handle, provider: provider, operation: "getHTML") else {
+            Self.logger.error("[getHTML] FAILED - webView is nil for handle: \(params.handle ?? "nil", privacy: .public)")
             if params.handle != nil {
                 return .failure(.tabNotFound)
             }
@@ -611,13 +657,33 @@ public final class BrowserAutomationBridge {
         } else {
             script = """
             (() => {
+                const html = document.documentElement.outerHTML;
                 return {
-                    html: document.documentElement.outerHTML,
+                    html: html,
+                    htmlLength: html.length,
                     url: window.location.href,
                     title: document.title
                 };
             })()
             """
+        }
+
+        // DEBUG: First try a simple test to verify callAsyncJavaScript works at all
+        Self.logger.info("[getHTML] Testing basic script execution...")
+        do {
+            let testResult = try await webView.callAsyncJavaScript(
+                "return { test: 'hello', num: 42 };",
+                arguments: [:],
+                in: nil,
+                contentWorld: .page
+            )
+            if let testDict = testResult as? [String: Any] {
+                Self.logger.info("[getHTML] Basic test PASSED: \(testDict)")
+            } else {
+                Self.logger.error("[getHTML] Basic test FAILED: result is \(testResult == nil ? "nil" : "not a dict: \(Swift.type(of: testResult!))")")
+            }
+        } catch {
+            Self.logger.error("[getHTML] Basic test THREW: \(error.localizedDescription)")
         }
 
         do {
@@ -628,15 +694,27 @@ public final class BrowserAutomationBridge {
                 description: "getHTML(selector: \(params.selector ?? "document"))"
             )
 
+            Self.logger.info("[getHTML] Script returned, dict: \(dict != nil ? "present" : "nil", privacy: .public)")
             if let dict {
+                Self.logger.info("[getHTML] Dict keys: \(dict.keys.joined(separator: ", "), privacy: .public)")
+                if let htmlType = dict["html"] {
+                    Self.logger.info("[getHTML] html type: \(Swift.type(of: htmlType)), isString: \(htmlType is String)")
+                } else {
+                    Self.logger.warning("[getHTML] html key is MISSING from dict")
+                }
+
                 if dict["error"] as? String == "not_found" {
+                    Self.logger.error("[getHTML] Element not found for selector: \(params.selector ?? "nil", privacy: .public)")
                     return .failure(.elementNotFound(selector: params.selector ?? ""))
                 }
                 let html = dict["html"] as? String ?? ""
                 let url = dict["url"] as? String ?? provider.currentURL?.absoluteString ?? ""
                 let title = dict["title"] as? String ?? provider.currentTitle ?? ""
+
+                Self.logger.info("[getHTML] SUCCESS - html length: \(html.count) chars, url: \(url, privacy: .public), title: \(title, privacy: .public)")
                 return .success(BrowserGetHTMLResponse(html: html, url: url, title: title))
             }
+            Self.logger.error("[getHTML] FAILED - script returned nil dict")
             return .failure(.scriptExecutionFailed(underlying: NSError(domain: "BrowserAutomation", code: -1, userInfo: [NSLocalizedDescriptionKey: "Script returned nil"])))
         } catch {
             return .failure(.scriptExecutionFailed(underlying: error))
