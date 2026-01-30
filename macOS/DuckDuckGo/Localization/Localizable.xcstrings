@@ -96339,13 +96339,13 @@
       }
     },
     "tab.lock.menu.lock" : {
-      "comment" : "Context menu item to lock a tab with custom title/emoji",
+      "comment" : "Context menu item to lock a tab",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Lock Tab..."
+            "value" : "Lock Tab"
           }
         }
       }

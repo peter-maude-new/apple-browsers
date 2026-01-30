@@ -1756,7 +1756,7 @@ struct UserText {
     static let tabLockClickToUnlock = NSLocalizedString("tab.lock.click", value: "Click to unlock", comment: "Tab lock overlay instruction label")
     static let tabUnlockReason = NSLocalizedString("tab.unlock.reason", value: "Unlock tab", comment: "Touch ID prompt reason for unlocking a tab")
     static let tabRemoveLockReason = NSLocalizedString("tab.lock.remove.reason", value: "Remove tab lock", comment: "Touch ID prompt reason for removing a tab lock")
-    static let tabLockMenuItem = NSLocalizedString("tab.lock.menu.lock", value: "Lock Tab...", comment: "Context menu item to lock a tab with custom title/emoji")
+    static let tabLockMenuItem = NSLocalizedString("tab.lock.menu.lock", value: "Lock Tab", comment: "Context menu item to lock a tab")
     static let tabRelockMenuItem = NSLocalizedString("tab.lock.menu.relock", value: "Lock", comment: "Context menu item to re-lock a tab that already has lock config")
     static let tabUnlockMenuItem = NSLocalizedString("tab.lock.menu.unlock", value: "Unlock", comment: "Context menu item to unlock a locked tab")
     static let tabRemoveLockMenuItem = NSLocalizedString("tab.lock.menu.remove", value: "Remove Lock", comment: "Context menu item to remove lock configuration from a tab")

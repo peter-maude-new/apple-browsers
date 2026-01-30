@@ -1966,8 +1966,9 @@ extension TabBarViewController: TabBarViewItemDelegate {
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
               let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
 
-        // Show lock config dialog (title + emoji picker)
-        showLockConfigDialog(for: tab)
+        let colorIndex = nextAvailableColorIndex()
+        let config = TabLockConfig(colorIndex: colorIndex)
+        BrowserLockCoordinator.shared.lockTab(tab, with: config)
     }
 
     func tabBarViewItemUnlockTabAction(_ tabBarViewItem: TabBarViewItem) {
@@ -2008,39 +2009,6 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
         Task {
             _ = await BrowserLockCoordinator.shared.removeLock(from: tab)
-        }
-    }
-
-    private func showLockConfigDialog(for tab: Tab) {
-        guard let window = view.window else { return }
-
-        let alert = NSAlert()
-        alert.messageText = "Lock Tab"
-        alert.informativeText = "Enter a disguise title for this tab."
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "Lock")
-        alert.addButton(withTitle: "Cancel")
-
-        // Create accessory view with text field
-        let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 30))
-
-        let titleLabel = NSTextField(labelWithString: "Title:")
-        titleLabel.frame = NSRect(x: 0, y: 5, width: 50, height: 20)
-        accessoryView.addSubview(titleLabel)
-
-        let titleField = NSTextField(frame: NSRect(x: 55, y: 2, width: 245, height: 24))
-        titleField.placeholderString = "Enter disguise title"
-        accessoryView.addSubview(titleField)
-
-        alert.accessoryView = accessoryView
-
-        let colorIndex = nextAvailableColorIndex()
-        alert.beginSheetModal(for: window) { response in
-            guard response == .alertFirstButtonReturn else { return }
-
-            let title = titleField.stringValue.isEmpty ? "Locked Tab" : titleField.stringValue
-            let config = TabLockConfig(title: title, colorIndex: colorIndex)
-            BrowserLockCoordinator.shared.lockTab(tab, with: config)
         }
     }
 

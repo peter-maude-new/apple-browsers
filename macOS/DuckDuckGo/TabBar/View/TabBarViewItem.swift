@@ -1391,12 +1391,12 @@ final class TabBarViewItem: NSCollectionViewItem {
     }
 
     private func displayTabTitle(_ title: String, isLoading: Bool) {
-        // When tab is locked, use Flow Circular font with tertiary color and show the disguise title
-        if isTabLocked, let lockConfig = lockConfig {
+        // When tab is locked, use Flow Circular font with tertiary color and show "Locked"
+        if isTabLocked, lockConfig != nil {
             let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
             cell.setTitleFont(lockedFont)
             cell.setTitleTextColor(NSColor(designSystemColor: .textTertiary))
-            cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
+            cell.displayTabTitleIfNeeded(title: "Locked", url: nil, isLoading: false)
             return
         }
 
@@ -1409,11 +1409,11 @@ final class TabBarViewItem: NSCollectionViewItem {
 
     private func updateLockStateDisplay() {
         // Refresh title and favicon to show/hide lock disguise
-        if isTabLocked, let lockConfig = lockConfig {
+        if isTabLocked, lockConfig != nil {
             let lockedFont = NSFont(name: "FlowCircular-Regular", size: 13) ?? .systemFont(ofSize: 13)
             cell.setTitleFont(lockedFont)
             cell.setTitleTextColor(NSColor(designSystemColor: .textTertiary))
-            cell.displayTabTitleIfNeeded(title: lockConfig.title, url: nil, isLoading: false)
+            cell.displayTabTitleIfNeeded(title: "Locked", url: nil, isLoading: false)
             displayLockedIcon()
         } else {
             // Restore real title and font color
@@ -1639,7 +1639,7 @@ extension TabBarViewItem: NSMenuDelegate {
         let isLocked = isTabLocked
 
         if !hasConfig {
-            // No config → show "Lock Tab..."
+            // No config → show "Lock Tab"
             let lockMenuItem = NSMenuItem(title: UserText.tabLockMenuItem, action: #selector(lockTabAction(_:)), keyEquivalent: "")
             lockMenuItem.target = self
             menu.addItem(lockMenuItem)
