@@ -48,7 +48,7 @@ final class TabLockOverlayViewModel: ObservableObject {
             completion?()
         } else {
             shouldAnimateBounce = true
-            withAnimation(.easeOut(duration: 0.6 / animationSpeed)) {
+            withAnimation(.easeIn(duration: 0.36 / animationSpeed)) {
                 isVisible = true
             }
             // Base expands at t=0 (720ms, easeOutBack via spring)
@@ -191,12 +191,12 @@ struct TabLockOverlayContent: View {
                 guard viewModel.shouldAnimateBounce else { return }
                 guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 / viewModel.animationSpeed) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36 / viewModel.animationSpeed) {
                     withAnimation(.easeOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 10
                     }
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.72 / viewModel.animationSpeed) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.48 / viewModel.animationSpeed) {
                     withAnimation(.easeInOut(duration: 0.12 / self.viewModel.animationSpeed)) {
                         panelBounceOffset = 0
                     }
@@ -282,7 +282,7 @@ struct TabLockOverlayContent: View {
                         .foregroundColor(.white)
                 }
                 .opacity(viewModel.contentVisible ? 1 : 0)
-                .offset(y: viewModel.contentVisible ? 0 : 16)
+                .offset(y: viewModel.contentVisible ? 0 : 8)
             }
             .scaleEffect(viewModel.baseVisible ? 1 : 0.3)
         }
@@ -295,7 +295,7 @@ struct TabLockOverlayContent: View {
             .frame(width: width, height: height)
             .rotationEffect(.degrees(rotation))
             .blendMode(.darken)
-            .scaleEffect(viewModel.blobsVisible ? 1 : 0.3)
+            .scaleEffect(viewModel.blobsVisible ? 1 : 0.2)
             .opacity(viewModel.blobsVisible ? 1 : 0)
     }
 
