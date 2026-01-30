@@ -815,12 +815,16 @@ final class MainViewController: NSViewController {
 
         if animated {
             lockView.animateIn { [weak self, weak tab] in
-                // Hide content and unload after animation completes
-                self?.mainView.navigationBarContainerView.isHidden = true
-                self?.mainView.bookmarksBarContainerView.isHidden = true
-                self?.mainView.bannerContainerView.isHidden = true
-                self?.mainView.webContainerView.isHidden = true
-                tab?.unloadContentForLock()
+                guard let self, let tab else { return }
+                // Only hide shared UI if the locked tab is still selected
+                // (if user switched tabs, the new tab's content shouldn't be hidden)
+                if self.tabCollectionViewModel.selectedTabViewModel?.tab === tab {
+                    self.mainView.navigationBarContainerView.isHidden = true
+                    self.mainView.bookmarksBarContainerView.isHidden = true
+                    self.mainView.bannerContainerView.isHidden = true
+                    self.mainView.webContainerView.isHidden = true
+                }
+                tab.unloadContentForLock()
             }
         } else {
             // Non-animated: hide and unload immediately
