@@ -315,7 +315,6 @@ private final class MockFaviconUserScriptDelegate: FaviconUserScriptDelegate {
     var receivedDocumentUrl: URL?
     var receivedWebView: WKWebView?
     var callCount = 0
-    var allReceivedLinks: [[FaviconUserScript.FaviconLink]] = []
 
     @MainActor
     func faviconUserScript(_ faviconUserScript: FaviconUserScript,
@@ -326,7 +325,6 @@ private final class MockFaviconUserScriptDelegate: FaviconUserScriptDelegate {
         receivedDocumentUrl = documentUrl
         receivedWebView = webView
         callCount += 1
-        allReceivedLinks.append(faviconLinks)
     }
 }
 
