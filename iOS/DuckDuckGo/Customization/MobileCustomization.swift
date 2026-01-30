@@ -79,6 +79,10 @@ class MobileCustomization {
                 DesignSystemImages.Glyphs.Size24.key
             case .downloads:
                 DesignSystemImages.Glyphs.Size24.downloads
+            case .duckAIVoice:
+                DesignSystemImages.Glyphs.Size24.microphoneSolid
+            case .duckAI:
+                DesignSystemImages.Glyphs.Size24.aiChat
             }
         }
 
@@ -108,6 +112,10 @@ class MobileCustomization {
                 DesignSystemImages.Glyphs.Size16.keyLogin
             case .downloads:
                 DesignSystemImages.Glyphs.Size16.downloads
+            case .duckAIVoice:
+                DesignSystemImages.Glyphs.Size16.permissionMicrophoneSolid
+            case .duckAI:
+                DesignSystemImages.Glyphs.Size16.aiChat
             }
         }
 
@@ -124,6 +132,8 @@ class MobileCustomization {
         case bookmarks
         case downloads
         case passwords
+        case duckAIVoice
+        case duckAI
 
         // Shared
         case fire
@@ -152,6 +162,8 @@ class MobileCustomization {
             .share,
             .vpn,
             .downloads,
+            .duckAIVoice,
+            .duckAI,
         ]
 
     var state: State {

@@ -61,7 +61,8 @@
 /* Downloads menu item opening the downlods list */
 "action.title.downloads" = "Downloads";
 
-/* Open AI Chat action in the menu list */
+/* Duck.ai action title in the menu
+   Open AI Chat action in the menu list */
 "action.title.duckai" = "Duck.ai";
 
 /* Duck.ai Voice action title in the menu */

@@ -436,6 +436,7 @@ public struct UserText {
 
     // MARK: - Duck.ai Voice
     public static let actionDuckAIVoice = NSLocalizedString("action.title.duckai.voice", value: "Duck.ai Voice", comment: "Duck.ai Voice action title in the menu")
+    public static let actionDuckAI = NSLocalizedString("action.title.duckai", value: "Duck.ai", comment: "Duck.ai action title in the menu")
     public static let duckAIVoiceListening = NSLocalizedString("duckai.voice.listening", value: "Listening...", comment: "Status text while Duck.ai voice is listening")
     public static let duckAIVoiceStop = NSLocalizedString("duckai.voice.stop", value: "Stop", comment: "Stop button for Duck.ai voice")
 

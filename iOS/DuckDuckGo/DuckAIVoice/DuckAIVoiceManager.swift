@@ -26,7 +26,7 @@ protocol DuckAIVoiceManagerDelegate: AnyObject {
     func duckAIVoiceManagerDidChangeState(_ manager: DuckAIVoiceManager)
 }
 
-final class DuckAIVoiceManager {
+final class DuckAIVoiceManager: NSObject {
 
     static let shared = DuckAIVoiceManager()
 
@@ -54,7 +54,9 @@ final class DuckAIVoiceManager {
 
     private var delegates = NSHashTable<AnyObject>.weakObjects()
 
-    private init() {}
+    private override init() {
+        super.init()
+    }
 
     // MARK: - Delegate Management
 
@@ -81,11 +83,15 @@ final class DuckAIVoiceManager {
         let configuration = WKWebViewConfiguration.persistent()
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.allowsInlineMediaPlayback = true
+        configuration.allowsAirPlayForMediaPlayback = false
 
-        let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.isHidden = true
+        // Show the WebView for debugging
+        let webView = WKWebView(frame: CGRect(x: 20, y: 100, width: 350, height: 350), configuration: configuration)
+        webView.layer.borderWidth = 2
+        webView.layer.borderColor = UIColor.red.cgColor
+        webView.navigationDelegate = self
         container.addSubview(webView)
-
+        webView.isHidden = true
         self.webView = webView
         self.containerView = container
 
@@ -106,5 +112,38 @@ final class DuckAIVoiceManager {
         containerView = nil
 
         state = .idle
+    }
+
+    deinit {
+        print("DuckAIVoice deinit")
+    }
+}
+
+// MARK: - WKNavigationDelegate
+
+extension DuckAIVoiceManager: WKNavigationDelegate {
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        print("[DuckAIVoice] Started loading: \(webView.url?.absoluteString ?? "nil")")
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print("[DuckAIVoice] Finished loading: \(webView.url?.absoluteString ?? "nil")")
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("[DuckAIVoice] Navigation failed: \(error.localizedDescription)")
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        print("[DuckAIVoice] Provisional navigation failed: \(error.localizedDescription)")
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        print("[DuckAIVoice] Web content process terminated!")
+        // The web process crashed - stop the session
+        Task { @MainActor in
+            stopVoiceSession()
+        }
     }
 }

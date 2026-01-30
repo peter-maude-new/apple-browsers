@@ -58,6 +58,10 @@ extension MobileCustomizationView {
             UserText.actionOpenPasswords
         case .downloads:
             UserText.downloadsScreenTitle
+        case .duckAIVoice:
+            UserText.actionDuckAIVoice
+        case .duckAI:
+            UserText.actionDuckAI
         }
     }
 

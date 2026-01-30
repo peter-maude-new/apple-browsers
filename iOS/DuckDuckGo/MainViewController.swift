@@ -4062,14 +4062,30 @@ extension MainViewController: DuckAIVoiceManagerDelegate {
         updateMenuButtonForVoiceState()
     }
 
+    func toggleDuckAIVoice() {
+        if DuckAIVoiceManager.shared.isListening {
+            DuckAIVoiceManager.shared.stopVoiceSession()
+        } else {
+            startDuckAIVoice()
+        }
+    }
+
     func duckAIVoiceManagerDidChangeState(_ manager: DuckAIVoiceManager) {
         updateMenuButtonForVoiceState()
     }
 
     private func updateMenuButtonForVoiceState() {
         let isListening = DuckAIVoiceManager.shared.isListening
+
+        // Update menu button notification dot
         if let menuButton = viewCoordinator.omniBar.barView.menuButton as? BrowserChromeButton {
             menuButton.showNotificationDot(isListening, color: UIColor.red)
+        }
+
+        // Update toolbar button notification dot only if Duck.AI Voice is the selected button
+        if let toolbarButton = viewCoordinator.toolbarFireBarButtonItem.customView as? BrowserChromeButton {
+            let shouldShowDot = isListening && mobileCustomization.state.currentToolbarButton == .duckAIVoice
+            toolbarButton.showNotificationDot(shouldShowDot, color: UIColor.red)
         }
     }
 }
@@ -4416,6 +4432,12 @@ extension MainViewController {
 
         case .downloads:
             self.segueToDownloads()
+
+        case .duckAIVoice:
+            self.toggleDuckAIVoice()
+
+        case .duckAI:
+            self.openAIChat()
 
         default:
             assertionFailure("Unexpected case \(button)")

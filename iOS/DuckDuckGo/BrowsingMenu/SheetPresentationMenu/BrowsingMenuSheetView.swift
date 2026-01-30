@@ -188,10 +188,17 @@ struct BrowsingMenuSheetView: View {
                 ForEach(section.items) { item in
                     let isHighlighted = highlightTag != nil && item.tag == highlightTag
 
-                    MenuRowButton(entryData: item, isHighlighted: isHighlighted) {
-                        actionToPerform = { item.action() }
-                        dismiss()
-                    }
+                    MenuRowButton(
+                        entryData: item,
+                        isHighlighted: isHighlighted,
+                        action: {
+                            actionToPerform = { item.action() }
+                            dismiss()
+                        },
+                        dismissOnly: {
+                            dismiss()
+                        }
+                    )
                     .listRowBackground(Color.rowBackgroundColor)
                 }
             }
@@ -295,10 +302,11 @@ private struct MenuRowButton: View {
     fileprivate let entryData: BrowsingMenuModel.Entry
     let isHighlighted: Bool
     let action: () -> Void
+    let dismissOnly: () -> Void
 
     var body: some View {
         if let voiceState = entryData.voiceState, voiceState.isListening {
-            DuckAIVoiceListeningRow(stopAction: voiceState.stopAction)
+            DuckAIVoiceListeningRow(stopAction: voiceState.stopAction, dismissAction: dismissOnly)
         } else {
             Button(action: action) {
                 HStack(spacing: Metrics.iconTitleHorizontalSpacing) {
@@ -360,6 +368,7 @@ private struct MenuRowButton: View {
 
 private struct DuckAIVoiceListeningRow: View {
     let stopAction: () -> Void
+    let dismissAction: () -> Void
     @State private var isAnimating = false
 
     var body: some View {
@@ -393,7 +402,10 @@ private struct DuckAIVoiceListeningRow: View {
             Spacer()
 
             // Stop button
-            Button(action: stopAction) {
+            Button {
+                stopAction()
+                dismissAction()
+            } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "stop.fill")
                         .font(.system(size: 12))
