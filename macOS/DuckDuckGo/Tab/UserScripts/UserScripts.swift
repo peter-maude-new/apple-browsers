@@ -80,7 +80,8 @@ final class UserScripts: UserScriptsProvider {
             pixelFiring: PixelKit.shared,
             statisticsLoader: StatisticsLoader.shared,
             syncServiceProvider: sourceProvider.syncServiceProvider,
-            featureFlagger: sourceProvider.featureFlagger
+            featureFlagger: sourceProvider.featureFlagger,
+            contentScopePreferences: contentScopePreferences
         )
         let aiChatDebugURLSettings: any KeyedStoring<AIChatDebugURLSettings> = if let aiChatDebugURLSettings { aiChatDebugURLSettings } else { UserDefaults.standard.keyedStoring() }
         aiChatUserScript = AIChatUserScript(handler: aiChatHandler, urlSettings: aiChatDebugURLSettings)

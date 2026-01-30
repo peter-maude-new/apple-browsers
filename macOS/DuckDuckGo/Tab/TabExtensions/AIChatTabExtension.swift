@@ -35,6 +35,7 @@ final class AIChatTabExtension {
     private let isLoadedInSidebar: Bool
     private weak var webView: WKWebView?
     private let featureDiscovery: FeatureDiscovery
+    private let aiChatRemoteSettings: AIChatRemoteSettingsProvider
 
     private(set) weak var aiChatUserScript: AIChatUserScript? {
         didSet {
@@ -45,9 +46,11 @@ final class AIChatTabExtension {
     init(scriptsPublisher: some Publisher<some AIChatUserScriptProvider, Never>,
          webViewPublisher: some Publisher<WKWebView, Never>,
          isLoadedInSidebar: Bool,
-         featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery()) {
+         featureDiscovery: FeatureDiscovery = DefaultFeatureDiscovery(),
+         aiChatRemoteSettings: AIChatRemoteSettingsProvider = AIChatRemoteSettings()) {
         self.isLoadedInSidebar = isLoadedInSidebar
         self.featureDiscovery = featureDiscovery
+        self.aiChatRemoteSettings = aiChatRemoteSettings
         pageContextRequestedPublisher = pageContextRequestedSubject.eraseToAnyPublisher()
         chatRestorationDataPublisher = chatRestorationDataSubject.eraseToAnyPublisher()
 
@@ -183,8 +186,8 @@ extension AIChatTabExtension: NavigationResponder {
             return .next
         }
 
-        // Allow-list: also let certain hosts navigate inside the sidebar (e.g., duck.ai)
-        if navigationAction.url.isStandaloneDuckAIURL {
+        // Allow-list: let duck.ai or the configured AI chat URL (including debug overrides) navigate inside the sidebar
+        if navigationAction.url.isStandaloneDuckAIURL || isConfiguredAIChatHost(navigationAction.url) {
             return .next
         }
 
@@ -196,6 +199,15 @@ extension AIChatTabExtension: NavigationResponder {
         let tabCollectionViewModel = parentWindowController.mainViewController.tabCollectionViewModel
         tabCollectionViewModel.insertOrAppendNewTab(.url(navigationAction.url, source: .link))
         return .cancel
+    }
+
+    /// Returns true if the URL's host matches the configured AI chat URL's host (supports debug URL overrides)
+    private func isConfiguredAIChatHost(_ url: URL) -> Bool {
+        guard let configuredHost = aiChatRemoteSettings.aiChatURL.host,
+              let urlHost = url.host else {
+            return false
+        }
+        return urlHost.lowercased() == configuredHost.lowercased()
     }
 
     func navigationDidFinish(_ navigation: Navigation) {

@@ -23,9 +23,13 @@ import Foundation
 /// Parameters for taking a screenshot
 public struct BrowserScreenshotParams: Codable, Equatable {
     public let rect: BrowserRect?
+    /// Optional tab handle. If provided, the screenshot is taken from that tab's webview.
+    /// If nil, uses the currently active tab.
+    public let handle: String?
 
-    public init(rect: BrowserRect? = nil) {
+    public init(rect: BrowserRect? = nil, handle: String? = nil) {
         self.rect = rect
+        self.handle = handle
     }
 }
 
@@ -76,11 +80,15 @@ public struct BrowserClickParams: Codable, Equatable {
     public let selector: String?
     public let x: Double?
     public let y: Double?
+    /// Optional tab handle. If provided, the click is performed in that tab's webview.
+    /// If nil, uses the currently active tab.
+    public let handle: String?
 
-    public init(selector: String? = nil, x: Double? = nil, y: Double? = nil) {
+    public init(selector: String? = nil, x: Double? = nil, y: Double? = nil, handle: String? = nil) {
         self.selector = selector
         self.x = x
         self.y = y
+        self.handle = handle
     }
 }
 
@@ -89,11 +97,15 @@ public struct BrowserTypeParams: Codable, Equatable {
     public let selector: String
     public let text: String
     public let clear: Bool?
+    /// Optional tab handle. If provided, typing is performed in that tab's webview.
+    /// If nil, uses the currently active tab.
+    public let handle: String?
 
-    public init(selector: String, text: String, clear: Bool? = nil) {
+    public init(selector: String, text: String, clear: Bool? = nil, handle: String? = nil) {
         self.selector = selector
         self.text = text
         self.clear = clear
+        self.handle = handle
     }
 }
 
@@ -101,19 +113,27 @@ public struct BrowserTypeParams: Codable, Equatable {
 public struct BrowserGetHTMLParams: Codable, Equatable {
     public let selector: String?
     public let outerHTML: Bool?
+    /// Optional tab handle. If provided, HTML is retrieved from that tab's webview.
+    /// If nil, uses the currently active tab.
+    public let handle: String?
 
-    public init(selector: String? = nil, outerHTML: Bool? = nil) {
+    public init(selector: String? = nil, outerHTML: Bool? = nil, handle: String? = nil) {
         self.selector = selector
         self.outerHTML = outerHTML
+        self.handle = handle
     }
 }
 
 /// Parameters for navigation
 public struct BrowserNavigateParams: Codable, Equatable {
     public let url: String
+    /// Optional tab handle. If provided, navigation occurs in that tab.
+    /// If nil, uses the currently active tab.
+    public let handle: String?
 
-    public init(url: String) {
+    public init(url: String, handle: String? = nil) {
         self.url = url
+        self.handle = handle
     }
 }
 

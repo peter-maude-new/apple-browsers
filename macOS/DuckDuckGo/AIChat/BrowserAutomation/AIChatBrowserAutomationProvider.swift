@@ -65,8 +65,34 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
         currentTab?.webView
     }
 
-    func navigate(to url: URL) -> Bool {
-        guard let tab = currentTab else {
+    func webView(forHandle handle: String) -> WKWebView? {
+        guard let (windowController, index) = findTab(where: { $0.uuid == handle }) else {
+            return nil
+        }
+        let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
+        switch index {
+        case .pinned(let idx):
+            return tabCollectionViewModel.pinnedTabs[idx].webView
+        case .unpinned(let idx):
+            return tabCollectionViewModel.tabs[idx].webView
+        }
+    }
+
+    func navigate(to url: URL, handle: String?) -> Bool {
+        let tab: Tab?
+        if let handle = handle {
+            tab = findTab(where: { $0.uuid == handle }).map { windowController, index in
+                let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
+                switch index {
+                case .pinned(let idx): return tabCollectionViewModel.pinnedTabs[idx]
+                case .unpinned(let idx): return tabCollectionViewModel.tabs[idx]
+                }
+            }
+        } else {
+            tab = currentTab
+        }
+
+        guard let tab else {
             return false
         }
         tab.setContent(.contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false)))
@@ -80,7 +106,7 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
         forEachTab { tab in
             let info = BrowserTabInfo(
                 handle: tab.uuid,
-                url: tab.webView?.url?.absoluteString,
+                url: tab.webView.url?.absoluteString,
                 title: tab.title,
                 active: tab.uuid == currentHandle
             )
@@ -133,8 +159,15 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
         return tabCollectionViewModel.selectedTab?.uuid
     }
 
-    func takeScreenshot(rect: CGRect?) async -> (Data, CGSize)? {
-        guard let webView = currentWebView else { return nil }
+    func takeScreenshot(rect: CGRect?, handle: String?) async -> (Data, CGSize)? {
+        let webView: WKWebView?
+        if let handle = handle {
+            webView = self.webView(forHandle: handle)
+        } else {
+            webView = currentWebView
+        }
+
+        guard let webView else { return nil }
 
         return await withCheckedContinuation { continuation in
             let config = WKSnapshotConfiguration()

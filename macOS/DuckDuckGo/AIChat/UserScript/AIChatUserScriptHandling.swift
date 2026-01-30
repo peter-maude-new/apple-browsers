@@ -107,10 +107,24 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let syncServiceProvider: () -> DDGSyncing?
     private let featureFlagger: FeatureFlagger
     private let migrationStore = AIChatMigrationStore()
-    private lazy var browserAutomationBridge: BrowserAutomationBridge = {
+    private let contentScopePreferences: ContentScopePreferences
+    @MainActor private var _browserAutomationBridge: AnyObject?
+    @MainActor private var _browserAutomationProvider: AnyObject?
+
+    @available(macOS 12.0, *)
+    @MainActor
+    private func getBrowserAutomationBridge() -> BrowserAutomationBridge {
+        if let bridge = _browserAutomationBridge as? BrowserAutomationBridge {
+            // Update debug state in case it changed
+            bridge.isDebugEnabled = contentScopePreferences.isDebugStateEnabled
+            return bridge
+        }
         let provider = makeBrowserAutomationProvider()
-        return BrowserAutomationBridge(provider: provider)
-    }()
+        _browserAutomationProvider = provider  // Hold strong reference to prevent deallocation
+        let bridge = BrowserAutomationBridge(provider: provider, isDebugEnabled: contentScopePreferences.isDebugStateEnabled)
+        _browserAutomationBridge = bridge
+        return bridge
+    }
 
     init(
         storage: AIChatPreferencesStorage,
@@ -120,6 +134,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         statisticsLoader: StatisticsLoader?,
         syncServiceProvider: @escaping () -> DDGSyncing?,
         featureFlagger: FeatureFlagger,
+        contentScopePreferences: ContentScopePreferences,
         notificationCenter: NotificationCenter = .default
     ) {
         self.storage = storage
@@ -130,6 +145,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.syncServiceProvider = syncServiceProvider
         self.notificationCenter = notificationCenter
         self.featureFlagger = featureFlagger
+        self.contentScopePreferences = contentScopePreferences
         self.aiChatNativePromptPublisher = aiChatNativePromptSubject.eraseToAnyPublisher()
         self.pageContextPublisher = pageContextSubject.eraseToAnyPublisher()
         self.pageContextRequestedPublisher = pageContextRequestedSubject.eraseToAnyPublisher()
@@ -139,7 +155,8 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         setUpSyncStatusObserverIfNeeded()
     }
 
-    private func makeBrowserAutomationProvider() -> AIChatBrowserAutomationProvider? {
+    @MainActor
+    private func makeBrowserAutomationProvider() -> (any BrowserAutomationBridgeProviding)? {
         guard let manager = windowControllersManager as? WindowControllersManager else {
             return nil
         }
@@ -500,6 +517,9 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     // MARK: - Browser Automation
 
     func browserTakeScreenshot(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         let screenshotParams: BrowserScreenshotParams
         if let decoded: BrowserScreenshotParams = DecodableHelper.decode(from: params) {
             screenshotParams = decoded
@@ -507,25 +527,34 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             screenshotParams = BrowserScreenshotParams()
         }
 
-        let result = await browserAutomationBridge.takeScreenshot(params: screenshotParams)
+        let result = await getBrowserAutomationBridge().takeScreenshot(params: screenshotParams)
         return browserAutomationResult(result)
     }
 
     func browserGetTabs(params: Any, message: UserScriptMessage) async -> Encodable? {
-        let result = browserAutomationBridge.getTabs()
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
+        let result = await getBrowserAutomationBridge().getTabs()
         return browserAutomationResult(result)
     }
 
     func browserSwitchTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         guard let switchParams: BrowserSwitchTabParams = DecodableHelper.decode(from: params) else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
-        let result = browserAutomationBridge.switchTab(params: switchParams)
+        let result = await getBrowserAutomationBridge().switchTab(params: switchParams)
         return browserAutomationResult(result)
     }
 
     func browserNewTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         let newTabParams: BrowserNewTabParams
         if let decoded: BrowserNewTabParams = DecodableHelper.decode(from: params) {
             newTabParams = decoded
@@ -533,11 +562,14 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             newTabParams = BrowserNewTabParams()
         }
 
-        let result = browserAutomationBridge.newTab(params: newTabParams)
+        let result = await getBrowserAutomationBridge().newTab(params: newTabParams)
         return browserAutomationResult(result)
     }
 
     func browserCloseTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         let closeParams: BrowserCloseTabParams
         if let decoded: BrowserCloseTabParams = DecodableHelper.decode(from: params) {
             closeParams = decoded
@@ -545,29 +577,38 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             closeParams = BrowserCloseTabParams()
         }
 
-        let result = browserAutomationBridge.closeTab(params: closeParams)
+        let result = await getBrowserAutomationBridge().closeTab(params: closeParams)
         return browserAutomationResult(result)
     }
 
     func browserClick(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         guard let clickParams: BrowserClickParams = DecodableHelper.decode(from: params) else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
-        let result = await browserAutomationBridge.click(params: clickParams)
+        let result = await getBrowserAutomationBridge().click(params: clickParams)
         return browserAutomationResult(result)
     }
 
     func browserType(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         guard let typeParams: BrowserTypeParams = DecodableHelper.decode(from: params) else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
-        let result = await browserAutomationBridge.type(params: typeParams)
+        let result = await getBrowserAutomationBridge().type(params: typeParams)
         return browserAutomationResult(result)
     }
 
     func browserGetHTML(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         let htmlParams: BrowserGetHTMLParams
         if let decoded: BrowserGetHTMLParams = DecodableHelper.decode(from: params) {
             htmlParams = decoded
@@ -575,16 +616,19 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             htmlParams = BrowserGetHTMLParams()
         }
 
-        let result = await browserAutomationBridge.getHTML(params: htmlParams)
+        let result = await getBrowserAutomationBridge().getHTML(params: htmlParams)
         return browserAutomationResult(result)
     }
 
     func browserNavigate(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         guard let navParams: BrowserNavigateParams = DecodableHelper.decode(from: params) else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
-        let result = browserAutomationBridge.navigate(params: navParams)
+        let result = await getBrowserAutomationBridge().navigate(params: navParams)
         return browserAutomationResult(result)
     }
 

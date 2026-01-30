@@ -443,6 +443,8 @@
 		31F2D2002AF026D800BF0144 /* WaitlistTermsAndConditionsActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F2D1FE2AF026D800BF0144 /* WaitlistTermsAndConditionsActionHandler.swift */; };
 		31FBF22E2CDD068000626C17 /* AIChatUserScriptHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FBF22D2CDD068000626C17 /* AIChatUserScriptHandling.swift */; };
 		31FBF22F2CDD068000626C17 /* AIChatUserScriptHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FBF22D2CDD068000626C17 /* AIChatUserScriptHandling.swift */; };
+		C0DE0A1B2F3000000000A002 /* AIChatBrowserAutomationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0A1B2F3000000000A001 /* AIChatBrowserAutomationProvider.swift */; };
+		C0DE0A1B2F3000000000A003 /* AIChatBrowserAutomationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE0A1B2F3000000000A001 /* AIChatBrowserAutomationProvider.swift */; };
 		31FBF2312CDD130900626C17 /* AIChatUserScriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FBF2302CDD12FE00626C17 /* AIChatUserScriptTests.swift */; };
 		31FBF2322CDD130900626C17 /* AIChatUserScriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FBF2302CDD12FE00626C17 /* AIChatUserScriptTests.swift */; };
 		31FC23512DB7A86F00900574 /* AddressBarMenuButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FC23502DB7A86A00900574 /* AddressBarMenuButton.swift */; };
@@ -4656,6 +4658,7 @@
 		31F2D1FE2AF026D800BF0144 /* WaitlistTermsAndConditionsActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistTermsAndConditionsActionHandler.swift; sourceTree = "<group>"; };
 		31FBF22D2CDD068000626C17 /* AIChatUserScriptHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatUserScriptHandling.swift; sourceTree = "<group>"; };
 		31FBF2302CDD12FE00626C17 /* AIChatUserScriptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatUserScriptTests.swift; sourceTree = "<group>"; };
+		C0DE0A1B2F3000000000A001 /* AIChatBrowserAutomationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatBrowserAutomationProvider.swift; sourceTree = "<group>"; };
 		31FC23502DB7A86A00900574 /* AddressBarMenuButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarMenuButton.swift; sourceTree = "<group>"; };
 		336B39E22726B4B700C417D3 /* LocalUnprotectedDomains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalUnprotectedDomains.swift; sourceTree = "<group>"; };
 		3701C9CD29BD040900305B15 /* FirefoxBerkeleyDatabaseReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirefoxBerkeleyDatabaseReader.swift; sourceTree = "<group>"; };
@@ -7237,6 +7240,7 @@
 				31E3FD712CE39C4600A392C8 /* Debug */,
 				1E4EDA262DE9ED1C0019B6E8 /* Sidebar */,
 				31CF74542CDC1771004ACCE5 /* UserScript */,
+				C0DE0A1B2F3000000000A004 /* BrowserAutomation */,
 				1D5C23272F150A580055046E /* Suggestions */,
 				319FCFF42CC83003004F9288 /* AIChatDebugMenu.swift */,
 				C150EB212F0D817100A98C97 /* AIChatFeatureFlagProvider.swift */,
@@ -7331,6 +7335,14 @@
 				31CF74552CDC1776004ACCE5 /* AIChatUserScript.swift */,
 			);
 			path = UserScript;
+			sourceTree = "<group>";
+		};
+		C0DE0A1B2F3000000000A004 /* BrowserAutomation */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE0A1B2F3000000000A001 /* AIChatBrowserAutomationProvider.swift */,
+			);
+			path = BrowserAutomation;
 			sourceTree = "<group>";
 		};
 		31E163BB293A577200963C10 /* PrivacyReferenceTests */ = {
@@ -14497,6 +14509,7 @@
 				3706FB68293F65D500E42796 /* NSNotificationName+Debug.swift in Sources */,
 				31CF74562CDC177D004ACCE5 /* AIChatUserScript.swift in Sources */,
 				31FBF22F2CDD068000626C17 /* AIChatUserScriptHandling.swift in Sources */,
+				C0DE0A1B2F3000000000A003 /* AIChatBrowserAutomationProvider.swift in Sources */,
 				84CE00162DAE41F100852AA2 /* ResizablePreviewView.swift in Sources */,
 				1D39E5782C2BFD5700757339 /* ReleaseNotesTabExtension.swift in Sources */,
 				1D1A334A2A6FEB170080ACED /* BurnerMode.swift in Sources */,
@@ -16225,6 +16238,7 @@
 				37F09AD62DDE483500643A1B /* AppearancePreferencesMock.swift in Sources */,
 				37445F992A1566420029F789 /* SyncDataProviders.swift in Sources */,
 				31FBF22E2CDD068000626C17 /* AIChatUserScriptHandling.swift in Sources */,
+				C0DE0A1B2F3000000000A002 /* AIChatBrowserAutomationProvider.swift in Sources */,
 				C1D3C5682E747BBE0086A2BD /* CreditCardsCleanupErrorHandling.swift in Sources */,
 				C1D3C5692E747BBE0086A2BD /* SyncCreditCardsAdapter.swift in Sources */,
 				4B9292A426670D2A00AD2C21 /* PasteboardWriting.swift in Sources */,
