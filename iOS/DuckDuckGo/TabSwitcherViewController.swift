@@ -122,7 +122,7 @@ class TabSwitcherViewController: UIViewController {
     private var searchBarContainerTopConstraint: NSLayoutConstraint?
     private var collectionViewTopConstraint: NSLayoutConstraint?
     private var searchBarHeight: CGFloat {
-        return 36 // Fixed height for custom search text field
+        return 48 // Fixed height: 36pt search field + 6pt top padding + 6pt bottom padding
     }
 
     var selectedTabs: [IndexPath] {
@@ -314,11 +314,11 @@ class TabSwitcherViewController: UIViewController {
             // Note: Top constraint will be set in activateLayoutConstraintsBasedOnBarPosition()
             searchBarContainerHeightConstraint,
 
-            // Search text field inside container with padding: 0pt top/bottom, 8pt leading/trailing
-            searchTextField.topAnchor.constraint(equalTo: searchBarContainer.topAnchor),
+            // Search text field inside container with padding: 6pt top/bottom, 8pt leading/trailing
+            searchTextField.topAnchor.constraint(equalTo: searchBarContainer.topAnchor, constant: 6),
             searchTextField.leadingAnchor.constraint(equalTo: searchBarContainer.leadingAnchor, constant: 8),
             searchTextField.trailingAnchor.constraint(equalTo: searchBarContainer.trailingAnchor, constant: -8),
-            searchTextField.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor)
+            searchTextField.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor, constant: -6)
         ])
     }
 
@@ -341,9 +341,9 @@ class TabSwitcherViewController: UIViewController {
         view.addSubview(collectionView)
         view.addSubview(borderView)
 
-        // Bring search bar container to front if it exists
+        // Insert search bar container below title bar so it slides from behind
         if let searchBarContainer = searchBarContainer {
-            view.bringSubviewToFront(searchBarContainer)
+            view.insertSubview(searchBarContainer, belowSubview: titleBarView)
         }
 
         let toolbarAppearance = UIToolbarAppearance()
@@ -847,6 +847,9 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         // Show the container before animating
         searchBarContainer.isHidden = false
 
+        // Show cancel button immediately (not animated to match the search bar reveal)
+        searchTextField.showCancelButton(animated: false)
+
         // Update search bar constraint to slide it into view (from negative offset to 0)
         searchBarContainerTopConstraint?.constant = 0
 
@@ -882,6 +885,9 @@ extension TabSwitcherViewController: UICollectionViewDelegate {
         if searchTextField.isFirstResponder {
             searchTextField.resignFirstResponder()
         }
+
+        // Hide cancel button
+        searchTextField.hideCancelButton(animated: false)
 
         // Update search bar constraint to slide it out of view (from 0 to negative offset)
         searchBarContainerTopConstraint?.constant = -searchBarHeight

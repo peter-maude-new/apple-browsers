@@ -133,7 +133,8 @@ final class TabSearchTextField: UIView {
     private func applyTheme() {
         backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor(designSystemColor: .surface)
+        // Use system fill color for search field background - adapts properly to light/dark mode
+        containerView.backgroundColor = .tertiarySystemFill
 
         textField.textColor = UIColor(designSystemColor: .textPrimary)
         textField.attributedPlaceholder = NSAttributedString(
