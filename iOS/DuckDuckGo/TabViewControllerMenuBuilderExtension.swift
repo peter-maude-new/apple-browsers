@@ -342,6 +342,20 @@ extension TabViewController {
                                          })
     }
 
+    private func buildDuckAIVoiceEntry() -> BrowsingMenuEntry {
+        let isListening = DuckAIVoiceManager.shared.isListening
+        return BrowsingMenuEntry.duckAIVoice(
+            isListening: isListening,
+            startAction: { [weak self] in
+                guard let self = self else { return }
+                self.delegate?.tabDidRequestDuckAIVoice(self)
+            },
+            stopAction: {
+                DuckAIVoiceManager.shared.stopVoiceSession()
+            }
+        )
+    }
+
     private func buildShareEntry(useSmallIcon: Bool = false) -> BrowsingMenuEntry {
         return BrowsingMenuEntry.regular(name: UserText.actionShare,
                                          image: useSmallIcon ? DesignSystemImages.Glyphs.Size16.shareApple :  DesignSystemImages.Glyphs.Size24.shareApple,
@@ -949,5 +963,9 @@ extension TabViewController: BrowsingMenuEntryBuilding {
     func makeKeepSignInEntry() -> BrowsingMenuEntry? {
         guard let link = validLink else { return nil }
         return buildKeepSignInEntry(forLink: link, useSmallIcon: false)
+    }
+
+    func makeDuckAIVoiceEntry() -> BrowsingMenuEntry? {
+        return buildDuckAIVoiceEntry()
     }
 }

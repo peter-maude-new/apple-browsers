@@ -69,6 +69,8 @@ protocol TabDelegate: AnyObject {
 
     func tabDidRequestAIChat(tab: TabViewController)
 
+    func tabDidRequestDuckAIVoice(_ tab: TabViewController)
+
     func tab(_ tab: TabViewController,
              didRequestAutofillLogins account: SecureVaultModels.WebsiteAccount?,
              source: AutofillSettingsSource,

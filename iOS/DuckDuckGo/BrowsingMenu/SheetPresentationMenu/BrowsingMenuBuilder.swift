@@ -84,7 +84,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutsItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry())
+            .init(entryBuilder.makeDownloadsEntry()),
+            .init(entryBuilder.makeDuckAIVoiceEntry())
         ].compactMap { $0 }
 
         // MARK: Privacy group
@@ -163,7 +164,8 @@ final class BrowsingMenuBuilder: BrowsingMenuBuilding {
         let shortcutItems: [BrowsingMenuModel.Entry] = [
             .init(entryBuilder.makeOpenBookmarksEntry()),
             .init(entryBuilder.makeAutoFillEntry()),
-            .init(entryBuilder.makeDownloadsEntry())
+            .init(entryBuilder.makeDownloadsEntry()),
+            .init(entryBuilder.makeDuckAIVoiceEntry())
         ].compactMap { $0 }
 
         if !shortcutItems.isEmpty {

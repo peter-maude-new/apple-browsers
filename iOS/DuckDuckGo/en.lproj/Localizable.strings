@@ -64,6 +64,9 @@
 /* Open AI Chat action in the menu list */
 "action.title.duckai" = "Duck.ai";
 
+/* Duck.ai Voice action title in the menu */
+"action.title.duckai.voice" = "Duck.ai Voice";
+
 /* Edit Bookmark action */
 "action.title.edit.bookmark" = "Edit Bookmark";
 
@@ -1407,6 +1410,12 @@
 
 /* Accessibility label for Duck.ai */
 "duckai.settings.title" = "Duck.ai";
+
+/* Status text while Duck.ai voice is listening */
+"duckai.voice.listening" = "Listening...";
+
+/* Stop button for Duck.ai voice */
+"duckai.voice.stop" = "Stop";
 
 /* Header title for the subscription activation view */
 "duckduckgo.subscription.activate.header.title" = "Add your DuckDuckGo subscription to this device";

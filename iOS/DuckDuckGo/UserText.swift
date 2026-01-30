@@ -434,6 +434,11 @@ public struct UserText {
     public static let voiceSearchFooterOld = NSLocalizedString("voiceSearch.footer.note.old", value: "Audio is processed on-device. It's not stored or shared with anyone, including DuckDuckGo.", comment: "Voice-search footer note with on-device privacy warning")
     public static let voiceSearchFooter = NSLocalizedString("voiceSearch.footer.note", value: "Add Private Voice Search option to the address bar. Audio is not stored or shared with anyone, including DuckDuckGo.", comment: "Voice-search footer note with on-device privacy warning")
 
+    // MARK: - Duck.ai Voice
+    public static let actionDuckAIVoice = NSLocalizedString("action.title.duckai.voice", value: "Duck.ai Voice", comment: "Duck.ai Voice action title in the menu")
+    public static let duckAIVoiceListening = NSLocalizedString("duckai.voice.listening", value: "Listening...", comment: "Status text while Duck.ai voice is listening")
+    public static let duckAIVoiceStop = NSLocalizedString("duckai.voice.stop", value: "Stop", comment: "Stop button for Duck.ai voice")
+
     // Legacy name is text size - don't want to mess up translations by changing it.
     public static let textZoomDescription = NSLocalizedString("textSize.description", value: "Increase or decrease text size across all sites.", comment: "Description text for the text size adjustment setting")
     public static func textZoomFooter(for percentage: String) -> String {

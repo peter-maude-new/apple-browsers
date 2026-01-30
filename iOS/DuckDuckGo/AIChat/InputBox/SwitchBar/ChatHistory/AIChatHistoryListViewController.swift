@@ -188,3 +188,4 @@ extension AIChatHistoryListViewController: UITableViewDelegate {
         return 0
     }
 }
+

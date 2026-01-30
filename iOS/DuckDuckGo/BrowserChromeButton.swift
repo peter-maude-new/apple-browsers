@@ -38,6 +38,9 @@ class BrowserChromeButton: UIButton {
     class BrowserChromeButtonBorder: UIView { }
     private weak var border: BrowserChromeButtonBorder?
 
+    // Notification dot for indicating active state
+    private var notificationDotView: UIView?
+
     init(_ type: ButtonType = .primary) {
         self.type = type
         super.init(frame: .zero)
@@ -105,6 +108,43 @@ class BrowserChromeButton: UIButton {
 
     func setImage(_ image: UIImage?) {
         configuration?.image = image
+    }
+
+    func showNotificationDot(_ show: Bool, color: UIColor = .red) {
+        if show {
+            if notificationDotView == nil {
+                let dotSize: CGFloat = 8
+                let dot = UIView(frame: CGRect(x: 0, y: 0, width: dotSize, height: dotSize))
+                dot.backgroundColor = color
+                dot.layer.cornerRadius = dotSize / 2
+                dot.translatesAutoresizingMaskIntoConstraints = false
+                addSubview(dot)
+
+                NSLayoutConstraint.activate([
+                    dot.widthAnchor.constraint(equalToConstant: dotSize),
+                    dot.heightAnchor.constraint(equalToConstant: dotSize),
+                    dot.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+                    dot.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
+                ])
+
+                notificationDotView = dot
+
+                // Add pulsing animation
+                let pulseAnimation = CABasicAnimation(keyPath: "transform.scale")
+                pulseAnimation.duration = 1.0
+                pulseAnimation.fromValue = 1.0
+                pulseAnimation.toValue = 1.3
+                pulseAnimation.autoreverses = true
+                pulseAnimation.repeatCount = .infinity
+                pulseAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                dot.layer.add(pulseAnimation, forKey: "pulse")
+            }
+            notificationDotView?.backgroundColor = color
+        } else {
+            notificationDotView?.layer.removeAllAnimations()
+            notificationDotView?.removeFromSuperview()
+            notificationDotView = nil
+        }
     }
 
     override func setNeedsDisplay() {

@@ -500,6 +500,8 @@ class MainViewController: UIViewController {
         applyCustomizationState()
 
         mobileCustomization.delegate = self
+
+        setupDuckAIVoiceManager()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -3401,6 +3403,10 @@ extension MainViewController: TabDelegate {
         openAIChat()
     }
 
+    func tabDidRequestDuckAIVoice(_ tab: TabViewController) {
+        startDuckAIVoice()
+    }
+
     func tabDidRequestBookmarks(tab: TabViewController) {
         Pixel.fire(pixel: .bookmarksButtonPressed,
                    withAdditionalParameters: [PixelParameters.originatedFromMenu: "1"])
@@ -4039,6 +4045,31 @@ extension MainViewController: VoiceSearchViewControllerDelegate {
             Pixel.fire(pixel: .voiceSearchAIChatDone)
             performCancel()
             openAIChat(query, autoSend: true)
+        }
+    }
+}
+
+/// MARK: - Duck.ai Voice
+
+extension MainViewController: DuckAIVoiceManagerDelegate {
+
+    func setupDuckAIVoiceManager() {
+        DuckAIVoiceManager.shared.addDelegate(self)
+    }
+
+    func startDuckAIVoice() {
+        DuckAIVoiceManager.shared.startVoiceSession(in: view)
+        updateMenuButtonForVoiceState()
+    }
+
+    func duckAIVoiceManagerDidChangeState(_ manager: DuckAIVoiceManager) {
+        updateMenuButtonForVoiceState()
+    }
+
+    private func updateMenuButtonForVoiceState() {
+        let isListening = DuckAIVoiceManager.shared.isListening
+        if let menuButton = viewCoordinator.omniBar.barView.menuButton as? BrowserChromeButton {
+            menuButton.showNotificationDot(isListening, color: UIColor.red)
         }
     }
 }

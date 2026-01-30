@@ -57,6 +57,7 @@ protocol BrowsingMenuEntryBuilding: AnyObject {
     func makeClearDataEntry(mobileCustomization: MobileCustomization, clearTabsAndData: @escaping () -> Void) -> BrowsingMenuEntry?
     func makeUseNewDuckAddressEntry() -> BrowsingMenuEntry?
     func makeKeepSignInEntry() -> BrowsingMenuEntry?
+    func makeDuckAIVoiceEntry() -> BrowsingMenuEntry?
 }
 
 protocol BrowsingMenuBuilding: AnyObject {

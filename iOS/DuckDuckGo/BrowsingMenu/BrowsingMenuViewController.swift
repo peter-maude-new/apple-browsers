@@ -19,11 +19,13 @@
 
 import UIKit
 import Core
+import DesignResourcesKitIcons
 
 enum BrowsingMenuEntry {
-    
+
     case regular(name: String, accessibilityLabel: String? = nil, image: UIImage, showNotificationDot: Bool = false, customDotColor: UIColor? = nil, detailText: String? = nil, action: () -> Void)
     case separator
+    case duckAIVoice(isListening: Bool, startAction: () -> Void, stopAction: () -> Void)
 }
 
 final class BrowsingMenuViewController: UIViewController {
@@ -272,7 +274,7 @@ final class BrowsingMenuViewController: UIViewController {
 extension BrowsingMenuViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         switch menuEntries[indexPath.row] {
         case .regular(_, _, _, _, _, _, let action):
             wasActionSelected = true
@@ -281,6 +283,15 @@ extension BrowsingMenuViewController: UITableViewDelegate {
             }
         case .separator:
             break
+        case .duckAIVoice(let isListening, let startAction, let stopAction):
+            wasActionSelected = true
+            dismiss(animated: true) {
+                if isListening {
+                    stopAction()
+                } else {
+                    startAction()
+                }
+            }
         }
     }
 
@@ -302,7 +313,7 @@ extension BrowsingMenuViewController: UITableViewDataSource {
                                                            for: indexPath) as? BrowsingMenuEntryViewCell else {
                 fatalError("Cell should be dequeued")
             }
-            
+
             cell.configure(image: image, label: name, accessibilityLabel: accessibilityLabel, showNotificationDot: showNotificationDot, customDotColor: customDotColor)
             return cell
         case .separator:
@@ -310,9 +321,19 @@ extension BrowsingMenuViewController: UITableViewDataSource {
                                                            for: indexPath) as? BrowsingMenuSeparatorViewCell else {
                 fatalError("Cell should be dequeued")
             }
-            
+
             cell.separator.backgroundColor = theme.browsingMenuSeparatorColor
             cell.backgroundColor = theme.browsingMenuBackgroundColor
+            return cell
+        case .duckAIVoice(let isListening, _, _):
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "BrowsingMenuEntryViewCell",
+                                                           for: indexPath) as? BrowsingMenuEntryViewCell else {
+                fatalError("Cell should be dequeued")
+            }
+
+            let name = isListening ? UserText.duckAIVoiceListening : UserText.actionDuckAIVoice
+            let image = DesignSystemImages.Glyphs.Size24.microphoneSolid
+            cell.configure(image: image, label: name, accessibilityLabel: name, showNotificationDot: isListening, customDotColor: isListening ? .red : nil)
             return cell
         }
     }

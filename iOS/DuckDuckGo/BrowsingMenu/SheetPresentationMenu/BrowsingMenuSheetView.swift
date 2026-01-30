@@ -216,6 +216,7 @@ extension BrowsingMenuModel {
         let detail: Detail?
         let action: () -> Void
         let tag: Tag?
+        let voiceState: VoiceState?
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(id)
@@ -233,8 +234,17 @@ extension BrowsingMenuModel {
             case text(String)
         }
 
+        struct VoiceState {
+            let isListening: Bool
+            let stopAction: () -> Void
+        }
+
         var hasDetails: Bool {
             showNotificationDot || detail != nil
+        }
+
+        var isDuckAIVoice: Bool {
+            voiceState != nil
         }
     }
 }
@@ -242,7 +252,7 @@ extension BrowsingMenuModel {
 extension BrowsingMenuModel.Entry {
     init?(_ browsingMenuEntry: BrowsingMenuEntry?, tag: Tag? = nil) {
         guard let browsingMenuEntry = browsingMenuEntry else { return nil }
-        
+
         switch browsingMenuEntry {
         case .separator:
             assertionFailure(#function + " should not be called for .separator")
@@ -258,7 +268,23 @@ extension BrowsingMenuModel.Entry {
                 customDotColor: customDotColor,
                 detail: detail.map { .text($0) },
                 action: action,
-                tag: tag
+                tag: tag,
+                voiceState: nil
+            )
+
+        case .duckAIVoice(let isListening, let startAction, let stopAction):
+            let name = isListening ? UserText.duckAIVoiceListening : UserText.actionDuckAIVoice
+            let image = DesignSystemImages.Glyphs.Size24.microphoneSolid
+            self.init(
+                name: name,
+                accessibilityLabel: name,
+                image: image,
+                showNotificationDot: false,
+                customDotColor: nil,
+                detail: nil,
+                action: startAction,
+                tag: tag,
+                voiceState: VoiceState(isListening: isListening, stopAction: stopAction)
             )
         }
     }
@@ -271,31 +297,35 @@ private struct MenuRowButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: Metrics.iconTitleHorizontalSpacing) {
-                Image(uiImage: entryData.image)
-                    .padding(2)
-                    .overlay {
-                        if isHighlighted {
-                            LottieView(lottieFile: "view_highlight", loopMode: .mode(.loop), isAnimating: .constant(true))
-                                .scaledToFill()
-                                .scaleEffect(1.3)
+        if let voiceState = entryData.voiceState, voiceState.isListening {
+            DuckAIVoiceListeningRow(stopAction: voiceState.stopAction)
+        } else {
+            Button(action: action) {
+                HStack(spacing: Metrics.iconTitleHorizontalSpacing) {
+                    Image(uiImage: entryData.image)
+                        .padding(2)
+                        .overlay {
+                            if isHighlighted {
+                                LottieView(lottieFile: "view_highlight", loopMode: .mode(.loop), isAnimating: .constant(true))
+                                    .scaledToFill()
+                                    .scaleEffect(1.3)
+                            }
                         }
-                    }
 
-                HStack(spacing: Metrics.textDotHorizontalSpacing) {
-                    Text(entryData.name)
-                        .daxBodyRegular()
+                    HStack(spacing: Metrics.textDotHorizontalSpacing) {
+                        Text(entryData.name)
+                            .daxBodyRegular()
 
-                    Spacer()
+                        Spacer()
 
-                    if entryData.hasDetails {
-                        DetailView(entryData: entryData)
+                        if entryData.hasDetails {
+                            DetailView(entryData: entryData)
+                        }
                     }
                 }
             }
+            .accessibilityLabel(entryData.accessibilityLabel ?? entryData.name)
         }
-        .accessibilityLabel(entryData.accessibilityLabel ?? entryData.name)
     }
 
     struct DetailView: View {
@@ -325,6 +355,65 @@ private struct MenuRowButton: View {
         static let detailStackSpacing: CGFloat = 4.0
         static let iconTitleHorizontalSpacing: CGFloat = 16
         static let textDotHorizontalSpacing: CGFloat = 4
+    }
+}
+
+private struct DuckAIVoiceListeningRow: View {
+    let stopAction: () -> Void
+    @State private var isAnimating = false
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Animated pulsing microphone indicator
+            ZStack {
+                // Outer pulsing circle
+                Circle()
+                    .fill(Color.red.opacity(0.3))
+                    .frame(width: 32, height: 32)
+                    .scaleEffect(isAnimating ? 1.4 : 1.0)
+                    .opacity(isAnimating ? 0.0 : 0.6)
+
+                // Inner circle
+                Circle()
+                    .fill(Color.red)
+                    .frame(width: 24, height: 24)
+
+                // Microphone icon
+                Image(uiImage: DesignSystemImages.Glyphs.Size20.microphoneSolid)
+                    .renderingMode(.template)
+                    .foregroundColor(.white)
+            }
+            .padding(2)
+
+            // "Listening" text in red
+            Text(UserText.duckAIVoiceListening)
+                .daxBodyRegular()
+                .foregroundColor(.red)
+
+            Spacer()
+
+            // Stop button
+            Button(action: stopAction) {
+                HStack(spacing: 6) {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 12))
+                    Text(UserText.duckAIVoiceStop)
+                        .daxCaption()
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.red)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: false)) {
+                isAnimating = true
+            }
+        }
+        .accessibilityLabel(UserText.duckAIVoiceListening)
     }
 }
 
