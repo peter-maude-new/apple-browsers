@@ -30,6 +30,9 @@ public enum SingleUseColor {
     /// Color used for what's New background
     case whatsNewBackground
 
+    /// Duck.ai contextual background color
+    case duckAIContextualSheetBackground
+
     // MARK: - Onboarding Colors
 
     case onboardingBackgroundGradientTop
