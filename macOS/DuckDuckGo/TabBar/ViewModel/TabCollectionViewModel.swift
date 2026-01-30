@@ -779,6 +779,29 @@ final class TabCollectionViewModel: NSObject {
         delegate?.tabCollectionViewModel(self, didMoveTabAt: index, to: newIndex)
     }
 
+    /// Moves a tab to be adjacent to other tabs in its group.
+    /// Call this after changing a tab's group assignment to physically reorder it.
+    func moveTabToGroup(_ tab: Tab, group: TabGroup?, using tabGroupManager: TabGroupManager) {
+        guard changesEnabled else { return }
+
+        // Only handle unpinned tabs for now
+        guard let currentIndex = tabCollection.tabs.firstIndex(where: { $0.uuid == tab.uuid }) else { return }
+
+        let targetIndex = tabGroupManager.insertionIndex(for: tab, joiningGroup: group, in: tabCollection.tabs)
+
+        // Only move if the position changes
+        guard currentIndex != targetIndex else { return }
+
+        tabCollection.moveTab(at: currentIndex, to: targetIndex)
+
+        // Update selection if needed
+        if let selectionIndex, selectionIndex.item == currentIndex {
+            selectWithoutResettingState(at: .unpinned(targetIndex))
+        }
+
+        delegate?.tabCollectionViewModel(self, didMoveTabAt: .unpinned(currentIndex), to: .unpinned(targetIndex))
+    }
+
     func replaceTab(at index: TabIndex, with tab: Tab, forceChange: Bool = false) {
         guard changesEnabled || forceChange else { return }
         guard let tabCollection = tabCollection(for: index) else {

@@ -649,6 +649,17 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
               let oldIndex = tabDragAndDropManager.sourceUnit?.index,
               oldIndex != newIndex else { return }
 
+        // Constrain drag & drop to within the same group (like pinned/unpinned constraint)
+        let tabGroupManager = NSApp.delegateTyped.tabGroupManager
+        let sourceTab = tabCollection.tabs[safe: oldIndex.item]
+        let targetTab = tabCollection.tabs[safe: newIndex.item]
+
+        let sourceGroupID = sourceTab.flatMap { tabGroupManager.groupID(for: $0) }
+        let targetGroupID = targetTab.flatMap { tabGroupManager.groupID(for: $0) }
+
+        // Only allow move if both tabs are in the same group (or both ungrouped)
+        guard sourceGroupID == targetGroupID else { return }
+
         tabCollectionViewModel.moveTab(at: oldIndex, to: newIndex)
         tabDragAndDropManager.setSource(tabCollectionViewModel: tabCollectionViewModel, index: newIndex)
     }
@@ -1948,12 +1959,20 @@ extension TabBarViewController: TabBarViewItemDelegate {
 
         var hostingController: NSHostingController<TabGroupsManagementView>?
 
-        let onAddToGroup: (TabGroup) -> Void = { [weak tabGroupManager] group in
-            tabGroupManager?.setGroup(group.id, for: tab)
+        let onAddToGroup: (TabGroup) -> Void = { [weak tabGroupManager, weak self] group in
+            // Move first, then set group (so insertionIndex sees other tabs, not this one)
+            if let tabGroupManager {
+                self?.tabCollectionViewModel.moveTabToGroup(tab, group: group, using: tabGroupManager)
+                tabGroupManager.setGroup(group.id, for: tab)
+            }
         }
 
-        let onRemoveFromGroup: () -> Void = { [weak tabGroupManager] in
-            tabGroupManager?.setGroup(nil, for: tab)
+        let onRemoveFromGroup: () -> Void = { [weak tabGroupManager, weak self] in
+            // Move first, then clear group
+            if let tabGroupManager {
+                self?.tabCollectionViewModel.moveTabToGroup(tab, group: nil, using: tabGroupManager)
+                tabGroupManager.setGroup(nil, for: tab)
+            }
         }
 
         let tabGroupsView = TabGroupsManagementView(
