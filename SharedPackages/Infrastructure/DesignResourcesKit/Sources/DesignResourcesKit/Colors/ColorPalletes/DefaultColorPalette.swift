@@ -259,27 +259,27 @@ struct DefaultColorPalette: ColorPaletteDefinition {
 
         // Onboarding
         case .onboardingBackgroundGradientTop:
-            return DynamicColor(lightColor: Color(0xE8F1FF), darkColor: Color(0x1A2B4A))
+            return OnboardingColorPalette.backgroundGradientTop
         case .onboardingBackgroundGradientBottom:
-            return DynamicColor(lightColor: .white, darkColor: Color(0x0A1628))
+            return OnboardingColorPalette.backgroundGradientBottom
         case .onboardingCardBackground:
-            return DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D))
+            return OnboardingColorPalette.cardBackground
         case .onboardingTextPrimary:
-            return DynamicColor(lightColor: Color(0x333333), darkColor: .white)
+            return OnboardingColorPalette.textPrimary
         case .onboardingTextSecondary:
-            return DynamicColor(lightColor: Color(0x666666), darkColor: Color(0xCCCCCC))
+            return OnboardingColorPalette.textSecondary
         case .onboardingPrimaryButtonBackground:
-            return DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
+            return OnboardingColorPalette.primaryButtonBackground
         case .onboardingPrimaryButtonBackgroundPressed:
-            return DynamicColor(lightColor: Color(0xE68A00), darkColor: Color(0xFFA31A))
+            return OnboardingColorPalette.primaryButtonBackgroundPressed
         case .onboardingPrimaryButtonText:
-            return DynamicColor(staticColor: .white)
+            return OnboardingColorPalette.primaryButtonText
         case .onboardingSecondaryButtonText:
-            return DynamicColor(lightColor: Color(0x333333), darkColor: .white)
+            return OnboardingColorPalette.secondaryButtonText
         case .onboardingAccent:
-            return DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
+            return OnboardingColorPalette.accent
         case .onboardingBackgroundColor:
-            return DynamicColor(lightColor: .white, darkColor: Color(0x0C1420))
+            return OnboardingColorPalette.backgroundColor
         }
     }
 }
