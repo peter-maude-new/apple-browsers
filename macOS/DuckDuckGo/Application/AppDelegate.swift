@@ -768,7 +768,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         aboutPreferences = AboutPreferences(
             internalUserDecider: internalUserDecider,
             featureFlagger: featureFlagger,
-            windowControllersManager: windowControllersManager
+            windowControllersManager: windowControllersManager,
+            keyValueStore: keyValueStore
         )
         accessibilityPreferences = AccessibilityPreferences()
         duckPlayer = DuckPlayer(

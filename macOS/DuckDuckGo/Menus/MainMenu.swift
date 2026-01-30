@@ -943,7 +943,7 @@ final class MainMenu: NSMenu {
             NSMenuItem(title: "AI Chat").submenu(AIChatDebugMenu())
             NSMenuItem(title: "Base URL Configuration").submenu(BaseURLDebugMenu())
 #if SPARKLE
-            NSMenuItem(title: "Updates").submenu(UpdatesDebugMenu())
+            NSMenuItem(title: "Updates").submenu(UpdatesDebugMenu(keyValueStore: Application.appDelegate.keyValueStore))
 #endif
             if AppVersion.runType.requiresEnvironment {
                 NSMenuItem(title: "SAD/ATT Prompts (Default Browser/Add to Dock)")

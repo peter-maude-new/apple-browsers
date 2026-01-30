@@ -2318,6 +2318,8 @@
 		842FE38B2E0C28EF00E4F9E4 /* PrintingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842FE38A2E0C28EF00E4F9E4 /* PrintingTests.swift */; };
 		842FE5462F16691D002F8ABC /* WarnBeforeQuitOverlayPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842FE5452F16691D002F8ABC /* WarnBeforeQuitOverlayPresenter.swift */; };
 		842FE5472F16691D002F8ABC /* WarnBeforeQuitOverlayPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842FE5452F16691D002F8ABC /* WarnBeforeQuitOverlayPresenter.swift */; };
+		8434512E2F2CDADE0027AFB6 /* UpdateControllerKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434512D2F2CDADE0027AFB6 /* UpdateControllerKeys.swift */; };
+		8434512F2F2CDADE0027AFB6 /* UpdateControllerKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434512D2F2CDADE0027AFB6 /* UpdateControllerKeys.swift */; };
 		8434E6AC2DB01448008FFA3D /* PinnedTabsManagerProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1D36212D8B7B8C005ED60C /* PinnedTabsManagerProviderTests.swift */; };
 		8434E6AD2DB01448008FFA3D /* PinnedTabsManagerProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1D36212D8B7B8C005ED60C /* PinnedTabsManagerProviderTests.swift */; };
 		8434E6AE2DB01476008FFA3D /* BookmarksBarViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AC09C62C2D7DD6002D70E0 /* BookmarksBarViewControllerTests.swift */; };
@@ -5389,6 +5391,7 @@
 		8426108C2C9811EC0070D5F9 /* KeyEquivalentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyEquivalentView.swift; sourceTree = "<group>"; };
 		842FE38A2E0C28EF00E4F9E4 /* PrintingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintingTests.swift; sourceTree = "<group>"; };
 		842FE5452F16691D002F8ABC /* WarnBeforeQuitOverlayPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarnBeforeQuitOverlayPresenter.swift; sourceTree = "<group>"; };
+		8434512D2F2CDADE0027AFB6 /* UpdateControllerKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateControllerKeys.swift; sourceTree = "<group>"; };
 		8434E6B62DB014F0008FFA3D /* BrowserTabViewControllerOnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTabViewControllerOnboardingTests.swift; sourceTree = "<group>"; };
 		843965112C6F2FFE004C8899 /* NSDragOperationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDragOperationExtension.swift; sourceTree = "<group>"; };
 		843965142C737022004C8899 /* NSPasteboardExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSPasteboardExtension.swift; sourceTree = "<group>"; };
@@ -7084,6 +7087,7 @@
 				7BAB80C42E2A420400F59FF4 /* UpdateCheckActor.swift */,
 				7BAB80C52E2A420400F59FF4 /* UpdateCheckState.swift */,
 				AAD86E51267A0DFF005C11BE /* UpdateController.swift */,
+				8434512D2F2CDADE0027AFB6 /* UpdateControllerKeys.swift */,
 				1D72D59B2BFF61B200AEDE36 /* UpdateNotificationPresenter.swift */,
 				BB01275B2E6F409E00263AD8 /* UpdateFlowPixels.swift */,
 			);
@@ -14709,6 +14713,7 @@
 				B541A3552E858041004AEAAD /* ThemeColors.swift in Sources */,
 				31C26A0A2CBE9D2700FFF462 /* PreferencesAIChat.swift in Sources */,
 				CC438E1E2EBCE234008537AD /* DefaultBrowserAndDockPromptUIProvider.swift in Sources */,
+				8434512E2F2CDADE0027AFB6 /* UpdateControllerKeys.swift in Sources */,
 				BBE013EB2C5BFD660025F2C6 /* BookmarksEmptyStateContent.swift in Sources */,
 				BDA7647D2BC497BE00D0400C /* DefaultVPNLocationFormatter.swift in Sources */,
 				3706FBCC293F65D500E42796 /* CustomRoundedCornersShape.swift in Sources */,
@@ -17000,6 +17005,7 @@
 				37EE56312D5F197700D53C7C /* PrivacyIconViewModel.swift in Sources */,
 				37EE56322D5F197700D53C7C /* ZoomPopoverViewModel.swift in Sources */,
 				4BBD3C00285ACE090047A89D /* NSNotificationName+Favicons.swift in Sources */,
+				8434512F2F2CDADE0027AFB6 /* UpdateControllerKeys.swift in Sources */,
 				4B0DB5E528BD9D08007DD239 /* PinningManager.swift in Sources */,
 				BB3364402EE0B4EA003F50FF /* ReinstallingUserDetecting.swift in Sources */,
 				373D9B4829EEAC1B00381FDD /* SyncMetadataDatabase.swift in Sources */,

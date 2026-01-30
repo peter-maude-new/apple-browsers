@@ -17,15 +17,19 @@
 //
 
 import Common
+import Persistence
+import PersistenceTestingUtils
+import XCTest
+
 @testable import DuckDuckGo_Privacy_Browser
 @testable import PixelKit
-import XCTest
 
 final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     var pixelKit: PixelKit!
     var firedPixels: [(name: String, parameters: [String: String]?)] = []
     var testDefaults: UserDefaults!
+    var validator: SparkleUpdateCompletionValidator!
 
     override func setUp() {
         super.setUp()
@@ -46,8 +50,12 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         pixelKit.clearFrequencyHistoryForAllPixels()
         PixelKit.setSharedForTesting(pixelKit: pixelKit)
 
+        // Create validator instance using testDefaults so we can verify values directly
+        let settings = testDefaults.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
+        validator = SparkleUpdateCompletionValidator(settings: settings)
+
         // Clear any existing metadata
-        SparkleUpdateCompletionValidator.clearPendingUpdateMetadata()
+        validator.clearPendingUpdateMetadata()
 
         firedPixels = []
     }
@@ -95,7 +103,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenUpdateStatusIsUpdatedAndMetadataExistsThenPixelIsFired() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -105,7 +113,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Check with .updated status
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -124,7 +132,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenUpdateStatusIsNoChangeWithMetadataThenFailurePixelIsFired() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -134,7 +142,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Check with .noChange status
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .noChange,
             currentVersion: "1.100.0",
             currentBuild: "123456"
@@ -164,7 +172,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenUpdateStatusIsDowngradedWithMetadataThenFailurePixelIsFired() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -174,7 +182,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Check with .downgraded status
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .downgraded,
             currentVersion: "1.99.0",
             currentBuild: "123455"
@@ -206,7 +214,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         // Given: NO metadata stored (non-Sparkle update)
 
         // When: Check with .updated status
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -221,7 +229,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenPixelIsFiredWithAutomaticInitiationThenParametersAreCorrect() {
         // Given: Stored metadata with automatic initiation
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -231,7 +239,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -244,7 +252,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenPixelIsFiredWithManualConfigurationThenParametersAreCorrect() {
         // Given: Stored metadata with manual configuration
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -254,7 +262,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -267,7 +275,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenPixelIsFiredThenMetadataIsCleared() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -277,7 +285,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Fire pixel once
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -291,7 +299,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         firedPixels = []
 
         // When: Try to fire again
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -306,7 +314,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenPixelIsFiredThenOSVersionIsFormattedCorrectly() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -316,7 +324,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Fire pixel
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .updated,
             currentVersion: "1.101.0",
             currentBuild: "123457"
@@ -332,7 +340,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
 
     func testWhenValidationRunsThenMetadataIsAlwaysCleared() {
         // Given: Stored metadata
-        SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+        validator.storePendingUpdateMetadata(
             sourceVersion: "1.100.0",
             sourceBuild: "123456",
             expectedVersion: "1.101.0",
@@ -342,7 +350,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         )
 
         // When: Check with .noChange (failure pixel will fire)
-        SparkleUpdateCompletionValidator.validateExpectations(
+        validator.validateExpectations(
             updateStatus: .noChange,
             currentVersion: "1.100.0",
             currentBuild: "123456"

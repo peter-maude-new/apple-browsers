@@ -16,13 +16,16 @@
 //  limitations under the License.
 //
 
-@testable import DuckDuckGo_Privacy_Browser
 import BrowserServicesKit
-import Sparkle
-import PixelKitTestingUtilities
+import Persistence
+import PersistenceTestingUtils
 import PixelKit
+import PixelKitTestingUtilities
 import PrivacyConfig
+import Sparkle
 import XCTest
+
+@testable import DuckDuckGo_Privacy_Browser
 
 final class UpdateControllerTests: XCTestCase {
 
@@ -50,10 +53,12 @@ final class UpdateControllerTests: XCTestCase {
     func testUpdaterWillRelaunchApplication_setsRestartingToUpdateStep() {
         // Given
         let mockWideEventManager = WideEventMock()
+        let mockSettings = InMemoryThrowingKeyValueStore().throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
         let mockWideEvent = SparkleUpdateWideEvent(
             wideEventManager: mockWideEventManager,
             internalUserDecider: MockInternalUserDecider(),
-            areAutomaticUpdatesEnabled: true
+            areAutomaticUpdatesEnabled: true,
+            settings: mockSettings
         )
 
         let updateController = SparkleUpdateController(
@@ -85,10 +90,12 @@ final class UpdateControllerTests: XCTestCase {
 
     func testDidFinishUpdateCycleFor_withNoUpdateFound_completesWideEvent() {
         let mockWideEventManager = WideEventMock()
+        let mockSettings = InMemoryThrowingKeyValueStore().throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
         let mockWideEvent = SparkleUpdateWideEvent(
             wideEventManager: mockWideEventManager,
             internalUserDecider: MockInternalUserDecider(),
-            areAutomaticUpdatesEnabled: true
+            areAutomaticUpdatesEnabled: true,
+            settings: mockSettings
         )
 
         let updateController = SparkleUpdateController(

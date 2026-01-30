@@ -21,9 +21,14 @@ import AIChat
 import Common
 import CryptoKit
 import os.log
+import Persistence
 
 final class UpdatesDebugMenu: NSMenu {
-    init() {
+    private let keyValueStore: ThrowingKeyValueStoring
+    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+
+    init(keyValueStore: ThrowingKeyValueStoring) {
+        self.keyValueStore = keyValueStore
         super.init(title: "")
 
         buildItems {
@@ -61,15 +66,19 @@ final class UpdatesDebugMenu: NSMenu {
 
     // MARK: - Menu State Update
 
-    @UserDefaultsWrapper(key: .updateValidityStartDate, defaultValue: nil)
-    var updateValidityStartDate: Date?
+    private var updateValidityStartDate: Date? {
+        get { try? settings.updateValidityStartDate }
+        set { try? settings.set(newValue, for: \.updateValidityStartDate) }
+    }
 
     @objc func expireCurrentUpdate() {
         updateValidityStartDate = .distantPast
     }
 
-    @UserDefaultsWrapper(key: .pendingUpdateSince, defaultValue: .distantPast)
-    private var pendingUpdateSince: Date
+    private var pendingUpdateSince: Date {
+        get { (try? settings.pendingUpdateSince) ?? .distantPast }
+        set { try? settings.set(newValue, for: \.pendingUpdateSince) }
+    }
 
     @objc func resetLastUpdateCheck() {
         pendingUpdateSince = .distantPast
@@ -99,8 +108,10 @@ final class UpdatesDebugMenu: NSMenu {
 #if SPARKLE_ALLOWS_UNSIGNED_UPDATES
     // MARK: - Custom Feed URL
 
-    @UserDefaultsWrapper(key: .debugSparkleCustomFeedURL)
-    private var customFeedURL: String?
+    private var customFeedURL: String? {
+        get { try? settings.debugSparkleCustomFeedURL }
+        set { try? settings.set(newValue, for: \.debugSparkleCustomFeedURL) }
+    }
 
     private var sparkleUpdateController: SparkleCustomFeedURLProviding? {
         Application.appDelegate.updateController as? SparkleCustomFeedURLProviding
