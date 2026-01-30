@@ -43,10 +43,6 @@ class FaviconUserScriptIntegrationTests: XCTestCase {
         contentBlockingMock.privacyConfigurationManager.privacyConfig as! MockPrivacyConfiguration
     }
 
-    var mainViewController: MainViewController {
-        (window.contentViewController as! MainViewController)
-    }
-
     // MARK: - Test HTML Pages
 
     static let htmlWithFavicon = """
@@ -73,20 +69,6 @@ class FaviconUserScriptIntegrationTests: XCTestCase {
     </head>
     <body>
         <h1>Test Page</h1>
-    </body>
-    </html>
-    """
-
-    static let htmlWithSVGFavicon = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Test Page with SVG Favicon</title>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="icon" href="/favicon.png" type="image/png">
-    </head>
-    <body>
-        <h1>Test Page with SVG</h1>
     </body>
     </html>
     """
@@ -134,9 +116,6 @@ class FaviconUserScriptIntegrationTests: XCTestCase {
             }
             if url.path == "/multiple" {
                 return .ok(.html(Self.htmlWithMultipleFavicons))
-            }
-            if url.path == "/svg" {
-                return .ok(.html(Self.htmlWithSVGFavicon))
             }
             if url.path == "/dynamic" {
                 return .ok(.html(Self.htmlWithDynamicFavicon))
