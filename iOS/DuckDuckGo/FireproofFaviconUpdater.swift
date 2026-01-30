@@ -91,7 +91,10 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
 
         guard let host = documentUrl.host else { return }
 
-        // Select the best favicon URL - prefer icon over apple-touch-icon
+        // Note: Unlike macOS, we don't validate documentUrl matches the tab's current URL.
+        // This is safe because favicons are cached by domain, not associated with the tab directly.
+
+        // SVG favicons are filtered in C-S-S before reaching native code (iOS only)
         let faviconURL: URL? = faviconLinks
             .first { $0.rel.contains("icon") && !$0.rel.contains("apple-touch") }
             .map { $0.href }

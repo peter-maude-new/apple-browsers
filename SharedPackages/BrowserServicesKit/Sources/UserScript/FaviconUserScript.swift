@@ -48,6 +48,7 @@ public final class FaviconUserScript: NSObject, Subfeature {
     public struct FaviconLink: Codable, Equatable {
         public let href: URL
         public let rel: String
+        /// MIME type of the favicon (e.g., "image/png"). Used by C-S-S for SVG filtering on iOS.
         public let type: String?
 
         public init(href: URL, rel: String, type: String? = nil) {
