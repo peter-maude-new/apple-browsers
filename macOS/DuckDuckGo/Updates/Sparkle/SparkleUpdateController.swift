@@ -98,6 +98,15 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         let releaseNotesSubscription: [String]
         let isCritical: Bool
 
+        init(version: String, build: String, date: Date, releaseNotes: [String], releaseNotesSubscription: [String], isCritical: Bool) {
+            self.version = version
+            self.build = build
+            self.date = date
+            self.releaseNotes = releaseNotes
+            self.releaseNotesSubscription = releaseNotesSubscription
+            self.isCritical = isCritical
+        }
+
         init(from item: SUAppcastItem) {
             self.version = item.displayVersionString
             self.build = item.versionString
@@ -155,7 +164,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     }
 #endif
 
-    private var pendingUpdateInfo: Data? {
+    private var pendingUpdateInfo: PendingUpdateInfo? {
         get {
             try? settings.pendingUpdateInfo
         }
@@ -480,10 +489,8 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     // Cache the pending update info to persist across app restarts
     private func cachePendingUpdate(from item: SUAppcastItem) {
         let info = PendingUpdateInfo(from: item)
-        if let encoded = try? JSONEncoder().encode(info) {
-            pendingUpdateInfo = encoded
-            Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
-        }
+        pendingUpdateInfo = info
+        Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
     }
 
     // Determines if a forced update check is necessary

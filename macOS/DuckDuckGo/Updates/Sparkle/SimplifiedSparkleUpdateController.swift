@@ -138,7 +138,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     private let keyValueStore: ThrowingKeyValueStoring
     private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
 
-    private var pendingUpdateInfo: Data? {
+    private var pendingUpdateInfo: SparkleUpdateController.PendingUpdateInfo? {
         get {
             try? settings.pendingUpdateInfo
         }
@@ -477,10 +477,8 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
 
     private func cachePendingUpdate(from item: SUAppcastItem) {
         let info = SparkleUpdateController.PendingUpdateInfo(from: item)
-        if let encoded = try? JSONEncoder().encode(info) {
-            pendingUpdateInfo = encoded
-            Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
-        }
+        pendingUpdateInfo = info
+        Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
     }
 
     @discardableResult

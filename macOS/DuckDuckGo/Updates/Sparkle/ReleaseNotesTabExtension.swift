@@ -158,8 +158,7 @@ extension ReleaseNotesValues {
         // or when the appcast hasn't finished loading by the time the Release Notes screen shows up
         guard let latestUpdate = updateController.latestUpdate else {
             let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-            if let data = try? settings.pendingUpdateInfo,
-               let cached = try? JSONDecoder().decode(SparkleUpdateController.PendingUpdateInfo.self, from: data) {
+            if let cached = try? settings.pendingUpdateInfo {
                 let releaseTitle = Update.releaseDateFormatter().string(from: cached.date)
 
                 let cachedVersion = "\(cached.version) (\(cached.build))"
