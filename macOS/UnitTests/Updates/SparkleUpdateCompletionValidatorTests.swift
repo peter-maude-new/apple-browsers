@@ -65,6 +65,7 @@ final class SparkleUpdateCompletionValidatorTests: XCTestCase {
         pixelKit = nil
         testDefaults = nil
         firedPixels = []
+        validator = nil
         super.tearDown()
     }
 
