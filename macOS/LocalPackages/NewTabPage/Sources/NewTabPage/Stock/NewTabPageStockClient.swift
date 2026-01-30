@@ -49,15 +49,13 @@ public final class NewTabPageStockClient: NewTabPageUserScriptClient {
             return nil
         }
 
-        Logger.general.debug("NTP Stock: Fetching stock for symbol: \(request.symbol, privacy: .public)")
+        Logger.general.debug("NTP Stock: Fetching stocks for symbols: \(request.symbols.joined(separator: ", "), privacy: .public)")
 
-        do {
-            let data = try await dataProvider.fetchStock(symbol: request.symbol)
-            Logger.general.debug("NTP Stock: Successfully fetched stock data - symbol: \(data.symbol, privacy: .public), price: \(data.latestPrice)")
-            return data
-        } catch {
-            Logger.general.error("NTP Stock: Fetch error: \(error.localizedDescription, privacy: .public)")
-            return nil
+        let results = await dataProvider.fetchStocks(symbols: request.symbols)
+        Logger.general.debug("NTP Stock: Successfully fetched \(results.count) stocks")
+        for data in results {
+            Logger.general.debug("NTP Stock: - \(data.symbol, privacy: .public): \(data.latestPrice)")
         }
+        return results
     }
 }

@@ -23,7 +23,7 @@ public extension NewTabPageDataModel {
     // MARK: - Request from web
 
     struct StockGetDataRequest: Codable {
-        let symbol: String
+        let symbols: [String]
     }
 
     // MARK: - Response to web (matches API response directly)
