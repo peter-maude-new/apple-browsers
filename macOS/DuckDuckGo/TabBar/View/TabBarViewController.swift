@@ -586,11 +586,22 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         pinnedTabsCollectionView?.clearSelection(animated: animated)
     }
 
+    /// Converts a visible index path item to an actual TabIndex, handling the mapping for AI-hidden tabs.
+    private func actualTabIndex(forVisibleIndexPath indexPath: IndexPath, isPinned: Bool) -> TabIndex? {
+        if isPinned {
+            return .pinned(indexPath.item)
+        } else if let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) {
+            return .unpinned(actualIndex)
+        }
+        return nil
+    }
+
     private func selectTab(with event: NSEvent) {
         let locationInWindow = event.locationInWindow
 
-        if let indexPath = collectionView.indexPathForItemAtMouseLocation(locationInWindow) {
-            tabCollectionViewModel.select(at: .unpinned(indexPath.item))
+        if let indexPath = collectionView.indexPathForItemAtMouseLocation(locationInWindow),
+           let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: false) {
+            tabCollectionViewModel.select(at: tabIndex)
             return
         }
 
@@ -942,13 +953,12 @@ final class TabBarViewController: NSViewController, TabBarRemoteMessagePresentin
         // don‘t show tab previews when a child window is shown (Suggestions, Bookmarks etc…)
         guard view.window?.childWindows?.contains(where: { !($0.windowController is TabPreviewWindowController) }) != true,
               let collectionView,
-              let indexPath = collectionView.indexPath(for: tabBarViewItem)
+              let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned)
         else {
             Logger.general.error("TabBarViewController: Showing tab preview window failed - cannot determine index path for tab")
             return
         }
-
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
 
         guard let tabViewModel = tabCollectionViewModel.tabViewModel(at: tabIndex) else {
             Logger.general.error("TabBarViewController: Showing tab preview window failed - tabViewModel not found for index \(String(reflecting: tabIndex))")
@@ -1055,34 +1065,54 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
     }
 
     func tabCollectionViewModelDidInsert(_ tabCollectionViewModel: TabCollectionViewModel, at index: TabIndex, selected: Bool) {
-        let collectionView = index.isPinnedTab ? pinnedTabsCollectionView : self.collectionView
-        guard let collectionView else {
-            Logger.general.error("collection view is nil")
-            return
-        }
-        let indexPathSet = Set(arrayLiteral: IndexPath(item: index.item))
-        if selected {
-            clearSelection(animated: true)
-        }
-        collectionView.animator().insertItems(at: indexPathSet)
-        if selected {
-            collectionView.selectItems(at: indexPathSet, scrollPosition: .centeredHorizontally)
-            collectionView.scrollToSelected()
-        }
-
-        hideTabPreview()
-
+        // Check if the inserted tab is offscreen - if so, skip the collection view update
         if index.isUnpinnedTab {
+            guard let tab = tabCollectionViewModel.tabCollection.tabs[safe: index.item], !tab.isOffScreen else {
+                return
+            }
+            // Convert actual index to visible index for the collection view
+            guard let visibleIndex = tabCollectionViewModel.visibleTabIndex(forActualIndex: index.item) else {
+                return
+            }
+
+            let indexPathSet = Set(arrayLiteral: IndexPath(item: visibleIndex))
+            if selected {
+                clearSelection(animated: true)
+            }
+            collectionView.animator().insertItems(at: indexPathSet)
+            if selected {
+                collectionView.selectItems(at: indexPathSet, scrollPosition: .centeredHorizontally)
+                collectionView.scrollToSelected()
+            }
+
+            hideTabPreview()
             updateTabMode()
             updateEmptyTabArea()
             if tabMode == .overflow {
-                let isLastItem = collectionView.numberOfItems(inSection: 0) == index.item + 1
+                let isLastItem = collectionView.numberOfItems(inSection: 0) == visibleIndex + 1
                 if isLastItem {
                     scrollCollectionViewToEnd()
                 } else {
-                    collectionView.scroll(to: IndexPath(item: index.item))
+                    collectionView.scroll(to: IndexPath(item: visibleIndex))
                 }
             }
+        } else {
+            // Pinned tabs
+            let collectionView = pinnedTabsCollectionView
+            guard let collectionView else {
+                Logger.general.error("collection view is nil")
+                return
+            }
+            let indexPathSet = Set(arrayLiteral: IndexPath(item: index.item))
+            if selected {
+                clearSelection(animated: true)
+            }
+            collectionView.animator().insertItems(at: indexPathSet)
+            if selected {
+                collectionView.selectItems(at: indexPathSet, scrollPosition: .centeredHorizontally)
+                collectionView.scrollToSelected()
+            }
+            hideTabPreview()
         }
     }
 
@@ -1175,7 +1205,12 @@ extension TabBarViewController: TabCollectionViewModelDelegate {
     }
 
     private func appendToCollectionView(selected: Bool) {
-        let lastIndex = max(0, tabCollectionViewModel.tabCollection.tabs.count - 1)
+        // Check if the newly appended tab is offscreen - if so, skip the collection view update
+        guard let lastTab = tabCollectionViewModel.tabCollection.tabs.last, !lastTab.isOffScreen else {
+            return
+        }
+
+        let lastIndex = max(0, tabCollectionViewModel.visibleTabs.count - 1)
         let lastIndexPathSet = Set(arrayLiteral: IndexPath(item: lastIndex))
 
         if frozenLayout {
@@ -1268,7 +1303,9 @@ extension TabBarViewController: NSCollectionViewDelegateFlowLayout {
         guard collectionView != pinnedTabsCollectionView else {
             return NSSize(width: pinnedTabWidth, height: pinnedTabHeight)
         }
-        let isItemSelected = tabCollectionViewModel.selectionIndex == .unpinned(indexPath.item)
+        // Convert visible index to actual index for selection comparison
+        let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item)
+        let isItemSelected = actualIndex.map { tabCollectionViewModel.selectionIndex == .unpinned($0) } ?? false
         return NSSize(width: self.currentTabWidth(selected: isItemSelected), height: standardTabHeight)
     }
 
@@ -1299,9 +1336,9 @@ extension TabBarViewController: NSCollectionViewDataSource {
 
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == pinnedTabsCollectionView {
-            return tabCollectionViewModel.pinnedTabsCollection?.tabs.count ?? 0
+            return tabCollectionViewModel.visiblePinnedTabs.count
         }
-        return tabCollectionViewModel.tabCollection.tabs.count
+        return tabCollectionViewModel.visibleTabs.count
     }
 
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
@@ -1311,7 +1348,17 @@ extension TabBarViewController: NSCollectionViewDataSource {
             return item
         }
 
-        let tabIndex: TabIndex = collectionView == pinnedTabsCollectionView ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+        // For pinned tabs, use visible index directly (pinned tabs don't support AI hiding)
+        // For unpinned tabs, convert visible index to actual index
+        let tabIndex: TabIndex
+        if collectionView == pinnedTabsCollectionView {
+            tabIndex = .pinned(indexPath.item)
+        } else if let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) {
+            tabIndex = .unpinned(actualIndex)
+        } else {
+            tabBarViewItem.clear()
+            return tabBarViewItem
+        }
 
         guard let tabViewModel = tabCollectionViewModel.tabViewModel(at: tabIndex) else {
             tabBarViewItem.clear()
@@ -1359,7 +1406,16 @@ extension TabBarViewController: NSCollectionViewDelegate {
         if highlightState == .forSelection {
             clearSelection()
 
-            let tabIndex: TabIndex = collectionView == pinnedTabsCollectionView ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+            // For pinned tabs, use visible index directly
+            // For unpinned tabs, convert visible index to actual index
+            let tabIndex: TabIndex
+            if collectionView == pinnedTabsCollectionView {
+                tabIndex = .pinned(indexPath.item)
+            } else if let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) {
+                tabIndex = .unpinned(actualIndex)
+            } else {
+                return
+            }
             tabCollectionViewModel.select(at: tabIndex)
 
             // Poor old NSCollectionView
@@ -1381,7 +1437,8 @@ extension TabBarViewController: NSCollectionViewDelegate {
         assert(indexPaths.count == 1, "TabBarViewController: More than 1 dragging index path")
         guard let indexPath = indexPaths.first else { return }
 
-        let tabIndex: TabIndex = collectionView == pinnedTabsCollectionView ? .pinned(indexPath.item) : .unpinned(indexPath.item)
+        let isPinned = collectionView == pinnedTabsCollectionView
+        guard let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else { return }
 
         tabDragAndDropManager.setSource(tabCollectionViewModel: tabCollectionViewModel, index: tabIndex)
         hideTabPreview()
@@ -1519,12 +1576,12 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
         tabCollectionViewModel.select(at: tabIndex)
     }
 
@@ -1532,22 +1589,23 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
         tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab.killWebContentProcess()
     }
 
     func tabBarViewItemCrashMultipleTimesAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.killWebContentProcessMultipleTimes()
+        tabCollectionViewModel.tabViewModel(at: actualIndex)?.tab.killWebContentProcessMultipleTimes()
     }
 
     func tabBarViewItemDidUpdateCrashInfoPopoverVisibility(_ tabBarViewItem: TabBarViewItem, sender: NSButton, shouldShow: Bool) {
@@ -1614,12 +1672,12 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return false
         }
 
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
         return tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab.content.canBeDuplicated ?? false
     }
 
@@ -1627,12 +1685,13 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        duplicateTab(at: isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item))
+        duplicateTab(at: tabIndex)
     }
 
     func tabBarViewItemCanBePinned(_ tabBarViewItem: TabBarViewItem) -> Bool {
@@ -1640,19 +1699,21 @@ extension TabBarViewController: TabBarViewItemDelegate {
         guard !isPinned else {
             return false
         }
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return false
         }
 
-        return tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.content.canBePinned ?? false
+        return tabCollectionViewModel.tabViewModel(at: actualIndex)?.tab.content.canBePinned ?? false
     }
 
     func tabBarViewItemPinAction(_ tabBarViewItem: TabBarViewItem) {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
@@ -1660,9 +1721,9 @@ extension TabBarViewController: TabBarViewItemDelegate {
         clearSelection()
 
         if isPinned {
-            tabCollectionViewModel.unpinTab(at: indexPath.item)
+            tabCollectionViewModel.unpinTab(at: tabIndex.item)
         } else {
-            tabCollectionViewModel.pinTab(at: indexPath.item)
+            tabCollectionViewModel.pinTab(at: tabIndex.item)
             presentPinnedTabsDiscoveryPopoverIfNecessary()
         }
 
@@ -1708,12 +1769,12 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return false
         }
 
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
         return tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab.content.canBeBookmarked ?? false
     }
 
@@ -1756,18 +1817,19 @@ extension TabBarViewController: TabBarViewItemDelegate {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
 
-        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        let tabIndex: TabIndex = isPinned ? .pinned(indexPath.item) : .unpinned(indexPath.item)
         tabCollectionViewModel.remove(at: tabIndex)
     }
 
     func tabBarViewItemTogglePermissionAction(_ tabBarViewItem: TabBarViewItem) {
         guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
-              let permissions = tabCollectionViewModel.tabViewModel(at: indexPath.item)?.tab.permissions
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item),
+              let permissions = tabCollectionViewModel.tabViewModel(at: actualIndex)?.tab.permissions
         else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item or its permissions")
             return
@@ -1783,57 +1845,62 @@ extension TabBarViewController: TabBarViewItemDelegate {
     }
 
     func tabBarViewItemCloseOtherAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        tabCollectionViewModel.removeAllTabs(except: indexPath.item)
+        tabCollectionViewModel.removeAllTabs(except: actualIndex)
     }
 
     func tabBarViewItemCloseToTheLeftAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        tabCollectionViewModel.removeTabs(before: indexPath.item)
+        tabCollectionViewModel.removeTabs(before: actualIndex)
     }
 
     func tabBarViewItemCloseToTheRightAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        tabCollectionViewModel.removeTabs(after: indexPath.item)
+        tabCollectionViewModel.removeTabs(after: actualIndex)
     }
 
     func tabBarViewItemMoveToNewWindowAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        moveToNewWindow(unpinnedIndex: indexPath.item, burner: false)
+        moveToNewWindow(unpinnedIndex: actualIndex, burner: false)
     }
 
     func tabBarViewItemMoveToNewBurnerWindowAction(_ tabBarViewItem: TabBarViewItem) {
-        guard let indexPath = collectionView.indexPath(for: tabBarViewItem) else {
+        guard let indexPath = collectionView.indexPath(for: tabBarViewItem),
+              let actualIndex = tabCollectionViewModel.actualTabIndex(forVisibleIndex: indexPath.item) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return
         }
 
-        moveToNewWindow(unpinnedIndex: indexPath.item, burner: true)
+        moveToNewWindow(unpinnedIndex: actualIndex, burner: true)
     }
 
     func tabBarViewItemFireproofSite(_ tabBarViewItem: TabBarViewItem) {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
-        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
 
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
-              let tab = tabCollection?.tabs[safe: indexPath.item]
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned),
+              let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab
         else {
             assertionFailure("TabBarViewController: Failed to get tab from tab bar view item")
             return
@@ -1845,10 +1912,10 @@ extension TabBarViewController: TabBarViewItemDelegate {
     func tabBarViewItemMuteUnmuteSite(_ tabBarViewItem: TabBarViewItem) {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
-        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
 
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
-              let tab = tabCollection?.tabs[safe: indexPath.item]
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned),
+              let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab
         else {
             assertionFailure("TabBarViewController: Failed to get tab from tab bar view item")
             return
@@ -1860,10 +1927,10 @@ extension TabBarViewController: TabBarViewItemDelegate {
     func tabBarViewItemRemoveFireproofing(_ tabBarViewItem: TabBarViewItem) {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
-        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
 
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
-              let tab = tabCollection?.tabs[safe: indexPath.item]
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned),
+              let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab
         else {
             assertionFailure("TabBarViewController: Failed to get tab from tab bar view item")
             return
@@ -1875,10 +1942,10 @@ extension TabBarViewController: TabBarViewItemDelegate {
     func tabBarViewItem(_ tabBarViewItem: TabBarViewItem, replaceContentWithDroppedStringValue stringValue: String) {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
-        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
 
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem),
-              let tab = tabCollection?.tabs[safe: indexPath.item] else { return }
+              let tabIndex = actualTabIndex(forVisibleIndexPath: indexPath, isPinned: isPinned),
+              let tab = tabCollectionViewModel.tabViewModel(at: tabIndex)?.tab else { return }
 
         if let url = URL.makeURL(from: stringValue) {
             tab.setContent(.url(url, credential: nil, source: .userEntered(stringValue, downloadRequested: false)))
@@ -1888,14 +1955,14 @@ extension TabBarViewController: TabBarViewItemDelegate {
     func otherTabBarViewItemsState(for tabBarViewItem: TabBarViewItem) -> OtherTabBarViewItemsState {
         let isPinned = tabBarViewItem.tabViewModel?.isPinned == true
         let collectionView = isPinned ? pinnedTabsCollectionView : self.collectionView
-        let tabCollection = isPinned ? tabCollectionViewModel.pinnedTabsCollection : tabCollectionViewModel.tabCollection
+        let visibleTabs = isPinned ? tabCollectionViewModel.visiblePinnedTabs : tabCollectionViewModel.visibleTabs
 
         guard let indexPath = collectionView?.indexPath(for: tabBarViewItem) else {
             assertionFailure("TabBarViewController: Failed to get index path of tab bar view item")
             return .init(hasItemsToTheLeft: false, hasItemsToTheRight: false)
         }
         return .init(hasItemsToTheLeft: indexPath.item > 0,
-                     hasItemsToTheRight: indexPath.item + 1 < (tabCollection?.tabs.count ?? 0))
+                     hasItemsToTheRight: indexPath.item + 1 < visibleTabs.count)
     }
 
 }

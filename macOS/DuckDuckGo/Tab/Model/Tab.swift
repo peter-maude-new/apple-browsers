@@ -586,6 +586,16 @@ enum TabVisibilityState: String {
         visibilityState = state
     }
 
+    /// Whether this tab is off-screen (hidden from the tab bar UI).
+    /// Matches Chrome's offscreen tab API terminology.
+    @Published private(set) var isOffScreen: Bool = false
+
+    @MainActor
+    func setOffScreen(_ offScreen: Bool) {
+        guard isOffScreen != offScreen else { return }
+        isOffScreen = offScreen
+    }
+
     var contentChangeEnabled = true
 
     var isLazyLoadingInProgress = false
@@ -1015,6 +1025,7 @@ enum TabVisibilityState: String {
         }
     }
 
+    @MainActor
     func muteUnmuteTab() {
         let wasMuted = webView.audioState.isMuted
         enforceMutedAudio()
@@ -1243,12 +1254,16 @@ enum TabVisibilityState: String {
             .sink { [weak self] audioState in
                 guard let self else { return }
                 if case .unmuted = audioState {
-                    self.enforceMutedAudio()
+                    Task { @MainActor in
+                        self.enforceMutedAudio()
+                    }
                 }
             }
             .store(in: &webViewCancellables)
 
-        enforceMutedAudio()
+        Task { @MainActor in
+            enforceMutedAudio()
+        }
 
         // background tab loading should start immediately
         DispatchQueue.main.async { [weak self] in

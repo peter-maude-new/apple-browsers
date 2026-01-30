@@ -65,6 +65,32 @@ final class TabCollectionViewModel: NSObject {
         }
     }
 
+    /// Tabs visible in the tab bar (excludes AI-hidden tabs)
+    var visibleTabs: [Tab] {
+        tabCollection.tabs.filter { !$0.isOffScreen }
+    }
+
+    /// Pinned tabs visible in the tab bar (excludes AI-hidden tabs)
+    var visiblePinnedTabs: [Tab] {
+        pinnedTabsCollection?.tabs.filter { !$0.isOffScreen } ?? []
+    }
+
+    /// Returns the actual tab index for a visible tab index, or nil if out of bounds
+    func actualTabIndex(forVisibleIndex visibleIndex: Int) -> Int? {
+        let visible = visibleTabs
+        guard visibleIndex >= 0 && visibleIndex < visible.count else { return nil }
+        let tab = visible[visibleIndex]
+        return tabCollection.tabs.firstIndex(of: tab)
+    }
+
+    /// Returns the visible tab index for an actual tab index, or nil if the tab is hidden
+    func visibleTabIndex(forActualIndex actualIndex: Int) -> Int? {
+        guard actualIndex >= 0 && actualIndex < tabCollection.tabs.count else { return nil }
+        let tab = tabCollection.tabs[actualIndex]
+        guard !tab.isOffScreen else { return nil }
+        return visibleTabs.firstIndex(of: tab)
+    }
+
     var allTabsCount: Int {
         if isBurner {
             return tabCollection.tabs.count
@@ -568,6 +594,19 @@ final class TabCollectionViewModel: NSObject {
     private func didRemoveTab(tab: Tab, at index: TabIndex, withParent parentTab: Tab?, forced: Bool = false) {
 
         func notifyDelegate() {
+            // Skip delegate notification for offscreen tabs since they're not in the tab bar
+            if tab.isOffScreen {
+                return
+            }
+
+            // If there are any offscreen tabs, trigger a full reload to avoid index mismatch issues
+            let hasOffScreenTabs = tabCollection.tabs.contains { $0.isOffScreen }
+            if hasOffScreenTabs {
+                delegate?.tabCollectionViewModelDidMultipleChanges(self)
+                return
+            }
+
+            // Original behavior when no offscreen tabs are involved
             if index.isUnpinnedTab {
                 let newSelectionIndex = self.selectionIndex?.isUnpinnedTab == true ? self.selectionIndex?.item : nil
                 delegate?.tabCollectionViewModel(self, didRemoveTabAt: index.item, andSelectTabAt: newSelectionIndex)
@@ -821,6 +860,8 @@ final class TabCollectionViewModel: NSObject {
         updateTabVisibilityStates()
     }
 
+    private var offScreenCancellables = [Tab: AnyCancellable]()
+
     private func subscribeToTabs() {
         tabCollection.$tabs.sink { [weak self] newTabs in
             guard let self = self else { return }
@@ -844,12 +885,21 @@ final class TabCollectionViewModel: NSObject {
     private func removeTabViewModels(_ removed: Set<Tab>) {
         for tab in removed {
             tabViewModels[tab] = nil
+            offScreenCancellables[tab] = nil
         }
     }
 
     private func addTabViewModels(_ added: Set<Tab>) {
         for tab in added {
             tabViewModels[tab] = TabViewModel(tab: tab)
+            // Subscribe to isOffScreen changes to refresh the tab bar
+            offScreenCancellables[tab] = tab.$isOffScreen
+                .dropFirst() // Skip initial value
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    guard let self else { return }
+                    self.delegate?.tabCollectionViewModelDidMultipleChanges(self)
+                }
         }
     }
 

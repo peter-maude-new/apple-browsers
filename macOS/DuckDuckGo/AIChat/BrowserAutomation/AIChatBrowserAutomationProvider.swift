@@ -109,7 +109,7 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
                 url: tab.webView.url?.absoluteString,
                 title: tab.title,
                 active: tab.uuid == currentHandle,
-                hidden: tab.isHidden
+                hidden: tab.isOffScreen
             )
             tabs.append(info)
         }
@@ -165,18 +165,20 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
             return nil
         }
 
-        let existingTabIds = Set(tabCollectionViewModel.tabCollection.tabs.map { ObjectIdentifier($0) })
-
+        let content: Tab.TabContent
         if let url = url {
-            tabCollectionViewModel.appendNewTab(with: .contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false)), selected: false)
+            content = .contentFromURL(url, source: .userEntered(url.absoluteString, downloadRequested: false))
         } else {
-            tabCollectionViewModel.appendNewTab(with: .newtab, selected: false)
+            content = .newtab
         }
 
-        guard let newTab = tabCollectionViewModel.tabCollection.tabs.first(where: { !existingTabIds.contains(ObjectIdentifier($0)) }) else {
-            return nil
-        }
-        return newTab.uuid
+        // Create tab and set offscreen BEFORE adding to collection
+        // This ensures the tab bar knows it's offscreen when it receives the append notification
+        let tab = Tab(content: content, shouldLoadInBackground: true, burnerMode: tabCollectionViewModel.burnerMode)
+        tab.setOffScreen(true)
+        tabCollectionViewModel.append(tab: tab, selected: false)
+
+        return tab.uuid
     }
 
     func takeScreenshot(rect: CGRect?, handle: String?) async -> (Data, CGSize)? {
@@ -217,19 +219,33 @@ final class AIChatBrowserAutomationProvider: BrowserAutomationBridgeProviding {
 
         let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
 
+        // Get the actual tab to set its hidden state
+        let tab: Tab?
+        switch index {
+        case .pinned(let idx):
+            tab = tabCollectionViewModel.pinnedTabs[safe: idx]
+        case .unpinned(let idx):
+            tab = tabCollectionViewModel.tabs[safe: idx]
+        }
+
         if hidden {
             guard !index.isPinnedTab else { return false }
-            guard tabCollectionViewModel.selectionIndex == index else { return true }
             guard tabCollectionViewModel.allTabsCount > 1 else { return false }
 
-            if let fallback = tabCollectionViewModel.getPreviouslyActiveTab(), fallback != index {
-                tabCollectionViewModel.select(at: fallback)
-            } else {
-                tabCollectionViewModel.select(at: index.next(in: tabCollectionViewModel))
+            tab?.setOffScreen(true)
+
+            // If this tab is currently selected, switch to another tab
+            if tabCollectionViewModel.selectionIndex == index {
+                if let fallback = tabCollectionViewModel.getPreviouslyActiveTab(), fallback != index {
+                    tabCollectionViewModel.select(at: fallback)
+                } else {
+                    tabCollectionViewModel.select(at: index.next(in: tabCollectionViewModel))
+                }
             }
             return true
         }
 
+        tab?.setOffScreen(false)
         windowController.window?.makeKeyAndOrderFront(nil)
         tabCollectionViewModel.select(at: index)
         return true

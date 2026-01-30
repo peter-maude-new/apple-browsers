@@ -583,11 +583,14 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     }
 
     func browserSetTabHidden(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard #available(macOS 12.0, *) else {
+            return AIChatErrorResponse(reason: "unsupported_os_version")
+        }
         guard let hiddenParams: BrowserSetTabHiddenParams = DecodableHelper.decode(from: params) else {
             return AIChatErrorResponse(reason: "invalid_params")
         }
 
-        let result = browserAutomationBridge.setTabHidden(params: hiddenParams)
+        let result = await getBrowserAutomationBridge().setTabHidden(params: hiddenParams)
         return browserAutomationResult(result)
     }
 
