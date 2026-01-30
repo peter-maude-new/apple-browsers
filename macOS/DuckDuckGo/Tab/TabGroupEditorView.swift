@@ -68,6 +68,7 @@ struct TabGroupEditorView: View {
             // Title
             Text(mode.title)
                 .font(.headline)
+                .padding(.top, 10)
 
             // Name field
             VStack(alignment: .leading, spacing: 4) {
@@ -96,7 +97,8 @@ struct TabGroupEditorView: View {
                 }
             }
 
-            Spacer()
+            Divider()
+                .padding(.top, 8)
 
             // Buttons
             HStack {
@@ -113,9 +115,11 @@ struct TabGroupEditorView: View {
                 .keyboardShortcut(.defaultAction)
                 .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+            .padding(.bottom, 10)
         }
-        .padding()
-        .frame(width: 320, height: 200)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .frame(width: 280)
     }
 }
 
