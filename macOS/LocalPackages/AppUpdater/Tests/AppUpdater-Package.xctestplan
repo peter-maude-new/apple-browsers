@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "8F4E5D2A-3B1C-4A9E-B7F3-9C2D8E6A5B4C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppUpdaterSharedTests",
+        "name" : "AppUpdaterSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppStoreAppUpdaterTests",
+        "name" : "AppStoreAppUpdaterTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SparkleAppUpdaterTests",
+        "name" : "SparkleAppUpdaterTests"
+      }
+    }
+  ],
+  "version" : 1
+}
+

@@ -23,7 +23,8 @@ import Common
 import CryptoKit
 import os.log
 import Persistence
-#if SPARKLE
+import PixelKit
+#if canImport(SparkleAppUpdater)
 import SparkleAppUpdater
 #endif
 
@@ -109,7 +110,7 @@ final class UpdatesDebugMenu: NSMenu {
     }
 
     @objc func showBrowserUpdatedPopover() {
-        let presenter = UpdateNotificationPresenter()
+        let presenter = UpdateNotificationPresenter(pixelFiring: PixelKit.shared)
         presenter.showUpdateNotification(for: .updated)
     }
 

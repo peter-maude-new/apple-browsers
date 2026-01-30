@@ -1,7 +1,7 @@
 //
 //  SparkleUpdateCompletionValidator.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,32 +16,25 @@
 //  limitations under the License.
 //
 
-import Foundation
-import PixelKit
+import AppUpdaterShared
 import Common
+import Foundation
+import Persistence
 
-final class SparkleUpdateCompletionValidator {
+/// Validates Sparkle update completion and provides metadata for pixel firing.
+///
+/// This class stores pending update metadata before app restart and validates
+/// update completion after restart. Pixel firing is handled by event mapping
+/// in the controllers that use this validator.
+public final class SparkleUpdateCompletionValidator {
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
-    @UserDefaultsWrapper(key: .pendingUpdateSourceVersion, defaultValue: nil)
-    private static var pendingUpdateSourceVersion: String?
-
-    @UserDefaultsWrapper(key: .pendingUpdateSourceBuild, defaultValue: nil)
-    private static var pendingUpdateSourceBuild: String?
-
-    @UserDefaultsWrapper(key: .pendingUpdateExpectedVersion, defaultValue: nil)
-    private static var pendingUpdateExpectedVersion: String?
-
-    @UserDefaultsWrapper(key: .pendingUpdateExpectedBuild, defaultValue: nil)
-    private static var pendingUpdateExpectedBuild: String?
-
-    @UserDefaultsWrapper(key: .pendingUpdateInitiationType, defaultValue: nil)
-    private static var pendingUpdateInitiationType: String?
-
-    @UserDefaultsWrapper(key: .pendingUpdateConfiguration, defaultValue: nil)
-    private static var pendingUpdateConfiguration: String?
+    public init(settings: any ThrowingKeyedStoring<UpdateControllerSettings>) {
+        self.settings = settings
+    }
 
     /// Store metadata when update is about to happen (before app restarts)
-    static func storePendingUpdateMetadata(
+    public func storePendingUpdateMetadata(
         sourceVersion: String,
         sourceBuild: String,
         expectedVersion: String,
@@ -49,21 +42,21 @@ final class SparkleUpdateCompletionValidator {
         initiationType: String,
         updateConfiguration: String
     ) {
-        pendingUpdateSourceVersion = sourceVersion
-        pendingUpdateSourceBuild = sourceBuild
-        pendingUpdateExpectedVersion = expectedVersion
-        pendingUpdateExpectedBuild = expectedBuild
-        pendingUpdateInitiationType = initiationType
-        pendingUpdateConfiguration = updateConfiguration
+        try? settings.set(sourceVersion, for: \.pendingUpdateSourceVersion)
+        try? settings.set(sourceBuild, for: \.pendingUpdateSourceBuild)
+        try? settings.set(expectedVersion, for: \.pendingUpdateExpectedVersion)
+        try? settings.set(expectedBuild, for: \.pendingUpdateExpectedBuild)
+        try? settings.set(initiationType, for: \.pendingUpdateInitiationType)
+        try? settings.set(updateConfiguration, for: \.pendingUpdateConfiguration)
     }
 
-    /// Check if update completed successfully and fire pixel
+    /// Check if update completed successfully and fire appropriate events.
     /// Called after ApplicationUpdateDetector.isApplicationUpdated()
-    /// Always fires pixel for successful updates, using stored metadata when available
-    static func validateExpectations(
+    public func validateExpectations(
         updateStatus: AppUpdateStatus,
         currentVersion: String,
-        currentBuild: String
+        currentBuild: String,
+        eventMapping: EventMapping<UpdateControllerEvent>?
     ) {
         // Ensure metadata is always cleared, regardless of outcome
         defer {
@@ -71,20 +64,20 @@ final class SparkleUpdateCompletionValidator {
         }
 
         // Load metadata with "unknown" fallback for non-Sparkle updates
-        let sourceVersion = pendingUpdateSourceVersion ?? "unknown"
-        let sourceBuild = pendingUpdateSourceBuild ?? "unknown"
-        let expectedVersion = pendingUpdateExpectedVersion ?? "unknown"
-        let expectedBuild = pendingUpdateExpectedBuild ?? "unknown"
-        let initiationType = pendingUpdateInitiationType ?? "unknown"
-        let updateConfiguration = pendingUpdateConfiguration ?? "unknown"
+        let sourceVersion = (try? settings.pendingUpdateSourceVersion) ?? "unknown"
+        let sourceBuild = (try? settings.pendingUpdateSourceBuild) ?? "unknown"
+        let expectedVersion = (try? settings.pendingUpdateExpectedVersion) ?? "unknown"
+        let expectedBuild = (try? settings.pendingUpdateExpectedBuild) ?? "unknown"
+        let initiationType = (try? settings.pendingUpdateInitiationType) ?? "unknown"
+        let updateConfiguration = (try? settings.pendingUpdateConfiguration) ?? "unknown"
 
         // Determine if this was a Sparkle-initiated update
-        let updatedBySparkle = pendingUpdateSourceVersion != nil &&
-                                pendingUpdateSourceBuild != nil &&
-                                pendingUpdateExpectedVersion != nil &&
-                                pendingUpdateExpectedBuild != nil &&
-                                pendingUpdateInitiationType != nil &&
-                                pendingUpdateConfiguration != nil
+        let updatedBySparkle = (try? settings.pendingUpdateSourceVersion) != nil &&
+                                (try? settings.pendingUpdateSourceBuild) != nil &&
+                                (try? settings.pendingUpdateExpectedVersion) != nil &&
+                                (try? settings.pendingUpdateExpectedBuild) != nil &&
+                                (try? settings.pendingUpdateInitiationType) != nil &&
+                                (try? settings.pendingUpdateConfiguration) != nil
 
         // Get OS version for pixels
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
@@ -96,7 +89,7 @@ final class SparkleUpdateCompletionValidator {
             // Fire different pixels based on whether update was Sparkle-initiated
             if updatedBySparkle {
                 // Success - Sparkle-initiated update completed
-                PixelKit.fire(UpdateFlowPixels.updateApplicationSuccess(
+                eventMapping?.fire(.updateApplicationSuccess(
                     sourceVersion: sourceVersion,
                     sourceBuild: sourceBuild,
                     targetVersion: currentVersion,
@@ -104,14 +97,14 @@ final class SparkleUpdateCompletionValidator {
                     initiationType: initiationType,
                     updateConfiguration: updateConfiguration,
                     osVersion: osVersionString
-                ), frequency: .dailyAndCount)
+                ))
             } else {
                 // Unexpected - update detected outside Sparkle flow
-                PixelKit.fire(UpdateFlowPixels.updateApplicationUnexpected(
+                eventMapping?.fire(.updateApplicationUnexpected(
                     targetVersion: currentVersion,
                     targetBuild: currentBuild,
                     osVersion: osVersionString
-                ), frequency: .dailyAndCount)
+                ))
             }
 
         default:
@@ -120,7 +113,7 @@ final class SparkleUpdateCompletionValidator {
 
             let failureStatus = updateStatus == .downgraded ? "downgraded" : "noChange"
 
-            PixelKit.fire(UpdateFlowPixels.updateApplicationFailure(
+            eventMapping?.fire(.updateApplicationFailure(
                 sourceVersion: sourceVersion,
                 sourceBuild: sourceBuild,
                 expectedVersion: expectedVersion,
@@ -131,18 +124,18 @@ final class SparkleUpdateCompletionValidator {
                 initiationType: initiationType,
                 updateConfiguration: updateConfiguration,
                 osVersion: osVersionString
-            ), frequency: .dailyAndCount)
+            ))
         }
     }
 
     /// Clear pending update metadata
     /// Internal for testing
-    static func clearPendingUpdateMetadata() {
-        pendingUpdateSourceVersion = nil
-        pendingUpdateSourceBuild = nil
-        pendingUpdateExpectedVersion = nil
-        pendingUpdateExpectedBuild = nil
-        pendingUpdateInitiationType = nil
-        pendingUpdateConfiguration = nil
+    public func clearPendingUpdateMetadata() {
+        try? settings.set(nil, for: \.pendingUpdateSourceVersion)
+        try? settings.set(nil, for: \.pendingUpdateSourceBuild)
+        try? settings.set(nil, for: \.pendingUpdateExpectedVersion)
+        try? settings.set(nil, for: \.pendingUpdateExpectedBuild)
+        try? settings.set(nil, for: \.pendingUpdateInitiationType)
+        try? settings.set(nil, for: \.pendingUpdateConfiguration)
     }
 }

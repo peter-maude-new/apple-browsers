@@ -210,7 +210,7 @@ public final class SimplifiedUpdateUserDriver: NSObject, SPUUserDriver {
         // We do this here (not in WideEvent completion) because this callback happens
         // AFTER successful installation, making it the authoritative source.
         // Future update flows will use this to calculate time_since_last_update_ms.
-        SparkleUpdateWideEvent.lastSuccessfulUpdateDate = Date()
+        try? settings.set(Date(), for: \.lastSuccessfulUpdateDate)
         acknowledgement()
     }
 

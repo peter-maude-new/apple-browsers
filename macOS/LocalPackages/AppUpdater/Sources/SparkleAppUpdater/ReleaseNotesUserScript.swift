@@ -16,20 +16,49 @@
 //  limitations under the License.
 //
 
-import Foundation
-import UserScript
-import WebKit
+import AppUpdaterShared
 import Combine
 import Common
+import Foundation
+import Persistence
+import UserScript
+import WebKit
 
-#if SPARKLE
+/// Factory extension that provides Sparkle-specific release notes user script.
+///
+/// This extension is only compiled when SparkleAppUpdater is linked, making the
+/// factory functional only in Sparkle builds.
+extension ReleaseNotesUserScriptFactory: ReleaseNotesUserScriptFactoryBuilder {
+    /// Creates a Sparkle-specific release notes user script.
+    public func makeUserScript(
+        updateController: UpdateController,
+        eventMapping: EventMapping<UpdateControllerEvent>?,
+        keyValueStore: ThrowingKeyValueStoring,
+        releaseNotesURL: URL
+    ) -> Subfeature {
+        ReleaseNotesUserScript(
+            updateController: updateController,
+            eventMapping: eventMapping,
+            keyValueStore: keyValueStore,
+            releaseNotesURL: releaseNotesURL
+        )
+    }
+}
 
-final class ReleaseNotesUserScript: NSObject, Subfeature {
+/// Sparkle-specific implementation of release notes user script.
+///
+/// Handles communication between the release notes web page and the update controller,
+/// providing update status, progress, and triggering update actions.
+public final class ReleaseNotesUserScript: NSObject, Subfeature {
 
-    lazy var updateController: (any SparkleUpdateControllerProtocol)? = Application.appDelegate.updateController as? any SparkleUpdateControllerProtocol
-    var messageOriginPolicy: MessageOriginPolicy = .only(rules: [.exact(hostname: "release-notes")])
-    let featureName: String = "release-notes"
-    weak var broker: UserScriptMessageBroker?
+    private let updateController: UpdateController
+    private let eventMapping: EventMapping<UpdateControllerEvent>?
+    private let keyValueStore: ThrowingKeyValueStoring
+    private let releaseNotesURL: URL
+
+    public var messageOriginPolicy: MessageOriginPolicy = .only(rules: [.exact(hostname: "release-notes")])
+    public let featureName: String = "release-notes"
+    public weak var broker: UserScriptMessageBroker?
     weak var webView: WKWebView? {
         didSet {
             onUpdate()
@@ -47,7 +76,14 @@ final class ReleaseNotesUserScript: NSObject, Subfeature {
         case retryUpdate
     }
 
-    override init() {
+    public init(updateController: UpdateController,
+                eventMapping: EventMapping<UpdateControllerEvent>?,
+                keyValueStore: ThrowingKeyValueStoring,
+                releaseNotesURL: URL) {
+        self.updateController = updateController
+        self.eventMapping = eventMapping
+        self.keyValueStore = keyValueStore
+        self.releaseNotesURL = releaseNotesURL
         super.init()
     }
 
@@ -60,36 +96,21 @@ final class ReleaseNotesUserScript: NSObject, Subfeature {
         .reportPageException: reportPageException,
         .reportInitException: reportInitException,
         .browserRestart: browserRestart,
-        .retryUpdate: retryUpdate,
+        .retryUpdate: retryUpdate
     ]
 
     @MainActor
-    func handler(forMethodNamed methodName: String) -> Handler? {
+    public func handler(forMethodNamed methodName: String) -> Handler? {
         guard let messageName = MessageNames(rawValue: methodName) else { return nil }
         return methodHandlers[messageName]
     }
 
     public func onUpdate() {
-        guard AppVersion.runType != .uiTests, isInitialized, let webView = webView else {
-            return
-        }
+        guard AppVersion.runType != .uiTests, isInitialized,
+              let webView, webView.url == releaseNotesURL else { return }
 
-        guard webView.url == .releaseNotes else {
-            return
-        }
-
-        guard let updateController = Application.appDelegate.updateController as? any SparkleUpdateControllerProtocol else {
-            return
-        }
-
-        let values = ReleaseNotesValues(from: updateController)
+        let values = ReleaseNotesValues(from: updateController, eventMapping: eventMapping, keyValueStore: keyValueStore)
         broker?.push(method: "onUpdate", params: values, for: self, into: webView)
-    }
-
-    // MARK: - UserValuesNotification
-
-    struct UserValuesNotification: Encodable {
-        let userValuesNotification: UserValues
     }
 
 }
@@ -117,7 +138,7 @@ extension ReleaseNotesUserScript {
     @MainActor
     private func retryUpdate(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         DispatchQueue.main.async { [weak self] in
-            self?.updateController?.checkForUpdateSkippingRollout()
+            self?.updateController.checkForUpdateSkippingRollout()
         }
         return nil
     }
@@ -139,7 +160,7 @@ extension ReleaseNotesUserScript {
 
     private func browserRestart(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         DispatchQueue.main.async { [weak self] in
-            self?.updateController?.runUpdate()
+            self?.updateController.runUpdate()
         }
         return nil
     }
@@ -147,5 +168,3 @@ extension ReleaseNotesUserScript {
     struct Result: Encodable {}
 
 }
-
-#endif

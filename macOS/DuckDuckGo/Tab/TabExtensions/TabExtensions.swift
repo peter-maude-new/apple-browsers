@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
 import BrowserServicesKit
 import Combine
 import Common
@@ -90,6 +91,7 @@ protocol TabExtensionDependencies {
     var tabsPreferences: TabsPreferences { get }
     var webTrackingProtectionPreferences: WebTrackingProtectionPreferences { get }
     var autoconsentStats: AutoconsentStatsCollecting { get }
+    var updateController: (any AppUpdaterShared.UpdateController)? { get }
 }
 
 // swiftlint:disable:next large_tuple
@@ -334,15 +336,18 @@ extension TabExtensionsBuilder {
             SubscriptionTabExtension(scriptsPublisher: userScripts.compactMap { $0 }, webViewPublisher: args.webViewFuture)
         }
 
-#if SPARKLE
-        add {
-            ReleaseNotesTabExtension(scriptsPublisher: userScripts.compactMap { $0 }, webViewPublisher: args.webViewFuture)
+        // Release notes tab extension - only available for Sparkle builds
+        if let updateController = dependencies.updateController {
+            let factory = ReleaseNotesTabExtensionFactory()
+            if let ext = (factory as? ReleaseNotesTabExtensionFactoryBuilder)?.makeExtension(
+                updateController: updateController,
+                releaseNotesURL: .releaseNotes,
+                scriptsPublisher: userScripts.compactMap { $0 },
+                webViewPublisher: args.webViewFuture
+            ) {
+                add { ext }
+            }
         }
-#else
-        add {
-            ReleaseNotesTabExtension()
-        }
-#endif
 
         if let tunnelController = dependencies.tunnelController {
             add {

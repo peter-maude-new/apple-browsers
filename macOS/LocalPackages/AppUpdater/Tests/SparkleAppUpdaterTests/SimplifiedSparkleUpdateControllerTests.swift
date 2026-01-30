@@ -17,6 +17,7 @@
 //
 
 import AppUpdaterShared
+import FeatureFlags
 import SparkleAppUpdater
 import XCTest
 import PrivacyConfig
@@ -43,7 +44,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_debugBuild_flagOff_preferenceOn_returnsFalse() {
         mockBuildType.isDebugBuild = true
-        // Flag OFF = not in enabledFeatureFlags array
+        // Flag OFF = not in enabledUpdateFeatureFlags array
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,
@@ -56,7 +57,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_debugBuild_flagOn_preferenceOn_returnsTrue() {
         mockBuildType.isDebugBuild = true
-        mockFeatureFlagger.enabledFeatureFlags = [.autoUpdateInDEBUG]
+        mockFeatureFlagger.enabledUpdateFeatureFlags = [.autoUpdateInDEBUG]
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,
@@ -69,7 +70,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_debugBuild_flagOn_preferenceOff_returnsFalse() {
         mockBuildType.isDebugBuild = true
-        mockFeatureFlagger.enabledFeatureFlags = [.autoUpdateInDEBUG]
+        mockFeatureFlagger.enabledUpdateFeatureFlags = [.autoUpdateInDEBUG]
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,
@@ -84,7 +85,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_reviewBuild_flagOff_preferenceOn_returnsFalse() {
         mockBuildType.isReviewBuild = true
-        // Flag OFF = not in enabledFeatureFlags array
+        // Flag OFF = not in enabledUpdateFeatureFlags array
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,
@@ -97,7 +98,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_reviewBuild_flagOn_preferenceOn_returnsTrue() {
         mockBuildType.isReviewBuild = true
-        mockFeatureFlagger.enabledFeatureFlags = [.autoUpdateInREVIEW]
+        mockFeatureFlagger.enabledUpdateFeatureFlags = [.autoUpdateInREVIEW]
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,
@@ -110,7 +111,7 @@ final class SimplifiedSparkleUpdateControllerTests: XCTestCase {
 
     func testResolveAutoDownload_reviewBuild_flagOn_preferenceOff_returnsFalse() {
         mockBuildType.isReviewBuild = true
-        mockFeatureFlagger.enabledFeatureFlags = [.autoUpdateInREVIEW]
+        mockFeatureFlagger.enabledUpdateFeatureFlags = [.autoUpdateInREVIEW]
 
         let result = SimplifiedSparkleUpdateController.resolveAutoDownloadEnabled(
             buildType: mockBuildType,

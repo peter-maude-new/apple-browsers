@@ -9,6 +9,7 @@ on:
     branches: [ main ]
     paths:
       - 'SharedPackages/BrowserServicesKit/**'
+      - 'macOS/LocalPackages/AppUpdater/**'
   pull_request:
     # opened, synchronize, reopened are the default triggering events for a pull request
     # We're also adding ready_for_review to run checks when a draft PR becomes ready for review.
@@ -17,6 +18,7 @@ on:
       - '.github/**'
       - '.xcode-version'
       - 'SharedPackages/BrowserServicesKit/**'
+      - 'macOS/LocalPackages/AppUpdater/**'
   schedule:
     - cron: '10,30,50 4,5,6 * * *'
 
@@ -172,6 +174,29 @@ jobs:
         with:
           name: build-log.txt
           path: SharedPackages/BrowserServicesKit/build-log.txt
+
+      - name: Run AppUpdater package tests
+        id: run-appupdater-tests
+        working-directory: macOS/LocalPackages/AppUpdater
+        run: |
+          set -o pipefail && swift test --enable-swift-testing | tee -a appupdater-build-log.txt | xcbeautify --report junit --report-path . --junit-report-filename appupdater-package-tests.xml
+
+      - name: Upload AppUpdater JUnit XML as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: appupdater-macos-unittests.xml
+          path: macOS/LocalPackages/AppUpdater/appupdater-package-tests.xml
+          retention-days: 7
+
+      - name: Publish AppUpdater Unit Tests Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          check_name: AppUpdater Test Report (macOS)
+          report_paths: macOS/LocalPackages/AppUpdater/appupdater-package-tests.xml
+          require_tests: true
+          check_retries: true
 
       - name: Wait for crash reports to be generated
         if: failure()

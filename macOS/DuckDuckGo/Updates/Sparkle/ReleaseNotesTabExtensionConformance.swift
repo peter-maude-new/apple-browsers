@@ -1,7 +1,7 @@
 //
-//  ApplicationBuildType.swift
+//  ReleaseNotesTabExtensionConformance.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,36 +18,10 @@
 
 import AppUpdaterShared
 
-final class StandardApplicationBuildType: ApplicationBuildType {
-    var isSparkleBuild: Bool {
-#if SPARKLE
-        return true
-#else
-        return false
-#endif
-    }
+extension UserScripts: ReleaseNotesUserScriptProvider {}
 
-    var isAppStoreBuild: Bool {
-#if APPSTORE
-        return true
-#else
-        return false
-#endif
-    }
+extension ReleaseNotesTabExtensionBase: TabExtension {}
 
-    var isDebugBuild: Bool {
-#if DEBUG
-        return true
-#else
-        return false
-#endif
-    }
-
-    var isReviewBuild: Bool {
-#if REVIEW
-        return true
-#else
-        return false
-#endif
-    }
+extension TabExtensions {
+    var releaseNotes: ReleaseNotesTabExtensionProtocol? { resolve(ReleaseNotesTabExtensionBase.self, .nullable) }
 }

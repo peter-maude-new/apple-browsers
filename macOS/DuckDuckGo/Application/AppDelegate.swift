@@ -17,6 +17,7 @@
 //
 
 import AIChat
+import AppUpdaterShared
 import AutoconsentStats
 import Bookmarks
 import BrokenSitePrompt
@@ -1051,22 +1052,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                              keyValueStore: keyValueStore,
                                                              sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                              pixelFiring: PixelKit.shared)
-#if APPSTORE
+
         if AppVersion.runType != .uiTests {
-            updateController = AppStoreUpdateController()
-        }
-#elseif SPARKLE
-        if AppVersion.runType != .uiTests {
-            let controller: any SparkleUpdateControllerProtocol
-            if featureFlagger.isFeatureOn(.updatesSimplifiedFlow) {
-                controller = SimplifiedSparkleUpdateController(internalUserDecider: internalUserDecider)
+            let updateControllerFactory = UpdateControllerFactory(featureFlagger: featureFlagger)
+
+            // Instantiate AppStore or Sparkle update controller based on build configuration
+            if let updateControllerType = updateControllerFactory.updateControllerType {
+                let updateController = updateControllerType.init(
+                    internalUserDecider: internalUserDecider,
+                    featureFlagger: featureFlagger,
+                    eventMapping: UpdateControllerMappings.eventMapping(pixelFiring: PixelKit.shared),
+                    notificationPresenter: UpdateNotificationPresenter(pixelFiring: PixelKit.shared),
+                    keyValueStore: keyValueStore,
+                    buildType: StandardApplicationBuildType(),
+                    wideEvent: wideEvent
+                )
+                self.updateController = updateController
+                stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
             } else {
-                controller = SparkleUpdateController(internalUserDecider: internalUserDecider)
+                assertionFailure("Failed to get update controller type")
             }
-            self.updateController = controller
-            stateRestorationManager.subscribeToAutomaticAppRelaunching(using: controller.willRelaunchAppPublisher)
+        } else {
+            updateController = nil
         }
-#endif
 
         appIconChanger = AppIconChanger(internalUserDecider: internalUserDecider, appearancePreferences: appearancePreferences)
 
@@ -1387,7 +1395,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             makeWarnBeforeQuitDecider(),
 
             // 4. Update controller cleanup
-            updateController.map(UpdateControllerAppTerminationDecider.init),
+            updateController.map { updateController in
+                struct UpdateControllerAppTerminationDecider: ApplicationTerminationDecider {
+                    let updateController: UpdateController
+
+                    func shouldTerminate(isAsync: Bool) -> TerminationQuery {
+                        updateController.handleAppTermination()
+                        return .sync(.next)
+                    }
+                }
+                return UpdateControllerAppTerminationDecider(updateController: updateController)
+            },
 
             // 5. State restoration
             StateRestorationAppTerminationDecider(
@@ -1732,7 +1750,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         updateProgressCancellable = updateController.updateProgressPublisher
             .sink { [weak self] progress in
-                (self?.updateController as? any SparkleUpdateControllerProtocol)?.checkNewApplicationVersionIfNeeded(updateProgress: progress)
+                self?.updateController?.checkNewApplicationVersionIfNeeded(updateProgress: progress)
             }
 #endif
     }

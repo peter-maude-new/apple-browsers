@@ -68,6 +68,7 @@ final class ReinstallUserDetectionTests: XCTestCase {
         super.setUp()
 
         mockBuildType = ApplicationBuildTypeMock()
+        mockBuildType.isSparkleBuild = true // Default to Sparkle build for reinstall detection tests
         mockFileManager = MockFileManagerForReinstallDetection()
         mockBundleURLProvider = MockBundleURLProvider()
         mockKeyValueStore = MockThrowingKeyValueStore()

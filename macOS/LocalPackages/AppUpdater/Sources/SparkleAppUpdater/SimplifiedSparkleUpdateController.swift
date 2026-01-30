@@ -1,7 +1,7 @@
 //
 //  SimplifiedSparkleUpdateController.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 //  limitations under the License.
 //
 
-#if SPARKLE
-
+import AppUpdaterShared
 import Foundation
 import Common
 import Combine
+import FeatureFlags
 import Sparkle
 import Persistence
-import SwiftUIExtensions
+import BrowserServicesKit
 import PixelKit
 import PrivacyConfig
+import Subscription
 import SwiftUI
 import os.log
 
@@ -34,11 +35,10 @@ import os.log
 /// Update checks rely on Sparkle's built-in scheduling plus check-on-launch.
 /// Internal users check every 30 minutes; external users check every hour.
 /// Sparkle's `canCheckForUpdates` and `sessionInProgress` guards prevent concurrent or invalid checks.
-final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
+public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
-    enum Constants {
-        static let internalChannelName = "internal-channel"
-        static let pendingUpdateInfoKey = "com.duckduckgo.updateController.pendingUpdateInfo"
+    public enum Constants {
+        public static let internalChannelName = "internal-channel"
     }
 
     /// Delay before showing update notifications for automatic updates.
@@ -71,8 +71,9 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
 
     private var pendingNotificationTask: Task<Void, Never>?
 
-    lazy var notificationPresenter = UpdateNotificationPresenter()
-    let willRelaunchAppPublisher: AnyPublisher<Void, Never>
+    public let notificationPresenter: any UpdateNotificationPresenting
+    public let willRelaunchAppPublisher: AnyPublisher<Void, Never>
+    private let updateCompletionValidator: SparkleUpdateCompletionValidator
 
     // Struct used to cache data until the updater finishes checking for updates
     struct UpdateCheckResult {
@@ -116,8 +117,8 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     private var internalUserCancellable: AnyCancellable?
     private var featureFlagCancellable: AnyCancellable?
 
-    var updateProgress: UpdateCycleProgress { progressState.updateProgress }
-    var updateProgressPublisher: Published<UpdateCycleProgress>.Publisher { progressState.updateProgressPublisher }
+    public var updateProgress: UpdateCycleProgress { progressState.updateProgress }
+    public var updateProgressPublisher: Published<UpdateCycleProgress>.Publisher { progressState.updateProgressPublisher }
 
     private func handleProgressChange(_ progress: UpdateCycleProgress) {
         if let cachedUpdateResult {
@@ -126,63 +127,71 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         handleUpdateNotification()
     }
 
-    @Published private(set) var latestUpdate: Update?
+    @Published public private(set) var latestUpdate: Update?
 
-    var latestUpdatePublisher: Published<Update?>.Publisher { $latestUpdate }
+    public var latestUpdatePublisher: Published<Update?>.Publisher { $latestUpdate }
 
-    @Published private(set) var hasPendingUpdate = false
-    var hasPendingUpdatePublisher: Published<Bool>.Publisher { $hasPendingUpdate }
+    @Published public private(set) var hasPendingUpdate = false
+    public var hasPendingUpdatePublisher: Published<Bool>.Publisher { $hasPendingUpdate }
 
-    private(set) var mustShowUpdateIndicators = false
-    let clearsNotificationDotOnMenuOpen = false
+    public var mustShowUpdateIndicators: Bool = false
+    public let clearsNotificationDotOnMenuOpen = false
 
     private let keyValueStore: ThrowingKeyValueStoring
+    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
 
     private var pendingUpdateInfo: Data? {
         get {
-            try? keyValueStore.object(forKey: Constants.pendingUpdateInfoKey) as? Data
+            try? settings.pendingUpdateInfo
         }
         set {
-            try? keyValueStore.set(newValue, forKey: Constants.pendingUpdateInfoKey)
+            try? settings.set(newValue, for: \.pendingUpdateInfo)
         }
     }
 
-    var lastUpdateCheckDate: Date? { updater?.lastUpdateCheckDate }
-    var lastUpdateNotificationShownDate: Date = .distantPast
+    public var lastUpdateCheckDate: Date? { updater?.lastUpdateCheckDate }
+    public var lastUpdateNotificationShownDate: Date = .distantPast
 
-#if SPARKLE_ALLOWS_UNSIGNED_UPDATES
-    @UserDefaultsWrapper(key: .debugSparkleCustomFeedURL)
-    private var customFeedURL: String?
-#endif
+    private var customFeedURL: String? {
+        get {
+            guard buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
+            return try? settings.debugSparkleCustomFeedURL
+        }
+        set {
+            guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
+            try? settings.set(newValue, for: \.debugSparkleCustomFeedURL)
+        }
+    }
 
     private var shouldShowUpdateNotification: Bool {
         Date().timeIntervalSince(lastUpdateNotificationShownDate) > .days(7)
     }
 
-    @UserDefaultsWrapper(key: .automaticUpdates, defaultValue: true)
-    var areAutomaticUpdatesEnabled: Bool {
-        willSet {
-            if newValue != areAutomaticUpdatesEnabled {
-                pendingNotificationTask?.cancel()
-                pendingNotificationTask = nil
-            }
+    public var areAutomaticUpdatesEnabled: Bool {
+        get {
+            (try? settings.automaticUpdates) ?? true
         }
-        didSet {
-            if oldValue != areAutomaticUpdatesEnabled {
-                updateWideEvent.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
-                updateAutoDownloadSettings()
+        set {
+            let oldValue = areAutomaticUpdatesEnabled
+            guard newValue != oldValue else { return }
 
-                // If switching to automatic while at download checkpoint, trigger download
-                let shouldAutoDownload = resolveAutoDownloadEnabled(userPreference: areAutomaticUpdatesEnabled)
-                if shouldAutoDownload && isAtDownloadCheckpoint {
-                    progressState.resumeCallback?()
-                }
+            pendingNotificationTask?.cancel()
+            pendingNotificationTask = nil
+
+            try? settings.set(newValue, for: \.automaticUpdates)
+
+            updateWideEvent.areAutomaticUpdatesEnabled = newValue
+            updateAutoDownloadSettings()
+            // If switching to automatic while at download checkpoint, trigger download
+            let shouldAutoDownload = resolveAutoDownloadEnabled(userPreference: newValue)
+            if shouldAutoDownload && isAtDownloadCheckpoint {
+                progressState.resumeCallback?()
             }
         }
     }
 
-    var isAtRestartCheckpoint: Bool { progressState.isAtRestartCheckpoint }
-    var isAtDownloadCheckpoint: Bool { progressState.isAtDownloadCheckpoint }
+    public var isAtRestartCheckpoint: Bool { progressState.isAtRestartCheckpoint }
+    public var isAtDownloadCheckpoint: Bool { progressState.isAtDownloadCheckpoint }
 
     /// Updates Sparkle auto-download settings based on current feature flags and user preference.
     private func updateAutoDownloadSettings() {
@@ -193,23 +202,26 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     }
 
     // Simplified: Always returns false - no expiration logic
-    var shouldForceUpdateCheck: Bool { false }
+    public var shouldForceUpdateCheck: Bool { false }
 
     // Simplified: Always returns false - only "new" behavior
-    var useLegacyAutoRestartLogic: Bool { false }
+    public var useLegacyAutoRestartLogic: Bool { false }
 
-    @UserDefaultsWrapper(key: .pendingUpdateShown, defaultValue: false)
-    var needsNotificationDot: Bool {
-        didSet {
-            notificationDotSubject.send(needsNotificationDot)
+    public var needsNotificationDot: Bool {
+        get {
+            (try? settings.pendingUpdateShown) ?? false
+        }
+        set {
+            try? settings.set(newValue, for: \.pendingUpdateShown)
+            notificationDotSubject.send(newValue)
         }
     }
 
     private let notificationDotSubject = CurrentValueSubject<Bool, Never>(false)
-    lazy var notificationDotPublisher = notificationDotSubject.eraseToAnyPublisher()
+    public lazy var notificationDotPublisher = notificationDotSubject.eraseToAnyPublisher()
 
-    private(set) var updater: SPUUpdater?
-    private(set) var userDriver: SimplifiedUpdateUserDriver
+    public private(set) var updater: SPUUpdater?
+    public private(set) var userDriver: SimplifiedUpdateUserDriver
     private let willRelaunchAppSubject = PassthroughSubject<Void, Never>()
     private var internalUserDecider: InternalUserDecider
 
@@ -217,16 +229,17 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
 
     // MARK: - WideEvent Tracking
 
-    let updateWideEvent: SparkleUpdateWideEvent
+    public let updateWideEvent: SparkleUpdateWideEvent
 
     // MARK: - Feature Flags support
 
     private let featureFlagger: FeatureFlagger
     private let buildType: ApplicationBuildType
+    private let eventMapping: EventMapping<UpdateControllerEvent>?
 
     /// Computes whether automatic downloads should be enabled.
     /// Static for testability - no controller state needed.
-    static func resolveAutoDownloadEnabled(
+    public static func resolveAutoDownloadEnabled(
         buildType: ApplicationBuildType,
         featureFlagger: FeatureFlagger,
         userPreference: Bool
@@ -251,24 +264,36 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
 
     // MARK: - Public
 
-    init(internalUserDecider: InternalUserDecider,
-         featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-         keyValueStore: ThrowingKeyValueStoring = NSApp.delegateTyped.keyValueStore,
-         buildType: ApplicationBuildType = StandardApplicationBuildType(),
-         updateWideEvent: SparkleUpdateWideEvent? = nil) {
+    required public init(internalUserDecider: InternalUserDecider,
+                         featureFlagger: FeatureFlagger,
+                         eventMapping: EventMapping<UpdateControllerEvent>?,
+                         notificationPresenter: UpdateNotificationPresenting,
+                         keyValueStore: ThrowingKeyValueStoring,
+                         buildType: ApplicationBuildType?,
+                         wideEvent: WideEventManaging?) {
+        // Sparkle builds require these parameters
+        guard let buildType, let wideEvent else {
+            fatalError("SimplifiedSparkleUpdateController requires buildType and wideEvent")
+        }
+
+        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
 
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
         self.buildType = buildType
         self.internalUserDecider = internalUserDecider
         self.keyValueStore = keyValueStore
+        self.notificationPresenter = notificationPresenter
+        self.eventMapping = eventMapping
+        self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
 
         // Capture the current value before initializing updateWideEvent
-        let currentAutomaticUpdatesEnabled = UserDefaultsWrapper<Bool>(key: .automaticUpdates, defaultValue: true).wrappedValue
-        self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(
-            wideEventManager: NSApp.delegateTyped.wideEvent,
+        let currentAutomaticUpdatesEnabled = (try? settings.automaticUpdates) ?? true
+        self.updateWideEvent = SparkleUpdateWideEvent(
+            wideEventManager: wideEvent,
             internalUserDecider: internalUserDecider,
-            areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled
+            areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled,
+            settings: settings
         )
 
         // Compute effective auto-download state before super.init() using static method
@@ -281,6 +306,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         self.userDriver = SimplifiedUpdateUserDriver(
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: shouldAutoDownload,
+            keyValueStore: keyValueStore,
             onProgressChange: progressState.handleProgressChange
         )
         super.init()
@@ -314,15 +340,19 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     }
 
     private func validateUpdateExpectations() {
-        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
+        // Validate expectations from previous update attempt if any
+        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated(keyValueStore: keyValueStore)
 
-        SparkleUpdateCompletionValidator.validateExpectations(
+        let appVersion = AppVersion()
+        updateCompletionValidator.validateExpectations(
             updateStatus: updateStatus,
-            currentVersion: AppVersion.shared.versionNumber,
-            currentBuild: AppVersion.shared.buildNumber)
+            currentVersion: appVersion.versionNumber,
+            currentBuild: appVersion.buildNumber,
+            eventMapping: eventMapping
+        )
     }
 
-    func checkNewApplicationVersionIfNeeded(updateProgress: UpdateCycleProgress) {
+    public func checkNewApplicationVersionIfNeeded(updateProgress: UpdateCycleProgress) {
         guard shouldCheckNewApplicationVersion else { return }
 
         if areAutomaticUpdatesEnabled {
@@ -342,14 +372,14 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     }
 
     private func checkNewApplicationVersion() {
-        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated()
+        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated(keyValueStore: keyValueStore)
 
         switch updateStatus {
         case .noChange: break
         case .updated:
-            notificationPresenter.showUpdateNotification(icon: NSImage.successCheckmark, text: UserText.browserUpdatedNotification, buttonText: UserText.viewDetails)
+            notificationPresenter.showUpdateNotification(for: .updated)
         case .downgraded:
-            notificationPresenter.showUpdateNotification(icon: NSImage.successCheckmark, text: UserText.browserDowngradedNotification, buttonText: UserText.viewDetails)
+            notificationPresenter.showUpdateNotification(for: .downgraded)
         }
     }
 
@@ -408,7 +438,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         }
     }
 
-    func checkForUpdateRespectingRollout() {
+    public func checkForUpdateRespectingRollout() {
         performUpdateCheck()
     }
 
@@ -426,15 +456,14 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         updater.checkForUpdatesInBackground()
     }
 
-    func checkForUpdateSkippingRollout() {
+    public func checkForUpdateSkippingRollout() {
         updateWideEvent.startFlow(initiationType: .manual)
         performUpdateCheckSkippingRollout()
     }
 
-    func openUpdatesPage() {
-        DispatchQueue.main.async {
-            Application.appDelegate.windowControllersManager.showTab(with: .releaseNotes)
-        }
+    public func openUpdatesPage() {
+        // Empty method kept for protocol conformance.
+        // Opening release notes page is implemented via UpdateNotificationPresenting in the app layer.
     }
 
     private func performUpdateCheckSkippingRollout() {
@@ -491,28 +520,28 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         return updater
     }
 
-    @objc func runUpdateFromMenuItem() {
+    @objc public func runUpdateFromMenuItem() {
         openUpdatesPage()
         runUpdate()
     }
 
-    @objc func runUpdate() {
-        PixelKit.fire(DebugEvent(GeneralPixel.updaterDidRunUpdate))
+    @objc public func runUpdate() {
+        eventMapping?.fire(.updaterDidRunUpdate)
         resumeUpdater()
     }
 
     private func resumeUpdater() {
         if !progressState.isResumable {
-            PixelKit.fire(DebugEvent(GeneralPixel.updaterAttemptToRestartWithoutResumeBlock))
+            eventMapping?.fire(.updaterAttemptToRestartWithoutResumeBlock)
         }
         progressState.resumeCallback?()
     }
 
-    func handleAppTermination() {
+    public func handleAppTermination() {
         updateWideEvent.handleAppTermination()
     }
 
-    func log() {
+    public func log() {
         Logger.updates.log("areAutomaticUpdatesEnabled: \(self.areAutomaticUpdatesEnabled, privacy: .public)")
         Logger.updates.log("updateProgress: \(self.updateProgress, privacy: .public)")
         if let cachedUpdateResult {
@@ -526,34 +555,29 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         Logger.updates.log("isResumable: \(self.progressState.isResumable, privacy: .public)")
     }
 
-#if SPARKLE_ALLOWS_UNSIGNED_UPDATES
     // MARK: - Debug: Custom Feed URL
 
-    func setCustomFeedURL(_ urlString: String) {
+    public func setCustomFeedURL(_ urlString: String) {
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
         customFeedURL = urlString
     }
 
-    func resetFeedURLToDefault() {
+    public func resetFeedURLToDefault() {
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
         customFeedURL = nil
     }
-#endif
 }
 
-#if SPARKLE_ALLOWS_UNSIGNED_UPDATES
 extension SimplifiedSparkleUpdateController: SparkleCustomFeedURLProviding {}
-#endif
 
 extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
 
-    func feedURLString(for updater: SPUUpdater) -> String? {
-#if SPARKLE_ALLOWS_UNSIGNED_UPDATES
+    public func feedURLString(for updater: SPUUpdater) -> String? {
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
         return customFeedURL
-#else
-        return nil
-#endif
     }
 
-    func allowedChannels(for updater: SPUUpdater) -> Set<String> {
+    public func allowedChannels(for updater: SPUUpdater) -> Set<String> {
         if internalUserDecider.isInternalUser {
             return Set([Constants.internalChannelName])
         } else {
@@ -561,13 +585,14 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         }
     }
 
-    func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
+    public func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
         Logger.updates.log("Updater will relaunch application")
 
         updateWideEvent.didInitiateRestart()
 
+        // Store pending update metadata
         if let flowData = updateWideEvent.getCurrentFlowData() {
-            SparkleUpdateCompletionValidator.storePendingUpdateMetadata(
+            updateCompletionValidator.storePendingUpdateMetadata(
                 sourceVersion: flowData.fromVersion,
                 sourceBuild: flowData.fromBuild,
                 expectedVersion: flowData.toVersion ?? "unknown",
@@ -580,7 +605,7 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         willRelaunchAppSubject.send()
     }
 
-    func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
+    public func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
         Logger.updates.error("Updater did abort with error: \(error.localizedDescription, privacy: .public) (\(error.pixelParameters, privacy: .public))")
         let errorCode = (error as NSError).code
         guard ![Int(Sparkle.SUError.noUpdateError.rawValue),
@@ -591,10 +616,7 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
             return
         }
 
-        PixelKit.fire(DebugEvent(
-            GeneralPixel.updaterAborted(reason: sparkleUpdaterErrorReason(from: error.localizedDescription)),
-            error: error
-        ))
+        eventMapping?.fire(.updaterAborted(reason: sparkleUpdaterErrorReason(from: error.localizedDescription)), error: error)
     }
 
     internal func sparkleUpdaterErrorReason(from errorDescription: String) -> String {
@@ -628,13 +650,13 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         return "unknown"
     }
 
-    func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
+    public func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
         Logger.updates.log("Found update: \(item.displayVersionString, privacy: .public) (\(item.versionString, privacy: .public))")
 
         // Sparkle background checks bypass our check methods, so ensure tracking exists
         updateWideEvent.ensureFlowExists(initiationType: .automatic)
 
-        PixelKit.fire(DebugEvent(GeneralPixel.updaterDidFindUpdate))
+        eventMapping?.fire(.updaterDidFindUpdate)
         cachedUpdateResult = UpdateCheckResult(item: item, isInstalled: false)
 
         cachePendingUpdate(from: item)
@@ -646,7 +668,7 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         )
     }
 
-    func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
+    public func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: any Error) {
         // Sparkle background checks bypass our check methods, so ensure tracking exists
         updateWideEvent.ensureFlowExists(initiationType: .automatic)
 
@@ -666,42 +688,42 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         updateWideEvent.didFindNoUpdate()
     }
 
-    func updater(_ updater: SPUUpdater, willDownloadUpdate item: SUAppcastItem, with request: NSMutableURLRequest) {
+    public func updater(_ updater: SPUUpdater, willDownloadUpdate item: SUAppcastItem, with request: NSMutableURLRequest) {
         Logger.updates.log("Downloading update: \(item.displayVersionString, privacy: .public)")
         progressState.transition(to: .downloadDidStart)
         updateWideEvent.didStartDownload()
     }
 
-    func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
+    public func updater(_ updater: SPUUpdater, didDownloadUpdate item: SUAppcastItem) {
         Logger.updates.log("Download complete: \(item.displayVersionString, privacy: .public)")
         updateWideEvent.didCompleteDownload()
-        PixelKit.fire(DebugEvent(GeneralPixel.updaterDidDownloadUpdate))
+        eventMapping?.fire(.updaterDidDownloadUpdate)
 
         userDriver.updateLastUpdateDownloadedDate()
     }
 
-    func updater(_ updater: SPUUpdater, willExtractUpdate item: SUAppcastItem) {
+    public func updater(_ updater: SPUUpdater, willExtractUpdate item: SUAppcastItem) {
         Logger.updates.debug("Extracting update: \(item.displayVersionString, privacy: .public)")
         progressState.transition(to: .extractionDidStart)
         updateWideEvent.didStartExtraction()
     }
 
-    func updater(_ updater: SPUUpdater, didExtractUpdate item: SUAppcastItem) {
+    public func updater(_ updater: SPUUpdater, didExtractUpdate item: SUAppcastItem) {
         Logger.updates.debug("Extraction complete: \(item.displayVersionString, privacy: .public)")
         updateWideEvent.didCompleteExtraction()
     }
 
-    func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
+    public func updater(_ updater: SPUUpdater, willInstallUpdate item: SUAppcastItem) {
         Logger.updates.log("Installing update: \(item.displayVersionString, privacy: .public)")
     }
 
-    func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem, immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+    public func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem, immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
         Logger.updates.log("Update ready - will install on quit: \(item.displayVersionString, privacy: .public)")
         progressState.transition(to: .updateCycleDone(.pausedAtRestartCheckpoint), resume: immediateInstallHandler)
         return true
     }
 
-    func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
+    public func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
         if error == nil {
             progressState.transition(to: .updateCycleDone(.finishedWithNoError))
         } else if let errorCode = (error as? NSError)?.code, errorCode == Int(Sparkle.SUError.noUpdateError.rawValue) {
@@ -714,5 +736,3 @@ extension SimplifiedSparkleUpdateController: SPUUpdaterDelegate {
         }
     }
 }
-
-#endif

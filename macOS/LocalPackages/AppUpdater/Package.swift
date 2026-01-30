@@ -15,13 +15,15 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/sparkle-project/Sparkle.git", exact: "2.6.3"),
         .package(path: "../../../SharedPackages/BrowserServicesKit"),
+        .package(path: "../FeatureFlags"),
     ],
     targets: [
         .target(
             name: "AppUpdaterShared",
             dependencies: [
-                .product(name: "Common", package: "BrowserServicesKit"),
                 .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "Common", package: "BrowserServicesKit"),
+                .product(name: "FeatureFlags", package: "FeatureFlags"),
                 .product(name: "Navigation", package: "BrowserServicesKit"),
                 .product(name: "PixelKit", package: "BrowserServicesKit"),
                 .product(name: "Subscription", package: "BrowserServicesKit"),
@@ -35,6 +37,7 @@ let package = Package(
             dependencies: [
                 "AppUpdaterShared",
                 .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "FeatureFlags", package: "FeatureFlags"),
                 .product(name: "Persistence", package: "BrowserServicesKit"),
                 .product(name: "PixelKit", package: "BrowserServicesKit"),
             ],
@@ -47,13 +50,13 @@ let package = Package(
             dependencies: [
                 "AppUpdaterShared",
                 .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "FeatureFlags", package: "FeatureFlags"),
                 .product(name: "Persistence", package: "BrowserServicesKit"),
                 .product(name: "UserScript", package: "BrowserServicesKit"),
                 .product(name: "Sparkle", package: "Sparkle"),
             ],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
-                .define("SPARKLE_ALLOWS_UNSIGNED_UPDATES", .when(configuration: .debug))
             ]
         ),
         // MARK: - Tests
@@ -62,6 +65,7 @@ let package = Package(
             dependencies: [
                 "AppUpdaterShared",
                 .product(name: "BrowserServicesKit", package: "BrowserServicesKit"),
+                .product(name: "FeatureFlags", package: "FeatureFlags"),
                 .product(name: "Persistence", package: "BrowserServicesKit"),
             ],
             path: "Tests/AppUpdaterTestHelpers"
