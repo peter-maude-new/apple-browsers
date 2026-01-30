@@ -18,6 +18,7 @@
 //
 
 import SwiftUI
+import DesignResourcesKit
 
 // MARK: - OnboardingTheme
 
@@ -30,7 +31,7 @@ extension OnboardingTheme {
 
     static let rebranding2026 = OnboardingTheme(
         typography: .duckSans,
-        colorPalette: ColorPalette(backgroundColor: .white)
+        colorPalette: .rebranding2026
     )
 
 }
@@ -87,7 +88,44 @@ extension OnboardingTheme.Typography {
 extension OnboardingTheme {
 
     struct ColorPalette: Equatable {
+        // Background
+        let backgroundGradientTop: Color
+        let backgroundGradientBottom: Color
+        let cardBackground: Color
+
+        // Text
+        let textPrimary: Color
+        let textSecondary: Color
+
+        // Buttons
+        let primaryButtonBackground: Color
+        let primaryButtonBackgroundPressed: Color
+        let primaryButtonText: Color
+        let secondaryButtonText: Color
+
+        // Accents
+        let accent: Color
+
+        // Legacy
         let backgroundColor: Color
     }
+
+}
+
+extension OnboardingTheme.ColorPalette {
+
+    static let rebranding2026 = OnboardingTheme.ColorPalette(
+        backgroundGradientTop: Color(singleUseColor: .onboardingBackgroundGradientTop),
+        backgroundGradientBottom: Color(singleUseColor: .onboardingBackgroundGradientBottom),
+        cardBackground: Color(singleUseColor: .onboardingCardBackground),
+        textPrimary: Color(singleUseColor: .onboardingTextPrimary),
+        textSecondary: Color(singleUseColor: .onboardingTextSecondary),
+        primaryButtonBackground: Color(singleUseColor: .onboardingPrimaryButtonBackground),
+        primaryButtonBackgroundPressed: Color(singleUseColor: .onboardingPrimaryButtonBackgroundPressed),
+        primaryButtonText: Color(singleUseColor: .onboardingPrimaryButtonText),
+        secondaryButtonText: Color(singleUseColor: .onboardingSecondaryButtonText),
+        accent: Color(singleUseColor: .onboardingAccent),
+        backgroundColor: Color(singleUseColor: .onboardingBackgroundColor)
+    )
 
 }

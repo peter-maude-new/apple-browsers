@@ -27,10 +27,16 @@ struct OnboardingDebugView: View {
 
     private let isRebrandingFlow: Bool
     private let newOnboardingIntroStartAction: () -> Void
+    private let legacyOnboardingIntroStartAction: (() -> Void)?
 
-    init(isRebrandingFlow: Bool, onNewOnboardingIntroStartAction: @escaping () -> Void) {
+    init(
+        isRebrandingFlow: Bool,
+        onNewOnboardingIntroStartAction: @escaping () -> Void,
+        onLegacyOnboardingIntroStartAction: (() -> Void)? = nil
+    ) {
         self.isRebrandingFlow = isRebrandingFlow
-        newOnboardingIntroStartAction = onNewOnboardingIntroStartAction
+        self.newOnboardingIntroStartAction = onNewOnboardingIntroStartAction
+        self.legacyOnboardingIntroStartAction = onLegacyOnboardingIntroStartAction
     }
 
     var body: some View {
@@ -64,10 +70,21 @@ struct OnboardingDebugView: View {
             }
 
             Section {
-                Button(action: newOnboardingIntroStartAction, label: {
-                    let onboardingType = isRebrandingFlow ? "Rebranding" : "Legacy"
-                    Text(verbatim: "Preview Onboarding \(onboardingType) Intro - \(viewModel.onboardingUserType.description)")
-                })
+                if isRebrandingFlow {
+                    Button(action: newOnboardingIntroStartAction, label: {
+                        Text(verbatim: "Preview Onboarding Rebranding Intro - \(viewModel.onboardingUserType.description)")
+                    })
+
+                    if let legacyAction = legacyOnboardingIntroStartAction {
+                        Button(action: legacyAction, label: {
+                            Text(verbatim: "Preview Onboarding Legacy Intro - \(viewModel.onboardingUserType.description)")
+                        })
+                    }
+                } else {
+                    Button(action: newOnboardingIntroStartAction, label: {
+                        Text(verbatim: "Preview Onboarding Legacy Intro - \(viewModel.onboardingUserType.description)")
+                    })
+                }
             }
         }
     }

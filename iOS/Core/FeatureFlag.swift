@@ -633,7 +633,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .genericBackgroundTask:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))
         case .onboardingRebranding:
-            return .disabled
+            return .internalOnly()
         }
     }
 }

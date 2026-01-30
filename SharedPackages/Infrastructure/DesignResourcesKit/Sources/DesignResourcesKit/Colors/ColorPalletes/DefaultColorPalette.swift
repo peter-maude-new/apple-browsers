@@ -254,6 +254,30 @@ struct DefaultColorPalette: ColorPaletteDefinition {
             return DynamicColor(lightColor: shadowTertiary.lightColor, darkColor: highlightDecoration.darkColor)
         case .whatsNewBackground:
             return DynamicColor(lightColor: .white, darkColor: background.darkColor)
+
+        // Onboarding
+        case .onboardingBackgroundGradientTop:
+            return DynamicColor(lightColor: Color(0xE8F1FF), darkColor: Color(0x1A2B4A))
+        case .onboardingBackgroundGradientBottom:
+            return DynamicColor(lightColor: .white, darkColor: Color(0x0A1628))
+        case .onboardingCardBackground:
+            return DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D))
+        case .onboardingTextPrimary:
+            return DynamicColor(lightColor: Color(0x333333), darkColor: .white)
+        case .onboardingTextSecondary:
+            return DynamicColor(lightColor: Color(0x666666), darkColor: Color(0xCCCCCC))
+        case .onboardingPrimaryButtonBackground:
+            return DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
+        case .onboardingPrimaryButtonBackgroundPressed:
+            return DynamicColor(lightColor: Color(0xE68A00), darkColor: Color(0xFFA31A))
+        case .onboardingPrimaryButtonText:
+            return DynamicColor(staticColor: .white)
+        case .onboardingSecondaryButtonText:
+            return DynamicColor(lightColor: Color(0x333333), darkColor: .white)
+        case .onboardingAccent:
+            return DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
+        case .onboardingBackgroundColor:
+            return DynamicColor(staticColor: .white)
         }
     }
 }

@@ -18,16 +18,280 @@
 //
 
 import SwiftUI
+import Onboarding
+import DuckUI
+import SystemSettingsPiPTutorial
+import MetricBuilder
+
+// MARK: - RebrandedOnboardingView
 
 struct RebrandedOnboardingView: View {
-    private let model: OnboardingIntroViewModel
+
+    static let daxGeometryEffectID = "DaxIcon"
+
+    @Environment(\.onboardingTheme) private var theme
+    @Namespace var animationNamespace
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @ObservedObject private var model: OnboardingIntroViewModel
+
+    @State private var isPlayingSetAsDefaultVideo: Bool = false
 
     init(model: OnboardingIntroViewModel) {
         self.model = model
     }
 
     var body: some View {
-        Text(verbatim: "Hello, world!")
+        ZStack(alignment: .topTrailing) {
+            // Use themed background instead of OnboardingBackground
+            themedBackground
+
+            switch model.state {
+            case .landing:
+                landingView
+            case let .onboarding(viewState):
+                onboardingDialogView(state: viewState)
+#if DEBUG || ALPHA
+                    .safeAreaInset(edge: .bottom) {
+                        Button {
+                            model.overrideOnboardingCompleted()
+                        } label: {
+                            Text(UserText.Onboarding.Intro.Debug.skip)
+                        }
+                        .buttonStyle(SecondaryFillButtonStyle(compact: true, fullWidth: false))
+                    }
+#endif
+            }
+
+            // DEBUG: Red indicator for rebranded onboarding
+            VStack {
+                Rectangle()
+                    .fill(Color.red)
+                    .frame(height: 4)
+                Spacer()
+            }
+            .ignoresSafeArea()
+        }
+        .onboardingTheme(.rebranding2026)
     }
 
+    // MARK: - Themed Background
+
+    private var themedBackground: some View {
+        LinearGradient(
+            gradient: Gradient(colors: [
+                theme.colorPalette.backgroundGradientTop,
+                theme.colorPalette.backgroundGradientBottom
+            ]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
+
+    // MARK: - Dialog View
+
+    private func onboardingDialogView(state: OnboardingView.ViewState.Intro) -> some View {
+        GeometryReader { geometry in
+            VStack(alignment: .center) {
+                DaxDialogView(
+                    logoPosition: .top,
+                    matchLogoAnimation: (Self.daxGeometryEffectID, animationNamespace),
+                    showDialogBox: $model.introState.showDaxDialogBox,
+                    onTapGesture: {
+                        withAnimation {
+                            model.tapped()
+                        }
+                    },
+                    content: {
+                        VStack {
+                            switch state.type {
+                            case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
+                                introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
+                            case .browsersComparisonDialog:
+                                browsersComparisonView
+                            case .addToDockPromoDialog:
+                                addToDockPromoView
+                            case .chooseAppIconDialog:
+                                appIconPickerView
+                            case .chooseAddressBarPositionDialog:
+                                addressBarPreferenceSelectionView
+                            case .chooseSearchExperienceDialog:
+                                searchExperienceSelectionView
+                            }
+                        }
+                    }
+                )
+                .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
+            }
+            .frame(width: geometry.size.width, alignment: .center)
+            .offset(y: geometry.size.height * Metrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.daxDialogVisibilityDelay) {
+                    model.introState.showDaxDialogBox = true
+                    model.introState.animateIntroText = true
+                }
+            }
+        }
+        .padding()
+    }
+
+    // MARK: - Landing View
+
+    private var landingView: some View {
+        return OnboardingView.LandingView(animationNamespace: animationNamespace)
+            .ignoresSafeArea(edges: .bottom)
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Metrics.daxDialogDelay) {
+                    withAnimation {
+                        model.onAppear()
+                    }
+                }
+            }
+    }
+
+    // MARK: - Content Views (reuse existing implementations)
+
+    private func introView(shouldShowSkipOnboardingButton: Bool) -> some View {
+        let skipOnboardingView: AnyView? = if shouldShowSkipOnboardingButton {
+            AnyView(
+                OnboardingView.SkipOnboardingContent(
+                    animateTitle: $model.skipOnboardingState.animateTitle,
+                    animateMessage: $model.skipOnboardingState.animateMessage,
+                    showCTA: $model.skipOnboardingState.showContent,
+                    isSkipped: $model.isSkipped,
+                    startBrowsingAction: model.confirmSkipOnboardingAction,
+                    resumeOnboardingAction: {
+                        animateBrowserComparisonViewState(isResumingOnboarding: true)
+                    }
+                )
+            )
+        } else {
+            nil
+        }
+
+        return OnboardingView.IntroDialogContent(
+            title: model.copy.introTitle,
+            skipOnboardingView: skipOnboardingView,
+            animateText: $model.introState.animateIntroText,
+            showCTA: $model.introState.showIntroButton,
+            isSkipped: $model.isSkipped,
+            continueAction: {
+                animateBrowserComparisonViewState(isResumingOnboarding: false)
+            },
+            skipAction: model.skipOnboardingAction
+        )
+        .onboardingDaxDialogStyle()
+        .visibility(model.introState.showIntroViewContent ? .visible : .invisible)
+    }
+
+    private var browsersComparisonView: some View {
+        OnboardingView.BrowsersComparisonContent(
+            title: model.copy.browserComparisonTitle,
+            animateText: $model.browserComparisonState.animateComparisonText,
+            showContent: $model.browserComparisonState.showComparisonButton,
+            isSkipped: $model.isSkipped,
+            setAsDefaultBrowserAction: model.setDefaultBrowserAction,
+            cancelAction: model.cancelSetDefaultBrowserAction
+        )
+        .onboardingDaxDialogStyle()
+    }
+
+    private var addToDockPromoView: some View {
+        OnboardingView.AddToDockPromoContent(
+            isAnimating: $model.addToDockState.isAnimating,
+            isSkipped: $model.isSkipped,
+            showTutorialAction: {
+                model.addToDockShowTutorialAction()
+            },
+            dismissAction: { fromAddToDockTutorial in
+                model.addToDockContinueAction(isShowingAddToDockTutorial: fromAddToDockTutorial)
+            }
+        )
+    }
+
+    private var appIconPickerView: some View {
+        OnboardingView.AppIconPickerContent(
+            animateTitle: $model.appIconPickerContentState.animateTitle,
+            animateMessage: $model.appIconPickerContentState.animateMessage,
+            showContent: $model.appIconPickerContentState.showContent,
+            isSkipped: $model.isSkipped,
+            action: model.appIconPickerContinueAction
+        )
+        .onboardingDaxDialogStyle()
+    }
+
+    private var addressBarPreferenceSelectionView: some View {
+        OnboardingView.AddressBarPositionContent(
+            animateTitle: $model.addressBarPositionContentState.animateTitle,
+            showContent: $model.addressBarPositionContentState.showContent,
+            isSkipped: $model.isSkipped,
+            action: model.selectAddressBarPositionAction
+        )
+        .onboardingDaxDialogStyle()
+    }
+
+    private var searchExperienceSelectionView: some View {
+        OnboardingView.SearchExperienceContent(
+            animateTitle: $model.searchExperienceContentState.animateTitle,
+            isSkipped: $model.isSkipped,
+            action: model.selectSearchExperienceAction
+        )
+        .onboardingDaxDialogStyle()
+    }
+
+    // MARK: - Animations
+
+    private func animateBrowserComparisonViewState(isResumingOnboarding: Bool) {
+        // Hide content of Intro dialog before animating
+        model.introState.showIntroViewContent = false
+
+        // Animation with small delay for a better effect when intro content disappear
+        let animationDuration = Metrics.comparisonChartAnimationDuration
+        let animation = Animation
+            .linear(duration: animationDuration)
+            .delay(0.2)
+
+        if #available(iOS 17, *) {
+            withAnimation(animation) {
+                model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
+            } completion: {
+                model.browserComparisonState.animateComparisonText = true
+            }
+        } else {
+            withAnimation(animation) {
+                model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
+                model.browserComparisonState.animateComparisonText = true
+            }
+        }
+    }
+}
+
+// MARK: - Metrics
+
+private enum Metrics {
+    static let daxDialogDelay: TimeInterval = 2.0
+    static let daxDialogVisibilityDelay: TimeInterval = 0.5
+    static let comparisonChartAnimationDuration = 0.25
+    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
+    static let progressBarTrailingPadding: CGFloat = 16.0
+    static let progressBarTopPadding: CGFloat = 12.0
+}
+
+// MARK: - Helpers
+
+private extension View {
+
+    func onboardingProgressIndicator(currentStep: Int, totalSteps: Int) -> some View {
+        overlay(alignment: .topTrailing) {
+            OnboardingProgressIndicator(stepInfo: .init(currentStep: currentStep, totalSteps: totalSteps))
+                .padding(.trailing, Metrics.progressBarTrailingPadding)
+                .padding(.top, Metrics.progressBarTopPadding)
+                .transition(.identity)
+                .visibility(totalSteps == 0 ? .invisible : .visible)
+        }
+    }
 }

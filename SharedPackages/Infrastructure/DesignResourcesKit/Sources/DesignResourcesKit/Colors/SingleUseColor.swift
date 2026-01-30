@@ -29,4 +29,18 @@ public enum SingleUseColor {
 
     /// Color used for what's New background
     case whatsNewBackground
+
+    // MARK: - Onboarding Colors
+
+    case onboardingBackgroundGradientTop
+    case onboardingBackgroundGradientBottom
+    case onboardingCardBackground
+    case onboardingTextPrimary
+    case onboardingTextSecondary
+    case onboardingPrimaryButtonBackground
+    case onboardingPrimaryButtonBackgroundPressed
+    case onboardingPrimaryButtonText
+    case onboardingSecondaryButtonText
+    case onboardingAccent
+    case onboardingBackgroundColor
 }
