@@ -126,7 +126,12 @@ final class FaviconUserScriptTests: XCTestCase {
     func testMessageOriginPolicyIsAll() {
         let script = FaviconUserScript()
 
-        XCTAssertEqual(script.messageOriginPolicy, .all, "Message origin policy should allow all origins")
+        // MessageOriginPolicy doesn't conform to Equatable, so check the case directly
+        if case .all = script.messageOriginPolicy {
+            // Pass
+        } else {
+            XCTFail("Message origin policy should be .all")
+        }
     }
 
     // MARK: - Delegate Tests
