@@ -61,6 +61,7 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case browserSwitchTab
     case browserNewTab
     case browserCloseTab
+    case browserSetTabHidden
     case browserClick
     case browserType
     case browserGetHTML

@@ -190,12 +190,16 @@ public final class AutomationServerCore {
             return .success(provider.currentURL?.absoluteString ?? "")
         case "/getWindowHandles":
             return getWindowHandles(url: url)
+        case "/getTabs":
+            return getTabs()
         case "/closeWindow":
             return closeWindow(url: url)
         case "/switchToWindow":
             return switchToWindow(url: url)
         case "/newWindow":
             return newWindow(url: url)
+        case "/setTabHidden":
+            return setTabHidden(url: url)
         case "/getWindowHandle":
             return getWindowHandle(url: url)
         case "/shutdown":
@@ -304,7 +308,8 @@ public final class AutomationServerCore {
     }
 
     public func newWindow(url: URLComponents) -> ConnectionResult {
-        guard let handle = provider.newTab() else {
+        let hidden = (getQueryStringParameter(url: url, param: "hidden") ?? "").lowercased() == "true"
+        guard let handle = provider.newTab(hidden: hidden) else {
             return .failure(.noWindow)
         }
 
@@ -315,6 +320,27 @@ public final class AutomationServerCore {
         } else {
             return .failure(.jsonEncodingFailed)
         }
+    }
+
+    public func getTabs() -> ConnectionResult {
+        let tabs = provider.getTabInfos()
+        if let jsonData = try? JSONEncoder().encode(tabs),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            return .success(jsonString)
+        } else {
+            return .failure(.jsonEncodingFailed)
+        }
+    }
+
+    public func setTabHidden(url: URLComponents) -> ConnectionResult {
+        guard let handle = getQueryStringParameter(url: url, param: "handle") else {
+            return .failure(.invalidWindowHandle)
+        }
+        let hidden = (getQueryStringParameter(url: url, param: "hidden") ?? "").lowercased() == "true"
+        if provider.setTabHidden(handle: handle, hidden: hidden) {
+            return .success("done")
+        }
+        return .failure(.tabNotFound)
     }
 
     public func takeScreenshot(url: URLComponents) async -> ConnectionResult {

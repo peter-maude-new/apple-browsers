@@ -79,6 +79,7 @@ protocol AIChatUserScriptHandling {
     func browserSwitchTab(params: Any, message: UserScriptMessage) async -> Encodable?
     func browserNewTab(params: Any, message: UserScriptMessage) async -> Encodable?
     func browserCloseTab(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserSetTabHidden(params: Any, message: UserScriptMessage) async -> Encodable?
     func browserClick(params: Any, message: UserScriptMessage) async -> Encodable?
     func browserType(params: Any, message: UserScriptMessage) async -> Encodable?
     func browserGetHTML(params: Any, message: UserScriptMessage) async -> Encodable?
@@ -546,6 +547,15 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         }
 
         let result = browserAutomationBridge.closeTab(params: closeParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserSetTabHidden(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let hiddenParams: BrowserSetTabHiddenParams = DecodableHelper.decode(from: params) else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        let result = browserAutomationBridge.setTabHidden(params: hiddenParams)
         return browserAutomationResult(result)
     }
 
