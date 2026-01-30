@@ -32,31 +32,4 @@ public enum SingleUseColor {
 
     /// Duck.ai contextual background color
     case duckAIContextualSheetBackground
-
-    // MARK: - Onboarding Colors
-
-    public enum Onboarding {
-        public enum Colors: CaseIterable {
-            case defaultButton
-            case secondaryButton
-            case defaultButtonText
-            case secondaryButtonText
-            case border
-            case backgroundAccent
-            case tableSurface
-            case tableSurfaceAccent
-            case iconOrange
-            case iconPink
-            case iconYellow
-            case iconGreen
-            case iconBlue
-            case iconPurple
-            case iconBlack
-            case checkMark
-            case checkMarkText
-            case title
-            case text
-            case subtext
-        }
-    }
 }

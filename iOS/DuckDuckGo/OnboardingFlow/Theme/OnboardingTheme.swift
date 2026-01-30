@@ -89,16 +89,16 @@ extension OnboardingTheme {
 
     struct ColorPalette: Equatable {
         // Buttons
-        let defaultButton: Color
-        let secondaryButton: Color
-        let defaultButtonText: Color
-        let secondaryButtonText: Color
+        let buttonsPrimaryDefault: Color
+        let buttonsSecondaryFillDefault: Color
+        let buttonsPrimaryText: Color
+        let buttonsSecondaryFillText: Color
 
         // Layout
         let border: Color
         let backgroundAccent: Color
-        let tableSurface: Color
-        let tableSurfaceAccent: Color
+        let surface: Color
+        let surfaceHighlighted: Color
 
         // Icons
         let iconOrange: Color
@@ -114,9 +114,9 @@ extension OnboardingTheme {
         let checkMarkText: Color
 
         // Text
-        let title: Color
-        let text: Color
-        let subtext: Color
+        let textPrimary: Color
+        let textSecondary: Color
+        let textTertiary: Color
     }
 
 }
@@ -124,26 +124,26 @@ extension OnboardingTheme {
 extension OnboardingTheme.ColorPalette {
 
     static let rebranding2026 = OnboardingTheme.ColorPalette(
-        defaultButton: Color(onboardingColor: .defaultButton),
-        secondaryButton: Color(onboardingColor: .secondaryButton),
-        defaultButtonText: Color(onboardingColor: .defaultButtonText),
-        secondaryButtonText: Color(onboardingColor: .secondaryButtonText),
-        border: Color(onboardingColor: .border),
-        backgroundAccent: Color(onboardingColor: .backgroundAccent),
-        tableSurface: Color(onboardingColor: .tableSurface),
-        tableSurfaceAccent: Color(onboardingColor: .tableSurfaceAccent),
-        iconOrange: Color(onboardingColor: .iconOrange),
-        iconPink: Color(onboardingColor: .iconPink),
-        iconYellow: Color(onboardingColor: .iconYellow),
-        iconGreen: Color(onboardingColor: .iconGreen),
-        iconBlue: Color(onboardingColor: .iconBlue),
-        iconPurple: Color(onboardingColor: .iconPurple),
-        iconBlack: Color(onboardingColor: .iconBlack),
-        checkMark: Color(onboardingColor: .checkMark),
-        checkMarkText: Color(onboardingColor: .checkMarkText),
-        title: Color(onboardingColor: .title),
-        text: Color(onboardingColor: .text),
-        subtext: Color(onboardingColor: .subtext)
+        buttonsPrimaryDefault: DesignResourcesKit.Onboarding.Colors.buttonsPrimaryDefault,
+        buttonsSecondaryFillDefault: DesignResourcesKit.Onboarding.Colors.buttonsSecondaryFillDefault,
+        buttonsPrimaryText: DesignResourcesKit.Onboarding.Colors.buttonsPrimaryText,
+        buttonsSecondaryFillText: DesignResourcesKit.Onboarding.Colors.buttonsSecondaryFillText,
+        border: DesignResourcesKit.Onboarding.Colors.border,
+        backgroundAccent: DesignResourcesKit.Onboarding.Colors.backgroundAccent,
+        surface: DesignResourcesKit.Onboarding.Colors.surface,
+        surfaceHighlighted: DesignResourcesKit.Onboarding.Colors.surfaceHighlighted,
+        iconOrange: DesignResourcesKit.Onboarding.Colors.iconOrange,
+        iconPink: DesignResourcesKit.Onboarding.Colors.iconPink,
+        iconYellow: DesignResourcesKit.Onboarding.Colors.iconYellow,
+        iconGreen: DesignResourcesKit.Onboarding.Colors.iconGreen,
+        iconBlue: DesignResourcesKit.Onboarding.Colors.iconBlue,
+        iconPurple: DesignResourcesKit.Onboarding.Colors.iconPurple,
+        iconBlack: DesignResourcesKit.Onboarding.Colors.iconBlack,
+        checkMark: DesignResourcesKit.Onboarding.Colors.checkMark,
+        checkMarkText: DesignResourcesKit.Onboarding.Colors.checkMarkText,
+        textPrimary: DesignResourcesKit.Onboarding.Colors.textPrimary,
+        textSecondary: DesignResourcesKit.Onboarding.Colors.textSecondary,
+        textTertiary: DesignResourcesKit.Onboarding.Colors.textTertiary
     )
 
 }

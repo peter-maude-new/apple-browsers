@@ -20,92 +20,92 @@
 #if os(iOS)
 import SwiftUI
 
-enum Onboarding {
-    enum Colors {
+public enum Onboarding {
+    public enum Colors {
 
         // Buttons
-        static var defaultButton: DynamicColor {
-        DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
-    }
+        public static var buttonsPrimaryDefault: Color {
+            DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D)).color
+        }
 
-    static var secondaryButton: DynamicColor {
-        DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D))
-    }
+        public static var buttonsSecondaryFillDefault: Color {
+            DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D)).color
+        }
 
-    static var defaultButtonText: DynamicColor {
-        DynamicColor(staticColor: .white)
-    }
+        public static var buttonsPrimaryText: Color {
+            DynamicColor(staticColor: .white).color
+        }
 
-    static var secondaryButtonText: DynamicColor {
-        DynamicColor(lightColor: Color(0x333333), darkColor: .white)
-    }
+        public static var buttonsSecondaryFillText: Color {
+            DynamicColor(lightColor: Color(0x333333), darkColor: .white).color
+        }
 
-    // Layout
-    static var border: DynamicColor {
-        DynamicColor(lightColor: Color(0xE0E0E0), darkColor: Color(0x3D3D3D))
-    }
+        // Layout
+        public static var border: Color {
+            DynamicColor(lightColor: Color(0xE0E0E0), darkColor: Color(0x3D3D3D)).color
+        }
 
-    static var backgroundAccent: DynamicColor {
-        DynamicColor(lightColor: Color(0xF5F5F5), darkColor: Color(0x1A1A1A))
-    }
+        public static var backgroundAccent: Color {
+            DynamicColor(lightColor: Color(0xF5F5F5), darkColor: Color(0x1A1A1A)).color
+        }
 
-    static var tableSurface: DynamicColor {
-        DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D))
-    }
+        public static var surface: Color {
+            DynamicColor(lightColor: .white, darkColor: Color(0x2D2D2D)).color
+        }
 
-    static var tableSurfaceAccent: DynamicColor {
-        DynamicColor(lightColor: Color(0xF9F9F9), darkColor: Color(0x252525))
-    }
+        public static var surfaceHighlighted: Color {
+            DynamicColor(lightColor: Color(0xF9F9F9), darkColor: Color(0x252525)).color
+        }
 
-    // Icons
-    static var iconOrange: DynamicColor {
-        DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D))
-    }
+        // Icons
+        public static var iconOrange: Color {
+            DynamicColor(lightColor: Color(0xFF9900), darkColor: Color(0xFFB84D)).color
+        }
 
-    static var iconPink: DynamicColor {
-        DynamicColor(lightColor: Color(0xFF69B4), darkColor: Color(0xFF8FCC))
-    }
+        public static var iconPink: Color {
+            DynamicColor(lightColor: Color(0xFF69B4), darkColor: Color(0xFF8FCC)).color
+        }
 
-    static var iconYellow: DynamicColor {
-        DynamicColor(lightColor: Color(0xFFD700), darkColor: Color(0xFFE14D))
-    }
+        public static var iconYellow: Color {
+            DynamicColor(lightColor: Color(0xFFD700), darkColor: Color(0xFFE14D)).color
+        }
 
-    static var iconGreen: DynamicColor {
-        DynamicColor(lightColor: Color(0x00C853), darkColor: Color(0x4DFF88))
-    }
+        public static var iconGreen: Color {
+            DynamicColor(lightColor: Color(0x00C853), darkColor: Color(0x4DFF88)).color
+        }
 
-    static var iconBlue: DynamicColor {
-        DynamicColor(lightColor: Color(0x2196F3), darkColor: Color(0x64B5F6))
-    }
+        public static var iconBlue: Color {
+            DynamicColor(lightColor: Color(0x2196F3), darkColor: Color(0x64B5F6)).color
+        }
 
-    static var iconPurple: DynamicColor {
-        DynamicColor(lightColor: Color(0x9C27B0), darkColor: Color(0xBA68C8))
-    }
+        public static var iconPurple: Color {
+            DynamicColor(lightColor: Color(0x9C27B0), darkColor: Color(0xBA68C8)).color
+        }
 
-    static var iconBlack: DynamicColor {
-        DynamicColor(lightColor: Color(0x000000), darkColor: Color(0xFFFFFF))
-    }
+        public static var iconBlack: Color {
+            DynamicColor(lightColor: Color(0x000000), darkColor: Color(0xFFFFFF)).color
+        }
 
-    // Checkmark
-    static var checkMark: DynamicColor {
-        DynamicColor(lightColor: Color(0x00C853), darkColor: Color(0x4DFF88))
-    }
+        // Checkmark
+        public static var checkMark: Color {
+            DynamicColor(lightColor: Color(0x00C853), darkColor: Color(0x4DFF88)).color
+        }
 
-    static var checkMarkText: DynamicColor {
-        DynamicColor(staticColor: .white)
-    }
+        public static var checkMarkText: Color {
+            DynamicColor(staticColor: .white).color
+        }
 
-    // Text
-    static var title: DynamicColor {
-        DynamicColor(lightColor: Color(0x000000), darkColor: .white)
-    }
+        // Text
+        public static var textPrimary: Color {
+            DynamicColor(lightColor: Color(0x000000), darkColor: .white).color
+        }
 
-    static var text: DynamicColor {
-        DynamicColor(lightColor: Color(0x333333), darkColor: Color(0xE0E0E0))
-    }
+        public static var textSecondary: Color {
+            DynamicColor(lightColor: Color(0x333333), darkColor: Color(0xE0E0E0)).color
+        }
 
-        static var subtext: DynamicColor {
-            DynamicColor(lightColor: Color(0x666666), darkColor: Color(0xB0B0B0))
+        public static var textTertiary: Color {
+            DynamicColor(lightColor: Color(0x666666), darkColor: Color(0xB0B0B0)).color
         }
     }
 }
