@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import os.log
 import PrivacyConfig
 
 final class AppPrivacyConfigurationDataProvider: EmbeddedDataProvider {
@@ -24,6 +25,11 @@ final class AppPrivacyConfigurationDataProvider: EmbeddedDataProvider {
     public struct Constants {
         public static let embeddedDataETag = "\"f45c33eb6fdddf6b65a4b3ec020c165e\""
         public static let embeddedDataSHA = "c4fb4c78fa9cbb09e184e8c0fa20b27e92809a228c00daf7e3c041c320e1f918"
+
+        /// Environment variable key for test privacy config file path override.
+        /// When set, the config at this path will be used instead of the bundled config.
+        /// This allows WebDriver/UI tests to inject custom privacy configurations without rebuilding.
+        public static let testPrivacyConfigPathKey = "TEST_PRIVACY_CONFIG_PATH"
     }
 
     var embeddedDataEtag: String {
@@ -39,6 +45,20 @@ final class AppPrivacyConfigurationDataProvider: EmbeddedDataProvider {
     }
 
     static func loadEmbeddedAsData() -> Data {
+#if DEBUG || REVIEW
+        // Allow test/automation overrides via environment variable
+        if let testConfigPath = ProcessInfo.processInfo.environment[Constants.testPrivacyConfigPathKey] {
+            let testConfigURL = URL(fileURLWithPath: testConfigPath)
+            do {
+                let testData = try Data(contentsOf: testConfigURL)
+                Logger.config.info("[DDG-TEST-CONFIG] Loaded \(testData.count) bytes from: \(testConfigPath, privacy: .public)")
+                return testData
+            } catch {
+                Logger.config.error("[DDG-TEST-CONFIG] Failed to load from \(testConfigPath, privacy: .public): \(error.localizedDescription, privacy: .public)")
+                // Fall through to load bundled config
+            }
+        }
+#endif
         let json = try? Data(contentsOf: embeddedUrl)
         return json!
     }

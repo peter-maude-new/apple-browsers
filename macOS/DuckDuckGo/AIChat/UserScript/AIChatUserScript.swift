@@ -157,6 +157,26 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.sendToSyncSettings
         case .setAIChatHistoryEnabled:
             return handler.setAIChatHistoryEnabled
+
+        // Browser Automation
+        case .browserTakeScreenshot:
+            return handler.browserTakeScreenshot
+        case .browserGetTabs:
+            return handler.browserGetTabs
+        case .browserSwitchTab:
+            return handler.browserSwitchTab
+        case .browserNewTab:
+            return handler.browserNewTab
+        case .browserCloseTab:
+            return handler.browserCloseTab
+        case .browserClick:
+            return handler.browserClick
+        case .browserType:
+            return handler.browserType
+        case .browserGetHTML:
+            return handler.browserGetHTML
+        case .browserNavigate:
+            return handler.browserNavigate
         default:
             return nil
         }

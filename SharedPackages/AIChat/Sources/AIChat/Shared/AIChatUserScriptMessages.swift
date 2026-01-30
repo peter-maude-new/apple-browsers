@@ -54,5 +54,16 @@ public enum AIChatUserScriptMessages: String, CaseIterable {
     case sendToSetupSync
     case setAIChatHistoryEnabled
     case submitSyncStatusChanged
+
+    // Browser Automation
+    case browserTakeScreenshot
+    case browserGetTabs
+    case browserSwitchTab
+    case browserNewTab
+    case browserCloseTab
+    case browserClick
+    case browserType
+    case browserGetHTML
+    case browserNavigate
 }
 // swiftlint:enable inclusive_language

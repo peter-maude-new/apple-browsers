@@ -72,6 +72,17 @@ protocol AIChatUserScriptHandling {
     func sendToSyncSettings(params: Any, message: UserScriptMessage) -> Encodable?
     func sendToSetupSync(params: Any, message: UserScriptMessage) -> Encodable?
     func setAIChatHistoryEnabled(params: Any, message: UserScriptMessage) -> Encodable?
+
+    // Browser Automation
+    func browserTakeScreenshot(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserGetTabs(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserSwitchTab(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserNewTab(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserCloseTab(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserClick(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserType(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserGetHTML(params: Any, message: UserScriptMessage) async -> Encodable?
+    func browserNavigate(params: Any, message: UserScriptMessage) async -> Encodable?
 }
 
 final class AIChatUserScriptHandler: AIChatUserScriptHandling {
@@ -96,6 +107,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let syncServiceProvider: () -> DDGSyncing?
     private let featureFlagger: FeatureFlagger
     private let migrationStore = AIChatMigrationStore()
+    private lazy var browserAutomationBridge: BrowserAutomationBridge = {
+        let provider = makeBrowserAutomationProvider()
+        return BrowserAutomationBridge(provider: provider)
+    }()
 
     init(
         storage: AIChatPreferencesStorage,
@@ -122,6 +137,13 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         self.syncStatusPublisher = syncStatusSubject.eraseToAnyPublisher()
 
         setUpSyncStatusObserverIfNeeded()
+    }
+
+    private func makeBrowserAutomationProvider() -> AIChatBrowserAutomationProvider? {
+        guard let manager = windowControllersManager as? WindowControllersManager else {
+            return nil
+        }
+        return AIChatBrowserAutomationProvider(windowControllersManager: manager)
     }
 
     enum AIChatKeys {
@@ -473,6 +495,106 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             return nil
         }
         return AIChatSyncHandler(sync: sync)
+    }
+
+    // MARK: - Browser Automation
+
+    func browserTakeScreenshot(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let screenshotParams: BrowserScreenshotParams
+        if let decoded: BrowserScreenshotParams = DecodableHelper.decode(from: params) {
+            screenshotParams = decoded
+        } else {
+            screenshotParams = BrowserScreenshotParams()
+        }
+
+        let result = await browserAutomationBridge.takeScreenshot(params: screenshotParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserGetTabs(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let result = browserAutomationBridge.getTabs()
+        return browserAutomationResult(result)
+    }
+
+    func browserSwitchTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let switchParams: BrowserSwitchTabParams = DecodableHelper.decode(from: params) else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        let result = browserAutomationBridge.switchTab(params: switchParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserNewTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let newTabParams: BrowserNewTabParams
+        if let decoded: BrowserNewTabParams = DecodableHelper.decode(from: params) {
+            newTabParams = decoded
+        } else {
+            newTabParams = BrowserNewTabParams()
+        }
+
+        let result = browserAutomationBridge.newTab(params: newTabParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserCloseTab(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let closeParams: BrowserCloseTabParams
+        if let decoded: BrowserCloseTabParams = DecodableHelper.decode(from: params) {
+            closeParams = decoded
+        } else {
+            closeParams = BrowserCloseTabParams()
+        }
+
+        let result = browserAutomationBridge.closeTab(params: closeParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserClick(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let clickParams: BrowserClickParams = DecodableHelper.decode(from: params) else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        let result = await browserAutomationBridge.click(params: clickParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserType(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let typeParams: BrowserTypeParams = DecodableHelper.decode(from: params) else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        let result = await browserAutomationBridge.type(params: typeParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserGetHTML(params: Any, message: UserScriptMessage) async -> Encodable? {
+        let htmlParams: BrowserGetHTMLParams
+        if let decoded: BrowserGetHTMLParams = DecodableHelper.decode(from: params) {
+            htmlParams = decoded
+        } else {
+            htmlParams = BrowserGetHTMLParams()
+        }
+
+        let result = await browserAutomationBridge.getHTML(params: htmlParams)
+        return browserAutomationResult(result)
+    }
+
+    func browserNavigate(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard let navParams: BrowserNavigateParams = DecodableHelper.decode(from: params) else {
+            return AIChatErrorResponse(reason: "invalid_params")
+        }
+
+        let result = browserAutomationBridge.navigate(params: navParams)
+        return browserAutomationResult(result)
+    }
+
+    private func browserAutomationResult<T: Encodable>(_ result: Result<T, BrowserAutomationError>) -> Encodable {
+        switch result {
+        case .success(let response):
+            return AIChatPayloadResponse(payload: response)
+        case .failure(let error):
+            return AIChatErrorResponse(reason: error.localizedDescription)
+        }
     }
 }
 // swiftlint:enable inclusive_language
