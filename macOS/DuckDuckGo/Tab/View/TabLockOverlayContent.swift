@@ -30,6 +30,8 @@ final class TabLockOverlayViewModel: ObservableObject {
     #endif
 
     @Published var isVisible = false
+    @Published var baseVisible = false
+    @Published var blobsVisible = false
     @Published var contentVisible = false
     @Published var shouldAnimateBounce = false
     @Published var shouldAnimateOutBounce = false
@@ -40,6 +42,8 @@ final class TabLockOverlayViewModel: ObservableObject {
         print("[LOCK DEBUG] animateIn called, isVisible=\(isVisible), shouldAnimateBounce=\(shouldAnimateBounce)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = true
+            baseVisible = true
+            blobsVisible = true
             contentVisible = true
             completion?()
         } else {
@@ -47,8 +51,18 @@ final class TabLockOverlayViewModel: ObservableObject {
             withAnimation(.easeOut(duration: 0.6 / animationSpeed)) {
                 isVisible = true
             }
-            // Content fades in after 500ms delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 / animationSpeed) {
+            // Base expands at t=0 (720ms, easeOutBack via spring)
+            withAnimation(.interpolatingSpring(stiffness: 170, damping: 15).speed(1.0 / animationSpeed)) {
+                baseVisible = true
+            }
+            // Blobs expand at t=100ms (792ms, easeOutBack via spring)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1 / animationSpeed) {
+                withAnimation(.interpolatingSpring(stiffness: 170, damping: 15).speed(1.0 / self.animationSpeed)) {
+                    self.blobsVisible = true
+                }
+            }
+            // Content fades in at t=504ms (360ms, easeOut)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.504 / animationSpeed) {
                 withAnimation(.easeOut(duration: 0.36 / self.animationSpeed)) {
                     self.contentVisible = true
                 }
@@ -63,12 +77,26 @@ final class TabLockOverlayViewModel: ObservableObject {
         print("[LOCK DEBUG] animateOut called, isVisible=\(isVisible)")
         if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
             isVisible = false
+            baseVisible = false
+            blobsVisible = false
             contentVisible = false
             completion()
         } else {
             // Content fades at t=0 (150ms, easeIn)
             withAnimation(.easeIn(duration: 0.15 / animationSpeed)) {
                 contentVisible = false
+            }
+            // Blobs shrink at t=90ms (300ms, easeIn)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.09 / animationSpeed) {
+                withAnimation(.easeIn(duration: 0.3 / self.animationSpeed)) {
+                    self.blobsVisible = false
+                }
+            }
+            // Base shrinks at t=180ms (600ms, easeIn)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18 / animationSpeed) {
+                withAnimation(.easeIn(duration: 0.6 / self.animationSpeed)) {
+                    self.baseVisible = false
+                }
             }
             // Panels slide at t=180ms (600ms, easeOut)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18 / animationSpeed) {
@@ -90,6 +118,8 @@ final class TabLockOverlayViewModel: ObservableObject {
         withTransaction(transaction) {
             shouldAnimateBounce = false
             isVisible = true
+            baseVisible = true
+            blobsVisible = true
             contentVisible = true
         }
     }
@@ -100,6 +130,8 @@ final class TabLockOverlayViewModel: ObservableObject {
         transaction.disablesAnimations = true
         withTransaction(transaction) {
             isVisible = false
+            baseVisible = false
+            blobsVisible = false
             contentVisible = false
         }
     }
@@ -252,7 +284,7 @@ struct TabLockOverlayContent: View {
                 .opacity(viewModel.contentVisible ? 1 : 0)
                 .offset(y: viewModel.contentVisible ? 0 : 16)
             }
-            .scaleEffect(viewModel.isVisible ? 1 : 0.3)
+            .scaleEffect(viewModel.baseVisible ? 1 : 0.3)
         }
     }
 
@@ -263,8 +295,8 @@ struct TabLockOverlayContent: View {
             .frame(width: width, height: height)
             .rotationEffect(.degrees(rotation))
             .blendMode(.darken)
-            .scaleEffect(viewModel.contentVisible ? 1 : 0.3)
-            .opacity(viewModel.contentVisible ? 1 : 0)
+            .scaleEffect(viewModel.blobsVisible ? 1 : 0.3)
+            .opacity(viewModel.blobsVisible ? 1 : 0)
     }
 
     // MARK: - Blob Rotations
