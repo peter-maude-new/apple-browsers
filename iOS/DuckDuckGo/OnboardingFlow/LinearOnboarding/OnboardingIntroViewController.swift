@@ -58,6 +58,24 @@ final class OnboardingIntroViewController<Content: View>: UIHostingController<Co
 
 }
 
+extension OnboardingIntroViewController where Content == OnboardingView {
+
+    static func legacy(
+        onboardingPixelReporter: OnboardingPixelReporting,
+        systemSettingsPiPTutorialManager: SystemSettingsPiPTutorialManaging,
+        daxDialogsManager: ContextualDaxDialogDisabling
+    ) -> OnboardingIntroViewController {
+        let viewModel = OnboardingIntroViewModel(
+            pixelReporter: onboardingPixelReporter,
+            systemSettingsPiPTutorialManager: systemSettingsPiPTutorialManager,
+            daxDialogsManager: daxDialogsManager
+        )
+        let rootView = OnboardingView(model: viewModel)
+        return OnboardingIntroViewController(rootView: rootView, viewModel: viewModel)
+    }
+
+}
+
 extension OnboardingIntroViewController where Content == RebrandedOnboardingView {
 
     static func rebranded(

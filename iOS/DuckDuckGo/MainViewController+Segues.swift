@@ -330,7 +330,7 @@ extension MainViewController {
                 completion?()
             },
             deepLinkTarget: .aiChat,
-            onDeepLinkCompletion: { viewModel, _ in
+            configure: { viewModel, _ in
                 viewModel.openedFromSERPSettingsButton = openedFromSERPSettingsButton
             }
         )
