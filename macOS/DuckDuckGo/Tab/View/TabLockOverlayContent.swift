@@ -216,15 +216,12 @@ struct TabLockOverlayContent: View {
     private var centerContent: some View {
         ZStack {
             // Blobs BEHIND base (z-order: first = back)
-            // Use compositingGroup to flatten blobs, then apply darken blend to the group
-            // This prevents blobs from blending with each other (which dims colors)
+            // Each blob has darken blend mode applied individually (matches CSS reference)
             Group {
                 blobView(imageName: "TabLock-Blob1", rotation: blob1Rotation, width: 200, height: 218)
                 blobView(imageName: "TabLock-Blob2", rotation: blob2Rotation, width: 207, height: 204)
                 blobView(imageName: "TabLock-Blob3", rotation: blob3Rotation, width: 196, height: 211)
             }
-            .compositingGroup()
-            .blendMode(.darken)
 
             // Base circle with lock icon nested inside
             ZStack {
@@ -265,6 +262,7 @@ struct TabLockOverlayContent: View {
             .aspectRatio(contentMode: .fit)
             .frame(width: width, height: height)
             .rotationEffect(.degrees(rotation))
+            .blendMode(.darken)
             .scaleEffect(viewModel.contentVisible ? 1 : 0.3)
             .opacity(viewModel.contentVisible ? 1 : 0)
     }
