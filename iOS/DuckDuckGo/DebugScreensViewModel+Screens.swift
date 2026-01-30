@@ -228,26 +228,38 @@ extension DebugScreensViewModel {
                 let isOnboardingRebranding = AppDependencyProvider.shared.featureFlagger.isFeatureOn(.onboardingRebranding)
 
                 weak var capturedController: OnboardingDebugViewController?
-                let onboardingController = OnboardingDebugViewController(rootView: OnboardingDebugView(isRebrandingFlow: isOnboardingRebranding) {
-                    guard let capturedController else { return }
 
-                    let controller: Onboarding = if isOnboardingRebranding {
-                        OnboardingIntroViewController.rebranded(
-                            onboardingPixelReporter: OnboardingPixelReporter(),
-                            systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
-                            daxDialogsManager: d.daxDialogManager
-                        )
-                    } else {
-                        OnboardingIntroViewController.legacy(
-                            onboardingPixelReporter: OnboardingPixelReporter(),
-                            systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
-                            daxDialogsManager: d.daxDialogManager
-                        )
-                    }
+                let rebrandedAction = {
+                    guard let capturedController else { return }
+                    let controller = OnboardingIntroViewController.rebranded(
+                        onboardingPixelReporter: OnboardingPixelReporter(),
+                        systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
+                        daxDialogsManager: d.daxDialogManager
+                    )
                     controller.delegate = capturedController
                     controller.modalPresentationStyle = .overFullScreen
                     capturedController.parent?.present(controller: controller, fromView: capturedController.view)
-                })
+                }
+
+                let legacyAction = {
+                    guard let capturedController else { return }
+                    let controller = OnboardingIntroViewController.legacy(
+                        onboardingPixelReporter: OnboardingPixelReporter(),
+                        systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
+                        daxDialogsManager: d.daxDialogManager
+                    )
+                    controller.delegate = capturedController
+                    controller.modalPresentationStyle = .overFullScreen
+                    capturedController.parent?.present(controller: controller, fromView: capturedController.view)
+                }
+
+                let onboardingController = OnboardingDebugViewController(
+                    rootView: OnboardingDebugView(
+                        isRebrandingFlow: isOnboardingRebranding,
+                        onNewOnboardingIntroStartAction: isOnboardingRebranding ? rebrandedAction : legacyAction,
+                        onLegacyOnboardingIntroStartAction: isOnboardingRebranding ? legacyAction : nil
+                    )
+                )
                 capturedController = onboardingController
                 return onboardingController
             }),
