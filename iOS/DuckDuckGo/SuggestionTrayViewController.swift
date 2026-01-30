@@ -105,7 +105,7 @@ class SuggestionTrayViewController: UIViewController {
         let favoritesModel: FavoritesListInteracting
         let homePageMessagesConfiguration: HomePageMessagesConfiguration
         let subscriptionDataReporting: SubscriptionDataReporting?
-        let newTabDialogFactory: NewTabDaxDialogsProvider
+        let newTabDialogFactory: NewTabDaxDialogProvider
         let newTabDaxDialogManager: NewTabDialogSpecProvider & SubscriptionPromotionCoordinating
         let faviconLoader: FavoritesFaviconLoading
         let remoteMessagingActionHandler: RemoteMessagingActionHandling

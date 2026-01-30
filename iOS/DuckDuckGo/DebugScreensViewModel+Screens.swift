@@ -80,9 +80,6 @@ extension DebugScreensViewModel {
             .view(title: "Feature Flags", { _ in
                 FeatureFlagsMenuView()
             }),
-            .view(title: "UI Test Overrides", { _ in
-                UITestOverridesDebugView()
-            }),
             .view(title: "ContentScope Experiments", { _ in
                 ContentScopeExperimentsDebugView()
             }),
@@ -95,8 +92,8 @@ extension DebugScreensViewModel {
             .view(title: "WebView State Restoration", { _ in
                 WebViewStateRestorationDebugView()
             }),
-            .view(title: "History", { d in
-                HistoryDebugRootView(tabManager: d.tabManager)
+            .view(title: "History", { _ in
+                HistoryDebugRootView()
             }),
             .view(title: "Bookmarks", { _ in
                 BookmarksDebugRootView()
@@ -228,26 +225,38 @@ extension DebugScreensViewModel {
                 let isOnboardingRebranding = AppDependencyProvider.shared.featureFlagger.isFeatureOn(.onboardingRebranding)
 
                 weak var capturedController: OnboardingDebugViewController?
-                let onboardingController = OnboardingDebugViewController(rootView: OnboardingDebugView(isRebrandingFlow: isOnboardingRebranding) {
-                    guard let capturedController else { return }
 
-                    let controller: Onboarding = if isOnboardingRebranding {
-                        OnboardingIntroViewController.rebranded(
-                            onboardingPixelReporter: OnboardingPixelReporter(),
-                            systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
-                            daxDialogsManager: d.daxDialogManager
-                        )
-                    } else {
-                        OnboardingIntroViewController.legacy(
-                            onboardingPixelReporter: OnboardingPixelReporter(),
-                            systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
-                            daxDialogsManager: d.daxDialogManager
-                        )
-                    }
+                let rebrandedAction: () -> Void = {
+                    guard let capturedController else { return }
+                    let controller = OnboardingIntroViewController.rebranded(
+                        onboardingPixelReporter: OnboardingPixelReporter(),
+                        systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
+                        daxDialogsManager: d.daxDialogManager
+                    )
                     controller.delegate = capturedController
                     controller.modalPresentationStyle = .overFullScreen
                     capturedController.parent?.present(controller: controller, fromView: capturedController.view)
-                })
+                }
+
+                let legacyAction: () -> Void = {
+                    guard let capturedController else { return }
+                    let controller = OnboardingIntroViewController.legacy(
+                        onboardingPixelReporter: OnboardingPixelReporter(),
+                        systemSettingsPiPTutorialManager: d.systemSettingsPiPTutorialManager,
+                        daxDialogsManager: d.daxDialogManager
+                    )
+                    controller.delegate = capturedController
+                    controller.modalPresentationStyle = .overFullScreen
+                    capturedController.parent?.present(controller: controller, fromView: capturedController.view)
+                }
+
+                let onboardingController = OnboardingDebugViewController(
+                    rootView: OnboardingDebugView(
+                        isRebrandingFlow: isOnboardingRebranding,
+                        onNewOnboardingIntroStartAction: isOnboardingRebranding ? rebrandedAction : legacyAction,
+                        onLegacyOnboardingIntroStartAction: isOnboardingRebranding ? legacyAction : nil
+                    )
+                )
                 capturedController = onboardingController
                 return onboardingController
             }),
