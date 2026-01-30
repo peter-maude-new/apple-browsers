@@ -87,8 +87,6 @@ class FireproofFaviconUpdater: NSObject, FaviconUserScriptDelegate {
                            didFindFaviconLinks faviconLinks: [FaviconUserScript.FaviconLink],
                            for documentUrl: URL,
                            in webView: WKWebView?) {
-        assert(Thread.isMainThread)
-
         guard let host = documentUrl.host else { return }
 
         // Note: Unlike macOS, we don't validate documentUrl matches the tab's current URL.

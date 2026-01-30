@@ -292,7 +292,6 @@ class FaviconUserScriptIntegrationTests: XCTestCase {
 private final class MockFaviconUserScriptDelegate: FaviconUserScriptDelegate {
     var receivedFaviconLinks: [FaviconUserScript.FaviconLink]?
     var receivedDocumentUrl: URL?
-    var receivedWebView: WKWebView?
     var callCount = 0
 
     @MainActor
@@ -302,7 +301,6 @@ private final class MockFaviconUserScriptDelegate: FaviconUserScriptDelegate {
                            in webView: WKWebView?) {
         receivedFaviconLinks = faviconLinks
         receivedDocumentUrl = documentUrl
-        receivedWebView = webView
         callCount += 1
     }
 }
