@@ -15,8 +15,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-#if APPSTORE
-
+#if canImport(AppStoreAppUpdater)
+import AppStoreAppUpdater
+import AppUpdaterShared
 import XCTest
 import Cocoa
 @testable import DuckDuckGo_Privacy_Browser

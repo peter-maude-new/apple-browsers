@@ -16,7 +16,9 @@
 //  limitations under the License.
 //
 
-#if APPSTORE
+#if canImport(AppStoreAppUpdater)
+import AppStoreAppUpdater
+import AppUpdaterShared
 import Cocoa
 
 final class AppStoreUpdateMenuItemFactory {

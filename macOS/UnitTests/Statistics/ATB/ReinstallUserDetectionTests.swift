@@ -16,18 +16,12 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
 import XCTest
 import PersistenceTestingUtils
 @testable import DuckDuckGo_Privacy_Browser
 
 // MARK: - Mocks
-
-final class MockApplicationBuildType: ApplicationBuildType {
-    var isSparkleBuild: Bool = true
-    var isAppStoreBuild: Bool = false
-    var isDebugBuild: Bool = false
-    var isReviewBuild: Bool = false
-}
 
 final class MockBundleURLProvider: BundleURLProviding {
     var bundleURL: URL = URL(fileURLWithPath: "/Applications/DuckDuckGo.app")
@@ -58,11 +52,10 @@ final class ReinstallUserDetectionTests: XCTestCase {
     // MARK: - Properties
 
     private var sut: DefaultReinstallUserDetection!
-    private var mockBuildType: MockApplicationBuildType!
+    private var mockBuildType: ApplicationBuildTypeMock!
     private var mockFileManager: MockFileManagerForReinstallDetection!
     private var mockBundleURLProvider: MockBundleURLProvider!
     private var mockKeyValueStore: MockThrowingKeyValueStore!
-    private var standardDefaults: UserDefaults!
 
     // MARK: - Test Dates
 
@@ -74,11 +67,10 @@ final class ReinstallUserDetectionTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        mockBuildType = MockApplicationBuildType()
+        mockBuildType = ApplicationBuildTypeMock()
         mockFileManager = MockFileManagerForReinstallDetection()
         mockBundleURLProvider = MockBundleURLProvider()
         mockKeyValueStore = MockThrowingKeyValueStore()
-        standardDefaults = UserDefaults(suiteName: Self.suiteName)
 
         createSUT()
     }
@@ -89,8 +81,6 @@ final class ReinstallUserDetectionTests: XCTestCase {
         mockFileManager = nil
         mockBundleURLProvider = nil
         mockKeyValueStore = nil
-        standardDefaults.removePersistentDomain(forName: Self.suiteName)
-        standardDefaults = nil
 
         super.tearDown()
     }
@@ -100,8 +90,7 @@ final class ReinstallUserDetectionTests: XCTestCase {
             buildType: mockBuildType,
             fileManager: mockFileManager,
             bundleURLProvider: mockBundleURLProvider,
-            keyValueStore: mockKeyValueStore,
-            standardDefaults: standardDefaults
+            keyValueStore: mockKeyValueStore
         )
     }
 
@@ -208,7 +197,8 @@ final class ReinstallUserDetectionTests: XCTestCase {
     func testWhenDatesChangedAndSparkleMetadataPresentThenNotFlaggedAsReinstall() throws {
         mockFileManager.mockCreationDate = january2
         try mockKeyValueStore.set(january1, forKey: "reinstall.detection.bundle-creation-date")
-        standardDefaults.set("1.0.0", forKey: "pending.update.source.version")
+        // Set Sparkle metadata in keyValueStore
+        try mockKeyValueStore.set("1.0.0", forKey: UpdateControllerStorageKeys.pendingUpdateSourceVersion.rawValue)
 
         try sut.checkForReinstallingUser()
 
@@ -218,7 +208,8 @@ final class ReinstallUserDetectionTests: XCTestCase {
     func testWhenDatesChangedAndSparkleMetadataPresentThenUpdatesStoredDate() throws {
         mockFileManager.mockCreationDate = january2
         try mockKeyValueStore.set(january1, forKey: "reinstall.detection.bundle-creation-date")
-        standardDefaults.set("1.0.0", forKey: "pending.update.source.version")
+        // Set Sparkle metadata in keyValueStore
+        try mockKeyValueStore.set("1.0.0", forKey: UpdateControllerStorageKeys.pendingUpdateSourceVersion.rawValue)
 
         try sut.checkForReinstallingUser()
 
@@ -318,7 +309,8 @@ final class ReinstallUserDetectionTests: XCTestCase {
 
         // Step 2: Sparkle update (new bundle, Sparkle metadata present)
         mockFileManager.mockCreationDate = january2
-        standardDefaults.set("1.0.0", forKey: "pending.update.source.version")
+        // Set Sparkle metadata in keyValueStore
+        try mockKeyValueStore.set("1.0.0", forKey: UpdateControllerStorageKeys.pendingUpdateSourceVersion.rawValue)
         createSUT()
         try sut.checkForReinstallingUser()
 

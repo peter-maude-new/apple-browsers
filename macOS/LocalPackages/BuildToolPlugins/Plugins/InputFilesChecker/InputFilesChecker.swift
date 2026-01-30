@@ -26,17 +26,10 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("BWManager.swift", .source),
     .init("DuckDuckGo VPN.app", .unknown),
     .init("DuckDuckGo Personal Information Removal.app", .unknown),
-    .init("SimplifiedSparkleUpdateController.swift", .source),
-    .init("SimplifiedUpdateUserDriver.swift", .source),
     .init("SparkleDebugHelper.swift", .source),
-    .init("SparkleUpdateCompletionValidator.swift", .source),
-    .init("SparkleUpdateController.swift", .source),
     .init("SparkleUpdateMenuItemFactory.swift", .source),
-    .init("SparkleUpdateWideEvent.swift", .source),
-    .init("SparkleUpdaterAvailabilityChecker.swift", .source),
-    .init("UpdateProgressState.swift", .source),
     .init("UpdatesDebugMenu.swift", .source),
-    .init("UpdateWideEventData.swift", .source)])
+])
 
 let sandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("AppStore.xcstrings", .resource),
@@ -62,15 +55,9 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
 
     "Unit Tests": [
         .init("BWEncryptionTests.swift", .source),
-        .init("UpdateCheckStateTests.swift", .source),
         .init("WKWebViewPrivateMethodsAvailabilityTests.swift", .source),
         .init("SupportedOSCheckerTests.swift", .source),
-        .init("UpdateControllerTests.swift", .source),
-        .init("SparkleUpdateCompletionValidatorTests.swift", .source),
         .init("SparkleUpdateMenuItemFactoryTests.swift", .source),
-        .init("SparkleUpdateWideEventTests.swift", .source),
-        .init("SparkleUpdaterAvailabilityCheckerTests.swift", .source),
-        .init("UpdateWideEventDataTests.swift", .source)
     ],
 
     "Integration Tests": []

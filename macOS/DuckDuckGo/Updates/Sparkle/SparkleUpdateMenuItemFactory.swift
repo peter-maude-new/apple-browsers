@@ -16,21 +16,23 @@
 //  limitations under the License.
 //
 
-#if SPARKLE
+#if canImport(SparkleAppUpdater)
 
+import AppUpdaterShared
 import Cocoa
+import SparkleAppUpdater
 
 final class SparkleUpdateMenuItemFactory {
 
     static func menuItem(for update: Update) -> NSMenuItem {
         let item = NSMenuItem(title: UserText.updateAvailableMenuItem)
         item.target = Application.appDelegate.updateController
-        item.action = #selector(SparkleUpdateController.runUpdateFromMenuItem)
+        item.action = #selector(UpdateController.runUpdateFromMenuItem)
         item.image = NSImage.updateMenuItemIcon
         return item
     }
 
-    static func menuItem(for controller: any SparkleUpdateControllerProtocol) -> NSMenuItem {
+    static func menuItem(for controller: any UpdateController) -> NSMenuItem {
 
         let title: String
 
@@ -42,7 +44,7 @@ final class SparkleUpdateMenuItemFactory {
 
         let item = NSMenuItem(title: title)
         item.target = Application.appDelegate.updateController
-        item.action = #selector(SparkleUpdateController.runUpdateFromMenuItem)
+        item.action = #selector(UpdateController.runUpdateFromMenuItem)
         item.image = NSImage.updateMenuItemIcon
         return item
     }

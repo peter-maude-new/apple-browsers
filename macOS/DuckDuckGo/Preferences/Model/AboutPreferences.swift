@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
 import SwiftUI
 import Common
 import Combine
@@ -63,11 +64,7 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
     }
 
     var useLegacyAutoRestartLogic: Bool {
-        #if SPARKLE
-        (updateController as? any SparkleUpdateControllerProtocol)?.useLegacyAutoRestartLogic ?? false
-        #else
-        false
-        #endif
+        updateController?.useLegacyAutoRestartLogic ?? false
     }
 
     var shouldShowUpdateStatus: Bool {
@@ -189,8 +186,7 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
 
 #if SPARKLE
     private var isAtRestartCheckpoint: Bool {
-        guard let updateController = updateController as? any SparkleUpdateControllerProtocol else { return false }
-        return updateController.isAtRestartCheckpoint
+        updateController?.isAtRestartCheckpoint ?? false
     }
 #endif
 
@@ -227,10 +223,7 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
         if userInitiated {
             updateController?.checkForUpdateSkippingRollout()
         } else {
-            #if SPARKLE
-            guard let updateController = updateController as? any SparkleUpdateControllerProtocol else { return }
-            updateController.checkForUpdateRespectingRollout()
-            #endif
+            updateController?.checkForUpdateRespectingRollout()
         }
     }
 }

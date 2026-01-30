@@ -82,6 +82,11 @@ enum UserDefaultsKeys: String, StorageKeyDescribing {
     case debugCustomBaseURL = "debug_customBaseURL"
     case debugCustomDuckAIBaseURL = "debug_customDuckAIBaseURL"
 
+    // MARK: - Reinstall Detection Settings
+
+    case reinstallDetectionStoredBundleCreationDate = "reinstall.detection.bundle-creation-date"
+    case reinstallDetectionIsReinstallingUser = "reinstall.detection.is-reinstalling-user"
+
     // MARK: - Add more app-wide keys here as they are migrated from UserDefaultsWrapper
 
 }

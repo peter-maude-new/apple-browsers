@@ -16,12 +16,7 @@
 //  limitations under the License.
 //
 
-protocol ApplicationBuildType {
-    var isSparkleBuild: Bool { get }
-    var isAppStoreBuild: Bool { get }
-    var isDebugBuild: Bool { get }
-    var isReviewBuild: Bool { get }
-}
+import AppUpdaterShared
 
 final class StandardApplicationBuildType: ApplicationBuildType {
     var isSparkleBuild: Bool {

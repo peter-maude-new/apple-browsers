@@ -16,11 +16,16 @@
 //  limitations under the License.
 //
 
-import XCTest
+import AppUpdaterShared
 import Cocoa
 import Combine
+import XCTest
+
 @testable import DuckDuckGo_Privacy_Browser
 
+#if canImport(AppStoreAppUpdater)
+import AppStoreAppUpdater
+#endif
 final class UpdateControllerProtocolTests: XCTestCase {
 
     // MARK: - Simple Protocol Extension Tests

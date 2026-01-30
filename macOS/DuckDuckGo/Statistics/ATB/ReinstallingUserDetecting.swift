@@ -16,8 +16,20 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
+import Common
 import Foundation
 import Persistence
+
+// MARK: - Storage Keys
+
+/// StoringKeys conforming struct for typed access to reinstall detection settings
+private struct ReinstallDetectionSettings: StoringKeys {
+    let storedBundleCreationDate = StorageKey<Date>(.reinstallDetectionStoredBundleCreationDate, assertionHandler: { _ in })
+    let isReinstallingUser = StorageKey<Bool>(.reinstallDetectionIsReinstallingUser, assertionHandler: { _ in })
+
+    init() {}
+}
 
 // MARK: - Protocols
 
@@ -65,31 +77,23 @@ extension Bundle: BundleURLProviding {}
 /// Default implementation that uses bundle creation date comparison for reinstall detection.
 final class DefaultReinstallUserDetection: ReinstallingUserDetecting {
 
-    private enum Keys {
-        /// Bundle creation date stored in App Group UserDefaults
-        static let storedBundleCreationDate = "reinstall.detection.bundle-creation-date"
-        /// The result of the reinstall check
-        static let isReinstallingUser = "reinstall.detection.is-reinstalling-user"
-    }
-
     private let buildType: ApplicationBuildType
     private let fileManager: FileManager
     private let bundleURLProvider: BundleURLProviding
-    private let keyValueStore: ThrowingKeyValueStoring
-    private let standardDefaults: UserDefaults
+    private let reinstallSettings: any ThrowingKeyedStoring<ReinstallDetectionSettings>
+    private let updateSettings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     init(
         buildType: ApplicationBuildType = StandardApplicationBuildType(),
         fileManager: FileManager = .default,
         bundleURLProvider: BundleURLProviding = Bundle.main,
-        keyValueStore: ThrowingKeyValueStoring,
-        standardDefaults: UserDefaults = .standard
+        keyValueStore: ThrowingKeyValueStoring
     ) {
         self.buildType = buildType
         self.fileManager = fileManager
         self.bundleURLProvider = bundleURLProvider
-        self.keyValueStore = keyValueStore
-        self.standardDefaults = standardDefaults
+        self.reinstallSettings = keyValueStore.throwingKeyedStoring()
+        self.updateSettings = keyValueStore.throwingKeyedStoring()
     }
 
     var isReinstallingUser: Bool {
@@ -99,10 +103,8 @@ final class DefaultReinstallUserDetection: ReinstallingUserDetecting {
         }
 
         do {
-            let storedValue = try keyValueStore.object(forKey: Keys.isReinstallingUser) as? Bool
-            guard let storedValue else { return false }
-
-            return storedValue
+            let storedValue = try reinstallSettings.isReinstallingUser
+            return storedValue ?? false
         } catch {
             return false
         }
@@ -119,12 +121,12 @@ final class DefaultReinstallUserDetection: ReinstallingUserDetecting {
             return
         }
 
-        let storedCreationDate = try keyValueStore.object(forKey: Keys.storedBundleCreationDate) as? Date
+        let storedCreationDate = try? reinstallSettings.storedBundleCreationDate
 
         // Case 1: No stored date → First launch ever (or first launch with this feature)
-        guard let storedCreationDate = storedCreationDate else {
+        guard let storedCreationDate else {
             // Store current bundle's creation date for future comparisons
-            try keyValueStore.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+            try reinstallSettings.set(currentBundleCreationDate, for: \.storedBundleCreationDate)
             return
         }
 
@@ -138,13 +140,13 @@ final class DefaultReinstallUserDetection: ReinstallingUserDetecting {
         if wasSparkleUpdate() {
             // Sparkle update - not a reinstall
             // Update stored date to current bundle
-            try keyValueStore.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+            try reinstallSettings.set(currentBundleCreationDate, for: \.storedBundleCreationDate)
             return
         }
 
         // Not a Sparkle update → Reinstall detected (or manual update, which we treat as reinstall)
-        try keyValueStore.set(true, forKey: Keys.isReinstallingUser)
-        try keyValueStore.set(currentBundleCreationDate, forKey: Keys.storedBundleCreationDate)
+        try reinstallSettings.set(true, for: \.isReinstallingUser)
+        try reinstallSettings.set(currentBundleCreationDate, for: \.storedBundleCreationDate)
     }
 
     // MARK: - Bundle Metadata
@@ -170,10 +172,10 @@ final class DefaultReinstallUserDetection: ReinstallingUserDetecting {
 
     /// Checks if Sparkle initiated an update (by looking for pending update metadata).
     ///
-    /// Sparkle stores metadata in UserDefaults before restarting for an update.
+    /// Sparkle stores metadata in KeyValueStore before restarting for an update.
     /// If this metadata exists, Sparkle initiated the update.
     private func wasSparkleUpdate() -> Bool {
         // Check if Sparkle stored pending update metadata
-        return standardDefaults.string(forKey: UserDefaultsWrapper<Any>.Key.pendingUpdateSourceVersion.rawValue) != nil
+        return (try? updateSettings.pendingUpdateSourceVersion) != nil
     }
 }

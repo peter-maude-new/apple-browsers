@@ -16,10 +16,13 @@
 //  limitations under the License.
 //
 
-#if SPARKLE
+#if canImport(SparkleAppUpdater)
 
-import XCTest
+import AppUpdaterShared
 import Cocoa
+import SparkleAppUpdater
+import XCTest
+
 @testable import DuckDuckGo_Privacy_Browser
 
 final class SparkleUpdateMenuItemFactoryTests: XCTestCase {
@@ -70,7 +73,7 @@ final class SparkleUpdateMenuItemFactoryTests: XCTestCase {
         let menuItem = SparkleUpdateMenuItemFactory.menuItem(for: mockUpdate)
 
         // Then
-        XCTAssertEqual(menuItem.action, #selector(SparkleUpdateController.runUpdateFromMenuItem))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.runUpdateFromMenuItem))
     }
 
     func testMenuItemForPendingUpdate_SetsCorrectImage() throws {
@@ -98,7 +101,7 @@ final class SparkleUpdateMenuItemFactoryTests: XCTestCase {
         let menuItem = SparkleUpdateMenuItemFactory.menuItem(for: installedUpdate)
 
         // Then
-        XCTAssertEqual(menuItem.action, #selector(SparkleUpdateController.runUpdateFromMenuItem))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.runUpdateFromMenuItem))
     }
 
     // MARK: - Critical Update Tests
@@ -121,7 +124,7 @@ final class SparkleUpdateMenuItemFactoryTests: XCTestCase {
 
         // Then
         XCTAssertEqual(menuItem.title, UserText.updateAvailableMenuItem)
-        XCTAssertEqual(menuItem.action, #selector(SparkleUpdateController.runUpdateFromMenuItem))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.runUpdateFromMenuItem))
         XCTAssertEqual(menuItem.image?.pngData(), NSImage.updateMenuItemIcon.pngData())
     }
 }
