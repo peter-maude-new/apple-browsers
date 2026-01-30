@@ -769,7 +769,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             internalUserDecider: internalUserDecider,
             featureFlagger: featureFlagger,
             windowControllersManager: windowControllersManager,
-            keyValueStore: keyValueStore
+            keyValueStore: UserDefaults.standard
         )
         accessibilityPreferences = AccessibilityPreferences()
         duckPlayer = DuckPlayer(
@@ -1072,9 +1072,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppVersion.runType != .uiTests {
             let controller: any SparkleUpdateControllerProtocol
             if featureFlagger.isFeatureOn(.updatesSimplifiedFlow) {
-                controller = SimplifiedSparkleUpdateController(internalUserDecider: internalUserDecider)
+                controller = SimplifiedSparkleUpdateController(internalUserDecider: internalUserDecider, keyValueStore: UserDefaults.standard)
             } else {
-                controller = SparkleUpdateController(internalUserDecider: internalUserDecider)
+                controller = SparkleUpdateController(internalUserDecider: internalUserDecider, keyValueStore: UserDefaults.standard)
             }
             self.updateController = controller
             stateRestorationManager.subscribeToAutomaticAppRelaunching(using: controller.willRelaunchAppPublisher)

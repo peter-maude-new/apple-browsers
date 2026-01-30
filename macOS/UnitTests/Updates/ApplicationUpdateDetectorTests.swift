@@ -34,6 +34,12 @@ final class ApplicationUpdateDetectorTests: XCTestCase {
         detector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
     }
 
+    override func tearDown() {
+        super.tearDown()
+        keyValueStore = nil
+        detector = nil
+    }
+
     func testWhenVersionAndBuildAreTheSame_ThenStatusIsNoChange() {
         let status = detector.isApplicationUpdated(currentVersion: "1.0.0", currentBuild: "1", previousVersion: "1.0.0", previousBuild: "1")
         XCTAssertEqual(status, .noChange, "Expected noChange when version and build are the same")
