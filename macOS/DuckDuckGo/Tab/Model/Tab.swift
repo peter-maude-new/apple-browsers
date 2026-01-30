@@ -46,6 +46,11 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     func closeTab(_ tab: Tab)
 }
 
+enum TabVisibilityState: String {
+    case visible
+    case hidden
+}
+
 @dynamicMemberLookup final class Tab: NSObject, Identifiable, ObservableObject {
 
     private struct ExtensionDependencies: TabExtensionDependencies {
@@ -569,6 +574,18 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         webView.audioStatePublisher
     }
 
+    @Published private(set) var visibilityState: TabVisibilityState = .visible
+
+    var isHidden: Bool {
+        visibilityState == .hidden
+    }
+
+    @MainActor
+    func setVisibilityState(_ state: TabVisibilityState) {
+        guard visibilityState != state else { return }
+        visibilityState = state
+    }
+
     var contentChangeEnabled = true
 
     var isLazyLoadingInProgress = false
@@ -999,7 +1016,9 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     }
 
     func muteUnmuteTab() {
-        webView.audioState.toggle()
+        let wasMuted = webView.audioState.isMuted
+        enforceMutedAudio()
+        guard !wasMuted else { return }
         objectWillChange.send()
 
         if #available(macOS 15.4, *), let webExtensionManager = NSApp.delegateTyped.webExtensionManager {
@@ -1159,6 +1178,12 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
     private var faviconCancellable: AnyCancellable?
     private var tabCrashRecoveryCancellable: AnyCancellable?
 
+    @MainActor
+    private func enforceMutedAudio() {
+        guard case .unmuted = webView.audioState else { return }
+        webView.audioState = .muted(isPlayingAudio: webView.isPlayingAudio)
+    }
+
     private func setupWebView(shouldLoadInBackground: Bool) {
         webView.navigationDelegate = navigationDelegate
         webView.uiDelegate = self
@@ -1212,6 +1237,18 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         audioStatePublisher
             .assign(to: \.audioStateTest, onWeaklyHeld: self)
             .store(in: &webViewCancellables)
+
+        audioStatePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] audioState in
+                guard let self else { return }
+                if case .unmuted = audioState {
+                    self.enforceMutedAudio()
+                }
+            }
+            .store(in: &webViewCancellables)
+
+        enforceMutedAudio()
 
         // background tab loading should start immediately
         DispatchQueue.main.async { [weak self] in

@@ -169,6 +169,8 @@ final class AIChatUserScript: NSObject, Subfeature {
             return handler.browserNewTab
         case .browserCloseTab:
             return handler.browserCloseTab
+        case .browserSetTabHidden:
+            return handler.browserSetTabHidden
         case .browserClick:
             return handler.browserClick
         case .browserType:

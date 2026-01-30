@@ -64,12 +64,25 @@ public protocol BrowserAutomationBridgeProviding: AnyObject {
     /// - Returns: The handle of the new tab, or nil if creation failed
     func newTab(url: URL?) -> String?
 
+    /// Create a new hidden tab, optionally with a URL
+    /// - Returns: The handle of the new tab, or nil if creation failed
+    func newHiddenTab(url: URL?) -> String?
+
     /// Take a screenshot of a webview
     /// - Parameters:
     ///   - rect: Optional rect to crop the screenshot
     ///   - handle: Optional tab handle. If nil, screenshots the current tab.
     /// - Returns: PNG image data and size, or nil if screenshot failed
     func takeScreenshot(rect: CGRect?, handle: String?) async -> (Data, CGSize)?
+
+    /// Hide or show a tab by handle
+    /// - Returns: true if the tab was updated
+    func setTabHidden(handle: String, hidden: Bool) -> Bool
+}
+
+public extension BrowserAutomationBridgeProviding {
+    func newHiddenTab(url: URL?) -> String? { newTab(url: url) }
+    func setTabHidden(handle: String, hidden: Bool) -> Bool { false }
 }
 
 /// Errors that can occur during browser automation operations
@@ -316,7 +329,8 @@ public final class BrowserAutomationBridge {
                 handle: provider.currentTabHandle ?? params.handle,
                 url: provider.currentURL?.absoluteString,
                 title: provider.currentTitle,
-                active: true
+                active: true,
+                hidden: false
             )
             return .success(BrowserSwitchTabResponse(success: true, tab: tabInfo))
         } else {
@@ -336,7 +350,9 @@ public final class BrowserAutomationBridge {
             url = nil
         }
 
-        guard let handle = provider.newTab(url: url) else {
+        let wantsHidden = params.hidden ?? false
+        let handle = wantsHidden ? provider.newHiddenTab(url: url) : provider.newTab(url: url)
+        guard let handle else {
             return .failure(.noActiveTab)
         }
 
@@ -349,6 +365,15 @@ public final class BrowserAutomationBridge {
         }
 
         let success = provider.closeTab(handle: params.handle)
+        return .success(BrowserSuccessResponse(success: success))
+    }
+
+    public func setTabHidden(params: BrowserSetTabHiddenParams) -> Result<BrowserSuccessResponse, BrowserAutomationError> {
+        guard let provider else {
+            return .failure(.noActiveTab)
+        }
+
+        let success = provider.setTabHidden(handle: params.handle, hidden: params.hidden)
         return .success(BrowserSuccessResponse(success: success))
     }
 

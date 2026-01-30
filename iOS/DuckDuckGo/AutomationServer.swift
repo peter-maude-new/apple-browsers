@@ -89,6 +89,47 @@ final class IOSAutomationProvider: BrowserAutomationProvider {
         return main.tabManager.current(createIfNeeded: true)?.tabModel.uid
     }
 
+    func newTab(hidden: Bool) -> String? {
+        guard hidden else { return newTab() }
+        let controller = main.tabManager.add(url: nil, inBackground: true, inheritedAttribution: nil)
+        main.animateBackgroundTab()
+        return controller.tabModel.uid
+    }
+
+    func getTabInfos() -> [AutomationTabInfo] {
+        let currentHandle = currentTabHandle
+        return main.tabManager.model.tabs.compactMap { tab in
+            guard let controller = main.tabManager.controller(for: tab) else { return nil }
+            let handle = controller.tabModel.uid
+            return AutomationTabInfo(
+                handle: handle,
+                url: controller.webView.url?.absoluteString ?? controller.tabModel.link?.url.absoluteString,
+                title: controller.tabModel.link?.displayTitle,
+                active: handle == currentHandle,
+                hidden: handle != currentHandle
+            )
+        }
+    }
+
+    func setTabHidden(handle: String, hidden: Bool) -> Bool {
+        guard let targetIndex = main.tabManager.model.tabs.firstIndex(where: { tab in
+            main.tabManager.controller(for: tab)?.tabModel.uid == handle
+        }) else {
+            return false
+        }
+
+        if hidden {
+            guard handle == currentTabHandle else { return true }
+            guard main.tabManager.model.tabs.count > 1 else { return false }
+            let fallbackIndex = targetIndex == 0 ? 1 : 0
+            _ = main.tabManager.select(tabAt: fallbackIndex)
+            return true
+        }
+
+        _ = main.tabManager.select(tabAt: targetIndex)
+        return true
+    }
+
     func executeScript(_ script: String, args: [String: Any]) async -> Result<Any?, Error> {
         guard let result = await main.executeScript(script, args: args) else {
             return .failure(AutomationServerError.scriptExecutionFailed)

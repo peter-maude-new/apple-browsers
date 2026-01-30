@@ -60,9 +60,11 @@ public struct BrowserSwitchTabParams: Codable, Equatable {
 /// Parameters for creating a new tab
 public struct BrowserNewTabParams: Codable, Equatable {
     public let url: String?
+    public let hidden: Bool?
 
-    public init(url: String? = nil) {
+    public init(url: String? = nil, hidden: Bool? = nil) {
         self.url = url
+        self.hidden = hidden
     }
 }
 
@@ -72,6 +74,17 @@ public struct BrowserCloseTabParams: Codable, Equatable {
 
     public init(handle: String? = nil) {
         self.handle = handle
+    }
+}
+
+/// Parameters for hiding or showing a tab
+public struct BrowserSetTabHiddenParams: Codable, Equatable {
+    public let handle: String
+    public let hidden: Bool
+
+    public init(handle: String, hidden: Bool) {
+        self.handle = handle
+        self.hidden = hidden
     }
 }
 
@@ -160,12 +173,14 @@ public struct BrowserTabInfo: Codable, Equatable {
     public let url: String?
     public let title: String?
     public let active: Bool
+    public let hidden: Bool
 
-    public init(handle: String, url: String? = nil, title: String? = nil, active: Bool = false) {
+    public init(handle: String, url: String? = nil, title: String? = nil, active: Bool = false, hidden: Bool = false) {
         self.handle = handle
         self.url = url
         self.title = title
         self.active = active
+        self.hidden = hidden
     }
 }
 

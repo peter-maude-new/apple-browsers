@@ -118,6 +118,8 @@ final class TabCollectionViewModel: NSObject {
     }
     private weak var previouslySelectedTabViewModel: TabViewModel?
 
+    @Published private(set) var isWindowVisible: Bool = true
+
     private var tabLazyLoader: TabLazyLoader<TabCollectionViewModel>?
     private var isTabLazyLoadingRequested: Bool = false
 
@@ -125,6 +127,7 @@ final class TabCollectionViewModel: NSObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var pinnedTabsManagerCancellable: Cancellable?
+    private var pinnedTabsCollectionCancellable: AnyCancellable?
 
     private var tabsPreferences: TabsPreferences
     private var startupPreferences: StartupPreferences
@@ -809,6 +812,13 @@ final class TabCollectionViewModel: NSObject {
             .sink { [weak self] index in
                 self?.handleTabUnpinnedInAnotherTabCollectionViewModel(at: index)
             }
+
+        pinnedTabsCollectionCancellable = pinnedTabsManager?.tabCollection.$tabs
+            .sink { [weak self] _ in
+                self?.updateTabVisibilityStates()
+            }
+
+        updateTabVisibilityStates()
     }
 
     private func subscribeToTabs() {
@@ -826,6 +836,8 @@ final class TabCollectionViewModel: NSObject {
                 PixelKit.fire(DebugEvent(GeneralPixel.burnerTabMisplaced))
                 fatalError("Error in burner tab management")
             }
+
+            self.updateTabVisibilityStates()
         } .store(in: &cancellables)
     }
 
@@ -844,6 +856,7 @@ final class TabCollectionViewModel: NSObject {
     private func updateSelectedTabViewModel() {
         guard let selectionIndex else {
             selectedTabViewModel = nil
+            updateTabVisibilityStates()
             return
         }
 
@@ -862,6 +875,32 @@ final class TabCollectionViewModel: NSObject {
         if self.selectedTabViewModel !== selectedTabViewModel {
             selectedTabViewModel?.tab.lastSelectedAt = Date()
             self.selectedTabViewModel = selectedTabViewModel
+        }
+
+        updateTabVisibilityStates()
+    }
+
+    func setWindowVisible(_ isVisible: Bool) {
+        guard isWindowVisible != isVisible else { return }
+        isWindowVisible = isVisible
+        updateTabVisibilityStates()
+    }
+
+    private func updateTabVisibilityStates() {
+        let selectedTab = selectedTabViewModel?.tab
+        let windowVisible = isWindowVisible
+        let allTabs = tabCollection.tabs + (pinnedTabsManager?.tabCollection.tabs ?? [])
+
+        for tab in allTabs {
+            let isHidden: Bool
+            if tab.isPinned {
+                isHidden = false
+            } else if tab === selectedTab {
+                isHidden = !windowVisible
+            } else {
+                isHidden = true
+            }
+            tab.setVisibilityState(isHidden ? .hidden : .visible)
         }
     }
 

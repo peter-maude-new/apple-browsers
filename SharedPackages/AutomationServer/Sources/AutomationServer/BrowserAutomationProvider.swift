@@ -57,6 +57,16 @@ public protocol BrowserAutomationProvider: AnyObject {
     /// - Returns: The handle of the new tab, or nil if creation failed
     func newTab() -> String?
 
+    /// Create a new tab with hidden state
+    /// - Returns: The handle of the new tab, or nil if creation failed
+    func newTab(hidden: Bool) -> String?
+
+    /// Get all tabs with metadata
+    func getTabInfos() -> [AutomationTabInfo]
+
+    /// Hide or show a tab by handle
+    func setTabHidden(handle: String, hidden: Bool) -> Bool
+
     /// Execute a script in the current tab's webview
     /// The default implementation uses callAsyncJavaScript on the webview.
     /// Override if the platform needs custom script execution.
@@ -88,5 +98,17 @@ public extension BrowserAutomationProvider {
         } catch {
             return .failure(error)
         }
+    }
+
+    func newTab(hidden: Bool) -> String? {
+        newTab()
+    }
+
+    func getTabInfos() -> [AutomationTabInfo] {
+        []
+    }
+
+    func setTabHidden(handle: String, hidden: Bool) -> Bool {
+        false
     }
 }

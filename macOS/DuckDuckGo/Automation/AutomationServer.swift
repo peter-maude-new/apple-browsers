@@ -145,6 +145,63 @@ final class MacOSAutomationProvider: BrowserAutomationProvider {
         return tabCollectionViewModel.selectedTab?.uuid
     }
 
+    func newTab(hidden: Bool) -> String? {
+        guard hidden else { return newTab() }
+        guard let tabCollectionViewModel = activeTabCollectionViewModel else {
+            return nil
+        }
+
+        let existingTabIds = Set(tabCollectionViewModel.tabCollection.tabs.map { ObjectIdentifier($0) })
+        tabCollectionViewModel.appendNewTab(with: .newtab, selected: false)
+
+        guard let newTab = tabCollectionViewModel.tabCollection.tabs.first(where: { !existingTabIds.contains(ObjectIdentifier($0)) }) else {
+            return nil
+        }
+        return newTab.uuid
+    }
+
+    func getTabInfos() -> [AutomationTabInfo] {
+        var tabs: [AutomationTabInfo] = []
+        let currentHandle = currentTabHandle
+
+        forEachTab { tab in
+            tabs.append(AutomationTabInfo(
+                handle: tab.uuid,
+                url: tab.webView?.url?.absoluteString,
+                title: tab.title,
+                active: tab.uuid == currentHandle,
+                hidden: tab.isHidden
+            ))
+        }
+
+        return tabs
+    }
+
+    func setTabHidden(handle: String, hidden: Bool) -> Bool {
+        guard let (windowController, index) = findTab(where: { $0.uuid == handle }) else {
+            return false
+        }
+
+        let tabCollectionViewModel = windowController.mainViewController.tabCollectionViewModel
+
+        if hidden {
+            guard !index.isPinnedTab else { return false }
+            guard tabCollectionViewModel.selectionIndex == index else { return true }
+            guard tabCollectionViewModel.allTabsCount > 1 else { return false }
+
+            if let fallback = tabCollectionViewModel.getPreviouslyActiveTab(), fallback != index {
+                tabCollectionViewModel.select(at: fallback)
+            } else {
+                tabCollectionViewModel.select(at: index.next(in: tabCollectionViewModel))
+            }
+            return true
+        }
+
+        windowController.window?.makeKeyAndOrderFront(nil)
+        tabCollectionViewModel.select(at: index)
+        return true
+    }
+
     func executeScript(_ script: String, args: [String: Any]) async -> Result<Any?, Error> {
         guard let webView = currentWebView else {
             return .failure(AutomationServerError.noWindow)
