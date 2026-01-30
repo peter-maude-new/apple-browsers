@@ -19,31 +19,36 @@
 import Foundation
 import Persistence
 
-public protocol MultiInstanceWidgetConfigStoring {
-    func getConfigs() -> [NewTabPageDataModel.MultiInstanceWidgetConfig]
-    func saveConfigs(_ configs: [NewTabPageDataModel.MultiInstanceWidgetConfig])
+/// Stores all widget configs (both standard and multi-instance)
+public protocol WidgetConfigStoring {
+    func getConfigs() -> [NewTabPageDataModel.WidgetConfig]
+    func saveConfigs(_ configs: [NewTabPageDataModel.WidgetConfig])
 }
 
-public final class MultiInstanceWidgetConfigStore: MultiInstanceWidgetConfigStoring {
+public final class WidgetConfigStore: WidgetConfigStoring {
 
     private let keyValueStore: ThrowingKeyValueStoring
-    private static let key = "new-tab-page.multi-instance-widget-configs"
+    private static let key = "new-tab-page.widget-configs"
 
     public init(keyValueStore: ThrowingKeyValueStoring) {
         self.keyValueStore = keyValueStore
     }
 
-    public func getConfigs() -> [NewTabPageDataModel.MultiInstanceWidgetConfig] {
+    public func getConfigs() -> [NewTabPageDataModel.WidgetConfig] {
         guard let data = try? keyValueStore.object(forKey: Self.key) as? Data else {
             return []
         }
-        return (try? JSONDecoder().decode([NewTabPageDataModel.MultiInstanceWidgetConfig].self, from: data)) ?? []
+        return (try? JSONDecoder().decode([NewTabPageDataModel.WidgetConfig].self, from: data)) ?? []
     }
 
-    public func saveConfigs(_ configs: [NewTabPageDataModel.MultiInstanceWidgetConfig]) {
+    public func saveConfigs(_ configs: [NewTabPageDataModel.WidgetConfig]) {
         guard let data = try? JSONEncoder().encode(configs) else {
             return
         }
         try? keyValueStore.set(data, forKey: Self.key)
     }
 }
+
+// MARK: - Legacy alias for backwards compatibility
+public typealias MultiInstanceWidgetConfigStoring = WidgetConfigStoring
+public typealias MultiInstanceWidgetConfigStore = WidgetConfigStore

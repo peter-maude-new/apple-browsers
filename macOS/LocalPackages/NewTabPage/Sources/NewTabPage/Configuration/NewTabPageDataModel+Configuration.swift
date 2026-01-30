@@ -36,10 +36,13 @@ extension NewTabPageDataModel {
         case weather, news, stock
     }
 
-    public struct MultiInstanceWidgetConfig: Codable, Equatable {
+    /// Unified widget config - represents both standard and multi-instance widgets
+    public struct WidgetConfig: Codable, Equatable {
         public var id: WidgetId
-        public var instanceId: String
         public var visibility: WidgetVisibility
+
+        // Multi-instance widgets have an instanceId
+        public var instanceId: String?
 
         // Weather-specific
         public var location: String?
@@ -49,7 +52,10 @@ extension NewTabPageDataModel {
         public var query: String?
 
         // Stock-specific
-        public var symbol: String?
+        public var symbols: [String]?
+
+        // UI state
+        public var expansion: Expansion?
 
         public enum WidgetVisibility: String, Codable {
             case visible, hidden
@@ -62,7 +68,20 @@ extension NewTabPageDataModel {
         public enum TemperatureUnit: String, Codable {
             case celsius, fahrenheit
         }
+
+        public enum Expansion: String, Codable {
+            case expanded, collapsed
+        }
+
+        // Convenience initializer for standard widgets
+        public init(id: WidgetId, isVisible: Bool) {
+            self.id = id
+            self.visibility = isVisible ? .visible : .hidden
+        }
     }
+
+    // Legacy alias
+    public typealias MultiInstanceWidgetConfig = WidgetConfig
 
     struct ContextMenuParams: Codable {
         let visibilityMenuItems: [ContextMenuItem]
@@ -79,8 +98,7 @@ extension NewTabPageDataModel {
 
     struct NewTabPageConfiguration: Encodable {
         var widgets: [Widget]
-        var widgetConfigs: [WidgetConfig]
-        var multiInstanceWidgetConfigs: [MultiInstanceWidgetConfig]?
+        var widgetConfigs: [NewTabPageDataModel.WidgetConfig]
         var env: String
         var locale: String
         var platform: Platform
@@ -90,25 +108,6 @@ extension NewTabPageDataModel {
 
         struct Widget: Encodable, Equatable {
             public var id: WidgetId
-        }
-
-        struct WidgetConfig: Codable, Equatable {
-
-            enum WidgetVisibility: String, Codable {
-                case visible, hidden
-
-                var isVisible: Bool {
-                    self == .visible
-                }
-            }
-
-            init(id: WidgetId, isVisible: Bool) {
-                self.id = id
-                self.visibility = isVisible ? .visible : .hidden
-            }
-
-            var id: WidgetId
-            var visibility: WidgetVisibility
         }
 
         struct Platform: Encodable, Equatable {

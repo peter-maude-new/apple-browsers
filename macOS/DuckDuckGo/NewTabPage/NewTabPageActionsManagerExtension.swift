@@ -194,6 +194,14 @@ extension NewTabPageActionsManager {
         let dataImportProvider = BookmarksAndPasswordsImportStatusProvider(bookmarkManager: bookmarkManager)
         let nextStepsPixelHandler = NewTabPageNextStepsCardsPixelHandler()
 
+        // Multi-instance widget config store
+        let multiInstanceConfigStore = MultiInstanceWidgetConfigStore(keyValueStore: keyValueStore)
+
+        // Widget data providers
+        let weatherDataProvider = WeatherDataProvider()
+        let newsDataProvider = NewsDataProvider()
+        let stockDataProvider = StockDataProvider()
+
         self.init(scriptClients: [
             NewTabPageConfigurationClient(
                 sectionsAvailabilityProvider: availabilityProvider,
@@ -202,7 +210,8 @@ extension NewTabPageActionsManager {
                 customBackgroundProvider: customizationProvider,
                 linkOpener: NewTabPageLinkOpener(),
                 eventMapper: NewTabPageConfigurationEventHandler(),
-                stateProvider: stateProvider
+                stateProvider: stateProvider,
+                multiInstanceConfigStore: multiInstanceConfigStore
             ),
             NewTabPageCustomBackgroundClient(model: customizationProvider),
             NewTabPageRMFClient(remoteMessageProvider: activeRemoteMessageModel),
@@ -238,7 +247,10 @@ extension NewTabPageActionsManager {
             NewTabPageOmnibarClient(configProvider: omnibarConfigProvider,
                                     suggestionsProvider: suggestionsProvider,
                                     actionHandler: omnibarActionHandler),
-            NewTabPageWinBackOfferClient(provider: winBackOfferBannerProvider)
+            NewTabPageWinBackOfferClient(provider: winBackOfferBannerProvider),
+            NewTabPageWeatherClient(dataProvider: weatherDataProvider),
+            NewTabPageNewsClient(dataProvider: newsDataProvider),
+            NewTabPageStockClient(dataProvider: stockDataProvider)
         ])
     }
 }

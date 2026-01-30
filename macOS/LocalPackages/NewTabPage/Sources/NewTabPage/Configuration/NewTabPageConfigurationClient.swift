@@ -130,7 +130,6 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         case telemetryEvent
         case widgetsSetConfig = "widgets_setConfig"
         case widgetsOnConfigUpdated = "widgets_onConfigUpdated"
-        case multiInstanceWidgetsSetConfig = "multiInstanceWidgets_setConfig"
     }
 
     public override func registerMessageHandlers(for userScript: NewTabPageUserScript) {
@@ -141,8 +140,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
             MessageName.reportInitException.rawValue: { [weak self] in try await self?.reportException(params: $0, original: $1) },
             MessageName.reportPageException.rawValue: { [weak self] in try await self?.reportException(params: $0, original: $1) },
             MessageName.telemetryEvent.rawValue: { [weak self] in try await self?.processTelemetryEvent(params: $0, original: $1) },
-            MessageName.widgetsSetConfig.rawValue: { [weak self] in try await self?.widgetsSetConfig(params: $0, original: $1) },
-            MessageName.multiInstanceWidgetsSetConfig.rawValue: { [weak self] in try await self?.multiInstanceWidgetsSetConfig(params: $0, original: $1) }
+            MessageName.widgetsSetConfig.rawValue: { [weak self] in try await self?.widgetsSetConfig(params: $0, original: $1) }
         ])
     }
 
@@ -166,8 +164,14 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         return widgets
     }
 
-    private func fetchWidgetConfigs() -> [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] {
-        var configs: [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] = [
+    private func fetchWidgetConfigs() -> [NewTabPageDataModel.WidgetConfig] {
+        // Return configs from store, or build default configs from legacy providers
+        if let storedConfigs = multiInstanceConfigStore?.getConfigs(), !storedConfigs.isEmpty {
+            return storedConfigs
+        }
+
+        // Default configs from legacy visibility provider (for backwards compat on first run)
+        var configs: [NewTabPageDataModel.WidgetConfig] = [
             .init(id: .favorites, isVisible: sectionsVisibilityProvider.isFavoritesVisible),
             .init(id: .protections, isVisible: sectionsVisibilityProvider.isProtectionsReportVisible)
         ]
@@ -183,7 +187,7 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         let widgetConfigs = fetchWidgetConfigs()
         Logger.general.debug("NTP Config: Pushing widgetsOnConfigUpdated to FE with \(widgetConfigs.count) configs")
         for config in widgetConfigs {
-            Logger.general.debug("NTP Config: Pushing - id: \(config.id.rawValue, privacy: .public), visible: \(config.visibility.isVisible)")
+            Logger.general.debug("NTP Config: Pushing - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId ?? "nil", privacy: .public), visible: \(config.visibility.isVisible)")
         }
         pushMessage(named: MessageName.widgetsOnConfigUpdated.rawValue, params: widgetConfigs)
     }
@@ -299,20 +303,13 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
 
         let widgets = fetchWidgets()
         let widgetConfigs = fetchWidgetConfigs()
-        let multiInstanceWidgetConfigs = multiInstanceConfigStore?.getConfigs()
         let customizerData = customBackgroundProvider.customizerData
         customBackgroundProvider.processNewTabPageInitialized()
 
         Logger.general.debug("NTP Config: Sending \(widgets.count) widgets: \(widgets.map { $0.id.rawValue }.joined(separator: ", "), privacy: .public)")
         Logger.general.debug("NTP Config: Sending \(widgetConfigs.count) widget configs")
         for config in widgetConfigs {
-            Logger.general.debug("NTP Config: WidgetConfig - id: \(config.id.rawValue, privacy: .public), visible: \(config.visibility.isVisible)")
-        }
-        if let multiConfigs = multiInstanceWidgetConfigs {
-            Logger.general.debug("NTP Config: Sending \(multiConfigs.count) multi-instance widget configs")
-            for config in multiConfigs {
-                Logger.general.debug("NTP Config: MultiInstanceConfig - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId, privacy: .public), visible: \(config.visibility.isVisible)")
-            }
+            Logger.general.debug("NTP Config: WidgetConfig - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId ?? "nil", privacy: .public), visible: \(config.visibility.isVisible)")
         }
 
         let tabs = stateProvider
@@ -322,7 +319,6 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         let config = NewTabPageDataModel.NewTabPageConfiguration(
             widgets: widgets,
             widgetConfigs: widgetConfigs,
-            multiInstanceWidgetConfigs: multiInstanceWidgetConfigs,
             env: env,
             locale: Bundle.main.preferredLocalizations.first ?? "en",
             platform: .init(name: "macos"),
@@ -337,25 +333,33 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
     private func widgetsSetConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         Logger.general.debug("NTP Config: Received widgetsSetConfig request with params: \(String(describing: params), privacy: .public)")
 
-        guard let widgetConfigs: [NewTabPageDataModel.NewTabPageConfiguration.WidgetConfig] = DecodableHelper.decode(from: params) else {
+        guard let widgetConfigs: [NewTabPageDataModel.WidgetConfig] = DecodableHelper.decode(from: params) else {
             Logger.general.error("NTP Config: Failed to decode widgetsSetConfig params")
             return nil
         }
 
-        Logger.general.debug("NTP Config: Processing \(widgetConfigs.count) widget configs from FE")
-        for widgetConfig in widgetConfigs {
-            Logger.general.debug("NTP Config: Setting \(widgetConfig.id.rawValue, privacy: .public) visible: \(widgetConfig.visibility.isVisible)")
-            switch widgetConfig.id {
+        Logger.general.debug("NTP Config: Saving \(widgetConfigs.count) widget configs")
+        for config in widgetConfigs {
+            Logger.general.debug("NTP Config: - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId ?? "nil", privacy: .public), visible: \(config.visibility.isVisible)")
+        }
+
+        // Save all configs to the unified store
+        multiInstanceConfigStore?.saveConfigs(widgetConfigs)
+
+        // Sync legacy visibility values for external consumers (Settings, pixels, etc.)
+        for config in widgetConfigs {
+            switch config.id {
             case .omnibar:
-                sectionsVisibilityProvider.isOmnibarVisible = widgetConfig.visibility.isVisible
+                sectionsVisibilityProvider.isOmnibarVisible = config.visibility.isVisible
             case .favorites:
-                sectionsVisibilityProvider.isFavoritesVisible = widgetConfig.visibility.isVisible
+                sectionsVisibilityProvider.isFavoritesVisible = config.visibility.isVisible
             case .protections:
-                sectionsVisibilityProvider.isProtectionsReportVisible = widgetConfig.visibility.isVisible
+                sectionsVisibilityProvider.isProtectionsReportVisible = config.visibility.isVisible
             default:
                 break
             }
         }
+
         return nil
     }
 
@@ -385,23 +389,4 @@ public final class NewTabPageConfigurationClient: NewTabPageUserScriptClient {
         return nil
     }
 
-    @MainActor
-    private func multiInstanceWidgetsSetConfig(params: Any, original: WKScriptMessage) async throws -> Encodable? {
-        Logger.general.debug("NTP MultiInstance: Received setConfig request with params: \(String(describing: params), privacy: .public)")
-
-        guard let configs: [NewTabPageDataModel.MultiInstanceWidgetConfig] = DecodableHelper.decode(from: params) else {
-            Logger.general.error("NTP MultiInstance: Failed to decode config params")
-            return nil
-        }
-
-        Logger.general.debug("NTP MultiInstance: Saving \(configs.count) widget configs")
-        for config in configs {
-            Logger.general.debug("NTP MultiInstance: Config - id: \(config.id.rawValue, privacy: .public), instanceId: \(config.instanceId, privacy: .public), visibility: \(config.visibility.rawValue, privacy: .public)")
-        }
-
-        multiInstanceConfigStore?.saveConfigs(configs)
-        Logger.general.debug("NTP MultiInstance: Configs saved successfully")
-        // Per the design: no echo back - native persists config but does NOT send widgets_onConfigUpdated back
-        return nil
-    }
 }
