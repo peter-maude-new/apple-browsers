@@ -214,9 +214,6 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Whether the wide event POST endpoint is enabled
     /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
     case wideEventPostEndpoint
-
-    /// Feature flag to enable C-S-S based favicon messaging (isolated world) vs legacy page-world script
-    case cssFaviconMessaging
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {

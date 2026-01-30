@@ -309,9 +309,6 @@ public enum FeatureFlag: String {
     
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212875994217788?focus=true
     case genericBackgroundTask
-
-    /// Feature flag to enable C-S-S based favicon messaging (isolated world) vs legacy page-world script
-    case cssFaviconMessaging
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -338,8 +335,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .wideEventPostEndpoint,
              .dataImportSummarySyncPromotion,
              .tabSwitcherTrackerCount,
-             .aiChatAutoAttachContextByDefault,
-             .cssFaviconMessaging:
+             .aiChatAutoAttachContextByDefault:
             true
         default:
             false
@@ -424,8 +420,7 @@ extension FeatureFlag: FeatureFlagDescribing {
              .tabSwitcherTrackerCount,
              .burnSingleTab,
              .uiTestFeatureFlag,
-             .uiTestExperiment,
-             .cssFaviconMessaging:
+             .uiTestExperiment:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -657,8 +652,6 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .genericBackgroundTask:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.genericBackgroundTask))
-        case .cssFaviconMessaging:
-            return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.cssFaviconMessaging))
         }
     }
 }

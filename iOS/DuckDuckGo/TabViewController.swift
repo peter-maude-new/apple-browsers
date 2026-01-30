@@ -3026,14 +3026,7 @@ extension TabViewController: UserContentControllerDelegate {
         userScripts.autofillUserScript.emailDelegate = emailManager
         userScripts.autofillUserScript.vaultDelegate = vaultManager
         userScripts.autofillUserScript.passwordImportDelegate = credentialsImportManager
-
-        // Conditionally set favicon delegate based on which script is active
-        if let faviconScript = userScripts.faviconScript {
-            faviconScript.delegate = faviconUpdater
-        } else if let legacyFaviconScript = userScripts.legacyFaviconScript {
-            legacyFaviconScript.delegate = faviconUpdater
-        }
-
+        userScripts.faviconScript.delegate = faviconUpdater
         userScripts.printingUserScript.delegate = self
         userScripts.loginFormDetectionScript?.delegate = self
         userScripts.autoconsentUserScript.delegate = self
