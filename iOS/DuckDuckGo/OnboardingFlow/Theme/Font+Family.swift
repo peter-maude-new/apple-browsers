@@ -1,5 +1,5 @@
 //
-//  FontFamily.swift
+//  Font+Family.swift
 //  DuckDuckGo
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
@@ -22,6 +22,7 @@ import SwiftUI
 extension Font {
 
     enum Family: Equatable {
+        // swiftlint:disable:next nesting
         enum Custom: Equatable {
             case duckSansDisplay
             case duckSansProduct

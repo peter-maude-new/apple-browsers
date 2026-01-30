@@ -128,10 +128,13 @@ struct OnboardingFirstSearchDoneDialog: View {
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            DaxDialogView(logoPosition: .left, onManualDismiss: {
-                onManualDismiss(showNextScreen)
-            }) {
-                VStack {
+            DaxDialogView(
+                logoPosition: .left,
+                onManualDismiss: {
+                    onManualDismiss(showNextScreen)
+                },
+                content: {
+                    VStack {
                     if showNextScreen {
                         OnboardingTryVisitingSiteDialogContent(viewModel: viewModel)
                     } else {
@@ -151,7 +154,7 @@ struct OnboardingFirstSearchDoneDialog: View {
                         )
                     }
                 }
-            }
+            )
             .padding()
         }
     }
@@ -171,10 +174,13 @@ struct OnboardingTrackersDoneDialog: View {
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            DaxDialogView(logoPosition: .left, onManualDismiss: {
-                onManualDismiss(showNextScreen)
-            }) {
-                VStack {
+            DaxDialogView(
+                logoPosition: .left,
+                onManualDismiss: {
+                    onManualDismiss(showNextScreen)
+                },
+                content: {
+                    VStack {
                     if showNextScreen {
                         OnboardingFireButtonDialogContent()
                     } else {
@@ -194,7 +200,7 @@ struct OnboardingTrackersDoneDialog: View {
                         )
                     }
                 }
-            }
+            )
             .padding()
         }
     }

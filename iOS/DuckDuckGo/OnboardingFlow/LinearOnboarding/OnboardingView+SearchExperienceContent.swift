@@ -54,12 +54,15 @@ extension OnboardingView {
                         .font(.footnote)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Button(action: {
-                        viewModel.confirmChoice()
-                        action()
-                    }) {
-                        Text(UserText.Onboarding.SearchExperience.cta)
-                    }
+                    Button(
+                        action: {
+                            viewModel.confirmChoice()
+                            action()
+                        },
+                        label: {
+                            Text(UserText.Onboarding.SearchExperience.cta)
+                        }
+                    )
                     .buttonStyle(PrimaryButtonStyle())
                 }
                 .padding(.top, 8)

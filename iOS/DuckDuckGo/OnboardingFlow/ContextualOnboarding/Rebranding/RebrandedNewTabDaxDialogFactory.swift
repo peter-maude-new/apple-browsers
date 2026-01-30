@@ -45,25 +45,40 @@ final class RebrandedNewTabDaxDialogFactory: NewTabDaxDialogProviding {
         let button: Button<Text>
         switch homeDialog {
         case .initial:
-            button = Button(action: { self.delegate?.searchFromOnboarding(for: "Baby Ducklings") }) {
-                Text(verbatim: "Try A Search!!!")
-            }
+            button = Button(
+                action: { self.delegate?.searchFromOnboarding(for: "Baby Ducklings") },
+                label: {
+                    Text(verbatim: "Try A Search!!!")
+                }
+            )
         case .addFavorite:
-            button = Button(action: onManualDismiss) {
-                Text(verbatim: "Add Favourite!!!")
-            }
+            button = Button(
+                action: onManualDismiss,
+                label: {
+                    Text(verbatim: "Add Favourite!!!")
+                }
+            )
         case .subsequent:
-            button = Button(action: onManualDismiss) {
-                Text(verbatim: "Try Visiting A Site!!!")
-            }
+            button = Button(
+                action: onManualDismiss,
+                label: {
+                    Text(verbatim: "Try Visiting A Site!!!")
+                }
+            )
         case .final:
-            button = Button(action: { onCompletion(true) }) {
-                Text(verbatim: "End Of Joruney Dialog!!!")
-            }
+            button = Button(
+                action: { onCompletion(true) },
+                label: {
+                    Text(verbatim: "End Of Joruney Dialog!!!")
+                }
+            )
         case .subscriptionPromotion:
-            button = Button(action: { onCompletion(true) }) {
-                Text(verbatim: "Add Favourite!!!")
-            }
+            button = Button(
+                action: { onCompletion(true) },
+                label: {
+                    Text(verbatim: "Add Favourite!!!")
+                }
+            )
         }
 
         return VStack {

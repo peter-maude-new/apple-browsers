@@ -26,6 +26,7 @@ extension OnboardingView {
     struct SkipOnboardingContent: View {
         private static let fireButtonCopy = "Fire Button"
 
+        // swiftlint:disable:next nesting
         typealias Copy = UserText.Onboarding.Skip
 
         private var animateTitle: Binding<Bool>

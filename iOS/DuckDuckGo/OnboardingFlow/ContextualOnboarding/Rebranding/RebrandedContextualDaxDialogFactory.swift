@@ -47,15 +47,21 @@ final class RebrandedContextualDaxDialogFactory: ContextualDaxDialogsFactory {
         switch spec.type {
         case .afterSearch:
             rootView = AnyView(
-                Button(action: delegate.didAcknowledgeContextualOnboardingSearch) {
-                    Text(verbatim: "Ok")
-                }
+                Button(
+                    action: delegate.didAcknowledgeContextualOnboardingSearch,
+                    label: {
+                        Text(verbatim: "Ok")
+                    }
+                )
             )
         case .visitWebsite:
             rootView = AnyView(
-                Button(action: { delegate.navigateFromOnboarding(to: URL(string: "https://apple.com")!) }) {
-                    Text(verbatim: "Try apple.com")
-                }
+                Button(
+                    action: { delegate.navigateFromOnboarding(to: URL(string: "https://apple.com")!) },
+                    label: {
+                        Text(verbatim: "Try apple.com")
+                    }
+                )
             )
         case .siteIsMajorTracker, .siteOwnedByMajorTracker, .withMultipleTrackers, .withOneTracker, .withoutTrackers:
             rootView = AnyView(
