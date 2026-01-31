@@ -44,7 +44,7 @@ final class SyncService {
          keyValueStore: ThrowingKeyValueStoring,
          application: UIApplication = UIApplication.shared,
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
-         decisionStore: SyncAutoRestoreDecisionStoring = SyncAutoRestoreDecisionStore()) {
+         autoRestoreDecisionManager: SyncAutoRestoreDecisionManaging = AppDependencyProvider.shared.syncAutoRestoreDecisionManager) {
         self.application = application
 
 #if CI
@@ -79,19 +79,8 @@ final class SyncService {
             privacyConfigurationManager: privacyConfigurationManager,
             keyValueStore: keyValueStore,
             environment: environment,
-            shouldPreserveAccountWhenSyncDisabled: { [featureFlagger, decisionStore] in
-                guard Self.isAutoRestoreFeatureEnabled(featureFlagger) else {
-                    return false
-                }
-
-                do {
-                    return try decisionStore.getDecision() == true
-                } catch {
-                    Logger.sync.error(
-                        "[Sync Auto Restore] Failed to read auto-restore decision: \(error.localizedDescription, privacy: .public)"
-                    )
-                    return false
-                }
+            shouldPreserveAccountWhenSyncDisabled: {
+                autoRestoreDecisionManager.shouldPreserveAccountWhenSyncDisabled()
             }
         )
 
@@ -132,15 +121,6 @@ final class SyncService {
     func suspend() {
         suspendSync()
         syncDataProviders.bookmarksAdapter.cancelFaviconsFetching(application)
-    }
-
-    private static func isAutoRestoreFeatureEnabled(_ featureFlagger: FeatureFlagger) -> Bool {
-        #if DEBUG
-        // Debug-only override to simplify local testing.
-        return true
-        #else
-        return featureFlagger.isFeatureOn(.syncAutoRestore)
-        #endif
     }
 
     private func suspendSync() {
