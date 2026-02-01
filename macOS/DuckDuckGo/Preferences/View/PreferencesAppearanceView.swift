@@ -294,11 +294,6 @@ extension Preferences {
                     HStack(spacing: 0) {
                         Text(UserText.adaptiveDarkModeDescription)
                             .foregroundColor(Color(.greyText))
-                        TextButton(UserText.darkReaderLinkText) {
-                            NSWorkspace.shared.open(URL(string: "https://darkreader.org")!)
-                        }
-                        Text(".")
-                            .foregroundColor(Color(.greyText))
                     }
                     .padding(.leading, 19)
                 }

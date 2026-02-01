@@ -79771,7 +79771,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Adaptive Dark Mode will try to make all websites you visit use a dark color scheme based on your browser appearance settings. Adaptive Dark Mode is powered by "
+            "value" : "Adaptive Dark Mode will try to make all websites you visit use a dark color scheme based on your browser appearance settings. Adaptive Dark Mode is powered by Dark Reader."
           }
         }
       }

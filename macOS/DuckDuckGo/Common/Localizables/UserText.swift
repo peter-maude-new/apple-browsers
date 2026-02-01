@@ -1269,7 +1269,7 @@ struct UserText {
 
     static let websiteAppearance = NSLocalizedString("preferences.appearance.website-appearance", value: "Website Appearance", comment: "Website Appearance section header in preferences")
     static let adaptiveDarkMode = NSLocalizedString("preferences.appearance.adaptive-dark-mode", value: "Use Adaptive Dark Mode", comment: "Toggle label for adaptive dark mode setting")
-    static let adaptiveDarkModeDescription = NSLocalizedString("preferences.appearance.adaptive-dark-mode.description", value: "Adaptive Dark Mode will try to make all websites you visit use a dark color scheme based on your browser appearance settings. Adaptive Dark Mode is powered by ", comment: "Description for adaptive dark mode setting, followed by Dark Reader link")
+    static let adaptiveDarkModeDescription = NSLocalizedString("preferences.appearance.adaptive-dark-mode.description", value: "Adaptive Dark Mode will try to make all websites you visit use a dark color scheme based on your browser appearance settings. Adaptive Dark Mode is powered by Dark Reader.", comment: "Description for adaptive dark mode setting, followed by Dark Reader link")
     static let darkReaderLinkText = NSLocalizedString("preferences.appearance.dark-reader", value: "Dark Reader", comment: "Dark Reader link text in adaptive dark mode description")
 
     static let addressBar = NSLocalizedString("preferences.appearance.address-bar", value: "Address Bar", comment: "Theme preferences")
