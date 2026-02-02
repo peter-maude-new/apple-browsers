@@ -69,6 +69,7 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
         var tabsPreferences: TabsPreferences
         var webTrackingProtectionPreferences: WebTrackingProtectionPreferences
         var autoconsentStats: AutoconsentStatsCollecting
+        var updateController: (any UpdateController)?
     }
 
     fileprivate weak var delegate: TabDelegate?
@@ -378,7 +379,8 @@ protocol TabDelegate: ContentOverlayUserScriptDelegate {
                                                        tabCrashAggregator: tabCrashAggregator,
                                                        tabsPreferences: tabsPreferences,
                                                        webTrackingProtectionPreferences: webTrackingProtectionPreferences,
-                                                       autoconsentStats: autoconsentStats)
+                                                       autoconsentStats: autoconsentStats,
+                                                       updateController: Application.appDelegate.updateController)
             )
         super.init()
         tabGetter = { [weak self] in self }

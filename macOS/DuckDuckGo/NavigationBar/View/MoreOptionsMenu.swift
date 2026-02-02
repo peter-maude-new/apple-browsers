@@ -478,16 +478,14 @@ final class MoreOptionsMenu: NSMenu, NSMenuDelegate {
               let update = updateController.latestUpdate else {
             return
         }
-
-        #if SPARKLE
-        guard let updateController = updateController as? any SparkleUpdateControllerProtocol else { return }
-
+#if APPSTORE
+        return
+#endif
         // Log edge cases where menu item appears but doesn't function
         // To be removed in a future version
         if !update.isInstalled, updateController.updateProgress.isDone {
             updateController.log()
         }
-        #endif
 
         guard updateController.hasPendingUpdate && updateController.mustShowUpdateIndicators else {
             return

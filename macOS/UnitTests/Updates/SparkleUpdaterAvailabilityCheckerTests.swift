@@ -1,7 +1,7 @@
 //
 //  SparkleUpdaterAvailabilityCheckerTests.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 //  limitations under the License.
 //
 
-#if SPARKLE
-
 import XCTest
 import Sparkle
+
 @testable import DuckDuckGo_Privacy_Browser
 
 final class SparkleUpdaterAvailabilityCheckerTests: XCTestCase {
@@ -107,5 +106,3 @@ final class SparkleUpdaterAvailabilityCheckerTests: XCTestCase {
         XCTAssertFalse(checker.canCheckForUpdates)
     }
 }
-
-#endif

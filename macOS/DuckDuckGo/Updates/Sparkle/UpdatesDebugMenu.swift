@@ -22,12 +22,13 @@ import Common
 import CryptoKit
 import os.log
 import Persistence
+import PixelKit
 
 final class UpdatesDebugMenu: NSMenu {
     private let keyValueStore: ThrowingKeyValueStoring
     private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
 
-    init(keyValueStore: ThrowingKeyValueStoring) {
+    init(keyValueStore: ThrowingKeyValueStoring = Application.appDelegate.keyValueStore) {
         self.keyValueStore = keyValueStore
         super.init(title: "")
 
@@ -67,8 +68,12 @@ final class UpdatesDebugMenu: NSMenu {
     // MARK: - Menu State Update
 
     private var updateValidityStartDate: Date? {
-        get { try? settings.updateValidityStartDate }
-        set { try? settings.set(newValue, for: \.updateValidityStartDate) }
+        get {
+            try? settings.updateValidityStartDate
+        }
+        set {
+            try? settings.set(newValue, for: \.updateValidityStartDate)
+        }
     }
 
     @objc func expireCurrentUpdate() {
@@ -76,8 +81,12 @@ final class UpdatesDebugMenu: NSMenu {
     }
 
     private var pendingUpdateSince: Date {
-        get { (try? settings.pendingUpdateSince) ?? .distantPast }
-        set { try? settings.set(newValue, for: \.pendingUpdateSince) }
+        get {
+            (try? settings.pendingUpdateSince) ?? .distantPast
+        }
+        set {
+            try? settings.set(newValue, for: \.pendingUpdateSince)
+        }
     }
 
     @objc func resetLastUpdateCheck() {
@@ -97,24 +106,24 @@ final class UpdatesDebugMenu: NSMenu {
     }
 
     @objc func showBrowserUpdatedPopover() {
-        let presenter = UpdateNotificationPresenter()
-        presenter.showUpdateNotification(
-            icon: NSImage.successCheckmark,
-            text: UserText.browserUpdatedNotification,
-            buttonText: UserText.viewDetails
-        )
+        let presenter = UpdateNotificationPresenter(pixelFiring: PixelKit.shared)
+        presenter.showUpdateNotification(for: .updated)
     }
 
 #if SPARKLE_ALLOWS_UNSIGNED_UPDATES
     // MARK: - Custom Feed URL
 
     private var customFeedURL: String? {
-        get { try? settings.debugSparkleCustomFeedURL }
-        set { try? settings.set(newValue, for: \.debugSparkleCustomFeedURL) }
+        get {
+            try? settings.debugSparkleCustomFeedURL
+        }
+        set {
+            try? settings.set(newValue, for: \.debugSparkleCustomFeedURL)
+        }
     }
 
-    private var sparkleUpdateController: SparkleCustomFeedURLProviding? {
-        Application.appDelegate.updateController as? SparkleCustomFeedURLProviding
+    private var sparkleUpdateController: (any SparkleCustomFeedURLProviding)? {
+        Application.appDelegate.updateController as? any SparkleCustomFeedURLProviding
     }
 
     @objc func setCustomFeedURL() {

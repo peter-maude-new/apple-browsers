@@ -23,7 +23,6 @@ import FeatureFlags
 import History
 import HistoryView
 import Onboarding
-import PersistenceTestingUtils
 import PrivacyConfig
 import PrivacyConfigTestsUtils
 import PrivacyDashboard
@@ -183,7 +182,7 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
                     windowControllersManager: windowControllersManager,
                     featureFlagger: MockFeatureFlagger()
                 ),
-                aboutPreferences: AboutPreferences(internalUserDecider: featureFlagger.internalUserDecider, featureFlagger: featureFlagger, windowControllersManager: windowControllersManager, keyValueStore: InMemoryThrowingKeyValueStore()),
+                aboutPreferences: AboutPreferences(internalUserDecider: featureFlagger.internalUserDecider, featureFlagger: featureFlagger, windowControllersManager: windowControllersManager),
                 accessibilityPreferences: AccessibilityPreferences(),
                 duckPlayer: DuckPlayer(
                     preferencesPersistor: DuckPlayerPreferencesPersistorMock(),

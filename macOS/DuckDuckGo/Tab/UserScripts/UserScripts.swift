@@ -52,9 +52,7 @@ final class UserScripts: UserScriptsProvider {
     let youtubePlayerUserScript: YoutubePlayerUserScript?
     let specialErrorPageUserScript: SpecialErrorPageUserScript?
     let onboardingUserScript: OnboardingUserScript?
-#if SPARKLE
-    let releaseNotesUserScript: ReleaseNotesUserScript?
-#endif
+    let releaseNotesUserScript: Subfeature? /*ReleaseNotesUserScript*/
     let aiChatUserScript: AIChatUserScript?
     let pageContextUserScript: PageContextUserScript?
     let subscriptionUserScript: SubscriptionUserScript?
@@ -168,9 +166,18 @@ final class UserScripts: UserScriptsProvider {
             youtubePlayerUserScript = nil
         }
 
-#if SPARKLE
-        releaseNotesUserScript = ReleaseNotesUserScript(keyValueStore: UserDefaults.standard)
-#endif
+        // Release notes user script - only available for Sparkle builds
+        if let updateController = Application.appDelegate.updateController {
+            let factory = ReleaseNotesUserScriptFactory()
+            releaseNotesUserScript = (factory as? ReleaseNotesUserScriptFactoryBuilder)?.makeUserScript(
+                updateController: updateController,
+                eventMapping: UpdateControllerMappings.eventMapping(pixelFiring: PixelKit.shared),
+                keyValueStore: Application.appDelegate.keyValueStore,
+                releaseNotesURL: .releaseNotes
+            )
+        } else {
+            releaseNotesUserScript = nil
+        }
 
         userScripts.append(autoconsentUserScript)
 
@@ -205,11 +212,9 @@ final class UserScripts: UserScriptsProvider {
             if let youtubePlayerUserScript {
                 specialPages.registerSubfeature(delegate: youtubePlayerUserScript)
             }
-#if SPARKLE
             if let releaseNotesUserScript {
                 specialPages.registerSubfeature(delegate: releaseNotesUserScript)
             }
-#endif
             if let onboardingUserScript {
                 specialPages.registerSubfeature(delegate: onboardingUserScript)
             }

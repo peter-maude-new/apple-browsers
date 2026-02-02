@@ -16,43 +16,36 @@
 //  limitations under the License.
 //
 
-protocol ApplicationBuildType {
-    var isSparkleBuild: Bool { get }
-    var isAppStoreBuild: Bool { get }
-    var isDebugBuild: Bool { get }
-    var isReviewBuild: Bool { get }
-}
-
 final class StandardApplicationBuildType: ApplicationBuildType {
     var isSparkleBuild: Bool {
-        #if SPARKLE
+#if SPARKLE
         return true
-        #else
+#else
         return false
-        #endif
+#endif
     }
 
     var isAppStoreBuild: Bool {
-        #if APPSTORE
+#if APPSTORE
         return true
-        #else
+#else
         return false
-        #endif
+#endif
     }
 
     var isDebugBuild: Bool {
-        #if DEBUG
+#if DEBUG
         return true
-        #else
+#else
         return false
-        #endif
+#endif
     }
 
     var isReviewBuild: Bool {
-        #if REVIEW
+#if REVIEW
         return true
-        #else
+#else
         return false
-        #endif
+#endif
     }
 }

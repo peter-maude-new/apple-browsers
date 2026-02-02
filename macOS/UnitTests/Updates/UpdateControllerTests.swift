@@ -30,10 +30,16 @@ import XCTest
 final class UpdateControllerTests: XCTestCase {
 
     func testSparkleUpdaterErrorReason() {
+        let mockWideEventManager = WideEventMock()
+        let keyValueStore = InMemoryThrowingKeyValueStore()
         let updateController = SparkleUpdateController(
             internalUserDecider: MockInternalUserDecider(),
             featureFlagger: MockFeatureFlagger(),
-            updateCheckState: UpdateCheckState()
+            eventMapping: nil,
+            notificationPresenter: MockNotificationPresenter(),
+            keyValueStore: keyValueStore,
+            buildType: StandardApplicationBuildType(),
+            wideEvent: mockWideEventManager
         )
 
         XCTAssertEqual(updateController.sparkleUpdaterErrorReason(from: "Package installer failed to launch."), "Package installer failed to launch." )
@@ -53,24 +59,25 @@ final class UpdateControllerTests: XCTestCase {
     func testUpdaterWillRelaunchApplication_setsRestartingToUpdateStep() {
         // Given
         let mockWideEventManager = WideEventMock()
-        let mockSettings = InMemoryThrowingKeyValueStore().throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-        let mockWideEvent = SparkleUpdateWideEvent(
-            wideEventManager: mockWideEventManager,
-            internalUserDecider: MockInternalUserDecider(),
-            areAutomaticUpdatesEnabled: true,
-            settings: mockSettings
-        )
-
+        let keyValueStore = InMemoryThrowingKeyValueStore()
         let updateController = SparkleUpdateController(
             internalUserDecider: MockInternalUserDecider(),
             featureFlagger: MockFeatureFlagger(),
-            updateCheckState: UpdateCheckState(),
-            updateWideEvent: mockWideEvent
+            eventMapping: nil,
+            notificationPresenter: MockNotificationPresenter(),
+            keyValueStore: keyValueStore,
+            buildType: StandardApplicationBuildType(),
+            wideEvent: mockWideEventManager
         )
 
-        // Start a flow and simulate finding an update
-        mockWideEvent.startFlow(initiationType: .automatic)
-        mockWideEvent.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
+        // Start a flow through the controller's public interface
+        updateController.checkForUpdateSkippingRollout()
+
+        // Access the controller's internal updateWideEvent via reflection to simulate finding an update
+        let mirror = Mirror(reflecting: updateController)
+        if let updateWideEvent = mirror.children.first(where: { $0.label == "updateWideEvent" })?.value as? SparkleUpdateWideEvent {
+            updateWideEvent.didFindUpdate(version: "1.1.0", build: "110", isCritical: false)
+        }
 
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()
@@ -81,8 +88,8 @@ final class UpdateControllerTests: XCTestCase {
         // Then - verify the step was set to restartingToUpdate (flow not completed yet)
         XCTAssertEqual(mockWideEventManager.completions.count, 0)
 
-        // Verify the flow data has the correct step
-        let flowData = mockWideEvent.getCurrentFlowData()
+        // Verify the flow data has the correct step via the shared mockWideEventManager
+        let flowData = mockWideEventManager.updates.last as? UpdateWideEventData
         XCTAssertEqual(flowData?.lastKnownStep, .restartingToUpdate)
         XCTAssertEqual(flowData?.toVersion, "1.1.0")
         XCTAssertEqual(flowData?.toBuild, "110")
@@ -98,18 +105,19 @@ final class UpdateControllerTests: XCTestCase {
             settings: mockSettings
         )
 
+        let keyValueStore = InMemoryThrowingKeyValueStore()
         let updateController = SparkleUpdateController(
             internalUserDecider: MockInternalUserDecider(),
             featureFlagger: MockFeatureFlagger(),
-            updateCheckState: UpdateCheckState(),
-            updateWideEvent: mockWideEvent
+            eventMapping: nil,
+            notificationPresenter: MockNotificationPresenter(),
+            keyValueStore: keyValueStore,
+            buildType: StandardApplicationBuildType(),
+            wideEvent: mockWideEventManager
         )
 
-        // Start a flow
-        mockWideEvent.startFlow(initiationType: .automatic)
-
-        // Simulate the milestone being recorded
-        mockWideEvent.didFindNoUpdate()
+        // Start a flow through the controller's public interface
+        updateController.checkForUpdateSkippingRollout()
 
         // Create a mock SPUUpdater
         let mockUpdater = MockSPUUpdater()
@@ -118,7 +126,7 @@ final class UpdateControllerTests: XCTestCase {
         let noUpdateError = NSError(domain: "SUSparkleErrorDomain", code: Int(Sparkle.SUError.noUpdateError.rawValue))
 
         // When - didFinishUpdateCycleFor is called with noUpdateError
-        updateController.updater(mockUpdater, didFinishUpdateCycleFor: .updatesInBackground, error: noUpdateError)
+        updateController.updater(mockUpdater, didFinishUpdateCycleFor: SPUUpdateCheck.updatesInBackground, error: noUpdateError)
 
         // Then - verify the wide event WAS completed with success
         XCTAssertEqual(mockWideEventManager.completions.count, 1)
@@ -141,6 +149,7 @@ final class UpdateControllerTests: XCTestCase {
 
         let settings = testDefaults.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
         let testDate = Date(timeIntervalSince1970: 1704067200)
+        // Create PendingUpdateInfo using memberwise initializer (struct provides this automatically)
         let pendingInfo = SparkleUpdateController.PendingUpdateInfo(
             version: "2.0.0",
             build: "200",
@@ -156,12 +165,15 @@ final class UpdateControllerTests: XCTestCase {
         // Then - read
         let storedInfo = try settings.pendingUpdateInfo
 
-        XCTAssertNotNil(storedInfo)
-        XCTAssertEqual(storedInfo?.version, "2.0.0")
-        XCTAssertEqual(storedInfo?.build, "200")
-        XCTAssertEqual(storedInfo?.date.timeIntervalSince1970 ?? 0, 1704067200, accuracy: 1.0)
-        XCTAssertEqual(storedInfo?.releaseNotes, ["Feature A", "Feature B"])
-        XCTAssertEqual(storedInfo?.isCritical, false)
+        guard let storedInfo = storedInfo else {
+            XCTFail("storedInfo should not be nil")
+            return
+        }
+        XCTAssertEqual(storedInfo.version, "2.0.0")
+        XCTAssertEqual(storedInfo.build, "200")
+        XCTAssertEqual(storedInfo.date.timeIntervalSince1970, 1704067200, accuracy: 1.0)
+        XCTAssertEqual(storedInfo.releaseNotes, ["Feature A", "Feature B"])
+        XCTAssertEqual(storedInfo.isCritical, false)
     }
 
 }

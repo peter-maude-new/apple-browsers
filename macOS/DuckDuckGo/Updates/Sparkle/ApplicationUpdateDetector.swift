@@ -16,20 +16,17 @@
 //  limitations under the License.
 //
 
+import Common
 import Foundation
 import Persistence
-import Common
 
-enum AppUpdateStatus {
-    case noChange
-    case updated
-    case downgraded
-}
+public final class ApplicationUpdateDetector {
 
-final class ApplicationUpdateDetector {
     private var hasCheckedForUpdate = false
     private var updateStatus: AppUpdateStatus = .noChange
     private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
+
+    private static var sharedInstance: ApplicationUpdateDetector?
 
     init(keyValueStore: ThrowingKeyValueStoring) {
         self.settings = keyValueStore.throwingKeyedStoring()
@@ -43,6 +40,18 @@ final class ApplicationUpdateDetector {
     private var previousAppBuild: String? {
         get { try? settings.previousBuild }
         set { try? settings.set(newValue, for: \.previousBuild) }
+    }
+
+    public static func isApplicationUpdated(currentVersion: String? = nil,
+                                            currentBuild: String? = nil,
+                                            previousVersion: String? = nil,
+                                            previousBuild: String? = nil,
+                                            keyValueStore: ThrowingKeyValueStoring) -> AppUpdateStatus {
+        let detector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
+        return detector.isApplicationUpdated(currentVersion: currentVersion,
+                                             currentBuild: currentBuild,
+                                             previousVersion: previousVersion,
+                                             previousBuild: previousBuild)
     }
 
     func isApplicationUpdated(currentVersion: String? = nil,
@@ -111,4 +120,12 @@ final class ApplicationUpdateDetector {
         return build.isEmpty ? nil : build
     }
 
+#if DEBUG
+    public static func resetState() {
+        // Clear shared instance to ensure fresh state for tests
+        // Each call to isApplicationUpdated creates a new instance, so this ensures
+        // tests start with a clean slate
+        sharedInstance = nil
+    }
+#endif
 }

@@ -1,7 +1,7 @@
 //
 //  UpdateWideEventDataTests.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 //  limitations under the License.
 //
 
-#if SPARKLE
-
 import XCTest
 import PixelKit
+
 @testable import DuckDuckGo_Privacy_Browser
 
 final class UpdateWideEventDataTests: XCTestCase {
@@ -425,5 +424,3 @@ final class UpdateWideEventDataTests: XCTestCase {
         XCTAssertEqual(params["feature.data.ext.time_since_last_update"], "<1w")
     }
 }
-
-#endif

@@ -1,7 +1,7 @@
 //
 //  LatestReleaseChecker.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -65,27 +65,6 @@ public enum LatestReleaseError: DDGError {
 
     public static func == (lhs: LatestReleaseError, rhs: LatestReleaseError) -> Bool {
         return lhs.errorCode == rhs.errorCode
-    }
-}
-
-public struct ReleaseMetadata: Codable {
-    public let latestVersion: String
-    public let buildNumber: Int
-    public let releaseDate: String
-    public let isCritical: Bool
-
-    public init(latestVersion: String, buildNumber: Int, releaseDate: String, isCritical: Bool) {
-        self.latestVersion = latestVersion
-        self.buildNumber = buildNumber
-        self.releaseDate = releaseDate
-        self.isCritical = isCritical
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case latestVersion = "latest_version"
-        case buildNumber = "build_number"
-        case releaseDate = "release_date"
-        case isCritical = "is_critical"
     }
 }
 

@@ -1,7 +1,7 @@
 //
 //  AppStoreUpdaterAvailabilityChecker.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import Foundation
 ///
 /// Unlike Sparkle, App Store updates don't have session restrictions or blocking states,
 /// so this implementation always returns true for canCheckForUpdates.
-final class AppStoreUpdaterAvailabilityChecker: UpdaterAvailabilityChecking {
+public final class AppStoreUpdaterAvailabilityChecker: UpdaterAvailabilityChecking {
+
+    public init() {}
 
     /// App Store can always check for updates (no session restrictions like Sparkle)
-    var canCheckForUpdates: Bool {
+    public var canCheckForUpdates: Bool {
         return true
     }
 }

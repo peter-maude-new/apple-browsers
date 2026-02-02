@@ -22,18 +22,7 @@ import Common
 import Foundation
 import Navigation
 import Persistence
-import PixelKit
 import WebKit
-
-#if SPARKLE
-
-protocol ReleaseNotesUserScriptProvider {
-
-    var releaseNotesUserScript: ReleaseNotesUserScript? { get }
-
-}
-
-extension UserScripts: ReleaseNotesUserScriptProvider {}
 
 public struct ReleaseNotesValues: Codable {
     enum Status: String {
@@ -57,7 +46,32 @@ public struct ReleaseNotesValues: Codable {
     let automaticUpdate: Bool?
 }
 
-final class ReleaseNotesTabExtension: NavigationResponder {
+/// Factory extension that provides Sparkle-specific release notes tab extension.
+///
+/// This extension is only compiled when SparkleAppUpdater is linked, making the
+/// factory functional only in Sparkle builds.
+extension ReleaseNotesTabExtensionFactory: ReleaseNotesTabExtensionFactoryBuilder {
+    /// Creates a Sparkle-specific release notes tab extension.
+    public func makeExtension(
+        updateController: UpdateController,
+        releaseNotesURL: URL,
+        scriptsPublisher: some Publisher<some ReleaseNotesUserScriptProvider, Never>,
+        webViewPublisher: some Publisher<WKWebView, Never>
+    ) -> ReleaseNotesTabExtensionBase {
+        ReleaseNotesTabExtension(
+            updateController: updateController,
+            releaseNotesURL: releaseNotesURL,
+            scriptsPublisher: scriptsPublisher,
+            webViewPublisher: webViewPublisher
+        )
+    }
+}
+
+/// Sparkle-specific implementation of release notes tab extension.
+///
+/// Handles displaying release notes, update progress, and triggering update checks
+/// for the Sparkle update system.
+public final class ReleaseNotesTabExtension: ReleaseNotesTabExtensionBase {
 
     private var cancellables = Set<AnyCancellable>()
     private weak var webView: WKWebView? {
@@ -66,27 +80,35 @@ final class ReleaseNotesTabExtension: NavigationResponder {
         }
     }
     private weak var releaseNotesUserScript: ReleaseNotesUserScript?
+    private let updateController: UpdateController
+    private let releaseNotesURL: URL
 
-    init(scriptsPublisher: some Publisher<some ReleaseNotesUserScriptProvider, Never>,
-         webViewPublisher: some Publisher<WKWebView, Never>) {
+    public init(updateController: UpdateController,
+                releaseNotesURL: URL,
+                scriptsPublisher: some Publisher<some ReleaseNotesUserScriptProvider, Never>,
+                webViewPublisher: some Publisher<WKWebView, Never>) {
+        self.updateController = updateController
+        self.releaseNotesURL = releaseNotesURL
+        super.init()
 
         webViewPublisher.sink { [weak self] webView in
             self?.webView = webView
         }.store(in: &cancellables)
 
         scriptsPublisher.sink { [weak self] scripts in
-            self?.releaseNotesUserScript = scripts.releaseNotesUserScript
-            self?.releaseNotesUserScript?.webView = self?.webView
-
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.asyncOrNow {
+                assert(scripts.releaseNotesUserScript == nil || scripts.releaseNotesUserScript is ReleaseNotesUserScript,
+                       "Unexpected ReleaseNotesUserScript type: \(scripts.releaseNotesUserScript!)")
+                self?.releaseNotesUserScript = scripts.releaseNotesUserScript as? ReleaseNotesUserScript
+                self?.releaseNotesUserScript?.webView = self?.webView
                 self?.setUpScript(for: self?.webView?.url)
             }
         }.store(in: &cancellables)
     }
 
     @MainActor
-    func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
-        if navigationAction.url == .releaseNotes {
+    public func decidePolicy(for navigationAction: NavigationAction, preferences: inout NavigationPreferences) async -> NavigationActionPolicy? {
+        if navigationAction.url == releaseNotesURL {
             return .allow
         }
         return .next
@@ -97,7 +119,6 @@ final class ReleaseNotesTabExtension: NavigationResponder {
         guard AppVersion.runType != .uiTests else {
             return
         }
-        guard let updateController = Application.appDelegate.updateController as? any SparkleUpdateControllerProtocol else { return }
         Publishers.CombineLatest(updateController.updateProgressPublisher, updateController.latestUpdatePublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
@@ -108,23 +129,12 @@ final class ReleaseNotesTabExtension: NavigationResponder {
     }
 
     @MainActor
-    func navigationDidFinish(_ navigation: Navigation) {
-        guard AppVersion.runType != .uiTests, navigation.url == .releaseNotes else { return }
-        let updateController = Application.appDelegate.updateController!
+    public func navigationDidFinish(_ navigation: Navigation) {
+        guard AppVersion.runType != .uiTests, navigation.url == releaseNotesURL else { return }
         if updateController.latestUpdate?.needsLatestReleaseNote == true {
             updateController.checkForUpdateSkippingRollout()
         }
     }
-}
-
-protocol ReleaseNotesTabExtensionProtocol: AnyObject, NavigationResponder {}
-
-extension ReleaseNotesTabExtension: ReleaseNotesTabExtensionProtocol, TabExtension {
-    func getPublicProtocol() -> ReleaseNotesTabExtensionProtocol { self }
-}
-
-extension TabExtensions {
-    var releaseNotes: ReleaseNotesTabExtensionProtocol? { resolve(ReleaseNotesTabExtension.self) }
 }
 
 extension ReleaseNotesValues {
@@ -149,7 +159,7 @@ extension ReleaseNotesValues {
         self.automaticUpdate = automaticUpdate
     }
 
-    init(from updateController: any SparkleUpdateControllerProtocol, keyValueStore: ThrowingKeyValueStoring, pixelKit: PixelKit? = PixelKit.shared) {
+    init(from updateController: any UpdateController, eventMapping: EventMapping<UpdateControllerEvent>?, keyValueStore: ThrowingKeyValueStoring) {
         let currentVersion = "\(AppVersion().versionNumber) (\(AppVersion().buildNumber))"
         let lastUpdate = UInt((updateController.lastUpdateCheckDate ?? Date()).timeIntervalSince1970)
 
@@ -157,8 +167,8 @@ extension ReleaseNotesValues {
         // This happens when there's no connectivity,
         // or when the appcast hasn't finished loading by the time the Release Notes screen shows up
         guard let latestUpdate = updateController.latestUpdate else {
-            let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-            if let cached = try? settings.pendingUpdateInfo {
+            if let data = try? keyValueStore.object(forKey: UpdateControllerStorageKeys.pendingUpdateInfo.rawValue) as? Data,
+               let cached = try? JSONDecoder().decode(SparkleUpdateController.PendingUpdateInfo.self, from: data) {
                 let releaseTitle = Update.releaseDateFormatter().string(from: cached.date)
 
                 let cachedVersion = "\(cached.version) (\(cached.build))"
@@ -184,7 +194,7 @@ extension ReleaseNotesValues {
                 return
             }
 
-            pixelKit?.fire(GeneralPixel.releaseNotesEmpty, frequency: .dailyAndCount)
+            eventMapping?.fire(.releaseNotesEmpty)
 
             self.init(status: updateController.updateProgress.toStatus,
                       currentVersion: currentVersion,
@@ -255,20 +265,3 @@ private extension UpdateCycleProgress {
         return percentage
     }
 }
-
-#else
-
-protocol ReleaseNotesTabExtensionProtocol: AnyObject, NavigationResponder {}
-
-extension ReleaseNotesTabExtension: ReleaseNotesTabExtensionProtocol, TabExtension {
-    func getPublicProtocol() -> ReleaseNotesTabExtensionProtocol { self }
-}
-
-extension TabExtensions {
-    var releaseNotes: ReleaseNotesTabExtensionProtocol? { resolve(ReleaseNotesTabExtension.self) }
-}
-
-final class ReleaseNotesTabExtension: NavigationResponder {
-}
-
-#endif

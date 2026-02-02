@@ -16,9 +16,10 @@
 //  limitations under the License.
 //
 
-import XCTest
 import Cocoa
 import Combine
+import XCTest
+
 @testable import DuckDuckGo_Privacy_Browser
 
 final class UpdateControllerProtocolTests: XCTestCase {
@@ -28,11 +29,11 @@ final class UpdateControllerProtocolTests: XCTestCase {
 
     // MARK: - Basic Protocol Tests
 
-    #if APPSTORE
+#if APPSTORE
     func testUpdateControllerProtocol_DefaultImplementationExists() {
         // This test just verifies the protocol extension exists and compiles
         // Given
-        let controller = AppStoreUpdateController()
+        let controller = AppStoreUpdateController(notificationPresenter: MockNotificationPresenter())
 
         // When/Then - Just verify the default implementation method exists
         controller.showUpdateNotificationIfNeeded()
@@ -40,7 +41,7 @@ final class UpdateControllerProtocolTests: XCTestCase {
         // No assertions needed - if it compiles and doesn't crash, the extension works
         XCTAssertNotNil(controller)
     }
-    #endif
+#endif
 
     func testNotificationTimingLogic() {
         // Test the 7-day logic directly

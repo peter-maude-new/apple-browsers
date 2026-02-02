@@ -15,10 +15,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
-#if APPSTORE
 
-import XCTest
 import Cocoa
+import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
 final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {
@@ -124,5 +123,3 @@ final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {
         XCTAssertEqual(menuItem.action, #selector(AppStoreUpdateController.openUpdatesPage))
     }
 }
-
-#endif

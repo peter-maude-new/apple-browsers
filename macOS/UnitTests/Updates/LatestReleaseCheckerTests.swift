@@ -1,7 +1,7 @@
 //
 //  LatestReleaseCheckerTests.swift
 //
-//  Copyright © 2025 DuckDuckGo. All rights reserved.
+//  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ final class LatestReleaseCheckerTests: XCTestCase {
 
     func testGetLatestReleaseAvailable_whenNetworkError_throwsNetworkError() async {
         // Given
-        MockURLProtocol.requestHandler = { request in
+        MockURLProtocol.requestHandler = { _ in
             throw URLError(.notConnectedToInternet)
         }
 
@@ -149,7 +149,7 @@ final class LatestReleaseCheckerTests: XCTestCase {
 
     func testGetLatestReleaseAvailable_whenTimeoutError_throwsNetworkError() async {
         // Given
-        MockURLProtocol.requestHandler = { request in
+        MockURLProtocol.requestHandler = { _ in
             throw URLError(.timedOut)
         }
 
