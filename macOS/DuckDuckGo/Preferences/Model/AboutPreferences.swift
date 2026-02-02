@@ -33,7 +33,7 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
     let windowControllersManager: WindowControllersManagerProtocol
     let supportedOSChecker: SupportedOSChecking
     private var cancellables = Set<AnyCancellable>()
-    private let keyValueStore: ThrowingKeyValueStoring
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     init(internalUserDecider: InternalUserDecider,
          featureFlagger: FeatureFlagger,
@@ -43,7 +43,7 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
 
         self.featureFlagger = featureFlagger
         self.windowControllersManager = windowControllersManager
-        self.keyValueStore = keyValueStore
+        self.settings = keyValueStore.throwingKeyedStoring()
         self.appVersionModel = .init(appVersion: AppVersion(), internalUserDecider: internalUserDecider)
         self.supportedOSChecker = supportedOSChecker ?? SupportedOSChecker(featureFlagger: featureFlagger)
         internalUserDecider.isInternalUserPublisher
@@ -200,7 +200,6 @@ final class AboutPreferences: ObservableObject, PreferencesTabOpening {
 
 #if SPARKLE_ALLOWS_UNSIGNED_UPDATES
     var customFeedURL: String? {
-        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
         return try? settings.debugSparkleCustomFeedURL
     }
 #endif
