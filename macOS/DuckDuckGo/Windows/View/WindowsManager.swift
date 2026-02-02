@@ -21,6 +21,17 @@ import Cocoa
 @MainActor
 final class WindowsManager {
 
+/// # IMPORTANT: DO NOT MERGE
+    class func reserveMemory(mb: Int = 100) {
+        let numberOfBytes = mb * 1024 * 1024
+        guard let pointer = malloc(numberOfBytes) else {
+            return
+        }
+
+        memset(pointer, 0, numberOfBytes)
+    }
+/// # IMPORTANT: DO NOT MERGE
+
     internal enum Constants {
         static let defaultPopUpWidth: CGFloat = 1024
         static let defaultPopUpHeight: CGFloat = 752
@@ -73,6 +84,9 @@ final class WindowsManager {
                              isMiniaturized: Bool = false,
                              isMaximized: Bool = false,
                              isFullscreen: Bool = false) -> NSWindow? {
+
+        reserveMemory()
+
         // Determine effective burner mode based on user preference
         let effectiveBurnerMode = burnerModeForNewWindow(burnerMode: burnerMode)
         assert(tabCollectionViewModel == nil || tabCollectionViewModel!.isPopup == popUp)
