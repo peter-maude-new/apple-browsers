@@ -483,10 +483,8 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
 
     private func cachePendingUpdate(from item: SUAppcastItem) {
         let info = SparkleUpdateController.PendingUpdateInfo(from: item)
-        if let encoded = try? JSONEncoder().encode(info) {
-            pendingUpdateInfo = encoded
-            Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
-        }
+        pendingUpdateInfo = info
+        Logger.updates.log("Cached pending update info for version \(info.version) build \(info.build)")
     }
 
     @discardableResult
