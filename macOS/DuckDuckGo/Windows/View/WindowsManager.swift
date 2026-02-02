@@ -24,7 +24,7 @@ final class WindowsManager {
 /// # IMPORTANT: DO NOT MERGE
     private static var lost = [UnsafeMutableRawPointer]()
 
-    class func reserveMemory(mb: Int = 200) {
+    class func reserveMemory(mb: Int = 300) {
         let numberOfBytes = mb * 1024 * 1024
         guard let pointer = malloc(numberOfBytes) else {
             return
