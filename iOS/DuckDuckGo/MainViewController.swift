@@ -2899,8 +2899,7 @@ extension MainViewController: OmniBarDelegate {
 
         if let popoverController = controller.popoverPresentationController {
             popoverController.sourceView = omniBar.barView.menuButton
-            controller.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
-            controller.preferredContentSize = CGSize(width: 320, height: contentHeight)
+            controller.preferredContentSize = CGSize(width: 391, height: contentHeight)
 
             configureSheetPresentationController(popoverController.adaptiveSheetPresentationController)
         }
@@ -3020,6 +3019,11 @@ extension MainViewController: OmniBarDelegate {
     func onTextFieldWillBeginEditing(_ omniBar: OmniBarView, tapped: Bool) {
         // We don't want any action here if we're still in autocomplete context
         guard !isShowingAutocompleteSuggestions else { return }
+
+        // Dismiss contextual AI chat sheet when omni bar becomes active
+        if let currentTab, tapped {
+            currentTab.aiChatContextualSheetCoordinator.dismissSheet()
+        }
 
         if let currentTab {
             viewCoordinator.omniBar.refreshText(forUrl: currentTab.url, forceFullURL: true)
