@@ -243,6 +243,10 @@ final class TabCollectionViewModel: NSObject {
         return tabViewModel(at: .unpinned(unpinnedIndex))
     }
 
+    func tabViewModel(for tab: Tab) -> TabViewModel? {
+        return tabViewModels[tab]
+    }
+
     func tabViewModel(at index: TabIndex) -> TabViewModel? {
         switch index {
         case .unpinned(let index):
@@ -780,21 +784,14 @@ final class TabCollectionViewModel: NSObject {
     }
 
     /// Moves a tab to be adjacent to other tabs in its group.
-    /// Call this after changing a tab's group assignment to physically reorder it.
     func moveTabToGroup(_ tab: Tab, group: TabGroup?, using tabGroupManager: TabGroupManager) {
         guard changesEnabled else { return }
-
-        // Only handle unpinned tabs for now
         guard let currentIndex = tabCollection.tabs.firstIndex(where: { $0.uuid == tab.uuid }) else { return }
-
         let targetIndex = tabGroupManager.insertionIndex(for: tab, joiningGroup: group, in: tabCollection.tabs)
-
-        // Only move if the position changes
         guard currentIndex != targetIndex else { return }
 
         tabCollection.moveTab(at: currentIndex, to: targetIndex)
 
-        // Update selection if needed
         if let selectionIndex, selectionIndex.item == currentIndex {
             selectWithoutResettingState(at: .unpinned(targetIndex))
         }

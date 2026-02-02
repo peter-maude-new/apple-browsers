@@ -68,6 +68,33 @@ enum TabGroupColor: String, CaseIterable, Codable {
 final class TabGroupManager: ObservableObject {
     @Published private(set) var groups: [TabGroup] = []
     @Published private(set) var tabToGroup: [String: UUID] = [:]  // tab.uuid -> group.id
+    @Published private(set) var collapsedGroups: Set<UUID> = []   // in-memory only, not persisted
+
+    // MARK: - Collapsed State
+
+    func isCollapsed(_ group: TabGroup) -> Bool {
+        collapsedGroups.contains(group.id)
+    }
+
+    func isCollapsed(groupID: UUID) -> Bool {
+        collapsedGroups.contains(groupID)
+    }
+
+    func toggleCollapsed(_ group: TabGroup) {
+        if collapsedGroups.contains(group.id) {
+            collapsedGroups.remove(group.id)
+        } else {
+            collapsedGroups.insert(group.id)
+        }
+    }
+
+    func setCollapsed(_ collapsed: Bool, for group: TabGroup) {
+        if collapsed {
+            collapsedGroups.insert(group.id)
+        } else {
+            collapsedGroups.remove(group.id)
+        }
+    }
 
     // MARK: - Queries
 
@@ -110,6 +137,7 @@ final class TabGroupManager: ObservableObject {
     func unregisterGroup(_ group: TabGroup) {
         // Remove all tab associations for this group
         tabToGroup = tabToGroup.filter { $0.value != group.id }
+        collapsedGroups.remove(group.id)
         groups.removeAll(where: { $0.id == group.id })
     }
 

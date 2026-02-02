@@ -267,6 +267,20 @@ final class TabBarItemCellView: NSView {
         return view
     }()
 
+    /// Label for displaying group name when in header mode
+    fileprivate let groupHeaderNameLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.font = .systemFont(ofSize: 11, weight: .medium)
+        label.textColor = .labelColor
+        label.alignment = .center
+        label.lineBreakMode = .byTruncatingTail
+        label.isHidden = true
+        return label
+    }()
+
+    /// Whether this cell is displaying a group header instead of a tab
+    fileprivate var isGroupHeader: Bool = false
+
     fileprivate let rightSeparatorView = ColorView(frame: .zero)
 
     fileprivate lazy var rightRampView: RampView = {
@@ -348,6 +362,9 @@ final class TabBarItemCellView: NSView {
 
         // Group background color view (above mouseOverView)
         addSubview(groupBackgroundColorView)
+
+        // Group header name label (for header mode)
+        addSubview(groupHeaderNameLabel)
 
         if theme.tabStyleProvider.isRoundedBackgroundPresentOnHover {
             roundedBackgroundColorView.cornerRadius = 6
@@ -438,6 +455,15 @@ final class TabBarItemCellView: NSView {
                                                 y: y,
                                                 width: bounds.width - (padding * 2),
                                                 height: height)
+
+        // Group header name label - centered in the cell
+        if isGroupHeader {
+            let labelHeight: CGFloat = 14
+            groupHeaderNameLabel.frame = NSRect(x: bounds.origin.x + 8,
+                                                y: bounds.midY - (labelHeight / 2),
+                                                width: bounds.width - 16,
+                                                height: labelHeight)
+        }
 
         if theme.tabStyleProvider.shouldShowSShapedTab {
             withoutAnimation {
@@ -619,6 +645,11 @@ final class TabBarItemCellView: NSView {
     }
 
     func clear() {
+        // Reset header state
+        isGroupHeader = false
+        groupHeaderNameLabel.isHidden = true
+        groupHeaderNameLabel.stringValue = ""
+
         guard displaysTabsProgressIndicator else {
             faviconImageView.image = nil
             titleTextField.stringValue = ""
@@ -823,6 +854,10 @@ final class TabBarViewItem: NSCollectionViewItem {
     var themeUpdateCancellable: AnyCancellable?
 
     weak var delegate: TabBarViewItemDelegate?
+
+    /// The group this item represents when in header mode (nil when displaying a tab)
+    private(set) var currentHeaderGroup: TabGroup?
+
     var tabViewModel: TabBarViewModel? {
         guard let representedObject else { return nil }
         guard let tabViewModel = representedObject as? TabBarViewModel else {
@@ -1094,6 +1129,13 @@ final class TabBarViewItem: NSCollectionViewItem {
         activePermissionTypes = []
         currentActivePermissionIndex = 0
         isLeftToSelected = false
+
+        // Reset group header state
+        currentHeaderGroup = nil
+        if cell.isGroupHeader {
+            resetFromGroupHeader()
+        }
+
         cell.clear()
     }
 
@@ -1133,6 +1175,63 @@ final class TabBarViewItem: NSCollectionViewItem {
         }
     }
 
+    // MARK: - Group Header Mode
+
+    /// Configures this item to display as a group header instead of a tab
+    func configureAsGroupHeader(_ group: TabGroup) {
+        // Clear any tab subscription
+        clearSubscriptions()
+
+        currentHeaderGroup = group
+        cell.isGroupHeader = true
+
+        // Show group background color
+        cell.groupBackgroundColorView.backgroundColor = group.color.nsColor
+        cell.groupBackgroundColorView.isHidden = false
+
+        // Show group name
+        cell.groupHeaderNameLabel.stringValue = group.name
+        cell.groupHeaderNameLabel.isHidden = false
+
+        // Hide tab-specific views (both progress indicator and non-progress indicator paths)
+        if cell.displaysTabsProgressIndicator {
+            cell.faviconView.isHidden = true
+            cell.titleView.isHidden = true
+        } else {
+            cell.faviconImageView.isHidden = true
+            cell.faviconPlaceholderView.isHidden = true
+            cell.titleTextField.isHidden = true
+        }
+        cell.closeButton.isHidden = true
+        cell.audioButton.isHidden = true
+        cell.permissionButton.isHidden = true
+        cell.crashIndicatorButton.isHidden = true
+        cell.rightSeparatorView.isHidden = true
+
+        cell.needsLayout = true
+    }
+
+    /// Resets the item from header mode back to normal tab mode
+    func resetFromGroupHeader() {
+        currentHeaderGroup = nil
+        cell.isGroupHeader = false
+        cell.groupHeaderNameLabel.isHidden = true
+        // Don't hide groupBackgroundColorView - let updateGroupBackground handle it
+
+        // Restore visibility of tab views (both progress indicator and non-progress indicator paths)
+        if cell.displaysTabsProgressIndicator {
+            cell.faviconView.isHidden = false
+            cell.titleView.isHidden = false
+        } else {
+            cell.faviconImageView.isHidden = false
+            cell.faviconPlaceholderView.isHidden = false
+            cell.titleTextField.isHidden = false
+        }
+        cell.closeButton.isHidden = false
+        cell.rightSeparatorView.isHidden = false
+        // audioButton, permissionButton, crashIndicatorButton visibility is managed by their update methods
+    }
+
     private func updateSubviews() {
         withoutAnimation {
             if isSelected || isDragged {
@@ -1160,6 +1259,12 @@ final class TabBarViewItem: NSCollectionViewItem {
             } else {
                 cell.borderLayer.isHidden = !isSelected
             }
+        }
+
+        // Skip subview updates for group headers - they have fixed visibility
+        guard !cell.isGroupHeader else {
+            updateSeparatorView()
+            return
         }
 
         if cell.displaysTabsProgressIndicator && isPinned {
@@ -1659,6 +1764,14 @@ extension TabBarViewItem: MouseClickViewDelegate {
                let leftItem = collectionView?.item(at: IndexPath(item: indexPath.item - 1, section: indexPath.section)) as? TabBarViewItem {
                 leftItem.updateSeparatorView()
             }
+        }
+    }
+
+    func mouseClickView(_ mouseClickView: MouseClickView, mouseUpEvent: NSEvent) {
+        // Handle header clicks - toggle collapsed state
+        if let group = currentHeaderGroup {
+            delegate?.tabBarViewItemSelectTab(self)
+            return
         }
     }
 
