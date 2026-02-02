@@ -325,15 +325,11 @@ extension MainViewController {
     func segueToSettingsAIChat(openedFromSERPSettingsButton: Bool = false, completion: (() -> Void)? = nil) {
         Logger.lifecycle.debug(#function)
         hideAllHighlightsIfNeeded()
-        launchSettings(
-            completion: { _ in
-                completion?()
-            },
-            deepLinkTarget: .aiChat,
-            configure: { viewModel, _ in
-                viewModel.openedFromSERPSettingsButton = openedFromSERPSettingsButton
-            }
-        )
+        launchSettings(completion: { _ in
+            completion?()
+        }, deepLinkTarget: .aiChat) { viewModel, _ in
+            viewModel.openedFromSERPSettingsButton = openedFromSERPSettingsButton
+        }
     }
 
     func segueToSettingsPrivateSearch(completion: (() -> Void)? = nil) {
