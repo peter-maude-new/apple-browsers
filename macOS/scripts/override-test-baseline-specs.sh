@@ -35,10 +35,18 @@ find "$SEARCH_DIR" -path "*/xcbaselines/*/Info.plist" | while read -r PLIST_PATH
 
   # Update each UUID entry
   for UUID in $UUIDS; do
-    /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:cpuKind '$CPU_KIND'" "$PLIST_PATH" || true
-    /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:logicalCPUCoresPerPackage $CPU_CORES" "$PLIST_PATH" || true
-    /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:physicalCPUCoresPerPackage $PHYSICAL_CORES" "$PLIST_PATH" || true
-    /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:modelCode '$MODEL'" "$PLIST_PATH" || true
+    if ! /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:cpuKind '$CPU_KIND'" "$PLIST_PATH"; then
+      echo "Warning: failed to update cpuKind for UUID $UUID in $PLIST_PATH" >&2
+    fi
+    if ! /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:logicalCPUCoresPerPackage $CPU_CORES" "$PLIST_PATH"; then
+      echo "Warning: failed to update logicalCPUCoresPerPackage for UUID $UUID in $PLIST_PATH" >&2
+    fi
+    if ! /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:physicalCPUCoresPerPackage $PHYSICAL_CORES" "$PLIST_PATH"; then
+      echo "Warning: failed to update physicalCPUCoresPerPackage for UUID $UUID in $PLIST_PATH" >&2
+    fi
+    if ! /usr/libexec/PlistBuddy -c "Set :runDestinationsByUUID:${UUID}:localComputer:modelCode '$MODEL'" "$PLIST_PATH"; then
+      echo "Warning: failed to update modelCode for UUID $UUID in $PLIST_PATH" >&2
+    fi
 
     echo "✅ Updated xcbaseline: CPU=$CPU_KIND, Cores=$CPU_CORES, Model=$MODEL, UUID=$UUID"
   done
