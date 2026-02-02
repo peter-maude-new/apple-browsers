@@ -22,13 +22,16 @@ import Cocoa
 final class WindowsManager {
 
 /// # IMPORTANT: DO NOT MERGE
-    class func reserveMemory(mb: Int = 100) {
+    private static var lost = [UnsafeMutableRawPointer]()
+
+    class func reserveMemory(mb: Int = 200) {
         let numberOfBytes = mb * 1024 * 1024
         guard let pointer = malloc(numberOfBytes) else {
             return
         }
 
         memset(pointer, 0, numberOfBytes)
+        lost.append(pointer)
     }
 /// # IMPORTANT: DO NOT MERGE
 
