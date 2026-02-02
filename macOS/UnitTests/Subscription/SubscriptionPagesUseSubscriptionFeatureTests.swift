@@ -68,6 +68,13 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockWideEvent = WideEventMock()
         mockEventReporter = MockSubscriptionEventReporter()
 
+        let flowPerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: subscriptionManager,
+            uiHandler: mockUIHandler,
+            wideEvent: mockWideEvent,
+            subscriptionEventReporter: mockEventReporter,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         sut = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                       subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler,
                                                       stripePurchaseFlow: mockStripePurchaseFlowV2,
@@ -79,7 +86,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
                                                       aiChatURL: URL.duckDuckGo,
                                                       wideEvent: mockWideEvent,
                                                       subscriptionEventReporter: mockEventReporter,
-                                                      pendingTransactionHandler: MockPendingTransactionHandler())
+                                                      pendingTransactionHandler: MockPendingTransactionHandler(),
+                                                      flowPerformer: flowPerformer)
         sut.with(broker: broker)
     }
 
@@ -529,6 +537,13 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         stripeSubscriptionManager.resultStorePurchaseManager = mockStorePurchaseManager
         stripeSubscriptionManager.resultURL = URL(string: "https://duckduckgo.com/subscription/feature")!
 
+        let flowPerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: stripeSubscriptionManager,
+            uiHandler: mockUIHandler,
+            wideEvent: mockWideEvent,
+            subscriptionEventReporter: mockEventReporter,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let stripeSut = SubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: stripeSubscriptionManager,
             subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler,
@@ -540,7 +555,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            flowPerformer: flowPerformer
         )
         stripeSut.with(broker: broker)
 
@@ -590,6 +606,13 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         stripeSubscriptionManager.resultStorePurchaseManager = mockStorePurchaseManager
         stripeSubscriptionManager.resultURL = URL(string: "https://duckduckgo.com/subscription/feature")!
 
+        let flowPerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: stripeSubscriptionManager,
+            uiHandler: mockUIHandler,
+            wideEvent: mockWideEvent,
+            subscriptionEventReporter: mockEventReporter,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let stripeSut = SubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: stripeSubscriptionManager,
             subscriptionSuccessPixelHandler: subscriptionSuccessPixelHandler,
@@ -601,7 +624,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            flowPerformer: flowPerformer
         )
         stripeSut.with(broker: broker)
 

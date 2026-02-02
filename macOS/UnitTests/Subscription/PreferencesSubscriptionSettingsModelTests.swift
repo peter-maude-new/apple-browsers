@@ -37,6 +37,7 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
     var subscriptionStateSubject: PassthroughSubject<PreferencesSidebarSubscriptionState, Never>!
     var cancellables: Set<AnyCancellable> = []
     var isProTierPurchaseEnabled: Bool = false
+    var capturedCancelPendingDowngradeProductId: String?
 
     override func setUp() {
         super.setUp()
@@ -53,7 +54,8 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
     }
 
     private func makeSUT(subscription: DuckDuckGoSubscription? = nil,
-                         purchasePlatform: SubscriptionEnvironment.PurchasePlatform = .appStore) -> PreferencesSubscriptionSettingsModel {
+                         purchasePlatform: SubscriptionEnvironment.PurchasePlatform = .appStore,
+                         cancelPendingDowngradeHandler: (@Sendable (String) async -> Void)? = nil) -> PreferencesSubscriptionSettingsModel {
         if let subscription {
             mockSubscriptionManager.resultSubscription = .success(subscription)
         } else {
@@ -69,7 +71,8 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
             keyValueStore: mockKeyValueStore,
             winBackOfferVisibilityManager: mockWinBackOfferManager,
             blackFridayCampaignProvider: mockBlackFridayCampaignProvider,
-            isProTierPurchaseEnabled: { [weak self] in self?.isProTierPurchaseEnabled ?? false }
+            isProTierPurchaseEnabled: { [weak self] in self?.isProTierPurchaseEnabled ?? false },
+            cancelPendingDowngradeHandler: cancelPendingDowngradeHandler
         )
     }
 
@@ -82,7 +85,166 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
         userEvents = []
         subscriptionStateSubject = nil
         cancellables = []
+        capturedCancelPendingDowngradeProductId = nil
         super.tearDown()
+    }
+
+    // MARK: - Cancel Pending Downgrade Handler Tests
+
+    @MainActor
+    func testCancelPendingDowngrade_WhenAppleSubscriptionOnAppStore_InvokesHandlerWithCurrentProductId() {
+        // Given - Apple subscription on App Store app with pending downgrade
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-privacy-pro-monthly-plus",
+            billingPeriod: .monthly,
+            effectiveAt: Date(timeIntervalSince1970: 1711557633),
+            status: "pending",
+            tier: .plus
+        )
+        let subscription = SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            platform: .apple,
+            tier: .pro,
+            pendingPlans: [pendingPlan]
+        )
+        let handlerExpectation = expectation(description: "Cancel pending downgrade handler called")
+        sut = makeSUT(subscription: subscription,
+                      purchasePlatform: .appStore,
+                      cancelPendingDowngradeHandler: { [weak self] productId in
+            self?.capturedCancelPendingDowngradeProductId = productId
+            handlerExpectation.fulfill()
+        })
+
+        // Wait for subscription update so currentProductID is set
+        let subscriptionUpdated = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .compactMap { $0 }
+            .first()
+            .sink { _ in subscriptionUpdated.fulfill() }
+            .store(in: &cancellables)
+        wait(for: [subscriptionUpdated], timeout: 2.0)
+
+        // When - User triggers cancel pending downgrade and invokes the returned action
+        let action = sut.cancelPendingDowngrade()
+        if case .cancelApplePendingDowngrade(let closure) = action {
+            closure()
+        } else {
+            XCTFail("Expected cancelApplePendingDowngrade action, got \(action)")
+            return
+        }
+
+        wait(for: [handlerExpectation], timeout: 1.0)
+
+        // Then - Handler was called with the current subscription product ID
+        XCTAssertEqual(capturedCancelPendingDowngradeProductId, subscription.productId)
+    }
+
+    @MainActor
+    func testCancelPendingDowngrade_WhenAppleSubscriptionOnStripeApp_ReturnsPresentSheetApple() {
+        // Given - Apple subscription on Stripe app (platforms don't match)
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-privacy-pro-monthly-plus",
+            billingPeriod: .monthly,
+            effectiveAt: Date(timeIntervalSince1970: 1711557633),
+            status: "pending",
+            tier: .plus
+        )
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            platform: .apple,
+            tier: .pro,
+            pendingPlans: [pendingPlan]
+        ), purchasePlatform: .stripe)
+
+        let subscriptionUpdated = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .compactMap { $0 }
+            .first()
+            .sink { _ in subscriptionUpdated.fulfill() }
+            .store(in: &cancellables)
+        wait(for: [subscriptionUpdated], timeout: 2.0)
+
+        // When
+        let action = sut.cancelPendingDowngrade()
+
+        // Then - Should show Apple dialog with instructions (handler not invoked)
+        if case .presentSheet(.apple) = action {
+            // Success
+        } else {
+            XCTFail("Expected presentSheet(.apple) action, got \(action)")
+        }
+    }
+
+    @MainActor
+    func testCancelPendingDowngrade_WhenGoogleSubscription_ReturnsPresentSheetGoogle() {
+        // Given - Google subscription with pending downgrade
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-google-plus-monthly",
+            billingPeriod: .monthly,
+            effectiveAt: Date(timeIntervalSince1970: 1711557633),
+            status: "pending",
+            tier: .plus
+        )
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            platform: .google,
+            tier: .pro,
+            pendingPlans: [pendingPlan]
+        ), purchasePlatform: .appStore)
+
+        let subscriptionUpdated = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .compactMap { $0 }
+            .first()
+            .sink { _ in subscriptionUpdated.fulfill() }
+            .store(in: &cancellables)
+        wait(for: [subscriptionUpdated], timeout: 2.0)
+
+        // When
+        let action = sut.cancelPendingDowngrade()
+
+        // Then - Should show Google sheet (handler not invoked)
+        if case .presentSheet(.google) = action {
+            // Success
+        } else {
+            XCTFail("Expected presentSheet(.google) action, got \(action)")
+        }
+    }
+
+    @MainActor
+    func testCancelPendingDowngrade_WhenStripeSubscription_ReturnsNavigateToManageSubscription() {
+        // Given - Stripe subscription with pending downgrade
+        let pendingPlan = DuckDuckGoSubscription.PendingPlan(
+            productId: "ddg-stripe-pro-monthly-plus",
+            billingPeriod: .monthly,
+            effectiveAt: Date(timeIntervalSince1970: 1711557633),
+            status: "pending",
+            tier: .plus
+        )
+        sut = makeSUT(subscription: SubscriptionMockFactory.subscription(
+            status: .autoRenewable,
+            platform: .stripe,
+            tier: .pro,
+            pendingPlans: [pendingPlan]
+        ), purchasePlatform: .stripe)
+
+        let subscriptionUpdated = expectation(description: "Subscription details updated")
+        sut.$subscriptionDetails
+            .compactMap { $0 }
+            .first()
+            .sink { _ in subscriptionUpdated.fulfill() }
+            .store(in: &cancellables)
+        wait(for: [subscriptionUpdated], timeout: 2.0)
+
+        // When
+        let action = sut.cancelPendingDowngrade()
+
+        // Then - Should navigate to Stripe customer portal (handler not invoked)
+        if case .navigateToManageSubscription = action {
+            // Success
+        } else {
+            XCTFail("Expected navigateToManageSubscription action, got \(action)")
+        }
     }
 
     // MARK: - Expired Subscription Purchase Button Title Tests

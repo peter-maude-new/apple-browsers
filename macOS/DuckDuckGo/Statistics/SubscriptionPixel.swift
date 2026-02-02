@@ -81,6 +81,7 @@ enum SubscriptionPixel: PixelKitEvent {
     // Plan Change
     case subscriptionViewAllPlansClick
     case subscriptionUpgradeClick
+    case subscriptionCancelPendingDowngradeClick
     // Auth
     case subscriptionInvalidRefreshTokenDetected(SubscriptionPixelHandler.Source)
     case subscriptionInvalidRefreshTokenSignedOut
@@ -173,6 +174,7 @@ enum SubscriptionPixel: PixelKitEvent {
             // Plan Change
         case .subscriptionViewAllPlansClick: return "m_mac_\(appDistribution)_subscription_settings_view-all-plans_click"
         case .subscriptionUpgradeClick: return "m_mac_\(appDistribution)_subscription_settings_upgrade_click"
+        case .subscriptionCancelPendingDowngradeClick: return "m_mac_\(appDistribution)_subscription_settings_cancel-pending-downgrade_click"
             // Auth
         case .subscriptionInvalidRefreshTokenDetected: return "m_mac_\(appDistribution)_privacy-pro_auth_invalid_refresh_token_detected"
         case .subscriptionInvalidRefreshTokenSignedOut: return "m_mac_\(appDistribution)_privacy-pro_auth_invalid_refresh_token_signed_out"
@@ -318,7 +320,8 @@ enum SubscriptionPixel: PixelKitEvent {
                 .subscriptionTierOptionsFailure,
                 .subscriptionTierOptionsUnexpectedProTier,
                 .subscriptionViewAllPlansClick,
-                .subscriptionUpgradeClick:
+                .subscriptionUpgradeClick,
+                .subscriptionCancelPendingDowngradeClick:
             return [.pixelSource]
         }
     }

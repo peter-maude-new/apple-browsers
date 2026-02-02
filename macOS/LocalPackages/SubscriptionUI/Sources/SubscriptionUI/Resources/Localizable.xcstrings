@@ -1376,6 +1376,18 @@
         }
       }
     },
+    "subscription.cancel.pending.downgrade.banner.caption" : {
+      "comment" : "Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).'",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your plan will downgrade to %1$@ on %2$@."
+          }
+        }
+      }
+    },
     "subscription.dialog.change.apple.description" : {
       "comment" : "Change plan or billing dialog subtitle description for subscription purchased via Apple",
       "extractionState" : "extracted_with_value",
@@ -2092,6 +2104,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Просмотреть тарифы"
+          }
+        }
+      }
+    },
+    "subscription.preferences.cancel.downgrade.button" : {
+      "comment" : "Button to cancel a pending downgrade of the subscription",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Cancel Downgrade"
           }
         }
       }

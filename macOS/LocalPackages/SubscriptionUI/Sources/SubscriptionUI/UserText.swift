@@ -209,6 +209,15 @@ enum UserText {
         return String(format: localized, tierName, formattedDate)
     }
 
+    static func cancelPendingDowngradeBannerInfo(tierName: String, effectiveDate: String) -> String {
+        let localized = NSLocalizedString("subscription.cancel.pending.downgrade.banner.caption",
+                                         value: "Your plan will downgrade to %@ on %@.",
+                                         comment: "Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).'")
+        return String(format: localized, tierName, effectiveDate)
+    }
+
+    static let cancelDowngradeButton = NSLocalizedString("subscription.preferences.cancel.downgrade.button", bundle: Bundle.module, value: "Cancel Downgrade", comment: "Button to cancel a pending downgrade of the subscription")
+
     static let manageSubscriptionButton = NSLocalizedString("subscription.preferences.manage.subscription.button", bundle: Bundle.module, value: "Manage Subscription", comment: "Button to manage subscription")
     static let updatePlanOrCancelButton = NSLocalizedString("subscription.preferences.update.plan.or.cancel.button", bundle: Bundle.module, value: "Update Plan or Cancel", comment: "Button to update subscription plan or cancel")
     static let managePaymentOrCancelButton = NSLocalizedString("subscription.preferences.manage.payment.or.cancel.button", bundle: Bundle.module, value: "Manage Payment or Cancel", comment: "Button to manage payment or cancel subscription")
