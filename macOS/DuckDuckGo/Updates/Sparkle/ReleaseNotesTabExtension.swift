@@ -24,6 +24,8 @@ import Navigation
 import Persistence
 import WebKit
 
+#if SPARKLE
+
 public struct ReleaseNotesValues: Codable {
     enum Status: String {
         case loaded
@@ -167,8 +169,8 @@ extension ReleaseNotesValues {
         // This happens when there's no connectivity,
         // or when the appcast hasn't finished loading by the time the Release Notes screen shows up
         guard let latestUpdate = updateController.latestUpdate else {
-            if let data = try? keyValueStore.object(forKey: UpdateControllerStorageKeys.pendingUpdateInfo.rawValue) as? Data,
-               let cached = try? JSONDecoder().decode(SparkleUpdateController.PendingUpdateInfo.self, from: data) {
+            let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
+            if let cached = try? settings.pendingUpdateInfo {
                 let releaseTitle = Update.releaseDateFormatter().string(from: cached.date)
 
                 let cachedVersion = "\(cached.version) (\(cached.build))"
@@ -265,3 +267,5 @@ private extension UpdateCycleProgress {
         return percentage
     }
 }
+
+#endif

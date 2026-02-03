@@ -28,7 +28,7 @@ final class UpdatesDebugMenu: NSMenu {
     private let keyValueStore: ThrowingKeyValueStoring
     private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
 
-    init(keyValueStore: ThrowingKeyValueStoring = Application.appDelegate.keyValueStore) {
+    init(keyValueStore: ThrowingKeyValueStoring) {
         self.keyValueStore = keyValueStore
         super.init(title: "")
 

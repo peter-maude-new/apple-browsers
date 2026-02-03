@@ -172,7 +172,7 @@ final class UserScripts: UserScriptsProvider {
             releaseNotesUserScript = (factory as? ReleaseNotesUserScriptFactoryBuilder)?.makeUserScript(
                 updateController: updateController,
                 eventMapping: UpdateControllerMappings.eventMapping(pixelFiring: PixelKit.shared),
-                keyValueStore: Application.appDelegate.keyValueStore,
+                keyValueStore: UserDefaults.standard,
                 releaseNotesURL: .releaseNotes
             )
         } else {
