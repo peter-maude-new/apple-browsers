@@ -40,6 +40,7 @@ final class PageContextTabExtension {
     private var cancellables = Set<AnyCancellable>()
     private var userScriptCancellables = Set<AnyCancellable>()
     private var sidebarCancellables = Set<AnyCancellable>()
+    private var sidebarViewControllerCancellables = Set<AnyCancellable>()
     private let tabID: TabIdentifier
     private var content: Tab.TabContent = .none
     private let featureFlagger: FeatureFlagger
@@ -64,6 +65,7 @@ final class PageContextTabExtension {
     private weak var sidebar: AIChatSidebar? {
         didSet {
             subscribeToCollectionRequest()
+            subscribeToSidebarViewControllerChanges()
         }
     }
 
@@ -178,6 +180,24 @@ final class PageContextTabExtension {
                 self?.collectPageContextIfNeeded()
             }
             .store(in: &sidebarCancellables)
+    }
+
+    /// Subscribes to changes in the sidebar's view controller.
+    /// This is needed because when the sidebar is reopened, a new view controller is created
+    /// but `sidebarsByTabPublisher` doesn't emit (the dictionary entry is reused).
+    /// We need to re-subscribe to the new view controller's `pageContextRequestedPublisher`.
+    private func subscribeToSidebarViewControllerChanges() {
+        sidebarViewControllerCancellables.removeAll()
+        guard let sidebar else {
+            return
+        }
+
+        sidebar.sidebarViewControllerPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.subscribeToCollectionRequest()
+            }
+            .store(in: &sidebarViewControllerCancellables)
     }
 
     /// This is the main place where page context handling happens.

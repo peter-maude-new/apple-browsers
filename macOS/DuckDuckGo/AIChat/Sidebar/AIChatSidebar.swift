@@ -48,7 +48,15 @@ final class AIChatSidebar: NSObject {
     var sidebarViewController: AIChatSidebarViewController? {
         didSet {
             subscribeToRestorationDataUpdates()
+            sidebarViewControllerSubject.send(sidebarViewController)
         }
+    }
+
+    /// Publishes when `sidebarViewController` is set or changes.
+    /// This allows observers to subscribe to the new view controller's publishers.
+    private let sidebarViewControllerSubject = PassthroughSubject<AIChatSidebarViewController?, Never>()
+    var sidebarViewControllerPublisher: AnyPublisher<AIChatSidebarViewController?, Never> {
+        sidebarViewControllerSubject.eraseToAnyPublisher()
     }
 
     /// Cancellables for Combine subscriptions
