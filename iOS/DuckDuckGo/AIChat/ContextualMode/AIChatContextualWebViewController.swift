@@ -83,11 +83,13 @@ final class AIChatContextualWebViewController: UIViewController {
         webView.backgroundColor = .systemBackground
         webView.navigationDelegate = self
         webView.translatesAutoresizingMaskIntoConstraints = false
-#if DEBUG
         if #available(iOS 16.4, *) {
+            #if DEBUG
+            webView.isInspectable = true
+            #else
             webView.isInspectable = AppUserDefaults().inspectableWebViewEnabled
+            #endif
         }
-#endif
         return webView
     }()
 
