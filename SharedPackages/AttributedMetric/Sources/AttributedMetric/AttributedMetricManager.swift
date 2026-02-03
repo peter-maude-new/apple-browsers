@@ -230,13 +230,30 @@ public final class AttributedMetricManager {
 
     // MARK: - Retention
     // https://app.asana.com/1/137249556945/project/1113117197328546/task/1211301604929607?focus=true
+    ///
+    /// Example retention pixels from install day through month 7:
+    /// - Day 0: no pixel
+    /// - Days 1-7: attributed_metric_retention_week (week 1)
+    /// - Days 8-14: attributed_metric_retention_week (week 2)
+    /// - Days 15-21: attributed_metric_retention_week (week 3)
+    /// - Days 22-28: attributed_metric_retention_week (week 4)
+    /// - Days 29-56: attributed_metric_retention_month (month 2)
+    /// - Days 57-84: attributed_metric_retention_month (month 3)
+    /// - Days 85-112: attributed_metric_retention_month (month 4)
+    /// - Days 113-140: attributed_metric_retention_month (month 5)
+    /// - Days 141-168: attributed_metric_retention_month (month 6)
+    /// - Days 169-196: not sent (data cleared at 6 months)
     func processRetention() {
-        guard let timePastFromInstall = timePastFromInstall else { return }
-        let lastRetentionThreshold = dataStorage.lastRetentionThreshold
+        guard let timePastFromInstall: QuantisedTimePast = timePastFromInstall else {
+            Logger.attributedMetric.error("Time past from install is nil")
+            return
+        }
+        let lastRetentionThreshold: QuantisedTimePast = dataStorage.lastRetentionThreshold ?? .none
         guard lastRetentionThreshold != timePastFromInstall else {
             Logger.attributedMetric.error("Threshold not changed")
             return
         }
+        Logger.attributedMetric.log("Threshold changed from \(lastRetentionThreshold.description) to \(timePastFromInstall.description)")
         dataStorage.lastRetentionThreshold = timePastFromInstall
         switch timePastFromInstall {
         case .none:
