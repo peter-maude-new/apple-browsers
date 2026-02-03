@@ -118,6 +118,7 @@ final class ToolbarHandler: ToolbarStateHandling {
         }()
 
         toolbar.setItems(buttons, animated: false)
+
     }
 
     // MARK: - Private Methods
@@ -140,6 +141,12 @@ final class ToolbarHandler: ToolbarStateHandling {
         button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
 
         let barItem = UIBarButtonItem(customView: button)
+        if #available(iOS 26.0, *) {
+            barItem.sharesBackground = false
+            barItem.hidesSharedBackground = true
+        } else {
+            // Fallback on earlier versions
+        }
         barItem.title = title
 
         return barItem
@@ -147,9 +154,9 @@ final class ToolbarHandler: ToolbarStateHandling {
 
     private func createPageLoadedButtons() -> [UIBarButtonItem] {
         return [
-            .additionalFixedSpaceItem(),
+            // .additionalFixedSpaceItem(),
             backButton,
-            .flexibleSpace(),
+             .flexibleSpace(),
             forwardButton,
             .flexibleSpace(),
             fireBarButtonItem,
@@ -157,7 +164,7 @@ final class ToolbarHandler: ToolbarStateHandling {
             tabSwitcherButton,
             .flexibleSpace(),
             browserMenuButton,
-            .additionalFixedSpaceItem()
+            // .additionalFixedSpaceItem()
         ].compactMap { $0 }
     }
 

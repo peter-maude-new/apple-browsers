@@ -19,6 +19,7 @@
 
 import UIKit
 import BrowserServicesKit
+import DesignResourcesKitIcons
 
 protocol TabSwitcherBarsStateHandling {
 
@@ -51,17 +52,25 @@ protocol TabSwitcherBarsStateHandling {
 /// This is what we hope will be the new version long term.
 class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 
-    let plusButton = UIBarButtonItem()
-    let fireButton = UIBarButtonItem()
-    let doneButton = UIBarButtonItem()
-    let closeTabsButton = UIBarButtonItem()
-    let menuButton = UIBarButtonItem()
-    let addAllBookmarksButton = UIBarButtonItem()
-    let tabSwitcherStyleButton = UIBarButtonItem()
-    let editButton = UIBarButtonItem()
-    let selectAllButton = UIBarButtonItem()
-    let deselectAllButton = UIBarButtonItem()
-    let duckChatButton = UIBarButtonItem()
+    static func makeButtonItem() -> UIBarButtonItem {
+        let button = UIBarButtonItem()
+        if #available(iOS 26.0, *) {
+            button.hidesSharedBackground = true
+        }
+        return button
+    }
+
+    let plusButton = makeButtonItem()
+    let fireButton = makeButtonItem()
+    let doneButton = makeButtonItem()
+    let closeTabsButton = makeButtonItem()
+    let menuButton = makeButtonItem()
+    let addAllBookmarksButton = makeButtonItem()
+    let tabSwitcherStyleButton = makeButtonItem()
+    let editButton = makeButtonItem()
+    let selectAllButton = makeButtonItem()
+    let deselectAllButton = makeButtonItem()
+    let duckChatButton = makeButtonItem()
 
     private(set) var bottomBarItems = [UIBarButtonItem]()
     private(set) var isBottomBarHidden = false
@@ -76,8 +85,7 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 
     private(set) var isFirstUpdate = true
 
-    init() {
-    }
+    init() { }
 
     func update(_ interfaceMode: TabSwitcherViewController.InterfaceMode,
                 selectedTabsCount: Int,
@@ -118,16 +126,23 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
     func updateBottomBar() {
         var newItems: [UIBarButtonItem]
 
-        let leadingSideWidthDifference: CGFloat = 6
+        // let leadingSideWidthDifference: CGFloat = 6
+        let leadingSideWidthDifference: CGFloat = 100
 
         switch interfaceMode {
         case .regularSize:
 
             newItems = [
+                .additionalFixedSpaceItem(),
+
                 tabSwitcherStyleButton,
 
                 .flexibleSpace(),
-                .fixedSpace(leadingSideWidthDifference),
+                // .fixedSpace(leadingSideWidthDifference),
+                // emptyButton(withWidth: leadingSideWidthDifference),
+
+                testButton(),
+
                 .flexibleSpace(),
 
                 fireButton,
@@ -138,7 +153,10 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 
                 .flexibleSpace(),
 
-                editButton
+                editButton,
+
+                .additionalFixedSpaceItem()
+
             ].compactMap { $0 }
 
             isBottomBarHidden = false
@@ -146,7 +164,7 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
         case .editingRegularSize:
             newItems = [
                 closeTabsButton,
-                UIBarButtonItem.flexibleSpace(),
+//                UIBarButtonItem.flexibleSpace(),
                 menuButton,
             ]
             isBottomBarHidden = false
@@ -160,10 +178,30 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
         if !newItems.isEmpty {
             // This aligns items with the toolbar on main screen,
             // which is supposed to be aligned with Omnibar buttons.
-            newItems = [.additionalFixedSpaceItem()] + newItems + [.additionalFixedSpaceItem()]
+            // newItems = [.additionalFixedSpaceItem()] + newItems + [.additionalFixedSpaceItem()]
+        }
+
+        if #available(iOS 26, *) {
+            newItems.forEach {
+                $0.sharesBackground = false
+                $0.hidesSharedBackground = true
+            }
         }
 
         bottomBarItems = newItems
+    }
+
+    func emptyButton(withWidth width: CGFloat) -> UIBarButtonItem {
+        let button = Self.makeButtonItem()
+        button.width = width
+        return button
+    }
+
+    func testButton() -> UIBarButtonItem {
+        let button = Self.makeButtonItem()
+        button.image = DesignSystemImages.Glyphs.Size24.shield
+        button.tintColor = .clear
+        return button
     }
 
     func updateTopLeftButtons() {

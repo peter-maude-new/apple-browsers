@@ -31,6 +31,7 @@ import DesignResourcesKit
 import BrowserServicesKit
 import PrivacyConfig
 import AIChat
+import DesignResourcesKitIcons
 
 class TabSwitcherViewController: UIViewController {
 
@@ -83,9 +84,9 @@ class TabSwitcherViewController: UIViewController {
         var image: UIImage {
             switch self {
             case .list:
-                return UIImage(resource: .tabsToggleList)
+                return DesignSystemImages.Glyphs.Size24.viewList // UIImage(resource: .tabsToggleList)
             case .grid:
-                return UIImage(resource: .tabsToggleGrid)
+                return DesignSystemImages.Glyphs.Size24.viewGrid // UIImage(resource: .tabsToggleGrid)
             }
         }
 
@@ -745,6 +746,9 @@ extension TabSwitcherViewController {
         refreshDisplayModeButton()
         
         titleBarView.tintColor = theme.barTintColor
+        if #available(iOS 26.0, *) {
+            titleBarView.backItem?.rightBarButtonItem?.hidesSharedBackground = true
+        }
 
         toolbar.barTintColor = theme.barBackgroundColor
         toolbar.tintColor = theme.barTintColor
