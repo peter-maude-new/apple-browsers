@@ -190,3 +190,17 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
     }
 
 }
+
+extension SubscriptionPlanChangeWideEventData.ChangeType {
+    /// Parses a change type string from the frontend (e.g. "upgrade", "downgrade", "crossgrade"; case-insensitive).
+    /// Provided here because the app links against remote BrowserServicesKit which may not include this API yet.
+    static func parse(string: String?) -> SubscriptionPlanChangeWideEventData.ChangeType? {
+        guard let change = string?.lowercased() else { return nil }
+        switch change {
+        case "upgrade": return .upgrade
+        case "downgrade": return .downgrade
+        case "crossgrade": return .crossgrade
+        default: return nil
+        }
+    }
+}
