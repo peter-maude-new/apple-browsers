@@ -22,13 +22,13 @@ import PixelKit
 import Subscription
 import os.log
 
-/// Protocol for performing subscription tier changes (upgrade, downgrade, cancel pending downgrade).
-/// Allows the subscription page feature and native UI (e.g. Preferences cancel pending downgrade)
+/// Protocol for performing App Store subscription tier changes (upgrade, downgrade, cancel pending downgrade).
+/// Allows the subscription page feature and native UI (e.g. Preferences cancel downgrade)
 /// to share the same implementation via dependency injection.
 @MainActor
 public protocol SubscriptionFlowPerforming: AnyObject {
 
-    /// Performs a tier change for the current purchase platform.
+    /// Performs an App Store tier change.
     /// - Returns: `PurchaseUpdate` on success; `nil` on failure or user cancel.
     func performTierChange(to productId: String, changeType: String?, contextName: String) async -> PurchaseUpdate?
 }
@@ -60,19 +60,14 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
     public func performTierChange(to productId: String, changeType: String?, contextName: String) async -> PurchaseUpdate? {
         let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
         let fromPlan = currentSubscription?.productId ?? ""
-        let resolvedChangeType = determineChangeType(change: changeType)
-
-        switch subscriptionManager.currentEnvironment.purchasePlatform {
-        case .appStore:
-            return await performAppStoreTierChange(to: productId, changeType: resolvedChangeType, fromPlan: fromPlan, contextName: contextName)
-        case .stripe:
-            return await performStripeTierChange(to: productId, changeType: resolvedChangeType, fromPlan: fromPlan, contextName: contextName)
-        }
+        let resolvedChangeType = SubscriptionPlanChangeWideEventData.ChangeType.from(string: changeType)
+        return await executeAppStoreTierChange(to: productId, changeType: resolvedChangeType, fromPlan: fromPlan, contextName: contextName)
     }
 
-    private func performAppStoreTierChange(to productId: String, changeType: SubscriptionPlanChangeWideEventData.ChangeType?, fromPlan: String, contextName: String) async -> PurchaseUpdate? {
+    private func executeAppStoreTierChange(to productId: String, changeType: SubscriptionPlanChangeWideEventData.ChangeType?, fromPlan: String, contextName: String) async -> PurchaseUpdate? {
         guard #available(macOS 12.0, *) else { return nil }
 
+        // Initialize wide event data
         let wideData = SubscriptionPlanChangeWideEventData(
             purchasePlatform: .appStore,
             changeType: changeType,
@@ -83,14 +78,17 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
         )
         wideEvent.startFlow(wideData)
 
+        // 2: Show purchase progress UI to user
         uiHandler.presentProgressViewController(withTitle: UserText.purchasingSubscriptionTitle)
 
+        // 3: Set up the purchase flow
         let appStorePurchaseFlow = makeAppStorePurchaseFlow()
 
+        // 4: Execute the tier change (uses existing account's externalID)
         Logger.subscription.log("[TierChange] Executing tier change")
         let tierChangeResult = await appStorePurchaseFlow.changeTier(to: productId)
 
-        let purchaseTransactionJWS: String?
+        let purchaseTransactionJWS: String
         switch tierChangeResult {
         case .success(let transactionJWS):
             purchaseTransactionJWS = transactionJWS
@@ -107,17 +105,20 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
                 wideEvent.updateFlow(wideData)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             }
-            return nil
+            return PurchaseUpdate(type: "Cancelled")
         }
 
-        guard let transactionJWS = purchaseTransactionJWS else { return nil }
-
+        // 5: Update UI to indicate that the tier change is completing
         uiHandler.updateProgressViewController(title: UserText.completingPurchaseTitle)
+
+        // Start confirmation timing
         wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
         wideEvent.updateFlow(wideData)
 
-        let completePurchaseResult = await appStorePurchaseFlow.completeSubscriptionPurchase(with: transactionJWS, additionalParams: nil)
+        // 6: Complete the tier change by confirming with the backend
+        let completePurchaseResult = await appStorePurchaseFlow.completeSubscriptionPurchase(with: purchaseTransactionJWS, additionalParams: nil)
 
+        // 7: Handle tier change completion result
         switch completePurchaseResult {
         case .success(let purchaseUpdate):
             Logger.subscription.log("[TierChange] Tier change completed successfully")
@@ -140,35 +141,7 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
             wideData.markAsFailed(at: .confirmation, error: error)
             wideEvent.updateFlow(wideData)
             wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            return nil
-        }
-    }
-
-    private func performStripeTierChange(to productId: String, changeType: SubscriptionPlanChangeWideEventData.ChangeType?, fromPlan: String, contextName: String) async -> PurchaseUpdate? {
-        let wideData = SubscriptionPlanChangeWideEventData(
-            purchasePlatform: .stripe,
-            changeType: changeType,
-            fromPlan: fromPlan,
-            toPlan: productId,
-            contextData: WideEventContextData(name: contextName)
-        )
-        wideEvent.startFlow(wideData)
-
-        do {
-            let tokenContainer = try await subscriptionManager.getTokenContainer(policy: .localValid)
-            let accessToken = tokenContainer.accessToken
-            Logger.subscription.log("[TierChange] Retrieved access token for Stripe tier change")
-            wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
-            wideEvent.updateFlow(wideData)
-            return PurchaseUpdate.redirect(withToken: accessToken)
-        } catch {
-            Logger.subscription.error("[TierChange] Failed to get token for Stripe tier change: \(error, privacy: .public)")
-            subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-            await showSomethingWentWrongAlert()
-            wideData.markAsFailed(at: .payment, error: error)
-            wideEvent.updateFlow(wideData)
-            wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            return nil
+            return PurchaseUpdate(type: "completed")
         }
     }
 
@@ -216,19 +189,4 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
         await uiHandler.dismissProgressViewAndShow(alertType: .somethingWentWrong, text: nil)
     }
 
-    private func determineChangeType(change: String?) -> SubscriptionPlanChangeWideEventData.ChangeType? {
-        guard let change = change?.lowercased() else {
-            return nil
-        }
-        switch change {
-        case "upgrade":
-            return .upgrade
-        case "downgrade":
-            return .downgrade
-        case "crossgrade":
-            return .crossgrade
-        default:
-            return nil
-        }
-    }
 }

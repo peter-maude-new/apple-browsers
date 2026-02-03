@@ -505,15 +505,73 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
 
         Logger.subscription.log("[TierChange] Parsed - id: \(subscriptionSelection.id, privacy: .public), change: \(subscriptionSelection.change ?? "nil", privacy: .public)")
 
-        let purchaseUpdate = await flowPerformer.performTierChange(
-            to: subscriptionSelection.id,
-            changeType: subscriptionSelection.change,
-            contextName: origin ?? ""
-        )
-        if let purchaseUpdate {
-            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: purchaseUpdate)
-        } else {
-            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
+        switch subscriptionPlatform {
+        case .appStore:
+            let purchaseUpdate = await flowPerformer.performTierChange(
+                to: subscriptionSelection.id,
+                changeType: subscriptionSelection.change,
+                contextName: origin ?? ""
+            )
+            if let purchaseUpdate {
+                await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: purchaseUpdate)
+            } else {
+                return nil
+            }
+        case .stripe:
+            // For Stripe tier changes, we always send the auth token so the backend can modify the existing subscription
+            guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
+                assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
+                subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                return nil
+            }
+
+            Logger.subscription.log("[TierChange] Stripe - id: \(subscriptionSelection.id, privacy: .public), change: \(subscriptionSelection.change ?? "nil", privacy: .public)")
+
+            // Get current subscription info for wide event tracking
+            let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
+            let fromPlan = currentSubscription?.productId ?? ""
+
+            // Determine change type from frontend
+            let changeType = SubscriptionPlanChangeWideEventData.ChangeType.from(string: subscriptionSelection.change)
+
+            // Initialize wide event data for Stripe
+            let wideData = SubscriptionPlanChangeWideEventData(
+                purchasePlatform: .stripe,
+                changeType: changeType,
+                fromPlan: fromPlan,
+                toPlan: subscriptionSelection.id,
+                contextData: WideEventContextData(name: origin ?? "")
+            )
+            self.planChangeWideEventData = wideData
+            wideEvent.startFlow(wideData)
+
+            // Get the access token - for tier changes, the user must be authenticated
+            // since they're modifying an existing subscription
+            let accessToken: String
+            do {
+                let tokenContainer = try await subscriptionManager.getTokenContainer(policy: .localValid)
+                accessToken = tokenContainer.accessToken
+                Logger.subscription.log("[TierChange] Retrieved access token for Stripe tier change")
+            } catch {
+                Logger.subscription.error("[TierChange] Failed to get token for Stripe tier change: \(error, privacy: .public)")
+                subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+                await showSomethingWentWrongAlert()
+                await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
+
+                wideData.markAsFailed(at: .payment, error: error)
+                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
+                self.planChangeWideEventData = nil
+                return nil
+            }
+
+            // Start confirmation timing (will be completed in completeStripePayment)
+            wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
+            wideEvent.updateFlow(wideData)
+
+            // Return redirect with token so frontend handles Stripe checkout
+            // Note: For Stripe, the wide event will be completed when completeStripePayment is called
+            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.redirect(withToken: accessToken))
+
         }
         await uiHandler.dismissProgressViewController()
         return nil
@@ -590,9 +648,10 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         sendSubscriptionUpgradeFromFreemiumNotificationIfFreemiumActivated()
         notificationCenter.post(name: .subscriptionDidChange, object: self)
 
-        // Complete the appropriate wide event based on whether this is a new purchase or tier change
-        // Check planChangeWideEventData first - if it exists, this is a tier change
-        if let data = self.planChangeWideEventData {
+        // Complete the appropriate wide event based on whether this is a new purchase or tier change.
+        // planChangeWideEventData is set when subscriptionChangeSelected runs the Stripe tier change path.
+        let planChangeData = self.planChangeWideEventData
+        if let data = planChangeData {
             // Tier change - complete plan change wide event
             data.confirmationDuration?.complete()
             wideEvent.updateFlow(data)

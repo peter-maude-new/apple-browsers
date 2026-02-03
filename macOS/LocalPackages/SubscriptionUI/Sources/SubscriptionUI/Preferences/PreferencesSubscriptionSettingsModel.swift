@@ -111,7 +111,7 @@ public final class PreferencesSubscriptionSettingsModel: ObservableObject {
     private let blackFridayCampaignProvider: BlackFridayCampaignProviding
     private let userEventHandler: (PreferencesSubscriptionSettingsModel.UserEvent) -> Void
     private let isProTierPurchaseEnabled: () -> Bool
-    private let cancelPendingDowngradeHandler: (@Sendable (String) async -> Void)?
+    private let cancelPendingDowngradeHandler: ((String) async -> Void)?
     private var fetchSubscriptionDetailsTask: Task<(), Never>?
 
     private var subscriptionChangeObserver: Any?
@@ -142,7 +142,7 @@ public final class PreferencesSubscriptionSettingsModel: ObservableObject {
                 winBackOfferVisibilityManager: WinBackOfferVisibilityManaging,
                 blackFridayCampaignProvider: BlackFridayCampaignProviding,
                 isProTierPurchaseEnabled: @escaping () -> Bool,
-                cancelPendingDowngradeHandler: (@Sendable (String) async -> Void)? = nil) {
+                cancelPendingDowngradeHandler: ((String) async -> Void)? = nil) {
         self.subscriptionManager = subscriptionManager
         self.userEventHandler = userEventHandler
         self.keyValueStore = keyValueStore

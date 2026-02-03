@@ -55,7 +55,7 @@ final class PreferencesSubscriptionSettingsModelTests: XCTestCase {
 
     private func makeSUT(subscription: DuckDuckGoSubscription? = nil,
                          purchasePlatform: SubscriptionEnvironment.PurchasePlatform = .appStore,
-                         cancelPendingDowngradeHandler: (@Sendable (String) async -> Void)? = nil) -> PreferencesSubscriptionSettingsModel {
+                         cancelPendingDowngradeHandler: ((String) async -> Void)? = nil) -> PreferencesSubscriptionSettingsModel {
         if let subscription {
             mockSubscriptionManager.resultSubscription = .success(subscription)
         } else {
