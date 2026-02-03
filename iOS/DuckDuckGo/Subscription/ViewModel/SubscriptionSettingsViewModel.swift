@@ -34,6 +34,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     private var signOutObserver: Any?
     private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
+    private let tierChangePerformerToUse: SubscriptionTierChangePerforming
 
     private var externalAllowedDomains = ["stripe.com"]
 
@@ -51,6 +52,9 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         var pendingUpgradeTier: String?
         var subscriptionInfo: DuckDuckGoSubscription?
         var isLoadingSubscriptionInfo: Bool = false
+        var cancelPendingDowngradeDetails: String?
+        var isCancelDowngradeInProgress: Bool = false
+        var cancelDowngradeError: String?
 
         // Used to display stripe WebUI
         var stripeViewModel: SubscriptionExternalLinkViewModel?
@@ -174,10 +178,14 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     init(subscriptionManager: SubscriptionManager = AppDependencyProvider.shared.subscriptionManager,
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
          keyValueStorage: KeyValueStoring = SubscriptionSettingsStore(),
-         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies) {
+         userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
+         tierChangePerformer: SubscriptionTierChangePerforming? = nil) {
         self.subscriptionManager = subscriptionManager
         self.userScriptsDependencies = userScriptsDependencies
         self.featureFlagger = featureFlagger
+        self.tierChangePerformerToUse = tierChangePerformer ?? SubscriptionContainerViewFactory.makeTierChangePerformer(
+            subscriptionManager: subscriptionManager,
+            wideEvent: AppDependencyProvider.shared.wideEvent)
         let subscriptionFAQURL = subscriptionManager.url(for: .faq)
         let learnMoreURL = subscriptionFAQURL.appendingPathComponent("adding-email")
         self.state = State(faqURL: subscriptionFAQURL, learnMoreURL: learnMoreURL, userScriptsDependencies: userScriptsDependencies, featureFlagger: featureFlagger)
@@ -290,6 +298,61 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Cancel Pending Downgrade
+
+    /// Handles cancel pending downgrade based on subscription platform (mirrors navigateToPlans pattern).
+    func cancelPendingDowngrade() {
+        guard let platform = state.subscriptionInfo?.platform else {
+            assertionFailure("Missing or unknown subscription platform")
+            displayInternalSubscriptionNotice(true)
+            return
+        }
+
+        switch platform {
+        case .apple:
+            Pixel.fire(pixel: .subscriptionCancelPendingDowngradeClick)
+            Task { await self.runCancelHandler() }
+        case .google:
+            displayGoogleView(true)
+        case .stripe:
+            Task { await manageStripeSubscription() }
+        case .unknown:
+            displayInternalSubscriptionNotice(true)
+        }
+    }
+
+    @MainActor
+    private func runCancelHandler() async {
+        guard let productId = state.subscriptionInfo?.productId else { return }
+        state.isCancelDowngradeInProgress = true
+        state.cancelDowngradeError = nil
+        await tierChangePerformerToUse.performTierChange(to: productId,
+                                                          changeType: nil,
+                                                          contextName: nil,
+                                                          setTransactionStatus: { [weak self] in self?.setCancelDowngradeStatus($0) },
+                                                          setTransactionError: { [weak self] in self?.setCancelDowngradeError($0) },
+                                                          pushPurchaseUpdate: nil)
+    }
+
+    /// Called by the cancel-downgrade performer callbacks when transaction status changes (e.g. .idle when done).
+    @MainActor
+    func setCancelDowngradeStatus(_ status: SubscriptionTransactionStatus) {
+        if status == .idle {
+            state.isCancelDowngradeInProgress = false
+        }
+    }
+
+    /// Called by the cancel-downgrade performer callbacks when an error occurs.
+    @MainActor
+    func setCancelDowngradeError(_ error: AppStorePurchaseFlowError?) {
+        state.cancelDowngradeError = error?.localizedDescription
+    }
+
+    /// Called by the view when the user dismisses the cancel-downgrade error alert.
+    func clearCancelDowngradeError() {
+        state.cancelDowngradeError = nil
+    }
+
     // MARK: -
 
     private func setupNotificationObservers() {
@@ -308,11 +371,13 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
     @MainActor
     private func updateSubscriptionsStatusMessage(subscription: DuckDuckGoSubscription, date: Date, product: String, billingPeriod: DuckDuckGoSubscription.BillingPeriod) {
+        state.cancelPendingDowngradeDetails = nil
         // Check for pending plan first (downgrade scheduled)
         if let pendingPlan = subscription.firstPendingPlan {
             let effectiveDate = dateFormatter.string(from: pendingPlan.effectiveAt)
             let tierName = pendingPlan.tier.rawValue.capitalized
             state.subscriptionDetails = UserText.pendingDowngradeInfo(tierName: tierName, billingPeriod: pendingPlan.billingPeriod, effectiveDate: effectiveDate)
+            state.cancelPendingDowngradeDetails = UserText.cancelPendingDowngradeBannerInfo(tierName: tierName, effectiveDate: effectiveDate)
             return
         }
 

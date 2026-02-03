@@ -34,6 +34,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
     var sut: DefaultSubscriptionPagesUseSubscriptionFeature!
     var mockSubscriptionManager: SubscriptionManagerMock!
     var mockStripePurchaseFlow: StripePurchaseFlowMock!
+    var mockAppStorePurchaseFlow: AppStorePurchaseFlowMock!
     var mockSubscriptionFeatureAvailability: SubscriptionFeatureAvailabilityMock!
     var mockNotificationCenter: NotificationCenter!
     var mockWideEvent: WideEventMock!
@@ -46,29 +47,39 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         
         mockSubscriptionManager = SubscriptionManagerMock()
         mockStripePurchaseFlow = StripePurchaseFlowMock(prepareSubscriptionPurchaseResult: .success((purchaseUpdate: .completed, accountCreationDuration: nil)))
+        mockAppStorePurchaseFlow = AppStorePurchaseFlowMock()
         mockSubscriptionFeatureAvailability = SubscriptionFeatureAvailabilityMock(isSubscriptionPurchaseAllowed: true)
         mockNotificationCenter = NotificationCenter()
         mockWideEvent = WideEventMock()
         mockInternalUserDecider = MockInternalUserDecider(isInternalUser: true)
         mockTierEventReporter = MockSubscriptionTierEventReporter()
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: mockAppStorePurchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
+
         sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
             subscriptionAttributionOrigin: "",
-            appStorePurchaseFlow: AppStorePurchaseFlowMock(),
+            appStorePurchaseFlow: mockAppStorePurchaseFlow,
             appStoreRestoreFlow: AppStoreRestoreFlowMock(),
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
             tierEventReporter: mockTierEventReporter,
-            pendingTransactionHandler: MockPendingTransactionHandler())
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer)
     }
     
     override func tearDown() {
         sut = nil
         mockSubscriptionManager = nil
         mockStripePurchaseFlow = nil
+        mockAppStorePurchaseFlow = nil
         mockSubscriptionFeatureAvailability = nil
         mockNotificationCenter = nil
         mockWideEvent = nil

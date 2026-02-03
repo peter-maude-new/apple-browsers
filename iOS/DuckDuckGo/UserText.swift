@@ -1709,6 +1709,17 @@ public struct UserText {
         return String(format: localized, tierName, effectiveDate)
     }
 
+    static func cancelPendingDowngradeBannerInfo(tierName: String, effectiveDate: String) -> String {
+        let localized = NSLocalizedString("subscription.cancel.pending.downgrade.banner.caption",
+                                         value: "Your plan will downgrade to %@ on %@.",
+                                         comment: "Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).'")
+        return String(format: localized, tierName, effectiveDate)
+    }
+
+    static let cancelDowngradeButton = NSLocalizedString("subscription.cancel.downgrade.button",
+                                                         value: "Cancel Downgrade",
+                                                         comment: "Button to cancel a pending downgrade of the subscription")
+
     public static let subscriptionDevicesSectionHeader = NSLocalizedString("duckduckgo.subscription.add.to.devices.header", value: "Add your subscription to other devices", comment: "Header for section for activating subscription on other devices")
     public static let subscriptionDevicesSectionNoEmailFooter = NSLocalizedString("duckduckgo.subscription.add.to.devices.no.email.footer", value: "Add your subscription to your other devices via Apple ID or by linking an email address. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**", comment: "Footer for section for activating subscription on other devices when email was not yet added")
     public static let subscriptionDevicesSectionWithEmailFooter = NSLocalizedString("duckduckgo.subscription.add.to.devices.with.email.footer", value: "Use this email to add your subscription on your other devices in the DuckDuckGo app, go to Settings > DuckDuckGo Subscription > I Have a Subscription. **[Learn more](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**", comment: "Footer for section for activating subscription on other devices when email is added")

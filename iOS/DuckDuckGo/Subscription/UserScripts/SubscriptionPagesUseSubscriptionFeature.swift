@@ -150,9 +150,9 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     private let wideEvent: WideEventManaging
     private let tierEventReporter: SubscriptionTierEventReporting
     private let pendingTransactionHandler: PendingTransactionHandling
+    private let tierChangePerformer: DefaultSubscriptionFlowPerformer
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var subscriptionRestoreWideEventData: SubscriptionRestoreWideEventData?
-    private var planChangeWideEventData: SubscriptionPlanChangeWideEventData?
 
     init(subscriptionManager: SubscriptionManager,
          subscriptionFeatureAvailability: SubscriptionFeatureAvailability,
@@ -163,7 +163,8 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
          internalUserDecider: InternalUserDecider,
          wideEvent: WideEventManaging,
          tierEventReporter: SubscriptionTierEventReporting = DefaultSubscriptionTierEventReporter(),
-         pendingTransactionHandler: PendingTransactionHandling) {
+         pendingTransactionHandler: PendingTransactionHandling,
+         tierChangePerformer: DefaultSubscriptionFlowPerformer) {
         self.subscriptionManager = subscriptionManager
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.appStorePurchaseFlow = appStorePurchaseFlow
@@ -174,6 +175,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         self.wideEvent = wideEvent
         self.tierEventReporter = tierEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
+        self.tierChangePerformer = tierChangePerformer
     }
 
     // Transaction Status and errors are observed from ViewModels to handle errors in the UI
@@ -550,10 +552,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         }
 
         let message = original
-        setTransactionError(nil)
-        setTransactionStatus(.purchasing)
 
-        // 1: Parse subscription change selection from message object
         guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
             Logger.subscription.error("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
             setTransactionStatus(.idle)
@@ -562,135 +561,27 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
 
         Logger.subscription.log("[TierChange] Starting \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
 
-        // Get current subscription info for wide event tracking
-        let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
-        let fromPlan = currentSubscription?.productId ?? ""
-
-        // Determine change type from frontend
-        let changeType = determineChangeType(change: subscriptionSelection.change)
-
-        // Initialize wide event data
-        let wideData = SubscriptionPlanChangeWideEventData(
-            purchasePlatform: .appStore,
-            changeType: changeType,
-            fromPlan: fromPlan,
-            toPlan: subscriptionSelection.id,
-            paymentDuration: WideEvent.MeasuredInterval.startingNow(),
-            contextData: WideEventContextData(name: subscriptionAttributionOrigin)
+        await tierChangePerformer.performTierChange(
+            to: subscriptionSelection.id,
+            changeType: subscriptionSelection.change,
+            contextName: subscriptionAttributionOrigin,
+            setTransactionStatus: { self.setTransactionStatus($0) },
+            setTransactionError: { self.setTransactionError($0.map { self.useSubscriptionError(from: $0) }) },
+            pushPurchaseUpdate: { await self.pushPurchaseUpdate(originalMessage: message, purchaseUpdate: $0) }
         )
-        self.planChangeWideEventData = wideData
-        wideEvent.startFlow(wideData)
-
-        // 2: Execute the tier change (uses existing account's externalID)
-        Logger.subscription.log("[TierChange] Executing tier change")
-        let tierChangeResult = await appStorePurchaseFlow.changeTier(to: subscriptionSelection.id)
-
-        let purchaseTransactionJWS: String
-        switch tierChangeResult {
-        case .success(let transactionJWS):
-            purchaseTransactionJWS = transactionJWS
-            wideData.paymentDuration?.complete()
-            wideEvent.updateFlow(wideData)
-        case .failure(let error):
-            Logger.subscription.error("[TierChange] Tier change failed: \(error.localizedDescription)")
-            setTransactionStatus(.idle)
-
-            switch error {
-            case .cancelledByUser:
-                setTransactionError(.cancelledByUser)
-                wideEvent.completeFlow(wideData, status: .cancelled, onComplete: { _, _ in })
-            case .transactionPendingAuthentication:
-                pendingTransactionHandler.markPurchasePending()
-                setTransactionError(.purchasePendingTransaction)
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            case .purchaseFailed:
-                setTransactionError(.purchaseFailed)
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            case .internalError:
-                setTransactionError(.purchaseFailed)
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            default:
-                setTransactionError(.purchaseFailed)
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            }
-
-            self.planChangeWideEventData = nil
-            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.canceled)
-            return nil
-        }
-
-        setTransactionStatus(.polling)
-
-        guard purchaseTransactionJWS.isEmpty == false else {
-            Logger.subscription.fault("[TierChange] Purchase transaction JWS is empty")
-            assertionFailure("Purchase transaction JWS is empty")
-            setTransactionStatus(.idle)
-            wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            self.planChangeWideEventData = nil
-            return nil
-        }
-
-        // Start confirmation timing
-        wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
-        wideEvent.updateFlow(wideData)
-
-        // 3: Complete the tier change by confirming with the backend
-        switch await appStorePurchaseFlow.completeSubscriptionPurchase(with: purchaseTransactionJWS, additionalParams: nil) {
-        case .success:
-            Logger.subscription.log("[TierChange] Tier change completed successfully")
-            NotificationCenter.default.post(name: .subscriptionDidChange, object: self)
-            setTransactionStatus(.idle)
-            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.completed)
-
-            wideData.confirmationDuration?.complete()
-            wideEvent.updateFlow(wideData)
-            wideEvent.completeFlow(wideData, status: .success, onComplete: { _, _ in })
-
-        case .failure(let error):
-            Logger.subscription.error("[TierChange] Complete tier change error: \(error, privacy: .public)")
-
-            // Note: We do NOT sign out here (unlike subscriptionSelected) because the user
-            // still has their original subscription. Signing out would be destructive.
-
-            setTransactionStatus(.idle)
-
-            if case .missingEntitlements = error {
-                setTransactionError(.missingEntitlements)
-            } else {
-                setTransactionError(.purchaseFailed)
-            }
-            await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.completed)
-
-            // Complete wide event with failure (except for missing entitlements which may resolve later)
-            if error != .missingEntitlements {
-                wideData.markAsFailed(at: .confirmation, error: error)
-                wideEvent.updateFlow(wideData)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            }
-        }
-        self.planChangeWideEventData = nil
         return nil
     }
 
-    private func determineChangeType(change: String?) -> SubscriptionPlanChangeWideEventData.ChangeType? {
-        // Use the change type from the frontend if provided
-        guard let change = change?.lowercased() else {
-            return nil
-        }
-
-        switch change {
-        case "upgrade":
-            return .upgrade
-        case "downgrade":
-            return .downgrade
-        case "crossgrade":
-            return .crossgrade
+    private func useSubscriptionError(from error: AppStorePurchaseFlowError) -> UseSubscriptionError {
+        switch error {
+        case .cancelledByUser:
+            return .cancelledByUser
+        case .transactionPendingAuthentication:
+            return .purchasePendingTransaction
+        case .missingEntitlements:
+            return .missingEntitlements
         default:
-            return nil
+            return .purchaseFailed
         }
     }
 

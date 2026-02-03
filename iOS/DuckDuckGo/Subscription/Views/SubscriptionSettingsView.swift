@@ -59,6 +59,7 @@ struct SubscriptionSettingsViewV2: View {
     @State var isShowingSupportView = false
     @State var isShowingPlansView = false
     @State var isShowingUpgradeView = false
+    @State var isShowingCancelDowngradeError = false
 
     var body: some View {
         optionsView
@@ -435,6 +436,12 @@ struct SubscriptionSettingsViewV2: View {
             headerSection
                 .padding(.horizontal, -20)
                 .padding(.vertical, -10)
+            if viewModel.state.cancelPendingDowngradeDetails != nil {
+                Section {
+                    downgradeBanner
+                }
+                .listRowBackground(Color(designSystemColor: .surface))
+            }
             if viewModel.shouldShowUpgrade {
                 upgradeSection
             }
@@ -526,6 +533,29 @@ struct SubscriptionSettingsViewV2: View {
             viewModel.showConnectionError(value)
         }
 
+        // Cancel downgrade error
+        .onChange(of: viewModel.state.cancelDowngradeError) { value in
+            if value != nil {
+                isShowingCancelDowngradeError = true
+            }
+        }
+        .alert(isPresented: $isShowingCancelDowngradeError) {
+            Alert(
+                title: Text(UserText.subscriptionAppStoreErrorTitle),
+                message: Text(viewModel.state.cancelDowngradeError ?? UserText.subscriptionAppStoreErrorMessage),
+                dismissButton: .cancel(Text(UserText.subscriptionBackendErrorButton)) {
+                    viewModel.clearCancelDowngradeError()
+                }
+            )
+        }
+
+        // Cancel downgrade in progress overlay
+        .overlay {
+            if viewModel.state.isCancelDowngradeInProgress {
+                PurchaseInProgressView(status: UserText.subscriptionPurchasingTitle)
+            }
+        }
+
         .onChange(of: isShowingManageEmailView) { value in
             if value {
                 if let email = viewModel.state.subscriptionEmail, !email.isEmpty {
@@ -569,6 +599,34 @@ struct SubscriptionSettingsViewV2: View {
     private var stripeView: some View {
         if let stripeViewModel = viewModel.state.stripeViewModel {
             SubscriptionExternalLinkView(viewModel: stripeViewModel)
+        }
+    }
+
+    @ViewBuilder
+    private var downgradeBanner: some View {
+        if let details = viewModel.state.cancelPendingDowngradeDetails {
+            Section {
+                // Row 1: Icon + Description
+                HStack(alignment: .top, spacing: 12) {
+                    Image(uiImage: DesignSystemImages.Color.Size24.exclamation)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                    Text(details)
+                        .daxBodyRegular()
+                        .foregroundColor(Color(designSystemColor: .textPrimary))
+                }
+                .listRowBackground(Color(designSystemColor: .surface))
+
+                // Row 2: Cancel upgrade button
+                SettingsCustomCell(content: {
+                    Text(UserText.cancelDowngradeButton)
+                        .daxBodyRegular()
+                        .foregroundColor(Color(designSystemColor: .accent))
+                        .padding(.leading, 36) // 24 (icon) + 12 (spacing) to align with text
+                },
+                                   action: { viewModel.cancelPendingDowngrade() },
+                                   isButton: true)
+            }
         }
     }
 }
