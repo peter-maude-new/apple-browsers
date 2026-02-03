@@ -60,7 +60,7 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
     public func performTierChange(to productId: String, changeType: String?, contextName: String) async -> PurchaseUpdate? {
         let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
         let fromPlan = currentSubscription?.productId ?? ""
-        let resolvedChangeType = SubscriptionPlanChangeWideEventData.ChangeType.from(string: changeType)
+        let resolvedChangeType = SubscriptionPlanChangeWideEventData.ChangeType.parse(string: changeType)
         return await executeAppStoreTierChange(to: productId, changeType: resolvedChangeType, fromPlan: fromPlan, contextName: contextName)
     }
 
@@ -101,11 +101,11 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
                 wideEvent.completeFlow(wideData, status: .cancelled, onComplete: { _, _ in })
             } else {
                 await showSomethingWentWrongAlert()
-                wideData.markAsFailed(at: .payment, error: error)
+                wideData.markAsFailed(at: SubscriptionPlanChangeWideEventData.FailingStep.payment, error: error)
                 wideEvent.updateFlow(wideData)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             }
-            return PurchaseUpdate(type: "Cancelled")
+            return PurchaseUpdate(type: "cancelled")
         }
 
         // 5: Update UI to indicate that the tier change is completing

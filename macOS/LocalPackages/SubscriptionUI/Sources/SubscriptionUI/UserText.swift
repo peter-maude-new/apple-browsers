@@ -211,6 +211,7 @@ enum UserText {
 
     static func cancelPendingDowngradeBannerInfo(tierName: String, effectiveDate: String) -> String {
         let localized = NSLocalizedString("subscription.cancel.pending.downgrade.banner.caption",
+                                         bundle: Bundle.module,
                                          value: "Your plan will downgrade to %@ on %@.",
                                          comment: "Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).'")
         return String(format: localized, tierName, effectiveDate)

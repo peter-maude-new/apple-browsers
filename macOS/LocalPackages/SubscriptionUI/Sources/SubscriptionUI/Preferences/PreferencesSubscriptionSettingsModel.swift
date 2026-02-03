@@ -301,9 +301,12 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
     }
 
     private func cancelApplePendingDowngrade() {
-        guard let productId = currentProductID else { return }
+        guard let currentProductID, let cancelPendingDowngradeHandler else {
+            assertionFailure("Missing product id or cancelPendingDowngradeHandler in cancelApplePendingDowngrade()")
+            return
+        }
         Task {
-            await cancelPendingDowngradeHandler?(productId)
+            await cancelPendingDowngradeHandler(currentProductID)
         }
     }
 
@@ -369,7 +372,7 @@ hasActiveTrialOffer: \(hasTrialOffer, privacy: .public)
     func cancelPendingDowngrade() -> CancelPendingDowngradeAction {
         userEventHandler(.didClickCancelPendingDowngrade)
 
-        guard let platform = subscriptionPlatform, currentProductID != nil else {
+        guard let platform = subscriptionPlatform else {
             assertionFailure("Missing or unknown subscriptionPlatform")
             return .navigateToManageSubscription { }
         }

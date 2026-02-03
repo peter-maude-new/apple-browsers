@@ -352,7 +352,7 @@ public struct PreferencesSubscriptionSettingsView: View {
                     Image(.subscriptionPendingIcon)
                     Text(details)
                         .font(
-                            Font.custom("SF Pro", size: 13)
+                            .system(size: 13)
                         )
                         .foregroundColor(Color(.textSecondary))
                     Spacer()

@@ -532,7 +532,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             let fromPlan = currentSubscription?.productId ?? ""
 
             // Determine change type from frontend
-            let changeType = SubscriptionPlanChangeWideEventData.ChangeType.from(string: subscriptionSelection.change)
+            let changeType = SubscriptionPlanChangeWideEventData.ChangeType.parse(string: subscriptionSelection.change)
 
             // Initialize wide event data for Stripe
             let wideData = SubscriptionPlanChangeWideEventData(
@@ -558,7 +558,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 await showSomethingWentWrongAlert()
                 await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate(type: "canceled"))
 
-                wideData.markAsFailed(at: .payment, error: error)
+                wideData.markAsFailed(at: SubscriptionPlanChangeWideEventData.FailingStep.payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
                 self.planChangeWideEventData = nil
                 return nil
