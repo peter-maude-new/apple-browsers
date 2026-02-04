@@ -74,7 +74,7 @@ public struct BrokenSiteReport {
         case navigation
     }
 
-    public static let allowedQueryReservedCharacters = CharacterSet(charactersIn: ",")
+    public static let allowedQueryReservedCharacters = CharacterSet(charactersIn: ",!*'()")
 
     let siteUrl: URL
     let category: String
@@ -97,6 +97,7 @@ public struct BrokenSiteReport {
     let openerContext: OpenerContext?
     let vpnOn: Bool
     let jsPerformance: [Double]?
+    let breakageData: String?
     let extendedPerformanceMetrics: PrivacyAwarePerformanceMetrics?
     let userRefreshCount: Int
     let locale: Locale
@@ -135,6 +136,7 @@ public struct BrokenSiteReport {
         openerContext: OpenerContext?,
         vpnOn: Bool,
         jsPerformance: [Double]?,
+        breakageData: String? = nil,
         extendedPerformanceMetrics: PrivacyAwarePerformanceMetrics? = nil,
         userRefreshCount: Int,
         locale: Locale = Locale.current,
@@ -165,6 +167,7 @@ public struct BrokenSiteReport {
         self.openerContext = openerContext
         self.vpnOn = vpnOn
         self.jsPerformance = jsPerformance
+        self.breakageData = breakageData
         self.extendedPerformanceMetrics = extendedPerformanceMetrics
         self.userRefreshCount = userRefreshCount
         self.locale = locale
@@ -202,6 +205,7 @@ public struct BrokenSiteReport {
         openerContext: OpenerContext?,
         vpnOn: Bool,
         jsPerformance: [Double]?,
+        breakageData: String? = nil,
         extendedPerformanceMetrics: PrivacyAwarePerformanceMetrics? = nil,
         userRefreshCount: Int,
         variant: String,
@@ -236,6 +240,7 @@ public struct BrokenSiteReport {
         self.openerContext = openerContext
         self.vpnOn = vpnOn
         self.jsPerformance = jsPerformance
+        self.breakageData = breakageData
         self.extendedPerformanceMetrics = extendedPerformanceMetrics
         self.userRefreshCount = userRefreshCount
         self.variant = variant
@@ -303,6 +308,10 @@ public struct BrokenSiteReport {
         if let jsPerformance {
             let perf = jsPerformance.map { String($0) }.joined(separator: ",")
             result["jsPerformance"] = perf
+        }
+
+        if let breakageData {
+            result["breakageData"] = breakageData
         }
 
         if let extendedPerformanceMetrics {

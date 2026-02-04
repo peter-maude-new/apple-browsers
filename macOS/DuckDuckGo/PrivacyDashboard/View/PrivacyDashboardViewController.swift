@@ -363,8 +363,11 @@ extension PrivacyDashboardViewController {
     private func collectBreakageReportData(breakageReportingSubfeature: BreakageReportingSubfeature?) async -> BreakageReportData? {
         await withCheckedContinuation({ continuation in
             guard let breakageReportingSubfeature else { continuation.resume(returning: nil); return }
-            breakageReportingSubfeature.notifyHandler { metrics, detectorData, jsPerformanceMetrics in
-                let result = BreakageReportData(performanceMetrics: metrics, detectorData: detectorData, jsPerformance: jsPerformanceMetrics)
+            breakageReportingSubfeature.notifyHandler { metrics, detectorData, jsPerformanceMetrics, breakageData in
+                let result = BreakageReportData(performanceMetrics: metrics,
+                                                detectorData: detectorData,
+                                                jsPerformance: jsPerformanceMetrics,
+                                                breakageData: breakageData)
                 continuation.resume(returning: result)
             }
         })
@@ -403,6 +406,7 @@ extension PrivacyDashboardViewController {
         let privacyAwareWebVitals = breakageReportData?.privacyAwarePerformanceMetrics
         let detectorMetrics = breakageReportData?.detectorData?.flattenedMetrics()
         let jsPerformance = breakageReportData?.jsPerformance
+        let breakageData = breakageReportData?.breakageData
 
         var errors: [Error]?
         var statusCodes: [Int]?
@@ -435,6 +439,7 @@ extension PrivacyDashboardViewController {
                                                openerContext: currentTab.brokenSiteInfo?.inferredOpenerContext,
                                                vpnOn: currentTab.networkProtection?.tunnelController.isConnected ?? false,
                                                jsPerformance: jsPerformance,
+                                               breakageData: breakageData,
                                                extendedPerformanceMetrics: privacyAwareWebVitals,
                                                userRefreshCount: currentTab.brokenSiteInfo?.refreshCountSinceLoad ?? -1,
                                                cookieConsentInfo: currentTab.privacyInfo?.cookieConsentManaged,

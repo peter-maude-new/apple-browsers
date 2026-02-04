@@ -168,6 +168,52 @@ class WebsiteBreakageReportTests: XCTestCase {
         XCTAssertEqual(queryItems[valueFor: "isPirEnabled"], "true")
     }
 
+    func testBreakageDataIsPassedThroughWithoutAdditionalEncoding() throws {
+        let breakageData = "%7B%22message%22%3A%22boom!%22%7D"
+        let breakage = BrokenSiteReport(
+            siteUrl: URL(string: "https://example.test/")!,
+            category: "contentIsMissing",
+            description: nil,
+            osVersion: "12.3.0",
+            manufacturer: "Apple",
+            upgradedHttps: true,
+            tdsETag: "abc123",
+            configVersion: "123456789",
+            blockedTrackerDomains: [
+                "bad.tracker.test",
+                "tracking.test"
+            ],
+            installedSurrogates: [
+                "surrogate.domain.test"
+            ],
+            isGPCEnabled: true,
+            ampURL: "https://example.test",
+            urlParametersRemoved: false,
+            protectionsState: true,
+            reportFlow: .appMenu,
+            errors: nil,
+            httpStatusCodes: nil,
+            openerContext: nil,
+            vpnOn: false,
+            jsPerformance: nil,
+            breakageData: breakageData,
+            userRefreshCount: 0,
+            cookieConsentInfo: nil,
+            debugFlags: "",
+            privacyExperiments: "",
+            isPirEnabled: nil,
+            pageLoadTiming: nil
+        )
+
+        let urlRequest = makeURLRequest(with: breakage.requestParameters)
+
+        let url = try XCTUnwrap(urlRequest.url)
+        let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: true))
+        let queryItems = try XCTUnwrap(components.percentEncodedQueryItems)
+
+        XCTAssertEqual(queryItems[valueFor: "breakageData"], breakageData)
+    }
+
     func makeURLRequest(with parameters: [String: String]) -> URLRequest {
         APIRequest.Headers.setUserAgent("")
         var params = parameters
