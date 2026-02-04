@@ -449,9 +449,13 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 }
 
 private extension UIBarButtonItem {
-    private static let additionalHorizontalSpace = 10.0
-
     static func additionalFixedSpaceItem() -> UIBarButtonItem {
-        .fixedSpace(additionalHorizontalSpace)
+        let space: CGFloat
+        if #available(iOS 26, *) {
+            space = 10
+        } else {
+            space = 14
+        }
+        return .fixedSpace(space)
     }
 }
