@@ -108,8 +108,6 @@ class TabSwitcherViewController: UIViewController {
     private(set) var bookmarksDatabase: CoreDataDatabase
     let syncService: DDGSyncing
 
-    override var canBecomeFirstResponder: Bool { return true }
-
     var currentSelection: Int?
 
     let tabSwitcherSettings: TabSwitcherSettings
