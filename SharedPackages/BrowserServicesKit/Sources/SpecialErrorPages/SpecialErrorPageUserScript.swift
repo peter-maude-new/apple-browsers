@@ -99,7 +99,7 @@ public final class SpecialErrorPageUserScript: NSObject, Subfeature {
     }
 
     @MainActor
-    private func initialSetup(params: Any, original: UserScriptMessage) async throws -> Encodable? {
+    private func initialSetup(params: Any, original: WKScriptMessage) async throws -> Encodable? {
 #if DEBUG
         let env = "development"
 #else
@@ -140,12 +140,12 @@ public final class SpecialErrorPageUserScript: NSObject, Subfeature {
     }
 
     @MainActor
-    private func reportInitException(params: Any, original: UserScriptMessage) async throws -> Encodable? {
+    private func reportInitException(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         return nil
     }
 
     @MainActor
-    private func reportPageException(params: Any, original: UserScriptMessage) async throws -> Encodable? {
+    private func reportPageException(params: Any, original: WKScriptMessage) async throws -> Encodable? {
         return nil
     }
 
