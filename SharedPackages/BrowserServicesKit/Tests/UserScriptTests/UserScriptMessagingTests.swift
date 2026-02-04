@@ -310,6 +310,7 @@ class MockMsg: WKScriptMessage {
     let mockedName: String
     let mockedBody: Any
     let mockedWebView: WKWebView?
+    let mockedFrameInfo: WKFrameInfo
 
     override var name: String {
         return mockedName
@@ -323,10 +324,83 @@ class MockMsg: WKScriptMessage {
         return mockedWebView
     }
 
-    init(name: String, body: Any, webView: WKWebView? = nil) {
+    override var frameInfo: WKFrameInfo {
+        return mockedFrameInfo
+    }
+
+    init(name: String, body: Any, webView: WKWebView? = nil, frameInfo: WKFrameInfo? = nil) {
         self.mockedName = name
         self.mockedBody = body
         self.mockedWebView = webView
+        self.mockedFrameInfo = frameInfo ?? WKFrameInfo.mock(url: URL(string: "https://example.com")!)
         super.init()
+    }
+}
+
+// MARK: - WebKit Mocks
+
+/// Mock for WKFrameInfo which has no public initializers.
+/// Uses unsafe memory rebound technique to cast an NSObject with matching @objc properties.
+final class WKFrameInfoMock: NSObject {
+
+    @objc var isMainFrame: Bool
+    @objc var request: URLRequest!
+    @objc var securityOrigin: WKSecurityOrigin!
+    @objc weak var webView: WKWebView?
+
+    init(webView: WKWebView?, securityOrigin: WKSecurityOrigin, request: URLRequest, isMainFrame: Bool) {
+        self.webView = webView
+        self.securityOrigin = securityOrigin
+        self.request = request
+        self.isMainFrame = isMainFrame
+    }
+
+    fileprivate var frameInfo: WKFrameInfo {
+        withUnsafePointer(to: self) { $0.withMemoryRebound(to: WKFrameInfo.self, capacity: 1) { $0 } }.pointee
+    }
+}
+
+/// Mock for WKSecurityOrigin which has no public initializers.
+/// Uses Objective-C runtime allocation.
+@objc final class WKSecurityOriginMock: WKSecurityOrigin {
+
+    var _protocol: String!
+    override var `protocol`: String { _protocol }
+
+    var _host: String!
+    override var host: String { _host }
+
+    var _port: Int!
+    override var port: Int { _port }
+
+    func setURL(_ url: URL) {
+        self._protocol = url.scheme ?? ""
+        self._host = url.host ?? ""
+        self._port = url.port ?? 0
+    }
+
+    class func new(url: URL) -> WKSecurityOriginMock {
+        // swiftlint:disable:next force_cast
+        let mock = self.perform(NSSelectorFromString("alloc")).takeUnretainedValue() as! WKSecurityOriginMock
+        mock.setURL(url)
+        return mock
+    }
+}
+
+extension WKFrameInfo {
+
+    private static let webViewKey = UnsafeRawPointer(bitPattern: "webViewKey".hashValue)!
+
+    static func mock(url: URL, isMainFrame: Bool = true) -> WKFrameInfo {
+        let webView = WKWebView()
+        let frameInfo = WKFrameInfoMock(
+            webView: webView,
+            securityOrigin: WKSecurityOriginMock.new(url: url),
+            request: URLRequest(url: url),
+            isMainFrame: isMainFrame
+        ).frameInfo
+        // Keep the WebView alive by associating it with the frameInfo
+        objc_setAssociatedObject(frameInfo, Self.webViewKey, webView, .OBJC_ASSOCIATION_RETAIN)
+        return frameInfo
     }
 }
