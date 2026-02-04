@@ -106,6 +106,8 @@ public struct BrokenSiteReport {
     let isPirEnabled: Bool?
     let pageLoadTiming: WKPageLoadTiming?
     let detectorMetrics: [String: String]?
+    /// Pre-encoded breakage data from content-scope-scripts, pass as-is without re-encoding
+    let breakageData: String?
 #if os(iOS)
     let siteType: SiteType
     let atb: String
@@ -143,7 +145,8 @@ public struct BrokenSiteReport {
         privacyExperiments: String,
         isPirEnabled: Bool?,
         pageLoadTiming: WKPageLoadTiming?,
-        detectorMetrics: [String: String]? = nil
+        detectorMetrics: [String: String]? = nil,
+        breakageData: String? = nil
     ) {
         self.siteUrl = siteUrl
         self.category = category
@@ -174,6 +177,7 @@ public struct BrokenSiteReport {
         self.isPirEnabled = isPirEnabled
         self.pageLoadTiming = pageLoadTiming
         self.detectorMetrics = detectorMetrics
+        self.breakageData = breakageData
     }
 #endif
 
@@ -211,7 +215,8 @@ public struct BrokenSiteReport {
         privacyExperiments: String,
         isPirEnabled: Bool?,
         pageLoadTiming: WKPageLoadTiming? = nil,
-        detectorMetrics: [String: String]? = nil
+        detectorMetrics: [String: String]? = nil,
+        breakageData: String? = nil
     ) {
         self.siteUrl = siteUrl
         self.category = category
@@ -246,6 +251,7 @@ public struct BrokenSiteReport {
         self.isPirEnabled = isPirEnabled
         self.pageLoadTiming = pageLoadTiming
         self.detectorMetrics = detectorMetrics
+        self.breakageData = breakageData
     }
 #endif
 
@@ -324,6 +330,11 @@ public struct BrokenSiteReport {
             for (key, value) in detectorMetrics {
                 result[key] = value
             }
+        }
+
+        // breakageData is pre-encoded by content-scope-scripts, pass as-is without re-encoding
+        if let breakageData = breakageData {
+            result["breakageData"] = breakageData
         }
 
 #if os(iOS)
