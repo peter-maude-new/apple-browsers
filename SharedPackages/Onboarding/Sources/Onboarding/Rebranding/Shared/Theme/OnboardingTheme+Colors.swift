@@ -39,6 +39,11 @@ public extension OnboardingTheme {
         /// Primary button foreground/text color.
         public let primaryButtonTextColor: Color
 
+        /// Secondary button background color.
+        public let secondaryButtonBackgroundColor: Color
+        /// Secondary button foreground/text color.
+        public let secondaryButtonTextColor: Color
+
         /// Creates a color palette for onboarding surfaces, text, and controls.
         public init(
             bubbleBorder: Color,
@@ -46,7 +51,9 @@ public extension OnboardingTheme {
             bubbleShadow: Color,
             textPrimary: Color, textSecondary: Color,
             primaryButtonBackgroundColor: Color,
-            primaryButtonTextColor: Color
+            primaryButtonTextColor: Color,
+            secondaryButtonBackgroundColor: Color,
+            secondaryButtonTextColor: Color
         ) {
             self.bubbleBorder = bubbleBorder
             self.bubbleBackground = bubbleBackground
@@ -55,6 +62,8 @@ public extension OnboardingTheme {
             self.textSecondary = textSecondary
             self.primaryButtonBackgroundColor = primaryButtonBackgroundColor
             self.primaryButtonTextColor = primaryButtonTextColor
+            self.secondaryButtonBackgroundColor = secondaryButtonBackgroundColor
+            self.secondaryButtonTextColor = secondaryButtonTextColor
         }
     }
 

@@ -285,6 +285,10 @@ private extension DefaultColorPalette {
             return DynamicColor(lightColor: RebrandingColor.Mandarin.mandarin50, darkColor: RebrandingColor.Pollen.pollen30)
         case .buttonsPrimaryText:
             return DynamicColor(lightColor: RebrandingColor.GrayScale.white, darkColor: RebrandingColor.Pollen.pollen100)
+        case .buttonsSecondaryDefault:
+            return controlsFillPrimary
+        case .buttonsSecondaryText:
+            return textPrimary
         }
     }
 

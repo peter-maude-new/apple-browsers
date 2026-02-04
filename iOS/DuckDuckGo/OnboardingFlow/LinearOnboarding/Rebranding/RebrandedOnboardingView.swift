@@ -45,12 +45,12 @@ extension OnboardingRebranding {
 
         var body: some View {
             ZStack(alignment: .topTrailing) {
-                OnboardingBackground()
-
                 switch model.state {
                 case .landing:
                     landingView
                 case let .onboarding(viewState):
+                    Color.white
+                        .ignoresSafeArea()
                     onboardingDialogView(state: viewState)
 #if DEBUG || ALPHA
                         .safeAreaInset(edge: .bottom) {
@@ -75,42 +75,48 @@ extension OnboardingRebranding {
         private func onboardingDialogView(state: ViewState.Intro) -> some View {
             GeometryReader { geometry in
                 VStack(alignment: .center) {
-                    DaxDialogView(
-                        logoPosition: .top,
-                        matchLogoAnimation: (Self.daxGeometryEffectID, animationNamespace),
-                        showDialogBox: $model.introState.showDaxDialogBox,
-                        onTapGesture: {
-                            withAnimation {
-                                model.tapped()
-                            }
-                        },
-                        content: {
-                            VStack {
-                                switch state.type {
-                                case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
-                                    introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
-                                case .browsersComparisonDialog:
-                                    browsersComparisonView
-                                case .addToDockPromoDialog:
-                                    addToDockPromoView
-                                case .chooseAppIconDialog:
-                                    appIconPickerView
-                                case .chooseAddressBarPositionDialog:
-                                    addressBarPreferenceSelectionView
-                                case .chooseSearchExperienceDialog:
-                                    searchExperienceSelectionView
+                    switch state.type {
+                    case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
+                        introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
+                            .frame(width: geometry.size.width, alignment: .center)
+                    default:
+                        DaxDialogView(
+                            logoPosition: .top,
+                            matchLogoAnimation: (Self.daxGeometryEffectID, animationNamespace),
+                            showDialogBox: $model.introState.showDaxDialogBox,
+                            onTapGesture: {
+                                withAnimation {
+                                    model.tapped()
+                                }
+                            },
+                            content: {
+                                VStack {
+                                    switch state.type {
+                                    case .startOnboardingDialog:
+                                        EmptyView()
+                                    case .browsersComparisonDialog:
+                                        browsersComparisonView
+                                    case .addToDockPromoDialog:
+                                        addToDockPromoView
+                                    case .chooseAppIconDialog:
+                                        appIconPickerView
+                                    case .chooseAddressBarPositionDialog:
+                                        addressBarPreferenceSelectionView
+                                    case .chooseSearchExperienceDialog:
+                                        searchExperienceSelectionView
+                                    }
                                 }
                             }
+                        )
+                        .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
+                        .frame(width: geometry.size.width, alignment: .center)
+                        .offset(y: geometry.size.height * OnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + OnboardingViewMetrics.daxDialogVisibilityDelay) {
+                                model.introState.showDaxDialogBox = true
+                                model.introState.animateIntroText = true
+                            }
                         }
-                    )
-                    .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
-                }
-                .frame(width: geometry.size.width, alignment: .center)
-                .offset(y: geometry.size.height * OnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + OnboardingViewMetrics.daxDialogVisibilityDelay) {
-                        model.introState.showDaxDialogBox = true
-                        model.introState.animateIntroText = true
                     }
                 }
             }

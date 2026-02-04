@@ -54,6 +54,9 @@ public extension SingleUseColor {
 
         case buttonsPrimaryDefault
         case buttonsPrimaryText
+
+        case buttonsSecondaryDefault
+        case buttonsSecondaryText
     }
 
 }
