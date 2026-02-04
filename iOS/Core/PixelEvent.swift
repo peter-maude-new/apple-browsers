@@ -1218,6 +1218,11 @@ extension Pixel {
         case subscriptionWinBackOfferSubscriptionSettingsShown
         case subscriptionWinBackOfferSubscriptionSettingsCTAClicked
 
+        // Free Trial Journey
+        case privacyProFreeTrialStart
+        case privacyProFreeTrialVPNActivation
+        case privacyProFreeTrialPIRActivation
+
         // MARK: Pixel Experiment
         case pixelExperimentEnrollment
 
@@ -1403,6 +1408,8 @@ extension Pixel {
         case aiChatSettingsBrowserMenuTurnedOn
         case aiChatSettingsTabManagerTurnedOff
         case aiChatSettingsTabManagerTurnedOn
+        case aiChatSettingsChatSuggestionsTurnedOff
+        case aiChatSettingsChatSuggestionsTurnedOn
         case aiChatSettingsDisplayed
         case aiChatSettingsEnabled
         case aiChatSettingsDisabled
@@ -1486,6 +1493,8 @@ extension Pixel {
         case aiChatContextualExpandButtonTapped
         case aiChatContextualNewChatButtonTapped
         case aiChatContextualQuickActionSummarizeSelected
+        case aiChatContextualPageContextPlaceholderShown
+        case aiChatContextualPageContextPlaceholderTapped
         case aiChatContextualPageContextAutoAttached
         case aiChatContextualPageContextUpdatedOnNavigation
         case aiChatContextualPageContextManuallyAttachedNative
@@ -2700,6 +2709,11 @@ extension Pixel.Event {
         case .subscriptionWinBackOfferSubscriptionSettingsShown: return "m_privacy-pro_winback_subscription_settings_shown"
         case .subscriptionWinBackOfferSubscriptionSettingsCTAClicked: return "m_privacy-pro_winback_subscription_settings_clicked"
 
+        // Free Trial Journey
+        case .privacyProFreeTrialStart: return "m_privacy-pro_freetrial_start"
+        case .privacyProFreeTrialVPNActivation: return "m_privacy-pro_freetrial_vpn_activation"
+        case .privacyProFreeTrialPIRActivation: return "m_privacy-pro_freetrial_pir_activation"
+
         // MARK: Pixel Experiment
         case .pixelExperimentEnrollment: return "pixel_experiment_enrollment"
 
@@ -2886,6 +2900,8 @@ extension Pixel.Event {
         case .aiChatSettingsBrowserMenuTurnedOn: return "m_aichat_settings_browser_menu_turned_on"
         case .aiChatSettingsTabManagerTurnedOff: return "m_aichat_settings_tab_manager_turned_off"
         case .aiChatSettingsTabManagerTurnedOn: return "m_aichat_settings_tab_manager_turned_on"
+        case .aiChatSettingsChatSuggestionsTurnedOff: return "m_aichat_settings_chat_suggestions_turned_off"
+        case .aiChatSettingsChatSuggestionsTurnedOn: return "m_aichat_settings_chat_suggestions_turned_on"
         case .aiChatSettingsDisplayed: return "m_aichat_settings_displayed"
         case .aiChatSettingsEnabled: return "m_aichat_settings_enabled"
         case .aiChatSettingsDisabled: return "m_aichat_settings_disabled"
@@ -2964,6 +2980,8 @@ extension Pixel.Event {
         case .aiChatContextualExpandButtonTapped: return "m_aichat_contextual_expand_button_tapped"
         case .aiChatContextualNewChatButtonTapped: return "m_aichat_contextual_new_chat_button_tapped"
         case .aiChatContextualQuickActionSummarizeSelected: return "m_aichat_contextual_quick_action_summarize_selected"
+        case .aiChatContextualPageContextPlaceholderShown: return "m_aichat_contextual_page_context_placeholder_shown"
+        case .aiChatContextualPageContextPlaceholderTapped: return "m_aichat_contextual_page_context_placeholder_tapped"
         case .aiChatContextualPageContextAutoAttached: return "m_aichat_contextual_page_context_auto_attached"
         case .aiChatContextualPageContextUpdatedOnNavigation: return "m_aichat_contextual_page_context_updated_on_navigation"
         case .aiChatContextualPageContextManuallyAttachedNative: return "m_aichat_contextual_page_context_manually_attached_native"
