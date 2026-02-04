@@ -24,6 +24,7 @@ import Onboarding
 extension OnboardingRebranding.OnboardingView {
 
     struct IntroDialogContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         private let title: String
         private let skipOnboardingView: AnyView?
@@ -39,7 +40,7 @@ extension OnboardingRebranding.OnboardingView {
             title: String,
             skipOnboardingView: AnyView?,
             animateText: Binding<Bool> = .constant(true),
-            showCTA: Binding<Bool> = .constant(false),
+            showCTA: Binding<Bool> = .constant(true),
             isSkipped: Binding<Bool>,
             continueAction: @escaping () -> Void,
             skipAction: @escaping () -> Void
@@ -57,37 +58,50 @@ extension OnboardingRebranding.OnboardingView {
             if showSkipOnboarding {
                 skipOnboardingView
             } else {
-                introContent
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: 140)
+
+                    bubbleContent
+                        .padding(.horizontal, 12)
+
+                    Spacer()
+                }
             }
         }
 
-        private var introContent: some View {
-            VStack(spacing: 24.0) {
-                AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
-                    withAnimation {
-                        showCTA.wrappedValue = true
+        private var bubbleContent: some View {
+            OnboardingBubbleView(tailPosition: .bottom(offset: 0.2, direction: .leading)) {
+                VStack(alignment: .center, spacing: 20) {
+                    VStack(alignment: .center, spacing: 12) {
+                        Text("Hi there!")
+                            .font(onboardingTheme.typography.title)
+                            .multilineTextAlignment(.center)
+
+                        Text("Ready for a faster browser that keeps you protected?")
+                            .font(onboardingTheme.typography.body)
+                            .multilineTextAlignment(.center)
+                    }
+                    .foregroundColor(onboardingTheme.colorPalette.textPrimary)
+
+                    VStack(spacing: 12) {
+                        Button(action: continueAction) {
+                            Text("Let's do it!")
+                        }
+                        .buttonStyle(onboardingTheme.primaryButtonStyle.style)
+
+                        if skipOnboardingView != nil {
+                            Button(action: {
+                                isSkipped.wrappedValue = false
+                                showSkipOnboarding = true
+                                skipAction()
+                            }) {
+                                Text("I've been here before")
+                            }
+                            .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
+                        }
                     }
                 }
-                .foregroundColor(.primary)
-                .font(Font.system(size: 20, weight: .bold))
-
-                VStack {
-                    Button(action: continueAction) {
-                        Text(UserText.Onboarding.Intro.continueCTA)
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-
-                    if skipOnboardingView != nil {
-                        OnboardingBorderedButton(maxHeight: 50.0, content: {
-                            Text(UserText.Onboarding.Intro.skipCTA)
-                        }, action: {
-                            isSkipped.wrappedValue = false
-                            showSkipOnboarding = true
-                            skipAction()
-                        })
-                    }
-                }
-                .visibility(showCTA.wrappedValue ? .visible : .invisible)
             }
         }
 

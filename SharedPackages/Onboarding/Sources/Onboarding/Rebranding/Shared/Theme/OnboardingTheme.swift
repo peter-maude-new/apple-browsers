@@ -37,6 +37,8 @@ public struct OnboardingTheme: Equatable {
     public let linearBodyTextAlignment: TextAlignment
     /// Style used by the primary onboarding button.
     public let primaryButtonStyle: OnboardingButtonStyle
+    /// Style used by the secondary onboarding button.
+    public let secondaryButtonStyle: OnboardingButtonStyle
     /// Style used by the dismiss onboarding button.
     public let dismissButtonStyle: OnboardingButtonStyle
 
@@ -52,6 +54,7 @@ public struct OnboardingTheme: Equatable {
     ///   - contextualTitleTextAlignment: Title alignment for contextual flows.
     ///   - contextualBodyTextAlignment: Body alignment for contextual flows.
     ///   - primaryButtonStyle: Primary button style.
+    ///   - secondaryButtonStyle: Secondary button style.
     ///   - dismissButtonStyle: Dismiss button style.
     public init(
         typography: Typography,
@@ -62,6 +65,7 @@ public struct OnboardingTheme: Equatable {
         linearTitleTextAlignment: TextAlignment,
         linearBodyTextAlignment: TextAlignment,
         primaryButtonStyle: OnboardingButtonStyle,
+        secondaryButtonStyle: OnboardingButtonStyle,
         dismissButtonStyle: OnboardingButtonStyle,
     ){
         self.typography = typography
@@ -72,6 +76,7 @@ public struct OnboardingTheme: Equatable {
         self.linearTitleTextAlignment = linearTitleTextAlignment
         self.linearBodyTextAlignment = linearBodyTextAlignment
         self.primaryButtonStyle = primaryButtonStyle
+        self.secondaryButtonStyle = secondaryButtonStyle
         self.dismissButtonStyle = dismissButtonStyle
     }
 

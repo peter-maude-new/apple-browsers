@@ -43,7 +43,9 @@ public extension OnboardingTheme {
             optionsListIconColor: Color(singleUseColor: .rebranding(.accentPrimary)),
             optionsListTextColor: Color(singleUseColor: .rebranding(.textLink)),
             primaryButtonBackgroundColor: Color(singleUseColor: .rebranding(.buttonsPrimaryDefault)),
-            primaryButtonTextColor: Color(singleUseColor: .rebranding(.buttonsPrimaryText))
+            primaryButtonTextColor: Color(singleUseColor: .rebranding(.buttonsPrimaryText)),
+            secondaryButtonBackgroundColor: Color(singleUseColor: .rebranding(.buttonsSecondaryDefault)),
+            secondaryButtonTextColor: Color(singleUseColor: .rebranding(.buttonsSecondaryText))
         )
         let bubbleMetrics = BubbleMetrics(
             contentInsets: bubbleContentInsets,
@@ -93,6 +95,13 @@ public extension OnboardingTheme {
             primaryButtonStyle: OnboardingButtonStyle(
                 id: .primary,
                 style: AnyButtonStyle(OnboardingPrimaryButtonStyle(
+                    typography: typography,
+                    colorPalette: colorPalette
+                ))
+            ),
+            secondaryButtonStyle: OnboardingButtonStyle(
+                id: .secondary,
+                style: AnyButtonStyle(OnboardingSecondaryButtonStyle(
                     typography: typography,
                     colorPalette: colorPalette
                 ))
