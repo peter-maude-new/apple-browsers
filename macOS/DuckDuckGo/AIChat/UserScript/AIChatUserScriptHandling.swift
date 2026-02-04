@@ -517,12 +517,22 @@ extension AIChatUserScriptHandler: AIChatMetricReportingHandling {
         case .userDidSubmitFirstPrompt:
             notificationCenter.post(name: .aiChatUserDidSubmitPrompt, object: nil)
             pixelFiring?.fire(AIChatPixel.aiChatMetricStartNewConversation, frequency: .standard)
+            if let tier = metric.modelTier {
+                // TODO: Do something with the tier
+                print("userDidSubmitFirstPrompt TIER \(tier)")
+            }
             DispatchQueue.main.async { [self] in
                 refreshAtbs(completion: completion)
             }
         case .userDidSubmitPrompt:
             notificationCenter.post(name: .aiChatUserDidSubmitPrompt, object: nil)
             pixelFiring?.fire(AIChatPixel.aiChatMetricSentPromptOngoingChat, frequency: .standard)
+
+            if let tier = metric.modelTier {
+                // TODO: Do something with the tier
+                print("userDidSubmitPrompt TIER \(tier)")
+            }
+
             DispatchQueue.main.async { [self] in
                 refreshAtbs(completion: completion)
             }

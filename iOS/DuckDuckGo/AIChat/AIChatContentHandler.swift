@@ -244,7 +244,10 @@ extension AIChatContentHandler: AIChatUserScriptDelegate {
             || metric.metricName == .userDidSubmitFirstPrompt {
             NotificationCenter.default.post(name: .aiChatUserDidSubmitPrompt, object: nil)
             delegate?.aiChatContentHandlerDidReceivePromptSubmission(self)
-
+            if let tier = metric.modelTier {
+                //TODO: Do something with tier
+                print("TIER \(tier)")
+            }
             if featureFlagger.isFeatureOn(.aiChatAtb) {
                 DispatchQueue.main.async {
                     let backgroundAssertion = QRunInBackgroundAssertion(name: "StatisticsLoader background assertion - duckai",
