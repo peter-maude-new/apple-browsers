@@ -134,7 +134,7 @@ class TabSwitcherViewController: UIViewController {
         tabManager.model
     }
 
-    let barsHandler: TabSwitcherBarsStateHandling = DefaultTabSwitcherBarsStateHandler()
+    var barsHandler: TabSwitcherBarsStateHandling = DefaultTabSwitcherBarsStateHandler()
 
     private var tabObserverCancellable: AnyCancellable?
     private let appSettings: AppSettings
@@ -284,7 +284,55 @@ class TabSwitcherViewController: UIViewController {
         collectionView.allowsMultipleSelectionDuringEditing = true
         bindTrackerCount()
         trackerCountViewModel?.refresh()
+        setupBarButtonActions()
 
+    }
+
+    private func setupBarButtonActions() {
+        barsHandler.onPlusButtonTapped = { [weak self] in
+            self?.addNewTab()
+        }
+
+        barsHandler.onFireButtonTapped = { [weak self] in
+            self?.burn(sender: self!.barsHandler.fireButton)
+        }
+
+        barsHandler.onDoneButtonTapped = { [weak self] in
+            self?.onDonePressed(self!.barsHandler.doneButton)
+        }
+
+        barsHandler.onEditButtonTapped = { [weak self] in
+            return self?.createEditMenu()
+        }
+
+        barsHandler.onTabStyleButtonTapped = { [weak self] in
+            self?.onTabStyleChange()
+        }
+
+        barsHandler.onSelectAllTapped = { [weak self] in
+            self?.selectAllTabs()
+        }
+
+        barsHandler.onDeselectAllTapped = { [weak self] in
+            self?.deselectAllTabs()
+        }
+
+        barsHandler.onMenuButtonTapped = { [weak self] in
+            return self?.createMultiSelectionMenu()
+        }
+
+        barsHandler.onCloseTabsTapped = { [weak self] in
+            self?.closeSelectedTabs()
+        }
+
+        barsHandler.onDuckChatTapped = { [weak self] in
+            guard let self else { return }
+            if self.aichatFullModeFeature.isAvailable {
+                self.addNewAIChatTab()
+            } else {
+                self.delegate.tabSwitcherDidRequestAIChat(tabSwitcher: self)
+            }
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -803,7 +851,7 @@ extension TabSwitcherViewController: UICollectionViewDropDelegate {
             if self.isEditing {
                 collectionView.reloadData() // Clears the selection
                 collectionView.selectItem(at: destination, animated: true, scrollPosition: [])
-                self.refreshBarButtons()
+                self.barsHandler.configureButtonActions(tabsStyle: self.tabsStyle, canShowSelectionMenu: self.canShowSelectionMenu)
             } else {
                 collectionView.reloadItems(at: [IndexPath(row: self.currentSelection ?? 0, section: 0)])
             }
