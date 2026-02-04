@@ -23,6 +23,12 @@ import WebKit
 
 class UserScriptMessagingTests: XCTestCase {
 
+    override class func setUp() {
+        super.setUp()
+        // Swizzle WKScriptMessage.dealloc to prevent crashes in test environments
+        WKScriptMessage.swizzleDealloc()
+    }
+
     /// When an 'id' field is present on an incoming message, it means
     /// that the client is expecting a response. This test ensures that
     /// a 'result' keys exists on the response, as per [MessageResponse](https://duckduckgo.github.io/content-scope-scripts/classes/Messaging_Schema.MessageResponse.html)
@@ -389,18 +395,33 @@ final class WKFrameInfoMock: NSObject {
 
 extension WKFrameInfo {
 
-    private static let webViewKey = UnsafeRawPointer(bitPattern: "webViewKey".hashValue)!
-
     static func mock(url: URL, isMainFrame: Bool = true) -> WKFrameInfo {
-        let webView = WKWebView()
-        let frameInfo = WKFrameInfoMock(
-            webView: webView,
+        WKFrameInfoMock(
+            webView: nil,
             securityOrigin: WKSecurityOriginMock.new(url: url),
             request: URLRequest(url: url),
             isMainFrame: isMainFrame
         ).frameInfo
-        // Keep the WebView alive by associating it with the frameInfo
-        objc_setAssociatedObject(frameInfo, Self.webViewKey, webView, .OBJC_ASSOCIATION_RETAIN)
-        return frameInfo
     }
+}
+
+// MARK: - WebKit Dealloc Swizzling
+
+/// Swizzles WKScriptMessage.dealloc to prevent crashes in test environments.
+/// WebKit tries to dispatch to the main run loop during dealloc, which can crash
+/// in headless test environments without a proper run loop.
+extension WKScriptMessage {
+
+    private static var isSwizzled = false
+    private static let originalDealloc = { class_getInstanceMethod(WKScriptMessage.self, NSSelectorFromString("dealloc"))! }()
+    private static let swizzledDealloc = { class_getInstanceMethod(WKScriptMessage.self, #selector(swizzled_dealloc))! }()
+
+    static func swizzleDealloc() {
+        guard !self.isSwizzled else { return }
+        self.isSwizzled = true
+        method_exchangeImplementations(originalDealloc, swizzledDealloc)
+    }
+
+    @objc
+    func swizzled_dealloc() { }
 }
