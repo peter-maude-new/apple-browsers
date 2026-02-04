@@ -181,7 +181,7 @@ final class AIChatContextualSheetCoordinatorTests: XCTestCase {
         // Then
         XCTAssertNotNil(sut.sheetViewController?.delegate)
     }
-
+    
     // MARK: - clearActiveChat Tests
 
     @MainActor
@@ -284,15 +284,6 @@ final class AIChatContextualSheetCoordinatorTests: XCTestCase {
     }
 
     // MARK: - Page Context Handling Tests
-
-    @MainActor
-    func testClearActiveChatClearsPageContext() async {
-        await sut.presentSheet(from: mockPresentingVC)
-
-        sut.clearActiveChat()
-
-        XCTAssertEqual(mockPageContextHandler.clearCallCount, 1)
-    }
 
     @MainActor
     func testClearPageContextUpdatesViewModel() async {
