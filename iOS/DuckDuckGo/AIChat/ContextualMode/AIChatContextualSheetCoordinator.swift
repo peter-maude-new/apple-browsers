@@ -144,7 +144,6 @@ final class AIChatContextualSheetCoordinator {
 
             let sheetViewModel = AIChatContextualSheetViewModel(
                 settings: aiChatSettings,
-                hasContext: pageContextHandler.hasContext,
                 hasExistingChat: webViewController != nil || restoreURL != nil
             )
             viewModel = sheetViewModel
@@ -210,8 +209,6 @@ final class AIChatContextualSheetCoordinator {
             return
         }
 
-        viewModel?.updateContextAvailability(true)
-
         guard let snapshot = currentSnapshot else {
             pixelHandler.endManualAttach()
             return
@@ -225,8 +222,7 @@ final class AIChatContextualSheetCoordinator {
     func dismissSheet() {
         sheetViewController?.dismiss(animated: true)
     }
-
-    /// Clears the retained sheet and web view, ending the chat session for this tab.
+    
     func clearActiveChat() {
         sheetViewController = nil
         webViewController = nil
@@ -239,7 +235,6 @@ final class AIChatContextualSheetCoordinator {
     /// Clears the current page context.
     func clearPageContext() {
         pageContextHandler.clear()
-        viewModel?.updateContextAvailability(false)
     }
 
     /// Reloads the contextual chat web view if one exists.
@@ -367,8 +362,6 @@ final class AIChatContextualSheetCoordinator {
             return
         }
         lastProcessedContextHash = contextHash
-
-        viewModel?.updateContextAvailability(pageContextHandler.hasContext)
 
         guard isSheetPresented else {
             Logger.aiChat.debug("[PageContext] Context update - sheet not presented")

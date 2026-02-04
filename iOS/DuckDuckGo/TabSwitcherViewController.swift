@@ -129,6 +129,7 @@ class TabSwitcherViewController: UIViewController {
     let aiChatSettings: AIChatSettingsProvider
     let privacyStats: PrivacyStatsProviding
     let keyValueStore: ThrowingKeyValueStoring
+    let daxDialogsManager: DaxDialogsManaging
     var tabsModel: TabsModel {
         tabManager.model
     }
@@ -160,7 +161,8 @@ class TabSwitcherViewController: UIViewController {
                    historyManager: HistoryManaging,
                    fireproofing: Fireproofing,
                    keyValueStore: ThrowingKeyValueStoring,
-                   tabSwitcherSettings: TabSwitcherSettings = DefaultTabSwitcherSettings()) {
+                   tabSwitcherSettings: TabSwitcherSettings = DefaultTabSwitcherSettings(),
+                   daxDialogsManager: DaxDialogsManaging) {
         self.bookmarksDatabase = bookmarksDatabase
         self.syncService = syncService
         self.featureFlagger = featureFlagger
@@ -175,6 +177,7 @@ class TabSwitcherViewController: UIViewController {
         self.historyManager = historyManager
         self.fireproofing = fireproofing
         self.tabSwitcherSettings = tabSwitcherSettings
+        self.daxDialogsManager = daxDialogsManager
         super.init(coder: coder)
     }
 
