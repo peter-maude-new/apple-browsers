@@ -41,7 +41,7 @@ public class BreakageReportingSubfeature: Subfeature {
         return breakageReportResult
     }
 
-    public func breakageReportResult(params: Any, original: WKScriptMessage) async throws -> Encodable? {
+    public func breakageReportResult(params: Any, original: UserScriptMessage) async throws -> Encodable? {
         timer?.invalidate()
         guard let payload = params as? [String: Any],
               let expandedMetrics = payload["expandedPerformanceMetrics"] as? [String: Any] else {

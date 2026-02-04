@@ -33,11 +33,11 @@ public protocol Subfeature {
     /// The first part, `Any` represents the 'params' field of either RequestMessage or
     /// NotificationMessage and can be easily converted into a type of your choosing.
     ///
-    /// The second part is the original WKScriptMessage
+    /// The second part is the original message (conforms to UserScriptMessage protocol)
     ///
     /// The response can be any Encodable value - it will be serialized into
     /// the `result` field of [MessageResponse](https://duckduckgo.github.io/content-scope-scripts/classes/Messaging_Schema.MessageResponse.html#result)
-    typealias Handler = (_ params: Any, _ original: WKScriptMessage) async throws -> Encodable?
+    typealias Handler = (_ params: Any, _ original: UserScriptMessage) async throws -> Encodable?
 
     /// This gives a feature the opportunity to select it's own handler on a
     /// call-by-call basis. The 'method' key is present on `RequestMessage` & `NotificationMessage`
@@ -163,7 +163,7 @@ public final class UserScriptMessageBroker: NSObject {
     /// Conditions for `notify`
     ///  - no errors
     ///  - does NOT contain an `id`
-    public func messageHandlerFor(_ message: WKScriptMessage) -> Action {
+    public func messageHandlerFor(_ message: UserScriptMessage) -> Action {
 
         /// first, check that the incoming message is roughly in the correct shape
         guard let dict = message.messageBody as? [String: Any],
@@ -211,7 +211,7 @@ public final class UserScriptMessageBroker: NSObject {
     }
 
     /// Perform the side-effect described in an action
-    public func execute(action: Action, original: WKScriptMessage) async throws -> String {
+    public func execute(action: Action, original: UserScriptMessage) async throws -> String {
         switch action {
             /// for `notify` we just need to execute the handler and continue
             /// we **do not** forward any errors to the client
