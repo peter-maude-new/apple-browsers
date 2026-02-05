@@ -22,6 +22,17 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
+private enum OnboardingViewMetrics {
+    static let daxDialogDelay: TimeInterval = 2.0
+    static let daxDialogVisibilityDelay: TimeInterval = 0.5
+    static let comparisonChartAnimationDuration = 0.25
+    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
+    static let progressBarTrailingPadding: CGFloat = 16.0
+    static let progressBarTopPadding: CGFloat = 12.0
+    static let rebrandingBadgeLeadingPadding: CGFloat = 12.0
+    static let rebrandingBadgeTopPadding: CGFloat = 12.0
+}
+
 // MARK: - Main View
 
 extension OnboardingRebranding {
@@ -264,17 +275,6 @@ private struct RebrandingBadge: View {
             )
             .accessibilityIdentifier("RebrandedBadge")
     }
-}
-
-private enum OnboardingViewMetrics {
-    static let daxDialogDelay: TimeInterval = 2.0
-    static let daxDialogVisibilityDelay: TimeInterval = 0.5
-    static let comparisonChartAnimationDuration = 0.25
-    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
-    static let progressBarTrailingPadding: CGFloat = 16.0
-    static let progressBarTopPadding: CGFloat = 12.0
-    static let rebrandingBadgeLeadingPadding: CGFloat = 12.0
-    static let rebrandingBadgeTopPadding: CGFloat = 12.0
 }
 
 private extension View {

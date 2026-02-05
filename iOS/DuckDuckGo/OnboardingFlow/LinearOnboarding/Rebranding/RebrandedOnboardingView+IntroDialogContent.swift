@@ -21,6 +21,15 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum IntroDialogContentMetrics {
+    static let topMargin: CGFloat = 140
+    static let horizontalPadding: CGFloat = 12
+    static let bubbleTailOffset: CGFloat = 0.2
+    static let contentSpacing: CGFloat = 20
+    static let textSpacing: CGFloat = 12
+    static let buttonSpacing: CGFloat = 12
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct IntroDialogContent: View {
@@ -54,10 +63,10 @@ extension OnboardingRebranding.OnboardingView {
             } else {
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: Metrics.topMargin)
+                        .frame(height: IntroDialogContentMetrics.topMargin)
 
                     bubbleContent
-                        .padding(.horizontal, Metrics.horizontalPadding)
+                        .padding(.horizontal, IntroDialogContentMetrics.horizontalPadding)
 
                     Spacer()
                 }
@@ -69,9 +78,9 @@ extension OnboardingRebranding.OnboardingView {
             let greeting = titleComponents.first ?? title
             let subtitle = titleComponents.count > 1 ? titleComponents[1] : ""
 
-            return OnboardingBubbleView(tailPosition: .bottom(offset: Metrics.bubbleTailOffset, direction: .leading)) {
-                VStack(alignment: .center, spacing: Metrics.contentSpacing) {
-                    VStack(alignment: .center, spacing: Metrics.textSpacing) {
+            return OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
+                VStack(alignment: .center, spacing: IntroDialogContentMetrics.contentSpacing) {
+                    VStack(alignment: .center, spacing: IntroDialogContentMetrics.textSpacing) {
                         Text(greeting)
                             .font(onboardingTheme.typography.title)
                             .multilineTextAlignment(.center)
@@ -84,7 +93,7 @@ extension OnboardingRebranding.OnboardingView {
                     }
                     .foregroundColor(onboardingTheme.colorPalette.textPrimary)
 
-                    VStack(spacing: Metrics.buttonSpacing) {
+                    VStack(spacing: IntroDialogContentMetrics.buttonSpacing) {
                         Button(action: continueAction) {
                             Text(UserText.Onboarding.Intro.continueCTA)
                         }
@@ -106,13 +115,4 @@ extension OnboardingRebranding.OnboardingView {
         }
 
     }
-}
-
-private enum Metrics {
-    static let topMargin: CGFloat = 140
-    static let horizontalPadding: CGFloat = 12
-    static let bubbleTailOffset: CGFloat = 0.2
-    static let contentSpacing: CGFloat = 20
-    static let textSpacing: CGFloat = 12
-    static let buttonSpacing: CGFloat = 12
 }
