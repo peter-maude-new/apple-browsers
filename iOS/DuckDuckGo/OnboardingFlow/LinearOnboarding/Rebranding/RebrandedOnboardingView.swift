@@ -90,21 +90,19 @@ extension OnboardingRebranding {
                                 }
                             },
                             content: {
-                                VStack {
-                                    switch state.type {
-                                    case .startOnboardingDialog:
-                                        EmptyView()
-                                    case .browsersComparisonDialog:
-                                        browsersComparisonView
-                                    case .addToDockPromoDialog:
-                                        addToDockPromoView
-                                    case .chooseAppIconDialog:
-                                        appIconPickerView
-                                    case .chooseAddressBarPositionDialog:
-                                        addressBarPreferenceSelectionView
-                                    case .chooseSearchExperienceDialog:
-                                        searchExperienceSelectionView
-                                    }
+                                switch state.type {
+                                case .browsersComparisonDialog:
+                                    browsersComparisonView
+                                case .addToDockPromoDialog:
+                                    addToDockPromoView
+                                case .chooseAppIconDialog:
+                                    appIconPickerView
+                                case .chooseAddressBarPositionDialog:
+                                    addressBarPreferenceSelectionView
+                                case .chooseSearchExperienceDialog:
+                                    searchExperienceSelectionView
+                                case .startOnboardingDialog:
+                                    EmptyView()
                                 }
                             }
                         )
@@ -157,8 +155,6 @@ extension OnboardingRebranding {
             return IntroDialogContent(
                 title: model.copy.introTitle,
                 skipOnboardingView: skipOnboardingView,
-                animateText: $model.introState.animateIntroText,
-                showCTA: $model.introState.showIntroButton,
                 isSkipped: $model.isSkipped,
                 continueAction: {
                     animateBrowserComparisonViewState(isResumingOnboarding: false)

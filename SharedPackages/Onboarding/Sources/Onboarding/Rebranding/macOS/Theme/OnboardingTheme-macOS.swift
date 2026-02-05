@@ -92,6 +92,10 @@ public extension OnboardingTheme {
                 id: .primary,
                 style: AnyButtonStyle(OnboardingPrimaryButtonStyle())
             ),
+            secondaryButtonStyle: OnboardingButtonStyle(
+                id: .secondary,
+                style: AnyButtonStyle(OnboardingSecondaryButtonStyle())
+            ),
             dismissButtonStyle: OnboardingButtonStyle(
                 id: .dismiss,
                 style: AnyButtonStyle(
