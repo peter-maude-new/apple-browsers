@@ -28,8 +28,6 @@ extension OnboardingRebranding.OnboardingView {
 
         private let title: String
         private let skipOnboardingView: AnyView?
-        private var animateText: Binding<Bool>
-        private var showCTA: Binding<Bool>
         private var isSkipped: Binding<Bool>
         private let continueAction: () -> Void
         private let skipAction: () -> Void
@@ -39,16 +37,12 @@ extension OnboardingRebranding.OnboardingView {
         init(
             title: String,
             skipOnboardingView: AnyView?,
-            animateText: Binding<Bool> = .constant(true),
-            showCTA: Binding<Bool> = .constant(true),
             isSkipped: Binding<Bool>,
             continueAction: @escaping () -> Void,
             skipAction: @escaping () -> Void
         ) {
             self.title = title
             self.skipOnboardingView = skipOnboardingView
-            self.animateText = animateText
-            self.showCTA = showCTA
             self.isSkipped = isSkipped
             self.continueAction = continueAction
             self.skipAction = skipAction
@@ -71,22 +65,28 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var bubbleContent: some View {
-            OnboardingBubbleView(tailPosition: .bottom(offset: 0.2, direction: .leading)) {
+            let titleComponents = title.components(separatedBy: "\n\n")
+            let greeting = titleComponents.first ?? title
+            let subtitle = titleComponents.count > 1 ? titleComponents[1] : ""
+
+            return OnboardingBubbleView(tailPosition: .bottom(offset: 0.2, direction: .leading)) {
                 VStack(alignment: .center, spacing: 20) {
                     VStack(alignment: .center, spacing: 12) {
-                        Text("Hi there!")
+                        Text(greeting)
                             .font(onboardingTheme.typography.title)
                             .multilineTextAlignment(.center)
 
-                        Text("Ready for a faster browser that keeps you protected?")
-                            .font(onboardingTheme.typography.body)
-                            .multilineTextAlignment(.center)
+                        if !subtitle.isEmpty {
+                            Text(subtitle)
+                                .font(onboardingTheme.typography.body)
+                                .multilineTextAlignment(.center)
+                        }
                     }
                     .foregroundColor(onboardingTheme.colorPalette.textPrimary)
 
                     VStack(spacing: 12) {
                         Button(action: continueAction) {
-                            Text("Let's do it!")
+                            Text(UserText.Onboarding.Intro.continueCTA)
                         }
                         .buttonStyle(onboardingTheme.primaryButtonStyle.style)
 
@@ -96,7 +96,7 @@ extension OnboardingRebranding.OnboardingView {
                                 showSkipOnboarding = true
                                 skipAction()
                             }) {
-                                Text("I've been here before")
+                                Text(UserText.Onboarding.Intro.skipCTA)
                             }
                             .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
                         }

@@ -36,7 +36,9 @@ public extension OnboardingTheme {
                 textPrimary: Color(designSystemColor: .textPrimary),
                 textSecondary: Color(designSystemColor: .textSecondary),
                 primaryButtonBackgroundColor: Color(designSystemColor: .buttonsPrimaryDefault),
-                primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText)
+                primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText),
+                secondaryButtonBackgroundColor: Color(designSystemColor: .buttonsSecondaryDefault),
+                secondaryButtonTextColor: Color(designSystemColor: .buttonsSecondaryText)
             ),
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
@@ -57,6 +59,10 @@ public extension OnboardingTheme {
             primaryButtonStyle: OnboardingButtonStyle(
                 id: .primary,
                 style: AnyButtonStyle(OnboardingPrimaryButtonStyle())
+            ),
+            secondaryButtonStyle: OnboardingButtonStyle(
+                id: .secondary,
+                style: AnyButtonStyle(OnboardingSecondaryButtonStyle())
             ),
             dismissButtonStyle: OnboardingButtonStyle(
                 id: .dismiss,
