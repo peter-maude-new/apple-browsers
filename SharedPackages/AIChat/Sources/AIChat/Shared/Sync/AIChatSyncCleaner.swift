@@ -159,6 +159,7 @@ public final class AIChatSyncCleaner: AIChatSyncCleaning {
             // Only remove the specific chat IDs that were successfully deleted
             await state.removeChatsFromPending(chatIDs: chatsToDelete)
         } catch {
+            httpRequestErrorHandler?(error)
             Logger.aiChat.debug("Failed to delete pending ai chats: \(error.localizedDescription)")
         }
     }

@@ -201,7 +201,7 @@ public class DDGSync: DDGSyncing {
         do {
             try await dependencies.createAIChats().delete(chatIds: chatIds, token: token)
         } catch {
-            throw handleUnauthenticatedAndMap(error)
+            throw handleUnauthenticatedAndMap(error, policy: .doNotLogoutOn401)
         }
     }
 
