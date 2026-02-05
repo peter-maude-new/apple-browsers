@@ -437,10 +437,8 @@ struct SubscriptionSettingsViewV2: View {
                 .padding(.horizontal, -20)
                 .padding(.vertical, -10)
             if viewModel.state.cancelPendingDowngradeDetails != nil {
-                Section {
-                    downgradeBanner
-                }
-                .listRowBackground(Color(designSystemColor: .surface))
+                downgradeBanner
+                    .listRowBackground(Color(designSystemColor: .surface))
             }
             if viewModel.shouldShowUpgrade {
                 upgradeSection
@@ -617,7 +615,7 @@ struct SubscriptionSettingsViewV2: View {
                 }
                 .listRowBackground(Color(designSystemColor: .surface))
 
-                // Row 2: Cancel upgrade button
+                // Row 2: Cancel downgrade button
                 SettingsCustomCell(content: {
                     Text(UserText.cancelDowngradeButton)
                         .daxBodyRegular()
