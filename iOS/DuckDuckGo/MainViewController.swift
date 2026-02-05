@@ -271,6 +271,10 @@ class MainViewController: UIViewController {
     func setWebExtensionManager(_ manager: WebExtensionManaging?) {
         self.webExtensionManager = manager
     }
+    
+    // A transparent bunring overlay appplied during firing
+    // Used for detecting user actions before firing completes
+    private var burningOverlayView: UIView?
 
     init(
         privacyConfigurationManager: PrivacyConfigurationManaging,
@@ -3918,6 +3922,7 @@ extension MainViewController: FireExecutorDelegate {
             autoClearInProgress = true
             clearNavigationStack()
         }
+        showBurningOverlay()
     }
     
     func willStartBurningTabs(fireRequest: FireRequest) {
@@ -3966,6 +3971,7 @@ extension MainViewController: FireExecutorDelegate {
     func didFinishBurning(fireRequest: FireRequest) {
         // Trigger sync if needed after data and aichats finish
         // because data could potentially delete a contextual chat that needs syncing
+        hideBurningOverlay()
         if syncService.authState != .inactive {
             syncService.scheduler.requestSyncImmediately()
         }
@@ -3982,6 +3988,31 @@ extension MainViewController: FireExecutorDelegate {
             }
             autoClearShouldRefreshUIAfterClear = true
         }
+    }
+}
+
+extension MainViewController {
+    
+    private func showBurningOverlay() {
+        let overlay = UIView(frame: view.bounds)
+        overlay.backgroundColor = .clear
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(burningOverlayTapped))
+        tap.cancelsTouchesInView = false
+        overlay.addGestureRecognizer(tap)
+        
+        view.addSubview(overlay)
+        burningOverlayView = overlay
+    }
+    
+    private func hideBurningOverlay() {
+        burningOverlayView?.removeFromSuperview()
+        burningOverlayView = nil
+    }
+
+    @objc private func burningOverlayTapped() {
+        fireExecutor.dataClearingPixelsReporter.fireUserActionBeforeCompletionPixel()
+        hideBurningOverlay()
     }
 }
 

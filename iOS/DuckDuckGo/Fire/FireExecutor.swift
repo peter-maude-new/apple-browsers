@@ -40,17 +40,46 @@ struct FireRequest {
         static let data = Options(rawValue: 1 << 1)
         static let aiChats = Options(rawValue: 1 << 2)
         static let all: Options = [.tabs, .data, .aiChats]
+        
+        private static let descriptions: [(Options, String)] = [(.tabs, "tabs"), (.data, "data"),(.aiChats, "ai_chats")]
+            
+        var description: String {
+            let components = Self.descriptions
+                .filter { contains($0.0) }
+                .map { $0.1 }
+            return components.joined(separator: ",")
+        }
     }
     
     enum Trigger {
         case manualFire              // User pressed Fire Button
         case autoClearOnLaunch       // Auto-clear during app launch
         case autoClearOnForeground   // Auto-clear after period of inactivity when returning to foreground
+        
+        var description: String {
+            switch self {
+            case .manualFire:
+                return "manual_fire"
+            case .autoClearOnLaunch:
+                return "auto_clear_on_launch"
+            case .autoClearOnForeground:
+                return "auto_clear_on_foreground"
+            }
+        }
     }
     
     enum Scope {
         case tab(viewModel: TabViewModel)
         case all
+        
+        var description: String {
+            switch self {
+            case .tab:
+                return "tab"
+            case .all:
+                return "all"
+            }
+        }
     }
 }
 
@@ -70,6 +99,7 @@ protocol FireExecuting {
     @MainActor func burn(request: FireRequest,
                          applicationState: DataStoreWarmup.ApplicationState) async
     var delegate: FireExecutorDelegate? { get set }
+    var dataClearingPixelsReporter: DataClearingPixelsReporter { get set }
 }
 
 class FireExecutor: FireExecuting {
@@ -99,6 +129,7 @@ class FireExecutor: FireExecuting {
     private var dataStoreWarmup: DataStoreWarmup? = DataStoreWarmup()
     private let historyCleanerProvider: HistoryCleanerProvider
     private var preparedOptions: FireRequest.Options = []
+    var dataClearingPixelsReporter: DataClearingPixelsReporter
     
     // MARK: - Init
     
@@ -117,7 +148,9 @@ class FireExecutor: FireExecuting {
          historyCleanerProvider: HistoryCleanerProvider? = nil,
          appSettings: AppSettings,
          privacyStats: PrivacyStatsProviding? = nil,
-         aiChatSyncCleaner: AIChatSyncCleaning) {
+         aiChatSyncCleaner: AIChatSyncCleaning,
+         dataClearingPixelsReporter: DataClearingPixelsReporter = .init()
+    ) {
         self.tabManager = tabManager
         self.downloadManager = downloadManager
         self.websiteDataManager = websiteDataManager
@@ -136,6 +169,7 @@ class FireExecutor: FireExecuting {
         self.appSettings = appSettings
         self.privacyStats = privacyStats
         self.aiChatSyncCleaner = aiChatSyncCleaner
+        self.dataClearingPixelsReporter = dataClearingPixelsReporter
     }
 
     
@@ -153,6 +187,8 @@ class FireExecutor: FireExecuting {
     func burn(request: FireRequest,
               applicationState: DataStoreWarmup.ApplicationState) async {
         assert(delegate != nil, "Delegate should not be nil. This leads to unexpected behavior.")
+        dataClearingPixelsReporter.fireRetriggerPixelIfNeeded()
+        let startTime = Date()
         
         // Ensure all requested options are prepared
         let unpreparedOptions = request.options.subtracting(preparedOptions)
@@ -192,7 +228,7 @@ class FireExecutor: FireExecuting {
         _ = await (dataTask, aiTask)
         
         // Notify delegate that we finished
-        await didFinishBurning(fireRequest: request)
+        await didFinishBurning(fireRequest: request, startTime: startTime)
         
         // Reset prepared state for next burn cycle
         preparedOptions = []
@@ -210,11 +246,12 @@ class FireExecutor: FireExecuting {
     }
 
     @MainActor
-    private func didFinishBurning(fireRequest: FireRequest) async {
+    private func didFinishBurning(fireRequest: FireRequest, startTime: Date) async {
         if case .tab(let viewModel) = fireRequest.scope,
            fireRequest.options.contains(.tabs) {
             await historyManager.removeTabHistory(for: [viewModel.tab.uid])
         }
+        dataClearingPixelsReporter.fireClearingCompletionPixel(from: startTime, request: fireRequest)
         delegate?.didFinishBurning(fireRequest: fireRequest)
     }
     
