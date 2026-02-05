@@ -66,7 +66,7 @@ public final class AIChatSyncCleaner: AIChatSyncCleaning {
                 keyValueStore: ThrowingKeyValueStoring,
                 featureFlagProvider: AIChatFeatureFlagProviding,
                 dateProvider: @escaping () -> Date = Date.init,
-                httpRequestErrorHandler: ((Error) -> Void)?) {
+                httpRequestErrorHandler: ((Error) -> Void)? = nil) {
         self.sync = sync
         self.keyValueStore = keyValueStore
         self.featureFlagProvider = featureFlagProvider
