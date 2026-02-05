@@ -22,10 +22,13 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
-private enum OnboardingViewMetrics {
+private enum RebrandedOnboardingViewMetrics {
+    // Timing
     static let daxDialogDelay: TimeInterval = 2.0
     static let daxDialogVisibilityDelay: TimeInterval = 0.5
     static let comparisonChartAnimationDuration = 0.25
+
+    // Layout
     static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
     static let progressBarTrailingPadding: CGFloat = 16.0
     static let progressBarTopPadding: CGFloat = 12.0
@@ -56,12 +59,13 @@ extension OnboardingRebranding {
 
         var body: some View {
             ZStack(alignment: .topTrailing) {
+                Color.white
+                    .ignoresSafeArea()
+
                 switch model.state {
                 case .landing:
                     landingView
                 case let .onboarding(viewState):
-                    Color.white
-                        .ignoresSafeArea()
                     onboardingDialogView(state: viewState)
 #if DEBUG || ALPHA
                         .safeAreaInset(edge: .bottom) {
@@ -77,8 +81,8 @@ extension OnboardingRebranding {
             }
             .overlay(alignment: .topLeading) {
                 RebrandingBadge()
-                    .padding(.leading, OnboardingViewMetrics.rebrandingBadgeLeadingPadding)
-                    .padding(.top, OnboardingViewMetrics.rebrandingBadgeTopPadding)
+                    .padding(.leading, RebrandedOnboardingViewMetrics.rebrandingBadgeLeadingPadding)
+                    .padding(.top, RebrandedOnboardingViewMetrics.rebrandingBadgeTopPadding)
             }
             .applyOnboardingTheme(.rebranding2026, stepProgressTheme: .rebranding2026)
         }
@@ -119,9 +123,9 @@ extension OnboardingRebranding {
                         )
                         .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
                         .frame(width: geometry.size.width, alignment: .center)
-                        .offset(y: geometry.size.height * OnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
+                        .offset(y: geometry.size.height * RebrandedOnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
                         .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + OnboardingViewMetrics.daxDialogVisibilityDelay) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogVisibilityDelay) {
                                 model.introState.showDaxDialogBox = true
                                 model.introState.animateIntroText = true
                             }
@@ -137,7 +141,7 @@ extension OnboardingRebranding {
                 .ignoresSafeArea(edges: .bottom)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + OnboardingViewMetrics.daxDialogDelay) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogDelay) {
                         withAnimation {
                             model.onAppear()
                         }
@@ -236,7 +240,7 @@ extension OnboardingRebranding {
             model.introState.showIntroViewContent = false
 
             // Animation with small delay for a better effect when intro content disappear
-            let animationDuration = OnboardingViewMetrics.comparisonChartAnimationDuration
+            let animationDuration = RebrandedOnboardingViewMetrics.comparisonChartAnimationDuration
             let animation = Animation
                 .linear(duration: animationDuration)
                 .delay(0.2)
@@ -284,8 +288,8 @@ private extension View {
             RebrandedOnboardingView.OnboardingProgressIndicator(
                 stepInfo: .init(currentStep: currentStep, totalSteps: totalSteps)
             )
-            .padding(.trailing, OnboardingViewMetrics.progressBarTrailingPadding)
-            .padding(.top, OnboardingViewMetrics.progressBarTopPadding)
+            .padding(.trailing, RebrandedOnboardingViewMetrics.progressBarTrailingPadding)
+            .padding(.top, RebrandedOnboardingViewMetrics.progressBarTopPadding)
             .transition(.identity)
             .visibility(totalSteps == 0 ? .invisible : .visible)
         }
