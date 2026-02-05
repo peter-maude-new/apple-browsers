@@ -58,6 +58,15 @@ protocol AIChatSidebarPresenting {
     /// Emits events whenever sidebar is shown or hidden for a tab.
     var sidebarPresenceWillChangePublisher: AnyPublisher<AIChatSidebarPresenceChange, Never> { get }
 
+    /// Returns whether the AI Chat is currently shown in a floating panel.
+    var isFloatingPanelShowing: Bool { get }
+
+    /// Emits events whenever the floating panel is shown or closed.
+    var floatingPanelStateDidChangePublisher: AnyPublisher<Bool, Never> { get }
+
+    /// Closes the floating panel if it's currently showing.
+    func closeFloatingPanel()
+
     /// Consumes `prompt` and presents it in the sidebar. Appends to existing conversation if that was present.
     func presentSidebar(for prompt: AIChatNativePrompt)
 }
@@ -65,6 +74,11 @@ protocol AIChatSidebarPresenting {
 final class AIChatSidebarPresenter: AIChatSidebarPresenting {
 
     let sidebarPresenceWillChangePublisher: AnyPublisher<AIChatSidebarPresenceChange, Never>
+    let floatingPanelStateDidChangePublisher: AnyPublisher<Bool, Never>
+
+    var isFloatingPanelShowing: Bool {
+        floatingPanelController != nil
+    }
 
     private let sidebarHost: AIChatSidebarHosting
     private let sidebarProvider: AIChatSidebarProviding
@@ -73,9 +87,11 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
     private let windowControllersManager: WindowControllersManagerProtocol
     private let pixelFiring: PixelFiring?
     private let sidebarPresenceWillChangeSubject = PassthroughSubject<AIChatSidebarPresenceChange, Never>()
+    private let floatingPanelStateDidChangeSubject = PassthroughSubject<Bool, Never>()
 
     private var isAnimatingSidebarTransition: Bool = false
     private var cancellables = Set<AnyCancellable>()
+    private var floatingPanelController: AIChatFloatingPanelController?
 
     init(
         sidebarHost: AIChatSidebarHosting,
@@ -93,6 +109,7 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
         self.pixelFiring = pixelFiring
 
         sidebarPresenceWillChangePublisher = sidebarPresenceWillChangeSubject.eraseToAnyPublisher()
+        floatingPanelStateDidChangePublisher = floatingPanelStateDidChangeSubject.eraseToAnyPublisher()
         self.sidebarHost.aiChatSidebarHostingDelegate = self
 
         NotificationCenter.default.publisher(for: .aiChatNativeHandoffData)
@@ -137,6 +154,13 @@ final class AIChatSidebarPresenter: AIChatSidebarPresenting {
     func sidebarHiddenAtForCurrentTab() -> Date? {
         guard let currentTabID = sidebarHost.currentTabID else { return nil }
         return sidebarHiddenAt(for: currentTabID)
+    }
+
+    func closeFloatingPanel() {
+        guard floatingPanelController != nil else { return }
+        floatingPanelController?.close()
+        floatingPanelController = nil
+        floatingPanelStateDidChangeSubject.send(false)
     }
 
     private func updateSidebarConstraints(for tabID: TabIdentifier, isShowingSidebar: Bool, withAnimation: Bool) {
@@ -278,4 +302,54 @@ extension AIChatSidebarPresenter: AIChatSidebarViewControllerDelegate {
         toggleSidebar()
     }
 
+    func didDetachSidebar(_ viewController: AIChatSidebarViewController, at screenPoint: NSPoint, size: NSSize) {
+        guard let currentTabID = sidebarHost.currentTabID else { return }
+
+        // Get the source window before collapsing the sidebar
+        let sourceWindow = sidebarHost.hostWindow
+
+        // Collapse the sidebar in the browser window (without animation for instant response)
+        collapseSidebar(withAnimation: false)
+
+        // Create and show the floating panel
+        let panelController = AIChatFloatingPanelController()
+        panelController.delegate = self
+        self.floatingPanelController = panelController
+
+        // Create a new sidebar view controller for the floating panel
+        // We need to create a new one because the old one will be cleaned up
+        let newSidebarViewController = sidebarProvider.makeSidebarViewController(for: currentTabID, burnerMode: sidebarHost.burnerMode)
+        newSidebarViewController.delegate = self
+
+        panelController.show(with: newSidebarViewController, at: screenPoint, size: size, sourceWindow: sourceWindow)
+
+        // Notify that floating panel is now showing
+        floatingPanelStateDidChangeSubject.send(true)
+    }
+}
+
+// MARK: - AIChatFloatingPanelControllerDelegate
+extension AIChatSidebarPresenter: AIChatFloatingPanelControllerDelegate {
+
+    func floatingPanelDidClose() {
+        floatingPanelController = nil
+        floatingPanelStateDidChangeSubject.send(false)
+    }
+
+    func floatingPanelDidRequestDock() {
+        guard let currentTabID = sidebarHost.currentTabID else {
+            floatingPanelController?.close()
+            floatingPanelController = nil
+            floatingPanelStateDidChangeSubject.send(false)
+            return
+        }
+
+        // Close the floating panel
+        floatingPanelController?.close()
+        floatingPanelController = nil
+        floatingPanelStateDidChangeSubject.send(false)
+
+        // Re-open the sidebar in the browser window
+        updateSidebarConstraints(for: currentTabID, isShowingSidebar: true, withAnimation: true)
+    }
 }

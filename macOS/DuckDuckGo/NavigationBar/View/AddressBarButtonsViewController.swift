@@ -714,6 +714,13 @@ final class AddressBarButtonsViewController: NSViewController {
                 updateAskAIChatButtonVisibility(isSidebarOpen: change.isShown)
             }
             .store(in: &cancellables)
+
+        aiChatSidebarPresenter.floatingPanelStateDidChangePublisher
+            .sink { [weak self] isShowing in
+                guard let self else { return }
+                updateAIChatButtonStateForFloatingPanel(isShowing)
+            }
+            .store(in: &cancellables)
     }
 
     private func updateLegacyPermissionButtons() {
@@ -1066,6 +1073,14 @@ final class AddressBarButtonsViewController: NSViewController {
     @IBAction func aiChatButtonAction(_ sender: Any) {
         guard let tab = tabViewModel?.tab else { return }
 
+        // Close the floating panel if it's currently showing
+        if aiChatSidebarPresenter.isFloatingPanelShowing {
+            aiChatSidebarPresenter.closeFloatingPanel()
+            delegate?.addressBarButtonsViewControllerAIChatButtonClicked(self)
+            updateAskAIChatButtonVisibility()
+            return
+        }
+
         // Close the sidebar if it's currently open and the user preference is set to open AI chat in new tabs
         // This ensures consistent behavior when the sidebar is unexpectedly open but shouldn't be the default action
         if !aiChatMenuConfig.shouldOpenAIChatInSidebar && aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid) {
@@ -1268,14 +1283,26 @@ final class AddressBarButtonsViewController: NSViewController {
     private func updateAIChatButtonState() {
         guard let tab = tabViewModel?.tab else { return }
         let isShowingSidebar = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
-        updateAIChatButtonStateForSidebar(isShowingSidebar)
+        let isFloatingPanelShowing = aiChatSidebarPresenter.isFloatingPanelShowing
+        updateAIChatButtonStateForSidebarOrPanel(isShowingSidebar: isShowingSidebar, isFloatingPanelShowing: isFloatingPanelShowing)
     }
 
     private func updateAIChatButtonStateForSidebar(_ isShowingSidebar: Bool) {
-        configureContextMenuForAIChatButtons(isSidebarOpen: isShowingSidebar)
-        configureAIChatButtonTooltip(isSidebarOpen: isShowingSidebar)
+        updateAIChatButtonStateForSidebarOrPanel(isShowingSidebar: isShowingSidebar, isFloatingPanelShowing: aiChatSidebarPresenter.isFloatingPanelShowing)
+    }
 
-        if isShowingSidebar {
+    private func updateAIChatButtonStateForFloatingPanel(_ isFloatingPanelShowing: Bool) {
+        guard let tab = tabViewModel?.tab else { return }
+        let isShowingSidebar = aiChatSidebarPresenter.isSidebarOpen(for: tab.uuid)
+        updateAIChatButtonStateForSidebarOrPanel(isShowingSidebar: isShowingSidebar, isFloatingPanelShowing: isFloatingPanelShowing)
+    }
+
+    private func updateAIChatButtonStateForSidebarOrPanel(isShowingSidebar: Bool, isFloatingPanelShowing: Bool) {
+        let isAIChatActive = isShowingSidebar || isFloatingPanelShowing
+        configureContextMenuForAIChatButtons(isSidebarOpen: isAIChatActive)
+        configureAIChatButtonTooltip(isSidebarOpen: isShowingSidebar, isFloatingPanelShowing: isFloatingPanelShowing)
+
+        if isAIChatActive {
             aiChatButton.setButtonType(.toggle)
             aiChatButton.state = .on
             aiChatButton.mouseOverColor = nil
@@ -1511,14 +1538,18 @@ final class AddressBarButtonsViewController: NSViewController {
         configureAIChatButtonTooltip()
     }
 
-    private func configureAIChatButtonTooltip(isSidebarOpen: Bool? = nil) {
+    private func configureAIChatButtonTooltip(isSidebarOpen: Bool? = nil, isFloatingPanelShowing: Bool? = nil) {
         if let tab = tabViewModel?.tab {
             let isSidebarOpen: Bool = isSidebarOpen ?? {
                 guard let tabID = tabViewModel?.tab.uuid else { return false }
                 return aiChatSidebarPresenter.isSidebarOpen(for: tabID)
             }()
+            let isFloatingPanelShowing = isFloatingPanelShowing ?? aiChatSidebarPresenter.isFloatingPanelShowing
 
             if isSidebarOpen {
+                aiChatButton.toolTip = UserText.aiChatCloseSidebarButton
+                aiChatButton.setAccessibilityTitle(UserText.aiChatCloseSidebarButton)
+            } else if isFloatingPanelShowing {
                 aiChatButton.toolTip = UserText.aiChatCloseSidebarButton
                 aiChatButton.setAccessibilityTitle(UserText.aiChatCloseSidebarButton)
             } else if aiChatMenuConfig.shouldOpenAIChatInSidebar, case .url = tab.content {

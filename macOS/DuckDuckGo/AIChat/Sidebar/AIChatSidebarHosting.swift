@@ -61,6 +61,9 @@ protocol AIChatSidebarHosting: AnyObject  {
 
     /// The burner mode status of the current tab (private browsing mode).
     var burnerMode: BurnerMode { get }
+
+    /// The window that hosts the sidebar.
+    var hostWindow: NSWindow? { get }
 }
 
 extension BrowserTabViewController: AIChatSidebarHosting {
@@ -81,4 +84,7 @@ extension BrowserTabViewController: AIChatSidebarHosting {
         tabViewModel?.tab.burnerMode ?? .regular
     }
 
+    var hostWindow: NSWindow? {
+        view.window
+    }
 }

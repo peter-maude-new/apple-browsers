@@ -28,6 +28,12 @@ protocol AIChatSidebarViewControllerDelegate: AnyObject {
     func didClickOpenInNewTabButton()
     /// Called when the user clicks the "Close" button
     func didClickCloseButton()
+    /// Called when the user drags the title bar to detach the sidebar into a floating panel.
+    /// - Parameters:
+    ///   - viewController: The sidebar view controller being detached.
+    ///   - screenPoint: The screen point where the drag ended.
+    ///   - size: The size of the sidebar view at the time of detachment.
+    func didDetachSidebar(_ viewController: AIChatSidebarViewController, at screenPoint: NSPoint, size: NSSize)
 }
 
 /// A view controller that manages the AI Chat sidebar interface.
@@ -63,6 +69,7 @@ final class AIChatSidebarViewController: NSViewController {
     private var webViewContainer: WebViewContainerView!
     private var separator: NSView!
     private var topBar: NSView!
+    private var titleDragView: AIChatSidebarTitleDragView!
 
     private lazy var aiTab: Tab = Tab(content: .url(currentAIChatURL, source: .ui), burnerMode: burnerMode, isLoadedInSidebar: true)
 
@@ -165,12 +172,11 @@ final class AIChatSidebarViewController: NSViewController {
         openInNewTabButton.isBordered = false
         topBar.addSubview(openInNewTabButton)
 
-        let titleLabel = NSTextField(labelWithString: UserText.aiChatSidebarTitle)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.alignment = .center
-        titleLabel.font = .systemFont(ofSize: 13, weight: .medium)
-        titleLabel.textColor = .labelColor
-        topBar.addSubview(titleLabel)
+        // Create the draggable title view
+        titleDragView = AIChatSidebarTitleDragView(title: UserText.aiChatSidebarTitle)
+        titleDragView.translatesAutoresizingMaskIntoConstraints = false
+        titleDragView.delegate = self
+        topBar.addSubview(titleDragView)
 
         closeButton = MouseOverButton(image: .closeLarge, target: self, action: #selector(closeButtonClicked))
         closeButton.toolTip = UserText.aiChatSidebarCloseButtonTooltip
@@ -189,10 +195,10 @@ final class AIChatSidebarViewController: NSViewController {
             openInNewTabButton.heightAnchor.constraint(equalToConstant: Constants.barButtonHeight),
             openInNewTabButton.widthAnchor.constraint(equalToConstant: Constants.barButtonWidth),
 
-            titleLabel.centerXAnchor.constraint(equalTo: topBar.centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: openInNewTabButton.trailingAnchor, constant: Constants.titleLabelSideMargin),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: closeButton.leadingAnchor, constant: -Constants.titleLabelSideMargin),
+            titleDragView.centerXAnchor.constraint(equalTo: topBar.centerXAnchor),
+            titleDragView.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
+            titleDragView.leadingAnchor.constraint(greaterThanOrEqualTo: openInNewTabButton.trailingAnchor, constant: Constants.titleLabelSideMargin),
+            titleDragView.trailingAnchor.constraint(lessThanOrEqualTo: closeButton.leadingAnchor, constant: -Constants.titleLabelSideMargin),
 
             closeButton.trailingAnchor.constraint(equalTo: topBar.trailingAnchor, constant: -Constants.barButtonMargin),
             closeButton.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
@@ -353,5 +359,14 @@ extension NSNotification.Name {
 
     enum UserInfoKeys {
         static let userInteractionDialog = "userInteractionDialog"
+    }
+}
+
+// MARK: - AIChatSidebarTitleDragViewDelegate
+extension AIChatSidebarViewController: AIChatSidebarTitleDragViewDelegate {
+
+    func titleDragViewDidDetach(_ dragView: AIChatSidebarTitleDragView, at screenPoint: NSPoint) {
+        let size = view.frame.size
+        delegate?.didDetachSidebar(self, at: screenPoint, size: size)
     }
 }
