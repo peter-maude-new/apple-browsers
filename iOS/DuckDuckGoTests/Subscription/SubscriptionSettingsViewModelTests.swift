@@ -626,7 +626,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
     // MARK: - Cancel Pending Downgrade
 
     func testCancelPendingDowngrade_WhenAppleSubscription_InvokesPerformerWithCurrentProductId() async {
-        let subscription = SubscriptionMockFactory.subscription(status: .autoRenewable, tier: .plus, platform: .apple)
+        let subscription = SubscriptionMockFactory.subscription(status: .autoRenewable, platform: .apple, tier: .plus)
         mockSubscriptionManager.resultSubscription = .success(subscription)
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
 
@@ -646,7 +646,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     func testCancelPendingDowngrade_WhenGoogleSubscription_ShowsGoogleView() async {
         mockSubscriptionManager.resultSubscription = .success(
-            SubscriptionMockFactory.subscription(status: .autoRenewable, tier: .plus, platform: .google))
+            SubscriptionMockFactory.subscription(status: .autoRenewable, platform: .google, tier: .plus))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         sut = makeSUT()
         await waitForSubscriptionUpdate()
@@ -670,7 +670,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     func testSetCancelDowngradeStatus_WhenIdle_SetsIsCancelDowngradeInProgressFalse() async {
         mockSubscriptionManager.resultSubscription = .success(
-            SubscriptionMockFactory.subscription(status: .autoRenewable, tier: .plus, platform: .apple))
+            SubscriptionMockFactory.subscription(status: .autoRenewable, platform: .apple, tier: .plus))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
         let mockPerformer = MockTierChangePerformer()
         let performerCalled = expectation(description: "Performer called")
@@ -687,18 +687,20 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         XCTAssertFalse(sut.state.isCancelDowngradeInProgress)
     }
 
-    func testSetCancelDowngradeError_SetsCancelDowngradeErrorInState() {
+    @MainActor
+    func testSetCancelDowngradeError_SetsCancelDowngradeErrorInState() async  {
         sut = makeSUT()
-        let error = AppStorePurchaseFlowError.purchaseFailed
+        let error = AppStorePurchaseFlowError.purchaseFailed(NSError(domain: "Test", code: -1))
 
         sut.setCancelDowngradeError(error)
 
-        XCTAssertEqual(sut.state.cancelDowngradeError, error.localizedDescription)
+        XCTAssertEqual(sut.state.cancelDowngradeError, .purchaseFailed)
     }
 
+    @MainActor
     func testClearCancelDowngradeError_ClearsErrorInState() {
         sut = makeSUT()
-        sut.setCancelDowngradeError(AppStorePurchaseFlowError.purchaseFailed)
+        sut.setCancelDowngradeError(AppStorePurchaseFlowError.purchaseFailed(NSError(domain: "Test", code: -1)))
 
         sut.clearCancelDowngradeError()
 

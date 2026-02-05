@@ -463,6 +463,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.purchaseSubscriptionResult = .success((transactionJWS: "jws", accountCreationDuration: nil))
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -472,7 +478,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "yearly"], original: message)
@@ -507,6 +514,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.purchaseSubscriptionResult = .failure(.cancelledByUser)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -516,7 +529,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
@@ -539,6 +553,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.purchaseSubscriptionResult = .failure(.cancelledByUser)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -548,7 +568,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
@@ -566,6 +587,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("mock-transaction-jws")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -575,7 +602,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -597,6 +625,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -606,7 +640,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -627,6 +662,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.purchaseFailed(NSError(domain: "test", code: 0)))
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -636,7 +677,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -658,6 +700,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("mock-transaction-jws")
         purchaseFlow.completeSubscriptionPurchaseResult = .failure(.missingEntitlements)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -667,7 +715,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -686,6 +735,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         // Given
         let purchaseFlow = AppStorePurchaseFlowMock()
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -695,7 +750,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         // Invalid params - missing "id"
@@ -717,6 +773,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -726,7 +788,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         let params: [String: Any] = ["id": "monthly-plus", "change": "downgrade"]
@@ -752,6 +815,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let storeManager = StorePurchaseManagerMock()
         mockSubscriptionManager.resultStorePurchaseManager = storeManager
         
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: mockPendingTransactionHandler
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -761,7 +830,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: mockPendingTransactionHandler
+            pendingTransactionHandler: mockPendingTransactionHandler,
+            tierChangePerformer: tierChangePerformer
         )
         
         let originURL = URL(string: "https://duckduckgo.com/subscriptions")!
@@ -803,6 +873,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("jws-token")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -812,7 +888,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.pro.monthly.renews.us", "change": "upgrade"], original: message)
@@ -859,6 +936,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -868,7 +951,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.pro.monthly.renews.us", "change": "upgrade"], original: message)
@@ -906,6 +990,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.purchaseFailed(NSError(domain: "Test", code: -1)))
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -915,7 +1005,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.plus.yearly.renews.us", "change": "downgrade"], original: message)
@@ -957,6 +1048,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("jws-token")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
+        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            subscriptionManager: mockSubscriptionManager,
+            appStorePurchaseFlow: purchaseFlow,
+            wideEvent: mockWideEvent,
+            pendingTransactionHandler: MockPendingTransactionHandler()
+        )
         let sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
             subscriptionFeatureAvailability: mockSubscriptionFeatureAvailability,
@@ -966,7 +1063,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            tierChangePerformer: tierChangePerformer
         )
 
         // No "change" parameter provided
