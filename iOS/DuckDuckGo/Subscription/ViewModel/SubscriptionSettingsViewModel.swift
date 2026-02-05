@@ -34,7 +34,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     private var signOutObserver: Any?
     private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
-    private let tierChangePerformerToUse: SubscriptionTierChangePerforming
+    private let tierChangePerformerToUse: SubscriptionFlowPerforming
 
     private var externalAllowedDomains = ["stripe.com"]
 
@@ -179,7 +179,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
          keyValueStorage: KeyValueStoring = SubscriptionSettingsStore(),
          userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
-         tierChangePerformer: SubscriptionTierChangePerforming? = nil) {
+         tierChangePerformer: SubscriptionFlowPerforming? = nil) {
         self.subscriptionManager = subscriptionManager
         self.userScriptsDependencies = userScriptsDependencies
         self.featureFlagger = featureFlagger
@@ -327,8 +327,8 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         state.isCancelDowngradeInProgress = true
         state.cancelDowngradeError = nil
         await tierChangePerformerToUse.performTierChange(to: productId,
-                                                          changeType: nil,
-                                                          contextName: nil,
+                                                          changeType: "upgrade",
+                                                          contextName: "cancel-downgrade",
                                                           setTransactionStatus: { [weak self] in self?.setCancelDowngradeStatus($0) },
                                                           setTransactionError: { [weak self] in self?.setCancelDowngradeError($0) },
                                                           pushPurchaseUpdate: nil)

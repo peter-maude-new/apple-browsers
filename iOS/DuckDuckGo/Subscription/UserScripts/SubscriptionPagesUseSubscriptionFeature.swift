@@ -82,7 +82,7 @@ enum UseSubscriptionError: Error {
          generalError
 }
 
-enum SubscriptionTransactionStatus: String {
+public enum SubscriptionTransactionStatus: String {
     case idle, purchasing, restoring, polling
 }
 

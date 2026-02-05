@@ -707,7 +707,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(tierChangePerformer: SubscriptionTierChangePerforming? = nil) -> SubscriptionSettingsViewModel {
+    private func makeSUT(tierChangePerformer: SubscriptionFlowPerforming? = nil) -> SubscriptionSettingsViewModel {
         SubscriptionSettingsViewModel(
             subscriptionManager: mockSubscriptionManager,
             featureFlagger: mockFeatureFlagger,
@@ -737,7 +737,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
 // MARK: - Mock Tier Change Performer
 
-private final class MockTierChangePerformer: SubscriptionTierChangePerforming {
+private final class MockTierChangePerformer: SubscriptionFlowPerforming {
     var capturedProductId: String?
     var setTransactionStatus: ((SubscriptionTransactionStatus) -> Void)?
     var onPerformTierChange: (() async -> Void)?
