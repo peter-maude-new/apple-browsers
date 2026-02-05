@@ -54,10 +54,10 @@ extension OnboardingRebranding.OnboardingView {
             } else {
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: 140)
+                        .frame(height: Metrics.topMargin)
 
                     bubbleContent
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, Metrics.horizontalPadding)
 
                     Spacer()
                 }
@@ -69,9 +69,9 @@ extension OnboardingRebranding.OnboardingView {
             let greeting = titleComponents.first ?? title
             let subtitle = titleComponents.count > 1 ? titleComponents[1] : ""
 
-            return OnboardingBubbleView(tailPosition: .bottom(offset: 0.2, direction: .leading)) {
-                VStack(alignment: .center, spacing: 20) {
-                    VStack(alignment: .center, spacing: 12) {
+            return OnboardingBubbleView(tailPosition: .bottom(offset: Metrics.bubbleTailOffset, direction: .leading)) {
+                VStack(alignment: .center, spacing: Metrics.contentSpacing) {
+                    VStack(alignment: .center, spacing: Metrics.textSpacing) {
                         Text(greeting)
                             .font(onboardingTheme.typography.title)
                             .multilineTextAlignment(.center)
@@ -84,7 +84,7 @@ extension OnboardingRebranding.OnboardingView {
                     }
                     .foregroundColor(onboardingTheme.colorPalette.textPrimary)
 
-                    VStack(spacing: 12) {
+                    VStack(spacing: Metrics.buttonSpacing) {
                         Button(action: continueAction) {
                             Text(UserText.Onboarding.Intro.continueCTA)
                         }
@@ -106,4 +106,13 @@ extension OnboardingRebranding.OnboardingView {
         }
 
     }
+}
+
+private enum Metrics {
+    static let topMargin: CGFloat = 140
+    static let horizontalPadding: CGFloat = 12
+    static let bubbleTailOffset: CGFloat = 0.2
+    static let contentSpacing: CGFloat = 20
+    static let textSpacing: CGFloat = 12
+    static let buttonSpacing: CGFloat = 12
 }

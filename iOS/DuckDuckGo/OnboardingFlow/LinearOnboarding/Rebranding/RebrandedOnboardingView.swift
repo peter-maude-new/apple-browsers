@@ -66,8 +66,8 @@ extension OnboardingRebranding {
             }
             .overlay(alignment: .topLeading) {
                 RebrandingBadge()
-                    .padding(.leading, 12)
-                    .padding(.top, 12)
+                    .padding(.leading, OnboardingViewMetrics.rebrandingBadgeLeadingPadding)
+                    .padding(.top, OnboardingViewMetrics.rebrandingBadgeTopPadding)
             }
             .applyOnboardingTheme(.rebranding2026, stepProgressTheme: .rebranding2026)
         }
@@ -273,6 +273,8 @@ private enum OnboardingViewMetrics {
     static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
     static let progressBarTrailingPadding: CGFloat = 16.0
     static let progressBarTopPadding: CGFloat = 12.0
+    static let rebrandingBadgeLeadingPadding: CGFloat = 12.0
+    static let rebrandingBadgeTopPadding: CGFloat = 12.0
 }
 
 private extension View {
