@@ -44,11 +44,15 @@ class DefaultTabPreviewsSource: TabPreviewsSource {
     
     fileprivate var previewStoreDir: URL?
     private var legacyPreviewStoreDir: URL?
+    private let dataClearingPixelsReporter: DataClearingPixelsReporter
     
     init(storeDir: URL? = DefaultTabPreviewsSource.previewStoreDir,
-         legacyDir: URL? = DefaultTabPreviewsSource.legacyPreviewStoreDir) {
+         legacyDir: URL? = DefaultTabPreviewsSource.legacyPreviewStoreDir,
+         dataClearingPixelsReporter: DataClearingPixelsReporter = .init()
+    ) {
         previewStoreDir = storeDir
         legacyPreviewStoreDir = legacyDir
+        self.dataClearingPixelsReporter = dataClearingPixelsReporter
     }
     
     func prepare() {
@@ -98,10 +102,17 @@ class DefaultTabPreviewsSource: TabPreviewsSource {
         cache.removeAll()
         guard let dirUrl = previewStoreDir else { return }
         
-        if let previews = try? FileManager.default.contentsOfDirectory(at: dirUrl, includingPropertiesForKeys: nil) {
+        do {
+            let previews = try FileManager.default.contentsOfDirectory(at: dirUrl, includingPropertiesForKeys: nil)
             for previewUrl in previews {
-                try? FileManager.default.removeItem(at: previewUrl)
+                do {
+                    try FileManager.default.removeItem(at: previewUrl)
+                } catch {
+                    dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
+                }
             }
+        } catch {
+            dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
         }
     }
     

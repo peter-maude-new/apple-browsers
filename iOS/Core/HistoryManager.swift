@@ -51,6 +51,7 @@ public class HistoryManager: HistoryManaging {
         }
         return dbCoordinator
     }
+    private let dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
 
     public let isAutocompleteEnabledByUser: () -> Bool
     public let isRecentlyVisitedSitesEnabledByUser: () -> Bool
@@ -64,7 +65,9 @@ public class HistoryManager: HistoryManaging {
          tld: TLD,
          tabHistoryCoordinator: TabHistoryCoordinating,
          isAutocompleteEnabledByUser: @autoclosure @escaping () -> Bool,
-         isRecentlyVisitedSitesEnabledByUser: @autoclosure @escaping () -> Bool) {
+         isRecentlyVisitedSitesEnabledByUser: @autoclosure @escaping () -> Bool,
+         dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
+    ) {
 
         self.dbCoordinator = dbCoordinator
         self.tld = tld
@@ -132,6 +135,7 @@ public class HistoryManager: HistoryManaging {
         do {
             try await tabHistoryCoordinator.removeVisits(for: tabIDs)
         } catch {
+            dataClearingPixelsHandler?.fireBurnTabHistoryError(error: error)
             Logger.history.error("Failed to remove tab history: \(error.localizedDescription)")
         }
     }

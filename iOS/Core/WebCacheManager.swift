@@ -80,6 +80,22 @@ public class WebCacheManager: WebsiteDataManaging {
                 return cookies
             }
         }
+        
+        var description: String {
+            switch self {
+            case .all:
+                return "all"
+            case .limited:
+                return "limited"
+            }
+        }
+    }
+    
+    private enum BurningStep: String {
+        case clearDataForSafelyRemovableDataTypes = "clear_data_for_safely_removable_data_types"
+        case clearFireproofableDataForNonFireproofDomains = "clear_fireproofable_data_for_non_fireproof_domains"
+        case clearCookiesForNonFireproofedDomains = "clear_cookies_for_non_fireproofed_domains"
+        case removeObservationsData = "remove_observations_data"
     }
 
     static let safelyRemovableWebsiteDataTypes: Set<String> = {
@@ -120,17 +136,21 @@ public class WebCacheManager: WebsiteDataManaging {
     let dataStoreIDManager: DataStoreIDManaging
     let dataStoreCleaner: WebsiteDataStoreCleaning
     let observationsCleaner: ObservationsDataCleaning
+    let dataClearingPixelsHandler: DataClearingPixelsHandler?
 
     public init(cookieStorage: MigratableCookieStorage,
                 fireproofing: Fireproofing,
                 dataStoreIDManager: DataStoreIDManaging,
                 dataStoreCleaner: WebsiteDataStoreCleaning = DefaultWebsiteDataStoreCleaner(),
-                observationsCleaner: ObservationsDataCleaning = DefaultObservationsDataCleaner()) {
+                observationsCleaner: ObservationsDataCleaning = DefaultObservationsDataCleaner(),
+                dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
+    ) {
         self.cookieStorage = cookieStorage
         self.fireproofing = fireproofing
         self.dataStoreIDManager = dataStoreIDManager
         self.dataStoreCleaner = dataStoreCleaner
         self.observationsCleaner = observationsCleaner
+        self.dataClearingPixelsHandler = dataClearingPixelsHandler
     }
 
     /// The previous version saved cookies externally to the data so we can move them between containers.  We now use
@@ -165,10 +185,11 @@ public class WebCacheManager: WebsiteDataManaging {
     }
 
     public func clear(dataStore: any DDGWebsiteDataStore) async {
-
         let count = await dataStoreCleaner.countContainers()
         await performMigrationIfNeeded(dataStoreIDManager: dataStoreIDManager, cookieStorage: cookieStorage, destinationStore: dataStore)
+        let startTime = Date()
         await clearData(inDataStore: dataStore, withFireproofing: fireproofing, scope: .all)
+        dataClearingPixelsHandler?.fireBurnWebsiteDataDuration(from: startTime, scope: Scope.all.description)
         await dataStoreCleaner.removeAllContainersAfterDelay(previousCount: count)
 
     }
@@ -193,7 +214,9 @@ public class WebCacheManager: WebsiteDataManaging {
         
         let scope = Scope.limited(dataRecords: dataRecordInScope, cookies: cookieInScope)
         await performMigrationIfNeeded(dataStoreIDManager: dataStoreIDManager, cookieStorage: cookieStorage, destinationStore: dataStore)
+        let startTime = Date()
         await clearData(inDataStore: dataStore, withFireproofing: fireproofing, scope: scope)
+        dataClearingPixelsHandler?.fireBurnWebsiteDataDuration(from: startTime, scope: scope.description)
     }
 
 }
@@ -247,12 +270,24 @@ extension WebCacheManager {
         switch scope {
         case .all:
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
+            Task {
+                if await !dataStore.dataRecords(ofTypes:  Self.safelyRemovableWebsiteDataTypes).isEmpty {
+                    dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                }
+            }
         case .limited(let dataRecords, _):
             let allRecords = await dataStore.dataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes())
             let removableRecords = allRecords.filter { record in
                 dataRecords(record.displayName)
             }
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, for: removableRecords)
+            
+            Task {
+                let remainingRecords = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
+                if remainingRecords.contains(where: { record in dataRecords(record.displayName) }) {
+                    dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                }
+            }
         }
     }
 
@@ -268,6 +303,17 @@ extension WebCacheManager {
 
         let fireproofableTypesExceptCookies = Self.fireproofableDataTypesExceptCookies
         await dataStore.removeData(ofTypes: fireproofableTypesExceptCookies, for: removableRecords)
+        
+        Task {
+            let remainingRecords = await dataStore.dataRecords(ofTypes: fireproofableTypesExceptCookies)
+            let hasResidue = remainingRecords.contains { record in
+                let fireproofed = fireproofing.isAllowed(fireproofDomain: record.displayName)
+                return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
+            }
+            if hasResidue {
+                dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearFireproofableDataForNonFireproofDomains.rawValue)
+            }
+        }
     }
 
     @MainActor
@@ -282,6 +328,19 @@ extension WebCacheManager {
 
         for cookie in cookiesToRemove {
             await cookieStore.deleteCookie(cookie)
+        }
+        
+        Task {
+            let remainingCookies = await cookieStore.allCookies()
+            let hasResidue = remainingCookies.contains { cookie in
+                let fireproofed = fireproofing.isAllowed(cookieDomain: cookie.domain)
+                return !fireproofed && scope.cookiesEvaluator(cookie)
+            }
+            if hasResidue {
+                dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(
+                    step: BurningStep.clearCookiesForNonFireproofedDomains.rawValue
+                )
+            }
         }
     }
 

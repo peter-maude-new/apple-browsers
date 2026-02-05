@@ -30,7 +30,7 @@ enum DataClearingPixels {
 
     // MARK: - Tab Manager
 
-    case burnTabsDuration(Int)
+    case burnTabsDuration(duration: Int, scope: String)
     case burnTabsHasResidue
     case burnTabsError(Error)
 
@@ -41,7 +41,7 @@ enum DataClearingPixels {
 
     // MARK: - Website Data
 
-    case burnWebsiteDataDuration(Int)
+    case burnWebsiteDataDuration(duration: Int, scope: String)
     case burnWebsiteDataHasResidue(step: String)
     case burnWebsiteDataError(Error)
 
@@ -53,7 +53,7 @@ enum DataClearingPixels {
 
     // MARK: - AI Chat History
 
-    case burnAIChatHistoryDuration(Int)
+    case burnAIChatHistoryDuration(duration: Int, scope: String)
     case burnAIChatHistoryError(Error)
 }
 
@@ -113,12 +113,15 @@ extension DataClearingPixels: PixelKitEvent {
                 "scope": scope
             ]
 
-        case .burnTabsDuration(let duration),
-             .burnURLCacheDuration(let duration),
-             .burnHistoryDuration(let duration),
-             .burnWebsiteDataDuration(let duration),
-             .burnAIChatHistoryDuration(let duration):
+        case .burnURLCacheDuration(let duration),
+                .burnHistoryDuration(let duration):
             return ["duration": String(duration)]
+            
+        case .burnTabsDuration(let duration, let scope),
+                .burnWebsiteDataDuration(let duration, let scope),
+                .burnAIChatHistoryDuration(let duration, let scope):
+            return ["duration": String(duration), "scope": scope]
+            
 
         case .burnWebsiteDataHasResidue(let step):
             return ["step": step]

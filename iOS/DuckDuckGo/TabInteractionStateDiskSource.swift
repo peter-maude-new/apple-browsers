@@ -38,9 +38,12 @@ final class TabInteractionStateDiskSource: TabInteractionStateSource, TabInterac
     private let fileManager: FileManager
     private let interactionStateCacheLocation: URL
     private let pixelFiring: PixelFiring.Type
+    private let dataClearingPixelsReporter: DataClearingPixelsReporter
 
     init?(fileManager: FileManager = .default,
-          pixelFiring: PixelFiring.Type = Pixel.self) {
+          pixelFiring: PixelFiring.Type = Pixel.self,
+          dataClearingPixelsReporter: DataClearingPixelsReporter = .init()
+    ) {
         self.fileManager = fileManager
         self.pixelFiring = pixelFiring
 
@@ -66,6 +69,7 @@ final class TabInteractionStateDiskSource: TabInteractionStateSource, TabInterac
         }
 
         self.interactionStateCacheLocation = interactionStateLocation
+        self.dataClearingPixelsReporter = dataClearingPixelsReporter
     }
 
     func saveState(_ state: Any?, for tab: Tab) {
@@ -134,7 +138,11 @@ final class TabInteractionStateDiskSource: TabInteractionStateSource, TabInterac
             if isCancelled?() == true {
                 break
             }
-            try? fileManager.removeItem(at: url)
+            do {
+                try fileManager.removeItem(at: url)
+            } catch {
+                dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
+            }
         }
     }
 

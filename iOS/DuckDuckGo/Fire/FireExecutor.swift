@@ -298,14 +298,20 @@ class FireExecutor: FireExecuting {
     private func burnTabs(scope: FireRequest.Scope, domains: [String]?) {
         switch scope {
         case .all:
+            let startTime = Date()
             tabManager.prepareCurrentTabForDataClearing()
             tabManager.removeAll()
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope)
+            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
+                tabManager.count > 0
+            }
             Favicons.shared.clearCache(.tabs)
         case .tab(let viewModel):
             guard let domains else {
                 Logger.general.error("Expected domains to be present when burning a single tab")
                 return
             }
+            let startTime = Date()
             // Prepare the tab if it's the current tab (non-current tabs were prepared earlier)
             if tabManager.isCurrentTab(viewModel.tab) {
                 tabManager.prepareTab(viewModel.tab)
@@ -316,6 +322,10 @@ class FireExecutor: FireExecuting {
             // didFinishBurning(fireRequest:) manually clears data after burn is complete
             // Close the tab and append a new empty tab, reusing existing one if exists
             tabManager.closeTabAndNavigateToHomepage(viewModel.tab, clearTabHistory: false)
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope)
+            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
+                tabManager.controller(for: viewModel.tab) != nil
+            }
             
             Favicons.shared.removeTabFavicons(forDomains: domains)
         }
@@ -351,7 +361,13 @@ class FireExecutor: FireExecuting {
     
     @MainActor
     private func burnAllData() async {
+        let startTime = Date()
         URLSession.shared.configuration.urlCache?.removeAllCachedResponses()
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: startTime)
+        dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnURLCacheHasResidue) {
+            let cache = URLSession.shared.configuration.urlCache
+            return (cache?.currentDiskUsage ?? 0) > 0 || (cache?.currentMemoryUsage ?? 0) > 0
+        }
 
         let pixel = TimedPixel(.forgetAllDataCleared)
         
@@ -444,12 +460,16 @@ class FireExecutor: FireExecuting {
     }
     
     private func burnAIHistory(request: FireRequest) async {
+        let startTime = Date()
         switch request.scope {
         case .tab(let viewModel):
+            let startTime = Date()
             await burnTabAIHistory(tabViewModel: viewModel)
         case .all:
+            let startTime = Date()
             await burnAllAIHistory(trigger: request.trigger)
         }
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnAIChatHistoryDuration, from: startTime, scope: request.scope)
     }
     
     private func burnAllAIHistory(trigger: FireRequest.Trigger) async {
@@ -462,6 +482,7 @@ class FireExecutor: FireExecuting {
         case .failure(let error):
             Logger.aiChat.debug("Failed to clear Duck.ai chat history: \(error.localizedDescription)")
             DailyPixel.fireDailyAndCount(pixel: .aiChatHistoryDeleteFailed)
+            dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnAIChatHistoryError(error))
 
             if let userScriptError = error as? UserScriptError {
                 userScriptError.fireLoadJSFailedPixelIfNeeded()

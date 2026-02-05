@@ -22,32 +22,6 @@ import PixelKit
 
 final class DataClearingPixelsReporter {
 
-    // MARK: - Supporting Types
-
-    enum ClearingTrigger: String {
-        case manualFire
-        case autoClearOnLaunch
-        case autoClearOnForeground
-    }
-
-    enum ClearingScope: String {
-        case tab
-        case all
-    }
-
-    enum ClearingOption: String {
-        case tab
-        case data
-        case aichats
-        case all
-    }
-
-    enum WebsiteDataStep: String {
-        case safelyRemovableData
-        case fireproofableData
-        case cookies
-    }
-
     // MARK: - Properties
 
     var endDateProvider: () -> Date
@@ -99,6 +73,15 @@ final class DataClearingPixelsReporter {
                            from startTime: Date) {
         pixelFiring?.fire(
             durationPixel(prepareDuration(from: startTime, to: endDateProvider())),
+            frequency: .standard
+        )
+    }
+    
+    func fireDurationPixel(_ durationPixel: @escaping (Int, String) -> DataClearingPixels,
+                           from startTime: Date,
+                           scope: FireRequest.Scope) {
+        pixelFiring?.fire(
+            durationPixel(prepareDuration(from: startTime, to: endDateProvider()), scope.description),
             frequency: .standard
         )
     }
