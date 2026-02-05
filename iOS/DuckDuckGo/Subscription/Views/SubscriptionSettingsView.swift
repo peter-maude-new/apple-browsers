@@ -60,6 +60,7 @@ struct SubscriptionSettingsViewV2: View {
     @State var isShowingPlansView = false
     @State var isShowingUpgradeView = false
     @State var isShowingCancelDowngradeError = false
+    @State private var cancelDowngradeErrorMessageType: SubscriptionTransactionErrorAlert.MessageType = .general
 
     var body: some View {
         optionsView
@@ -71,6 +72,18 @@ struct SubscriptionSettingsViewV2: View {
                 if value {
                     isShowingSubscriptionError = true
                 }
+            }
+            .onChange(of: viewModel.cancelDowngradeError) { value in
+                if let messageType = SubscriptionTransactionErrorAlert.displayContent(for: value) {
+                    cancelDowngradeErrorMessageType = messageType
+                    isShowingCancelDowngradeError = true
+                }
+            }
+            .alert(isPresented: $isShowingCancelDowngradeError) {
+                SubscriptionTransactionErrorAlert.alert(
+                    for: cancelDowngradeErrorMessageType,
+                    onDismiss: { viewModel.clearCancelDowngradeError() }
+                )
             }
     }
 
@@ -529,22 +542,6 @@ struct SubscriptionSettingsViewV2: View {
         }
         .onChange(of: isShowingConnectionError) { value in
             viewModel.showConnectionError(value)
-        }
-
-        // Cancel downgrade error
-        .onChange(of: viewModel.state.cancelDowngradeError) { value in
-            if value != nil {
-                isShowingCancelDowngradeError = true
-            }
-        }
-        .alert(isPresented: $isShowingCancelDowngradeError) {
-            Alert(
-                title: Text(UserText.subscriptionAppStoreErrorTitle),
-                message: Text(viewModel.state.cancelDowngradeError ?? UserText.subscriptionAppStoreErrorMessage),
-                dismissButton: .cancel(Text(UserText.subscriptionBackendErrorButton)) {
-                    viewModel.clearCancelDowngradeError()
-                }
-            )
         }
 
         // Cancel downgrade in progress overlay

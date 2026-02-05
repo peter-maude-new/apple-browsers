@@ -54,7 +54,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         var isLoadingSubscriptionInfo: Bool = false
         var cancelPendingDowngradeDetails: String?
         var isCancelDowngradeInProgress: Bool = false
-        var cancelDowngradeError: String?
+        var cancelDowngradeError: SubscriptionPurchaseError?
 
         // Used to display stripe WebUI
         var stripeViewModel: SubscriptionExternalLinkViewModel?
@@ -81,6 +81,9 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
     // Read only View State - Should only be modified from the VM
     @Published private(set) var state: State
+
+    /// Cancel-downgrade error; use this for alert binding so SwiftUI reliably updates when set from callbacks.
+    @Published private(set) var cancelDowngradeError: SubscriptionPurchaseError?
 
     public let usesUnifiedFeedbackForm: Bool
 
@@ -310,6 +313,10 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
         switch platform {
         case .apple:
+            guard !state.isCancelDowngradeInProgress else { return }
+            state.isCancelDowngradeInProgress = true
+            state.cancelDowngradeError = nil
+            cancelDowngradeError = nil
             Pixel.fire(pixel: .subscriptionCancelPendingDowngradeClick)
             Task { await self.runCancelHandler() }
         case .google:
@@ -323,14 +330,17 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
     @MainActor
     private func runCancelHandler() async {
-        guard let productId = state.subscriptionInfo?.productId else { return }
-        state.isCancelDowngradeInProgress = true
-        state.cancelDowngradeError = nil
+        guard let productId = state.subscriptionInfo?.productId else {
+            state.isCancelDowngradeInProgress = false
+            return
+        }
+        let setError: (AppStorePurchaseFlowError?) -> Void = { [weak self] in self?.setCancelDowngradeError($0) }
+        let setStatus: (SubscriptionTransactionStatus) -> Void = { [weak self] in self?.setCancelDowngradeStatus($0) }
         await tierChangePerformerToUse.performTierChange(to: productId,
                                                           changeType: "upgrade",
                                                           contextName: "cancel-downgrade",
-                                                          setTransactionStatus: { [weak self] in self?.setCancelDowngradeStatus($0) },
-                                                          setTransactionError: { [weak self] in self?.setCancelDowngradeError($0) },
+                                                          setTransactionStatus: setStatus,
+                                                          setTransactionError: setError,
                                                           pushPurchaseUpdate: nil)
     }
 
@@ -343,14 +353,36 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     }
 
     /// Called by the cancel-downgrade performer callbacks when an error occurs.
+    /// Maps AppStorePurchaseFlowError to SubscriptionPurchaseError so the view can reuse the same alert logic as the purchase flow.
     @MainActor
     func setCancelDowngradeError(_ error: AppStorePurchaseFlowError?) {
-        state.cancelDowngradeError = error?.localizedDescription
+        let mapped = subscriptionPurchaseError(from: error)
+        state.cancelDowngradeError = mapped
+        cancelDowngradeError = mapped
+    }
+
+    private func subscriptionPurchaseError(from error: AppStorePurchaseFlowError?) -> SubscriptionPurchaseError? {
+        guard let error = error else { return nil }
+        switch error {
+        case .cancelledByUser:
+            return .cancelledByUser
+        case .transactionPendingAuthentication:
+            return .purchasePendingTransaction
+        case .missingEntitlements:
+            return .missingEntitlements
+        case .purchaseFailed:
+            return .purchaseFailed  // AppStorePurchaseFlowError.purchaseFailed(Error)
+        case .internalError:
+            return .generalError
+        @unknown default:
+            return .purchaseFailed
+        }
     }
 
     /// Called by the view when the user dismisses the cancel-downgrade error alert.
     func clearCancelDowngradeError() {
         state.cancelDowngradeError = nil
+        cancelDowngradeError = nil
     }
 
     // MARK: -

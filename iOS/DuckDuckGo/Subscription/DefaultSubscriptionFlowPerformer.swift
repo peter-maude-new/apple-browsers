@@ -69,10 +69,12 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
         setTransactionError?(nil)
         setTransactionStatus?(.purchasing)
 
+        // Get current subscription info for wide event tracking
         let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
         let fromPlan = currentSubscription?.productId ?? ""
         let resolvedChangeType = determineChangeType(change: changeType)
 
+        // Initialize wide event data
         let wideData = SubscriptionPlanChangeWideEventData(
             purchasePlatform: .appStore,
             changeType: resolvedChangeType,
@@ -83,6 +85,7 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
         )
         wideEvent.startFlow(wideData)
 
+        // Execute the tier change (uses existing account's externalID)
         Logger.subscription.log("[TierChange] Executing tier change")
         let tierChangeResult = await appStorePurchaseFlow.changeTier(to: productId)
 
@@ -97,23 +100,23 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
             setTransactionStatus?(.idle)
             switch error {
             case .cancelledByUser:
-                setTransactionError?(error)
+                setTransactionError?(.cancelledByUser)
                 wideEvent.completeFlow(wideData, status: .cancelled, onComplete: { _, _ in })
             case .transactionPendingAuthentication:
                 pendingTransactionHandler.markPurchasePending()
-                setTransactionError?(error)
+                setTransactionError?(.transactionPendingAuthentication)
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             case .purchaseFailed:
-                setTransactionError?(error)
+                setTransactionError?(.purchaseFailed(error))
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             case .internalError:
-                setTransactionError?(error)
+                setTransactionError?(.purchaseFailed(error))
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             default:
-                setTransactionError?(error)
+                setTransactionError?(.purchaseFailed(error))
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             }
@@ -123,16 +126,19 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
 
         setTransactionStatus?(.polling)
 
-        guard !transactionJWS.isEmpty else {
+        guard transactionJWS.isEmpty == false else {
             Logger.subscription.fault("[TierChange] Purchase transaction JWS is empty")
+            assertionFailure("Purchase transaction JWS is empty")
             setTransactionStatus?(.idle)
             wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             return
         }
 
+        // Start confirmation timing
         wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
         wideEvent.updateFlow(wideData)
 
+        // Complete the tier change by confirming with the backend
         let completeResult = await appStorePurchaseFlow.completeSubscriptionPurchase(with: transactionJWS, additionalParams: nil)
 
         switch completeResult {
@@ -151,7 +157,7 @@ public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming 
             if case .missingEntitlements = error {
                 setTransactionError?(.missingEntitlements)
             } else {
-                setTransactionError?(error)
+                setTransactionError?(.purchaseFailed(error))
             }
             await pushPurchaseUpdate?(.completed)
             if error != .missingEntitlements {

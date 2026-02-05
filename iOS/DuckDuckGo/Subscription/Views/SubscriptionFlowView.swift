@@ -36,20 +36,13 @@ struct SubscriptionFlowView: View {
     @Binding var currentView: SubscriptionContainerView.CurrentViewType
     
     // Local View State
-    @State private var errorMessage: SubscriptionErrorMessage = .general
+    @State private var errorMessageType: SubscriptionTransactionErrorAlert.MessageType = .general
     @State private var isPresentingError: Bool = false
 
     enum Constants {
         static let empty = ""
         static let navButtonPadding: CGFloat = 20.0
         static let backButtonImage = "chevron.left"
-    }
-    
-    enum SubscriptionErrorMessage {
-        case activeSubscription
-        case appStore
-        case backend
-        case general
     }
 
     let featureFlagger: FeatureFlagger
@@ -156,27 +149,9 @@ struct SubscriptionFlowView: View {
         }
         
         .onChange(of: viewModel.state.transactionError) { value in
-            
-            if !isPresentingError {
-                let displayError: Bool = {
-                    switch value {
-                    case .hasActiveSubscription:
-                        errorMessage = .activeSubscription
-                        return true
-                    case .failedToRestorePastPurchase, .purchaseFailed, .purchasePendingTransaction:
-                        errorMessage = .appStore
-                        return true
-                    case .failedToGetSubscriptionOptions, .generalError:
-                        errorMessage = .backend
-                        return true
-                    default:
-                        return false
-                    }
-                }()
-                
-                if displayError {
-                    isPresentingError = true
-                }
+            if !isPresentingError, let messageType = SubscriptionTransactionErrorAlert.displayContent(for: value) {
+                errorMessageType = messageType
+                isPresentingError = true
             }
         }
         
@@ -194,42 +169,13 @@ struct SubscriptionFlowView: View {
         }
                 
         .alert(isPresented: $isPresentingError) {
-            getAlert(error: self.errorMessage)
-        }
-    }
-        
-    private func getAlert(error: SubscriptionErrorMessage) -> Alert {
-        
-        switch error {
-        case .activeSubscription:
-            return Alert(
-                title: Text(UserText.subscriptionFoundTitle),
-                message: Text(UserText.subscriptionFoundText),
-                primaryButton: .cancel(Text(UserText.subscriptionFoundCancel)) {
-                     viewModel.clearTransactionError()
-                      dismiss()
+            SubscriptionTransactionErrorAlert.alert(
+                for: errorMessageType,
+                onDismiss: {
+                    viewModel.clearTransactionError()
+                    dismiss()
                 },
-                secondaryButton: .default(Text(UserText.subscriptionFoundRestore)) {
-                    viewModel.restoreAppstoreTransaction()
-                }
-            )
-        case .appStore:
-            return Alert(
-                title: Text(UserText.subscriptionAppStoreErrorTitle),
-                message: Text(UserText.subscriptionAppStoreErrorMessage),
-                dismissButton: .cancel(Text(UserText.actionOK)) {
-                    viewModel.clearTransactionError()
-                    dismiss()
-                }
-            )
-        case .backend, .general:
-            return Alert(
-                title: Text(UserText.subscriptionBackendErrorTitle),
-                message: Text(UserText.subscriptionBackendErrorMessage),
-                dismissButton: .cancel(Text(UserText.subscriptionBackendErrorButton)) {
-                    viewModel.clearTransactionError()
-                    dismiss()
-                }
+                onRestore: { viewModel.restoreAppstoreTransaction() }
             )
         }
     }

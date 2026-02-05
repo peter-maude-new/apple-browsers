@@ -740,6 +740,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 private final class MockTierChangePerformer: SubscriptionFlowPerforming {
     var capturedProductId: String?
     var setTransactionStatus: ((SubscriptionTransactionStatus) -> Void)?
+    var setTransactionError: ((AppStorePurchaseFlowError?) -> Void)?
     var onPerformTierChange: (() async -> Void)?
 
     @MainActor
@@ -751,6 +752,7 @@ private final class MockTierChangePerformer: SubscriptionFlowPerforming {
                            pushPurchaseUpdate: ((PurchaseUpdate) async -> Void)?) async {
         capturedProductId = productId
         self.setTransactionStatus = setTransactionStatus
+        self.setTransactionError = setTransactionError
         await onPerformTierChange?()
     }
 }

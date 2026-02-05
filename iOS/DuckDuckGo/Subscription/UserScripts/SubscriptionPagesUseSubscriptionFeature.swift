@@ -150,7 +150,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     private let wideEvent: WideEventManaging
     private let tierEventReporter: SubscriptionTierEventReporting
     private let pendingTransactionHandler: PendingTransactionHandling
-    private let tierChangePerformer: DefaultSubscriptionFlowPerformer
+    private let tierChangePerformer: SubscriptionFlowPerforming
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var subscriptionRestoreWideEventData: SubscriptionRestoreWideEventData?
 
