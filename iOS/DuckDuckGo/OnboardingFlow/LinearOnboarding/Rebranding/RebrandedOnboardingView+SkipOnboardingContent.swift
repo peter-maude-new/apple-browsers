@@ -21,6 +21,13 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum SkipOnboardingContentMetrics {
+    static let outerSpacing: CGFloat = 24.0
+    static let titleFont = Font.system(size: 20, weight: .bold)
+    static let messageFont = Font.system(size: 16)
+    static let buttonMaxHeight: CGFloat = 50.0
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct SkipOnboardingContent: View {
@@ -52,14 +59,14 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: 24.0) {
+            VStack(spacing: SkipOnboardingContentMetrics.outerSpacing) {
                 AnimatableTypingText(Copy.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     withAnimation {
                         animateMessage.wrappedValue = true
                     }
                 }
                 .foregroundColor(.primary)
-                .font(Font.system(size: 20, weight: .bold))
+                .font(SkipOnboardingContentMetrics.titleFont)
 
                 AnimatableTypingText(Copy.message.attributed.withFont(.daxBodyBold(), forText: Self.fireButtonCopy), startAnimating: animateMessage, skipAnimation: isSkipped) {
                     withAnimation {
@@ -67,7 +74,7 @@ extension OnboardingRebranding.OnboardingView {
                     }
                 }
                 .foregroundColor(.primary)
-                .font(Font.system(size: 16))
+                .font(SkipOnboardingContentMetrics.messageFont)
 
                 VStack {
                     Button(action: startBrowsingAction) {
@@ -76,7 +83,7 @@ extension OnboardingRebranding.OnboardingView {
                     .buttonStyle(PrimaryButtonStyle())
 
                     OnboardingBorderedButton(
-                        maxHeight: 50.0,
+                        maxHeight: SkipOnboardingContentMetrics.buttonMaxHeight,
                         content: {
                             Text(Copy.resumeOnboardingCTA)
                         },

@@ -21,6 +21,12 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum AddressBarPositionContentMetrics {
+    static let outerSpacing: CGFloat = 16.0
+    static let innerSpacing: CGFloat = 24
+    static let titleFont = Font.system(size: 20, weight: .semibold)
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct AddressBarPositionContent: View {
@@ -43,14 +49,14 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: 16.0) {
+            VStack(spacing: AddressBarPositionContentMetrics.outerSpacing) {
                 AnimatableTypingText(UserText.Onboarding.AddressBarPosition.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     showContent.wrappedValue = true
                 }
                 .foregroundColor(.primary)
                 .font(AddressBarPositionContentMetrics.titleFont)
 
-                VStack(spacing: 24) {
+                VStack(spacing: AddressBarPositionContentMetrics.innerSpacing) {
                     RebrandedOnboardingView.OnboardingAddressBarPositionPicker()
 
                     Button(action: action) {
@@ -63,8 +69,4 @@ extension OnboardingRebranding.OnboardingView {
         }
     }
 
-}
-
-private enum AddressBarPositionContentMetrics {
-    static let titleFont = Font.system(size: 20, weight: .semibold)
 }
