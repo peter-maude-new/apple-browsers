@@ -29,7 +29,8 @@ public final class WebDetectionTelemetryManager: WebDetectionTelemetryHandling {
     // MARK: - Types
 
     /// Storage protocol for persisting telemetry counters.
-    public protocol CounterStorage {
+    /// Must be a class type to ensure mutations persist (not copied).
+    public protocol CounterStorage: AnyObject {
         var dailyAdwallCount: Int { get set }
         var weeklyAdwallCount: Int { get set }
         var lastDailyPixelDate: Date? { get set }
@@ -47,6 +48,7 @@ public final class WebDetectionTelemetryManager: WebDetectionTelemetryHandling {
     private let storage: CounterStorage
     private weak var pixelFiring: PixelFiring?
     private let calendar: Calendar
+    private let lock = NSLock()
 
     /// Feature flags for controlling telemetry behavior.
     public var adwallTelemetryPixelEnabled: Bool = true
@@ -73,9 +75,10 @@ public final class WebDetectionTelemetryManager: WebDetectionTelemetryHandling {
     // MARK: - Counter Management
 
     private func incrementAdwallCounters() {
-        var mutableStorage = storage
-        mutableStorage.dailyAdwallCount += 1
-        mutableStorage.weeklyAdwallCount += 1
+        lock.lock()
+        defer { lock.unlock() }
+        storage.dailyAdwallCount += 1
+        storage.weeklyAdwallCount += 1
     }
 
     // MARK: - Pixel Firing
@@ -89,49 +92,53 @@ public final class WebDetectionTelemetryManager: WebDetectionTelemetryHandling {
     }
 
     private func fireDailyPixelIfNeeded() {
-        var mutableStorage = storage
+        lock.lock()
         let now = Date()
 
         // Check if a day has passed since last daily pixel
-        if let lastDate = mutableStorage.lastDailyPixelDate,
+        if let lastDate = storage.lastDailyPixelDate,
            calendar.isDate(lastDate, inSameDayAs: now) {
+            lock.unlock()
             return // Already fired today
         }
 
-        let count = mutableStorage.dailyAdwallCount
+        let count = storage.dailyAdwallCount
 
-        // Fire pixel if count > 0 or zero-count pixels are enabled
+        // Reset daily counter and update last pixel date
+        storage.dailyAdwallCount = 0
+        storage.lastDailyPixelDate = now
+        lock.unlock()
+
+        // Fire pixel outside lock (count > 0 or zero-count pixels are enabled)
         if count > 0 || adwallZeroCountPixelEnabled {
             pixelFiring?.fireAdwallDailyPixel(count: count)
         }
-
-        // Reset daily counter and update last pixel date
-        mutableStorage.dailyAdwallCount = 0
-        mutableStorage.lastDailyPixelDate = now
     }
 
     private func fireWeeklyPixelIfNeeded() {
-        var mutableStorage = storage
+        lock.lock()
         let now = Date()
 
         // Check if a week has passed since last weekly pixel
-        if let lastDate = mutableStorage.lastWeeklyPixelDate {
+        if let lastDate = storage.lastWeeklyPixelDate {
             if let daysSinceLastPixel = calendar.dateComponents([.day], from: lastDate, to: now).day,
                daysSinceLastPixel < 7 {
+                lock.unlock()
                 return // Not yet a week
             }
         }
 
-        let count = mutableStorage.weeklyAdwallCount
+        let count = storage.weeklyAdwallCount
 
-        // Fire pixel if count > 0 or zero-count pixels are enabled
+        // Reset weekly counter and update last pixel date
+        storage.weeklyAdwallCount = 0
+        storage.lastWeeklyPixelDate = now
+        lock.unlock()
+
+        // Fire pixel outside lock (count > 0 or zero-count pixels are enabled)
         if count > 0 || adwallZeroCountPixelEnabled {
             pixelFiring?.fireAdwallWeeklyPixel(count: count)
         }
-
-        // Reset weekly counter and update last pixel date
-        mutableStorage.weeklyAdwallCount = 0
-        mutableStorage.lastWeeklyPixelDate = now
     }
 }
 
