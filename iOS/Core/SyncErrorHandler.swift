@@ -257,7 +257,12 @@ extension SyncErrorHandler {
             }
             DailyPixel.fire(pixel: modelType.badRequestPixel)
         case .unexpectedStatusCode(401):
-            syncIsPaused(errorType: .invalidLoginCredentials)
+            switch modelType {
+            case .aiChats:
+                break
+            default:
+                syncIsPaused(errorType: .invalidLoginCredentials)
+            }
         case .unexpectedStatusCode(418), .unexpectedStatusCode(429):
             syncIsPaused(errorType: .tooManyRequests)
             DailyPixel.fire(pixel: modelType.tooManyRequestsPixel)
@@ -296,7 +301,7 @@ extension SyncErrorHandler {
             currentSyncCredentialsPausedError = errorType.rawValue
             self.isSyncCredentialsPaused = true
         case .badRequestAiChats:
-            break;
+            break
         case .invalidLoginCredentials:
             currentSyncAllPausedError = errorType.rawValue
             self.isSyncPaused = true
