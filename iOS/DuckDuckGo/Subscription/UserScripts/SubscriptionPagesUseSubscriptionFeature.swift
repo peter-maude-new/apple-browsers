@@ -150,7 +150,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     private let wideEvent: WideEventManaging
     private let tierEventReporter: SubscriptionTierEventReporting
     private let pendingTransactionHandler: PendingTransactionHandling
-    private let tierChangePerformer: SubscriptionFlowsExecuting
+    private let subscriptionFlowsExecuter: SubscriptionFlowsExecuting
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var subscriptionRestoreWideEventData: SubscriptionRestoreWideEventData?
 
@@ -164,7 +164,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
          wideEvent: WideEventManaging,
          tierEventReporter: SubscriptionTierEventReporting = DefaultSubscriptionTierEventReporter(),
          pendingTransactionHandler: PendingTransactionHandling,
-         tierChangePerformer: DefaultSubscriptionFlowsExecuter) {
+         subscriptionFlowsExecuter: DefaultSubscriptionFlowsExecuter) {
         self.subscriptionManager = subscriptionManager
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.appStorePurchaseFlow = appStorePurchaseFlow
@@ -175,7 +175,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         self.wideEvent = wideEvent
         self.tierEventReporter = tierEventReporter
         self.pendingTransactionHandler = pendingTransactionHandler
-        self.tierChangePerformer = tierChangePerformer
+        self.subscriptionFlowsExecuter = subscriptionFlowsExecuter
     }
 
     // Transaction Status and errors are observed from ViewModels to handle errors in the UI
@@ -561,7 +561,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
 
         Logger.subscription.log("[TierChange] Starting \(subscriptionSelection.change ?? "change", privacy: .public) for: \(subscriptionSelection.id, privacy: .public)")
 
-        await tierChangePerformer.performTierChange(
+        await subscriptionFlowsExecuter.performTierChange(
             to: subscriptionSelection.id,
             changeType: subscriptionSelection.change,
             contextName: subscriptionAttributionOrigin,

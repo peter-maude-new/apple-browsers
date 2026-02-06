@@ -56,7 +56,7 @@ final class SubscriptionPagesUseSubscriptionFeatureSimplifiedPaywallTests: XCTes
         mockWideEvent = WideEventMock()
         mockPendingTransactionHandler = MockPendingTransactionHandler()
 
-        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
+        let subscriptionFlowsExecuter = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: mockAppStorePurchaseFlow,
             wideEvent: mockWideEvent,
@@ -72,7 +72,7 @@ final class SubscriptionPagesUseSubscriptionFeatureSimplifiedPaywallTests: XCTes
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
             pendingTransactionHandler: mockPendingTransactionHandler,
-            tierChangePerformer: tierChangePerformer)
+            subscriptionFlowsExecuter: subscriptionFlowsExecuter)
     }
 
     func testWhenSubscriptionSelectedIncludesExperimentParameters_thenSubscriptionPurchasedReceivesExperimentParameters() async throws {

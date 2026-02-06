@@ -630,11 +630,11 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         mockSubscriptionManager.resultSubscription = .success(subscription)
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
 
-        let mockPerformer = MockTierChangePerformer()
+        let mockPerformer = MockSubscriptionFlowsExecuter()
         let performerCalled = expectation(description: "Tier change performer called")
         mockPerformer.onPerformTierChange = { performerCalled.fulfill() }
 
-        sut = makeSUT(tierChangePerformer: mockPerformer)
+        sut = makeSUT(subscriptionFlowsExecuter: mockPerformer)
         await waitForSubscriptionUpdate()
 
         let expectedProductId = subscription.productId
@@ -672,13 +672,13 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         mockSubscriptionManager.resultSubscription = .success(
             SubscriptionMockFactory.subscription(status: .autoRenewable, platform: .apple, tier: .plus))
         mockSubscriptionManager.resultTokenContainer = OAuthTokensFactory.makeValidTokenContainer()
-        let mockPerformer = MockTierChangePerformer()
+        let mockPerformer = MockSubscriptionFlowsExecuter()
         let performerCalled = expectation(description: "Performer called")
         mockPerformer.onPerformTierChange = { [weak mockPerformer] in
             mockPerformer?.setTransactionStatus?(.idle)
             performerCalled.fulfill()
         }
-        sut = makeSUT(tierChangePerformer: mockPerformer)
+        sut = makeSUT(subscriptionFlowsExecuter: mockPerformer)
         await waitForSubscriptionUpdate()
 
         sut.cancelPendingDowngrade()
@@ -709,13 +709,13 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(tierChangePerformer: SubscriptionFlowsExecuting? = nil) -> SubscriptionSettingsViewModel {
+    private func makeSUT(subscriptionFlowsExecuter: SubscriptionFlowsExecuting? = nil) -> SubscriptionSettingsViewModel {
         SubscriptionSettingsViewModel(
             subscriptionManager: mockSubscriptionManager,
             featureFlagger: mockFeatureFlagger,
             keyValueStorage: MockKeyValueStorage(),
             userScriptsDependencies: DefaultScriptSourceProvider.Dependencies.makeMock(),
-            tierChangePerformer: tierChangePerformer
+            subscriptionFlowsExecuter: subscriptionFlowsExecuter
         )
     }
 
@@ -739,7 +739,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
 // MARK: - Mock Tier Change Performer
 
-private final class MockTierChangePerformer: SubscriptionFlowsExecuting {
+private final class MockSubscriptionFlowsExecuter: SubscriptionFlowsExecuting {
     var capturedProductId: String?
     var setTransactionStatus: ((SubscriptionTransactionStatus) -> Void)?
     var setTransactionError: ((AppStorePurchaseFlowError?) -> Void)?

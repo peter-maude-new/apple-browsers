@@ -643,7 +643,7 @@ final class SubscriptionDebugViewController: UITableViewController {
                 featureFlagProvider: SubscriptionPageFeatureFlagAdapter(featureFlagger: AppDependencyProvider.shared.featureFlagger)
             )
 
-            let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
+            let subscriptionFlowsExecuter = DefaultSubscriptionFlowsExecuter(
                 subscriptionManager: subscriptionManager,
                 appStorePurchaseFlow: appStorePurchaseFlow,
                 wideEvent: AppDependencyProvider.shared.wideEvent,
@@ -659,7 +659,7 @@ final class SubscriptionDebugViewController: UITableViewController {
                 internalUserDecider: AppDependencyProvider.shared.internalUserDecider,
                 wideEvent: AppDependencyProvider.shared.wideEvent,
                 pendingTransactionHandler: pendingTransactionHandler,
-                tierChangePerformer: tierChangePerformer
+                subscriptionFlowsExecuter: subscriptionFlowsExecuter
             )
 
             // Create params matching what the web would send

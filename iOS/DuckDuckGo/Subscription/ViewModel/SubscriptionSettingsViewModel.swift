@@ -34,7 +34,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     private var signOutObserver: Any?
     private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
-    private let tierChangePerformerToUse: SubscriptionFlowsExecuting
+    private let subscriptionFlowsExecuter: SubscriptionFlowsExecuting
 
     private var externalAllowedDomains = ["stripe.com"]
 
@@ -182,11 +182,11 @@ final class SubscriptionSettingsViewModel: ObservableObject {
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
          keyValueStorage: KeyValueStoring = SubscriptionSettingsStore(),
          userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
-         tierChangePerformer: SubscriptionFlowsExecuting? = nil) {
+         subscriptionFlowsExecuter: SubscriptionFlowsExecuting? = nil) {
         self.subscriptionManager = subscriptionManager
         self.userScriptsDependencies = userScriptsDependencies
         self.featureFlagger = featureFlagger
-        self.tierChangePerformerToUse = tierChangePerformer ?? SubscriptionContainerViewFactory.makeTierChangePerformer(
+        self.subscriptionFlowsExecuter = subscriptionFlowsExecuter ?? SubscriptionContainerViewFactory.makeSubscriptionFlowsExecuter(
             subscriptionManager: subscriptionManager,
             wideEvent: AppDependencyProvider.shared.wideEvent)
         let subscriptionFAQURL = subscriptionManager.url(for: .faq)
@@ -344,7 +344,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         }
         let setError: (AppStorePurchaseFlowError?) -> Void = { [weak self] in self?.setCancelDowngradeError($0) }
         let setStatus: (SubscriptionTransactionStatus) -> Void = { [weak self] in self?.setCancelDowngradeStatus($0) }
-        await tierChangePerformerToUse.performTierChange(to: productId,
+        await subscriptionFlowsExecuter.performTierChange(to: productId,
                                                           changeType: "upgrade",
                                                           contextName: "cancel-downgrade",
                                                           setTransactionStatus: setStatus,
