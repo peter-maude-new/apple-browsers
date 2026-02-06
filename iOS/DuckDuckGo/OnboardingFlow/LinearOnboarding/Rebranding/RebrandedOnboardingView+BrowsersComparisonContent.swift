@@ -21,15 +21,10 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
-private enum BrowsersComparisonContentMetrics {
-    static let outerSpacing: CGFloat = 16.0
-    static let innerSpacing: CGFloat = 24
-    static let titleFont = Font.system(size: 20, weight: .bold)
-}
-
 extension OnboardingRebranding.OnboardingView {
 
     struct BrowsersComparisonContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         private let title: String
         private var animateText: Binding<Bool>
@@ -55,30 +50,39 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: BrowsersComparisonContentMetrics.outerSpacing) {
-                AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
-                    withAnimation {
-                        showContent.wrappedValue = true
+            OnboardingBubbleView.withStepProgressIndicator(
+                tailPosition: .bottom(offset: 0.5, direction: .leading),
+                currentStep: 1,
+                totalSteps: 5
+            ) {
+                VStack(spacing: 20) {
+                    Text(title)
+                        .foregroundColor(onboardingTheme.colorPalette.textPrimary)
+                        .font(onboardingTheme.typography.title)
+                        .multilineTextAlignment(.center)
+                        .onAppear {
+                            withAnimation(.easeIn(duration: 0.3).delay(0.3)) {
+                                showContent.wrappedValue = true
+                            }
+                        }
+
+                    VStack(spacing: 20) {
+                        RebrandedBrowsersComparisonTable()
+
+                        VStack(spacing: 12) {
+                            Button(action: setAsDefaultBrowserAction) {
+                                Text(UserText.Onboarding.BrowsersComparison.cta)
+                            }
+                            .buttonStyle(onboardingTheme.primaryButtonStyle.style)
+
+                            Button(action: cancelAction) {
+                                Text(UserText.onboardingSkip)
+                            }
+                            .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
+                        }
                     }
+                    .visibility(showContent.wrappedValue ? .visible : .invisible)
                 }
-                .foregroundColor(.primary)
-                .font(BrowsersComparisonContentMetrics.titleFont)
-
-
-                VStack(spacing: BrowsersComparisonContentMetrics.innerSpacing) {
-                    BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.privacyFeatures)
-
-                    RebrandedOnboardingView.OnboardingActions(
-                        viewModel: .init(
-                            primaryButtonTitle: UserText.Onboarding.BrowsersComparison.cta,
-                            secondaryButtonTitle: UserText.onboardingSkip
-                        ),
-                        primaryAction: setAsDefaultBrowserAction,
-                        secondaryAction: cancelAction
-                    )
-
-                }
-                .visibility(showContent.wrappedValue ? .visible : .invisible)
             }
         }
 

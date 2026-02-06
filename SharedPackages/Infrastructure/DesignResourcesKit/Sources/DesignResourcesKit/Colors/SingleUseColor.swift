@@ -49,6 +49,7 @@ public extension SingleUseColor {
         case accentPrimary
 
         case accentAltPrimary
+        case accentAltGlowPrimary
 
         case surfaceTertiary
 

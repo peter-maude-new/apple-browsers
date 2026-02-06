@@ -47,8 +47,13 @@ extension OnboardingRebranding.OnboardingView {
                     self.primaryAction?()
                 }, label: {
                     Text(viewModel.primaryButtonTitle)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                 })
-                .buttonStyle(PrimaryButtonStyle())
+                .background(Color(singleUseColor: .rebranding(.buttonsPrimaryDefault)))
+                .cornerRadius(12)
                 .disabled(!viewModel.isContinueEnabled)
                 .accessibilityIdentifier("Continue")
 
@@ -56,8 +61,13 @@ extension OnboardingRebranding.OnboardingView {
                     self.secondaryAction?()
                 }, label: {
                     Text(viewModel.secondaryButtonTitle)
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(Color(singleUseColor: .rebranding(.textSecondary)))
                 })
-                .buttonStyle(GhostButtonStyle())
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color(red: 0xF5/255, green: 0xF5/255, blue: 0xF5/255))
+                .cornerRadius(12)
                 .accessibilityIdentifier("Skip")
             }
         }

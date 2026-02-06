@@ -683,7 +683,7 @@ extension FeatureFlag: FeatureFlagDescribing {
         case .crashCollectionLimitCallStackTreeDepth:
             return .remoteReleasable(.subfeature(iOSBrowserConfigSubfeature.crashCollectionLimitCallStackTreeDepth))
         case .onboardingRebranding:
-            return .disabled
+            return .internalOnly()
         case .webExtensions:
             return .internalOnly()
         }
