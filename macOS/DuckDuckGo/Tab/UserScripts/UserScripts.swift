@@ -175,6 +175,7 @@ final class UserScripts: UserScriptsProvider {
         userScripts.append(autoconsentUserScript)
 
         contentScopeUserScriptIsolated.registerSubfeature(delegate: faviconScript)
+        contentScopeUserScriptIsolated.registerSubfeature(delegate: pageObserverScript)
         contentScopeUserScriptIsolated.registerSubfeature(delegate: clickToLoadScript)
 
         if let aiChatUserScript {
@@ -249,7 +250,6 @@ final class UserScripts: UserScriptsProvider {
         contextMenuScript,
         surrogatesScript,
         contentBlockerRulesScript,
-        pageObserverScript,
         printingUserScript,
         hoverUserScript,
         contentScopeUserScript,

@@ -1287,6 +1287,7 @@ extension Tab: UserContentControllerDelegate {
 
 extension Tab: PageObserverUserScriptDelegate {
 
+    @MainActor
     func pageDOMLoaded() {
         loadedPageDOMPublisher.send()
         delegate?.tabPageDOMLoaded(self)
