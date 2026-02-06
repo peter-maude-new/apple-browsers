@@ -23,8 +23,6 @@ import Onboarding
 import UIKit
 
 private enum AddToDockContentMetrics {
-    static let outerSpacing: CGFloat = 16.0
-    static let innerSpacing: CGFloat = 24
     static let messageFont = Font.system(size: 16)
 }
 
@@ -68,7 +66,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var promoContent: some View {
-            VStack(spacing: AddToDockContentMetrics.outerSpacing) {
+            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.AddToDockOnboarding.Promo.title, startAnimating: $animateTitle, skipAnimation: isSkipped) {
                     withAnimation {
                         animateMessage = true
@@ -85,7 +83,7 @@ extension OnboardingRebranding.OnboardingView {
                 .foregroundColor(.primary)
                 .font(AddToDockContentMetrics.messageFont)
 
-                VStack(spacing: AddToDockContentMetrics.innerSpacing) {
+                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
                     addToDockPromoView
                     customActionView
                 }
