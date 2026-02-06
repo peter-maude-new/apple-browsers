@@ -18,7 +18,7 @@
 //
 
 import Foundation
-import Core
+import History
 
 struct DataClearingBurnTabsPixelsHandler: DataClearingPixelsHandling {
     
@@ -28,13 +28,17 @@ struct DataClearingBurnTabsPixelsHandler: DataClearingPixelsHandling {
         self.dataClearingPixelsResporter = dataClearingPixelsReporter
     }
     
-    func fireDurationPixel(from : Date, scope: String?) {}
-    
-    func fireHasResiduePixel(step: String?) {}
-    
-    func fireErrorPixel(error: any Error) {
+    func fireErrorPixel(_ error: Error) {
         dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
     }
+    
+    func fireDurationPixel(from startTime: CFTimeInterval) {}
+    
+    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
+    
+    func fireHasResiduePixel() {}
+    
+    func fireHasResiduePixel(at step: String) {}
 }
 
 
@@ -46,11 +50,15 @@ struct DataClearingBurnWebCachePixelsHandler: DataClearingPixelsHandling {
         self.dataClearingPixelsResporter = dataClearingPixelsReporter
     }
     
-    func fireDurationPixel(from: Date, scope: String?) {}
-    
-    func fireHasResiduePixel(step: String?) {}
-    
-    func fireErrorPixel(error: any Error) {
+    func fireErrorPixel(_ error: Error) {
         dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
     }
+    
+    func fireDurationPixel(from startTime: CFTimeInterval) {}
+    
+    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
+    
+    func fireHasResiduePixel() {}
+    
+    func fireHasResiduePixel(at step: String) {}
 }

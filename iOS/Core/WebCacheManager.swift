@@ -54,6 +54,26 @@ public protocol WebsiteDataManaging {
 
 }
 
+public struct WebCacheClearingReporter {
+    public var onDuration: (CFTimeInterval, String) -> Void
+    public var onResidue: (String) -> Void
+
+    public init(
+        onDuration: @escaping (CFTimeInterval, String) -> Void,
+        onResidue: @escaping (String) -> Void
+    ) {
+        self.onDuration = onDuration
+        self.onResidue = onResidue
+    }
+}
+
+private enum ClearingStep: String {
+    case clearDataForSafelyRemovableDataTypes = "clear_data_for_safely_removable_data_types"
+    case clearFireproofableDataForNonFireproofDomains = "clear_fireproofable_data_for_non_fireproof_domains"
+    case clearCookiesForNonFireproofedDomains = "clear_cookies_for_non_fireproofed_domains"
+    case removeObservationsData = "remove_observations_data"
+}
+
 public class WebCacheManager: WebsiteDataManaging {
     
     private typealias DataRecordInScopeEvaluator = (String) -> Bool
@@ -89,13 +109,6 @@ public class WebCacheManager: WebsiteDataManaging {
                 return "limited"
             }
         }
-    }
-    
-    private enum BurningStep: String {
-        case clearDataForSafelyRemovableDataTypes = "clear_data_for_safely_removable_data_types"
-        case clearFireproofableDataForNonFireproofDomains = "clear_fireproofable_data_for_non_fireproof_domains"
-        case clearCookiesForNonFireproofedDomains = "clear_cookies_for_non_fireproofed_domains"
-        case removeObservationsData = "remove_observations_data"
     }
 
     static let safelyRemovableWebsiteDataTypes: Set<String> = {
@@ -136,21 +149,20 @@ public class WebCacheManager: WebsiteDataManaging {
     let dataStoreIDManager: DataStoreIDManaging
     let dataStoreCleaner: WebsiteDataStoreCleaning
     let observationsCleaner: ObservationsDataCleaning
-    let dataClearingPixelsHandling: DataClearingPixelsHandling?
+    private let clearingReporter: WebCacheClearingReporter?
 
     public init(cookieStorage: MigratableCookieStorage,
                 fireproofing: Fireproofing,
                 dataStoreIDManager: DataStoreIDManaging,
                 dataStoreCleaner: WebsiteDataStoreCleaning = DefaultWebsiteDataStoreCleaner(),
                 observationsCleaner: ObservationsDataCleaning = DefaultObservationsDataCleaner(),
-                dataClearingPixelsHandling: DataClearingPixelsHandling? = nil
-    ) {
+                clearingReporter: WebCacheClearingReporter? = nil) {
         self.cookieStorage = cookieStorage
         self.fireproofing = fireproofing
         self.dataStoreIDManager = dataStoreIDManager
         self.dataStoreCleaner = dataStoreCleaner
         self.observationsCleaner = observationsCleaner
-        self.dataClearingPixelsHandling = dataClearingPixelsHandling
+        self.clearingReporter = clearingReporter
     }
 
     /// The previous version saved cookies externally to the data so we can move them between containers.  We now use
@@ -252,11 +264,11 @@ extension WebCacheManager {
         let startTime = CACurrentMediaTime()
 
         await clearDataForSafelyRemovableDataTypes(fromStore: dataStore, scope: scope)
-        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+        clearingReporter?.onDuration(startTime, scope.description)
         await clearFireproofableDataForNonFireproofDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
-        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+        clearingReporter?.onDuration(startTime, scope.description)
         await clearCookiesForNonFireproofedDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
-        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+        clearingReporter?.onDuration(startTime, scope.description)
         await observationsCleaner.removeObservationsData()
 
         let totalTime = CACurrentMediaTime() - startTime
@@ -271,7 +283,7 @@ extension WebCacheManager {
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
             Task {
                 if await !dataStore.dataRecords(ofTypes:  Self.safelyRemovableWebsiteDataTypes).isEmpty {
-                    dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
                 }
             }
         case .limited(let dataRecords, _):
@@ -284,7 +296,7 @@ extension WebCacheManager {
             Task {
                 let remainingRecords = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
                 if remainingRecords.contains(where: { record in dataRecords(record.displayName) }) {
-                    dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
                 }
             }
         }
@@ -310,7 +322,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
             }
             if hasResidue {
-                dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearFireproofableDataForNonFireproofDomains.rawValue)
+                clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
             }
         }
     }
@@ -336,9 +348,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.cookiesEvaluator(cookie)
             }
             if hasResidue {
-                dataClearingPixelsHandling?.fireHasResiduePixel(
-                    step: BurningStep.clearCookiesForNonFireproofedDomains.rawValue
-                )
+                clearingReporter?.onResidue(ClearingStep.clearCookiesForNonFireproofedDomains.rawValue)
             }
         }
     }

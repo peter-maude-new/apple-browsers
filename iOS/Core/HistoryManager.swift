@@ -136,7 +136,7 @@ public class HistoryManager: HistoryManaging {
         do {
             try await tabHistoryCoordinator.removeVisits(for: tabIDs)
         } catch {
-            dataClearingPixelsHandling?.fireErrorPixel(error: error)
+            dataClearingPixelsHandling?.fireErrorPixel(error)
             Logger.history.error("Failed to remove tab history: \(error.localizedDescription)")
         }
     }

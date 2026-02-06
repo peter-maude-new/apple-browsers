@@ -293,12 +293,20 @@ final class MainCoordinator {
     }
 
     private static func makeWebsiteDataManager(fireproofing: Fireproofing,
-                                               dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared,
-                                               dataClearingPixelsHandler: DataClearingPixelsHandling = DataClearingBurnWebCachePixelsHandler()) -> WebsiteDataManaging {
-        WebCacheManager(cookieStorage: MigratableCookieStorage(),
+                                               dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared) -> WebsiteDataManaging {
+        let dataClearingBurnWebCachePixelsHandler = DataClearingBurnWebCachePixelsHandler()
+        let webCacheClearingReporter = WebCacheClearingReporter(
+            onDuration: { startTime, step in
+                dataClearingBurnWebCachePixelsHandler.fireDurationPixel(from: startTime, at: step)
+            },
+            onResidue: { step in
+                dataClearingBurnWebCachePixelsHandler.fireHasResiduePixel(at: step)
+            }
+        )
+        return WebCacheManager(cookieStorage: MigratableCookieStorage(),
                         fireproofing: fireproofing,
                         dataStoreIDManager: dataStoreIDManager,
-                        dataClearingPixelsHandling: dataClearingPixelsHandler)
+                        clearingReporter: webCacheClearingReporter)
     }
 
     // MARK: - Public API
