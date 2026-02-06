@@ -95,6 +95,10 @@ final class NotificationIconFetcher: NotificationIconFetching {
         // Create session with redirect blocking delegate
         let delegate = RedirectBlockingDelegate(originURL: originURL, validateURL: validateIconURL)
         let session = URLSession(configuration: urlSession.configuration, delegate: delegate, delegateQueue: nil)
+        defer {
+            // Invalidate session to break strong reference cycle with delegate
+            session.finishTasksAndInvalidate()
+        }
 
         do {
             let (data, response) = try await session.data(from: url)
@@ -170,26 +174,28 @@ final class NotificationIconFetcher: NotificationIconFetching {
     }
 
     /// Checks if two URLs have the same origin (scheme, host, and port must match).
+    /// Per web standards, URL schemes and hosts are case-insensitive.
     private func isSameOrigin(_ url: URL, originURL: URL) -> Bool {
-        // Use SecurityOrigin comparison, but normalize ports first
-        var iconOrigin = url.securityOrigin
-        var pageOrigin = originURL.securityOrigin
+        // Normalize protocol and host to lowercase for case-insensitive comparison
+        let iconProtocol = url.securityOrigin.protocol.lowercased()
+        let iconHost = url.securityOrigin.host.lowercased()
+        var iconPort = url.securityOrigin.port
+
+        let pageProtocol = originURL.securityOrigin.protocol.lowercased()
+        let pageHost = originURL.securityOrigin.host.lowercased()
+        var pagePort = originURL.securityOrigin.port
 
         // Normalize ports (0 means default port for the scheme)
-        if iconOrigin.port == 0 {
-            iconOrigin = SecurityOrigin(
-                protocol: iconOrigin.protocol,
-                host: iconOrigin.host,
-                port: defaultPort(for: iconOrigin.protocol)
-            )
+        if iconPort == 0 {
+            iconPort = defaultPort(for: iconProtocol)
         }
-        if pageOrigin.port == 0 {
-            pageOrigin = SecurityOrigin(
-                protocol: pageOrigin.protocol,
-                host: pageOrigin.host,
-                port: defaultPort(for: pageOrigin.protocol)
-            )
+        if pagePort == 0 {
+            pagePort = defaultPort(for: pageProtocol)
         }
+
+        // Compare normalized origins
+        let iconOrigin = SecurityOrigin(protocol: iconProtocol, host: iconHost, port: iconPort)
+        let pageOrigin = SecurityOrigin(protocol: pageProtocol, host: pageHost, port: pagePort)
 
         return iconOrigin == pageOrigin
     }
