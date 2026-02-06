@@ -1,0 +1,105 @@
+---
+alwaysApply: false
+---
+# Wide Events
+
+Wide events measure a user journey through a multi-step feature flow, sending a single event when the journey ends. They are the right choice when you need to understand the full picture of a user's experience through a process, rather than individual actions.
+
+## When to Use a Wide Event vs a Pixel
+
+**Use a wide event when:**
+- A user journey has multiple steps that can succeed or fail independently (e.g., subscription purchase: select plan -> create account -> process payment -> activate)
+- You need to measure latency across multiple stages of a flow
+- You need to understand where users drop off or encounter errors in a multi-step process
+- The outcome of earlier steps affects the interpretation of later steps
+
+**Use a pixel when:**
+- You're recording a single discrete action (button tap, screen view, toggle change)
+- There's no multi-step flow involved
+- You need real-time monitoring of individual events
+- The event is stateless and doesn't depend on prior context
+
+**Use both when:**
+- A flow spans a long time period (hours/days) where waiting for completion would delay monitoring
+- You need real-time alerting on individual steps AND end-to-end journey analysis
+
+## Wide Event Format
+
+Wide events use a standardized format across all platforms with these top-level sections:
+
+- **`meta.version`**: Schema version (base version + event-specific version)
+- **`meta.type`**: A globally unique identifier for the event type, used to disambiguate events across platforms (e.g., `ios-subscription-purchase` vs `macos-subscription-purchase`)
+- **`app`**: Application metadata (name, version, form factor)
+- **`global`**: Platform, type (`app`), and sample rate
+- **`feature`**: The core event data -- `name`, `status`, and custom `data` fields
+- **`context`**: Entry point that triggered the flow (e.g., `onboarding`, `settings`)
+
+Custom event properties live under `feature.data.ext.*`.
+
+## Designing a Wide Event
+
+### Naming
+
+- `feature.name` follows the pattern `feature-action`, e.g., `vpn-connection`, `subscription-purchase`, `data-import`
+- `context.name` identifies where the flow was triggered from - only needed when a flow has multiple entry points
+
+### Status
+
+Every wide event ends with exactly one status:
+
+- **Success**: The journey completed as intended. Optionally include a `reason` for additional context (e.g., `delayed_activation`)
+- **Failure**: A required operation failed and the journey could not complete
+- **Cancelled**: The user explicitly chose to abandon the journey
+- **Unknown**: The journey stopped unexpectedly (timeout, crash, app termination) - requires a `reason` string explaining what happened
+
+### Failing Step
+
+Always maintain a `failing_step` field that records the last step attempted before a failure. Update this as the flow progresses so it's always current. Name the steps in a way that makes sense for your feature -- there is no standard naming convention. Use snake_case for the values (e.g., `account_create`, `flow_start`).
+
+### What Data to Include
+
+**Good data to include:**
+- The current step/stage of the flow (as `failing_step`)
+- Latency measurements for user-blocking operations (network calls, processing steps)
+- Configuration choices that affect the flow path (e.g., which payment platform, which import source)
+- Error information when a step fails (domain, code, description, underlying errors)
+- Feature-relevant boolean flags (e.g., free trial eligible, onboarding completed)
+- Entry point context when multiple paths lead to the same flow
+
+**Data to avoid:**
+- Personally identifiable information (emails, names, account IDs)
+- High-cardinality string values that create unbounded parameter spaces (free-form user input, URLs, file paths)
+- Data that duplicates what's already in the base event (app version, platform)
+- Intermediate state that's only meaningful during the flow, not at completion time
+- Granular timing data - use bucketed latency values instead (see Latency Measurement below)
+
+### Latency Measurement
+
+When measuring how long operations take, use bucketed values rather than exact milliseconds. Bucketing reduces cardinality and prevents fingerprinting. Each event defines its own bucketing function appropriate to the expected duration range. A typical bucketing example:
+
+- 0-1s -> report as 1000
+- 1-5s -> report as 5000
+- 5-10s -> report as 10000
+- 10-30s -> report as 30000
+- 30-60s -> report as 60000
+- 60-300s -> report as 300000
+- 300s+ -> report as 600000
+
+Only measure latency for operations that are user-perceptible (network calls, processing that blocks the UI). Don't measure trivial operations.
+
+### Sample Rate
+
+Sample rate is a float between 0 and 1. Default to `1.0` (capture all events) unless the developer specifies otherwise. Sampling is applied when the flow starts, not at completion, so a sampled-out flow is never stored.
+
+### Timeouts
+
+For flows that may never complete (e.g., waiting for backend activation), define a timeout after which the flow completes with `.unknown` status and a descriptive reason. The timeout duration should match the expected real-world timeline of the operation.
+
+## Best Practices
+
+1. **Start flows early**: Call `startFlow` as soon as the user begins a journey, not after the first step completes
+2. **Update incrementally**: Persist progress after each significant state change so that app termination doesn't lose data
+3. **Always complete or discard**: Every started flow must eventually be completed (sending the event) or discarded (silently removed)
+4. **Include enough to debug failures**: A failed wide event should contain everything needed to understand _why_ it failed -- error details, failing step, and relevant configuration
+5. **Handle stale flows**: Implement a completion decision for flows that may survive app restarts -- check on app launch whether the flow should be completed with a timeout or delayed-success status
+6. **Keep parameters flat**: Use dot-notation keys (e.g., `feature.data.ext.purchase_platform`) -- these are automatically converted to nested JSON for the POST endpoint

@@ -1,0 +1,224 @@
+---
+alwaysApply: false
+---
+# Wide Events: Apple Implementation
+
+This describes how to implement wide events in the DuckDuckGo Apple apps (iOS and macOS). For general wide event concepts, design guidance, and when to use wide events vs pixels, see @wide-events.mdc.
+
+## Where to Define Wide Events
+
+Define your wide event data type in the module closest to its feature. For example, subscription events live in the Subscription module, VPN events live in the VPN module. Platform-specific features can define events in the iOS or macOS app targets.
+
+Do **not** add PixelKit or other dependencies to a module just to support a wide event -- consult the developer if new imports would be needed.
+
+## Creating a Wide Event Data Type
+
+Each wide event needs a **class** conforming to `WideEventData` (defined in `WideEventData.swift` in the PixelKit package). All existing implementations use classes, not structs. The protocol requires:
+
+- **`static var metadata: WideEventMetadata`** -- pixel name, feature name, platform-specific `meta.type` identifiers, and version
+- **`var globalData: WideEventGlobalData`** -- platform, type, sample rate (initialized with sensible defaults via `WideEventGlobalData()`)
+- **`var appData: WideEventAppData`** -- app name, version, form factor (initialized with sensible defaults via `WideEventAppData()`)
+- **`var contextData: WideEventContextData`** -- entry point context
+- **`var errorData: WideEventErrorData?`** -- error details captured on failure
+- **`func pixelParameters() -> [String: String]`** -- maps your custom data to dot-notation parameter keys (inherited from `WideEventParameterProviding`)
+
+The framework automatically assembles the full parameter set from `globalData`, `appData`, `contextData`, `errorData`, and your event's `pixelParameters()`. Your `pixelParameters()` should only return custom `feature.data.ext.*` fields.
+
+Refer to `SubscriptionPurchaseWideEventData` as a well-documented example.
+
+### Metadata
+
+The metadata requires separate `meta.type` identifiers for mobile and desktop, used to uniquely identify and disambiguate the event type across platforms:
+
+```swift
+static let metadata = WideEventMetadata(
+    pixelName: "feature_action",               // Appended to m_ios_wide_ or m_mac_wide_
+    featureName: "feature-action",             // Cross-platform feature identifier
+    mobileMetaType: "ios-feature-action",      // meta.type on iOS (globally unique)
+    desktopMetaType: "macos-feature-action",   // meta.type on macOS (globally unique)
+    version: "1.0.0"                           // Semantic versioning (see below)
+)
+```
+
+The `mobileMetaType` and `desktopMetaType` values are sent as `meta.type` in the event payload. They must be globally unique across all events and platforms -- the convention is `{platform}-{feature}-{action}`.
+
+Version uses semantic versioning (`major.minor.patch`). The major version should only be bumped when the base wide event format changes. Minor and patch versions are incremented when changing the event-specific schema.
+
+### Failing Step
+
+Define an enum for the steps in your flow and maintain a `failingStep` property. Update it as the flow progresses:
+
+```swift
+enum FailingStep: String, Codable {
+    case flowStart = "flow_start"
+    case accountCreate = "account_create"
+    case payment = "account_payment"
+}
+
+var failingStep: FailingStep? = .flowStart
+```
+
+### Parameters
+
+Implement `pixelParameters()` to map your custom properties to dot-notation keys. All custom fields use `feature.data.ext.*` prefixes:
+
+```swift
+public func pixelParameters() -> [String: String] {
+    Dictionary(compacting: [
+        ("feature.data.ext.purchase_platform", purchasePlatform.rawValue),
+        ("feature.data.ext.failing_step", failingStep?.rawValue),
+    ])
+}
+```
+
+Define parameter key constants by extending `WideEventParameter` with a nested enum for your feature (see `SubscriptionPurchaseWideEventData` for the pattern).
+
+### Measured Intervals and Duration Bucketing
+
+Use `WideEvent.MeasuredInterval` to measure latency of user-blocking operations:
+
+```swift
+var createAccountDuration: WideEvent.MeasuredInterval?
+
+// When the operation starts:
+data.createAccountDuration = .startingNow()
+
+// When it completes:
+data.createAccountDuration?.complete()
+```
+
+For reporting durations in `pixelParameters()`, use `stringValue(_:)` with a `DurationBucket`. Each event defines its own bucketing function:
+
+```swift
+// Define a bucketing function:
+private static func bucket(_ ms: Double) -> Int {
+    switch ms {
+    case 0..<1000: return 1000
+    case 1000..<5000: return 5000
+    case 5000..<10000: return 10000
+    default: return 30000
+    }
+}
+
+// Use it in pixelParameters():
+if let duration = createAccountDuration?.stringValue(.bucketed(Self.bucket)) {
+    params["feature.data.ext.create_account_latency_ms_bucketed"] = duration
+}
+```
+
+### Codable Considerations
+
+Wide event data is persisted to disk via `Codable`, so any non-Codable properties (e.g., closures used for dependency injection) must be excluded using a custom `CodingKeys` enum:
+
+```swift
+var entitlementsChecker: (() async -> Bool)?  // Not Codable
+
+private enum CodingKeys: String, CodingKey {
+    case globalData, contextData, appData
+    case purchasePlatform, failingStep, errorData
+    // entitlementsChecker is deliberately excluded
+}
+```
+
+### Completion Decision (Optional)
+
+For flows that may survive app restarts, implement `completionDecision(for:)` to handle stale flows:
+
+```swift
+func completionDecision(for trigger: WideEventCompletionTrigger) async -> WideEventCompletionDecision {
+    switch trigger {
+    case .appLaunch:
+        if flowHasTimedOut {
+            return .complete(.unknown(reason: "timeout"))
+        }
+        return .keepPending
+    }
+}
+```
+
+The `WideEventService` on each platform calls this on app launch for all stored flows. If you need to inject dependencies for the completion check (e.g., an entitlements checker), do so through the service layer -- see the iOS `WideEventService` for an example of injecting an `entitlementsChecker` into `SubscriptionPurchaseWideEventData`.
+
+### Sample Rate
+
+Configure sample rate via `WideEventGlobalData`:
+
+```swift
+var globalData = WideEventGlobalData(sampleRate: 0.5)  // 50% sampling
+```
+
+The default is `1.0` (all events captured). Sampling is applied at `startFlow` time.
+
+## Flow Lifecycle
+
+Use the `WideEventManaging` protocol (from `WideEvent.swift` in PixelKit) to manage flows:
+
+```swift
+// 1. Start -- persists to disk, applies sampling
+wideEvent.startFlow(data)
+
+// 2. Update -- direct or closure-based
+wideEvent.updateFlow(data)
+wideEvent.updateFlow(globalID: flowID) { (event: inout MyWideEventData) in
+    event.failingStep = .nextStep
+}
+
+// 3. Complete -- sends the event
+wideEvent.completeFlow(data, status: .success, onComplete: { _, _ in })
+try await wideEvent.completeFlow(data, status: .failure)
+
+// 4. Discard -- removes without sending
+wideEvent.discardFlow(data)
+```
+
+Additional APIs: `getFlowData(_:globalID:)` to retrieve a stored flow by ID, and `getAllFlowData(_:)` to get all flows of a type.
+
+## Event Mapping Pattern
+
+For flows driven by framework events (e.g., OAuth token refresh), use an `EventMapping` to translate framework events into wide event operations. See `authV2RefreshEventMapping()` in the Subscription module for an example of mapping event cases to `startFlow`, `updateFlow`, and `completeFlow` calls.
+
+## WideEventRecorder
+
+For simpler time-measured flows, `WideEventRecorder` provides a convenience wrapper. Your data type must conform to `WideEventDataMeasuringInterval` (which requires a `measuredInterval` property) in addition to `WideEventData`:
+
+```swift
+extension MyWideEventData: WideEventDataMeasuringInterval {
+    var measuredInterval: WideEvent.MeasuredInterval? {
+        get { overallDuration }
+        set { overallDuration = newValue }
+    }
+}
+```
+
+Then use the recorder:
+
+```swift
+let recorder = WideEventRecorder.makeIfPossible(
+    wideEvent: wideEvent,
+    identifier: connectionID,
+    sampleRate: 1.0,
+    intervalStart: Date(),
+    makeData: { globalData, interval in
+        MyWideEventData(..., overallDuration: interval)
+    }
+)
+
+// Later, when the flow completes:
+recorder?.markCompleted(at: Date())
+```
+
+It also supports `resumeIfPossible()` and `startIfPossible()` for flows that span app restarts.
+
+## Key Reference Files
+
+- Core framework: `WideEvent/` directory in the PixelKit package
+- Testing mock: `WideEventMock` in `PixelKitTestingUtilities`
+- Example implementations: search for types conforming to `WideEventData` (e.g., `SubscriptionPurchaseWideEventData`, `VPNConnectionWideEventData`, `DataImportWideEventData`)
+
+## Testing
+
+Use `WideEventMock` (from `PixelKitTestingUtilities`) in unit tests. It captures all `startFlow`, `updateFlow`, `completeFlow`, and `discardFlow` calls without real storage or network activity. Verify:
+
+- The flow starts with correct initial data
+- Updates occur at the right points with correct state
+- The flow completes with the expected status
+- Failure cases include the correct failing step and error data
