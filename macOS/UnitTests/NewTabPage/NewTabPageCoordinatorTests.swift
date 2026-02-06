@@ -143,7 +143,8 @@ final class NewTabPageCoordinatorTests: XCTestCase {
                 remoteMessagingStore: MockRemoteMessagingStore(),
                 remoteMessagingAvailabilityProvider: MockRemoteMessagingAvailabilityProvider(),
                 openURLHandler: { _ in },
-                navigateToFeedbackHandler: { }
+                navigateToFeedbackHandler: { },
+                navigateToPIRHandler: { }
             ),
             historyCoordinator: HistoryCoordinatingMock(),
             contentBlocking: ContentBlockingMock(),
@@ -176,6 +177,7 @@ final class NewTabPageCoordinatorTests: XCTestCase {
             subscriptionCardPersistor: MockHomePageSubscriptionCardPersisting(),
             duckPlayerPreferences: DuckPlayerPreferencesPersistorMock(),
             syncService: MockDDGSyncing(authState: .inactive, isSyncInProgress: false),
+            pinningManager: MockPinningManager(),
             fireDailyPixel: { self.firePixelCalls.append($0) }
         )
     }

@@ -261,6 +261,7 @@ struct WarnBeforeQuitView: View {
                 .conditionalGesture(isHovering: isHovering) {
                     viewModel.dontAskAgainTapped()
                 }
+                .accessibilityIdentifier("WarnBeforeQuitView.dontShowAgainButton")
         }
         .padding(.trailing, horizontalPadding)
         .padding(.leading, horizontalPadding - 2) // Circle has own padding of 2px
@@ -413,6 +414,7 @@ final class PreviewStartupPreferencesPersistor: StartupPreferencesPersistor {
 /// Helper to create StartupPreferences for previews
 func makePreviewStartupPreferences(restorePreviousSession: Bool) -> StartupPreferences {
     StartupPreferences(
+        pinningManager: MockPinningManager(),
         persistor: PreviewStartupPreferencesPersistor(restorePreviousSession: restorePreviousSession),
         appearancePreferences: .mock
     )

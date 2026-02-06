@@ -48,11 +48,9 @@ final class AIChatContextualWebViewController: UIViewController {
     private let featureFlagger: FeatureFlagger
     private var downloadHandler: DownloadHandling
     private let pixelHandler: AIChatContextualModePixelFiring
+    private let debugSettings: AIChatDebugSettingsHandling
 
     private(set) var aiChatContentHandler: AIChatContentHandling
-
-    /// Callback for URL changes.
-    var onContextualChatURLChange: ((URL?) -> Void)?
 
     /// Passthrough delegate for the content handler. Set this to receive navigation callbacks.
     var aiChatContentHandlingDelegate: AIChatContentHandlingDelegate? {
@@ -62,7 +60,6 @@ final class AIChatContextualWebViewController: UIViewController {
 
     private var pendingPrompt: String?
     private var pendingPageContext: AIChatPageContextData?
-    private var userContentController: UserContentController?
     private var isPageReady = false
     private var isContentHandlerReady = false
     private var urlObservation: NSKeyValueObservation?
@@ -74,7 +71,7 @@ final class AIChatContextualWebViewController: UIViewController {
     private var lastKnownKeyboardFrame: CGRect?
 
     /// URL to load on viewDidLoad instead of the default AI chat URL (for cold restore).
-    var initialRestoreURL: URL?
+    var initialURL: URL?
 
     // MARK: - UI Components
 
@@ -114,7 +111,8 @@ final class AIChatContextualWebViewController: UIViewController {
          featureFlagger: FeatureFlagger,
          downloadHandler: DownloadHandling,
          getPageContext: ((PageContextRequestReason) -> AIChatPageContextData?)?,
-         pixelHandler: AIChatContextualModePixelFiring) {
+         pixelHandler: AIChatContextualModePixelFiring,
+         debugSettings: AIChatDebugSettingsHandling = AIChatDebugSettings()) {
         self.aiChatSettings = aiChatSettings
         self.privacyConfigurationManager = privacyConfigurationManager
         self.contentBlockingAssetsPublisher = contentBlockingAssetsPublisher
@@ -122,6 +120,7 @@ final class AIChatContextualWebViewController: UIViewController {
         self.featureFlagger = featureFlagger
         self.downloadHandler = downloadHandler
         self.pixelHandler = pixelHandler
+        self.debugSettings = debugSettings
 
         let productSurfaceTelemetry = PixelProductSurfaceTelemetry(featureFlagger: featureFlagger, dailyPixelFiring: DailyPixel.self)
         self.aiChatContentHandler = AIChatContentHandler(
@@ -147,16 +146,29 @@ final class AIChatContextualWebViewController: UIViewController {
         aiChatContentHandler.fireAIChatTelemetry()
         setupURLObservation()
         setupDownloadHandler()
-        if let restoreURL = initialRestoreURL {
-            loadChatURL(restoreURL)
+        if let url = initialURL {
+            loadChatURL(url)
         } else {
             loadAIChat()
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardObservers()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        removeKeyboardObservers()
+        webViewBottomConstraint?.constant = 0
+        lastKnownKeyboardFrame = nil
+    }
+
     deinit {
         urlObservation?.invalidate()
-        NotificationCenter.default.removeObserver(self)
+        removeKeyboardObservers()
     }
 
     // MARK: - Public Methods
@@ -185,11 +197,6 @@ final class AIChatContextualWebViewController: UIViewController {
         webView.reload()
     }
 
-    /// Returns the current contextual chat URL if one exists, nil otherwise.
-    var currentContextualChatURL: URL? {
-        webView.url.flatMap { $0.duckAIChatID != nil ? $0 : nil }
-    }
-
     /// Loads a specific chat URL (for cold restore after app restart).
     func loadChatURL(_ url: URL) {
         loadingView.startAnimating()
@@ -202,10 +209,8 @@ final class AIChatContextualWebViewController: UIViewController {
         self.isMediumDetent = isMediumDetent
 
         if isMediumDetent && !wasInMediumDetent {
-            // Transitioning TO medium: recalculate keyboard overlap if keyboard is visible
             recalculateKeyboardOverlapIfNeeded()
         } else if !isMediumDetent && webViewBottomConstraint?.constant != 0 {
-            // Transitioning FROM medium: animate constraint reset
             UIView.animate(withDuration: 0.25) {
                 self.webViewBottomConstraint?.constant = 0
                 self.view.layoutIfNeeded()
@@ -214,7 +219,9 @@ final class AIChatContextualWebViewController: UIViewController {
     }
 
     private func recalculateKeyboardOverlapIfNeeded() {
-        guard let keyboardFrame = lastKnownKeyboardFrame else { return }
+        guard let keyboardFrame = lastKnownKeyboardFrame else {
+            return
+        }
         adjustForKeyboard(frame: keyboardFrame, duration: 0.25, options: .curveEaseInOut)
     }
 
@@ -238,11 +245,11 @@ final class AIChatContextualWebViewController: UIViewController {
             loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-
-        setupKeyboardObservers()
     }
 
     private func setupKeyboardObservers() {
+        removeKeyboardObservers()
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillChangeFrame),
@@ -257,13 +264,30 @@ final class AIChatContextualWebViewController: UIViewController {
         )
     }
 
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+              let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            return
+        }
 
         lastKnownKeyboardFrame = keyboardFrame
 
-        guard isMediumDetent, view.window != nil else { return }
+        guard isMediumDetent, view.window != nil else {
+            return
+        }
 
         let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
         let animationCurveRaw = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
@@ -275,7 +299,9 @@ final class AIChatContextualWebViewController: UIViewController {
     @objc private func keyboardWillHide(_ notification: Notification) {
         lastKnownKeyboardFrame = nil
 
-        guard view.window != nil else { return }
+        guard view.window != nil else {
+            return
+        }
 
         let userInfo = notification.userInfo
         let duration = (userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
@@ -293,6 +319,12 @@ final class AIChatContextualWebViewController: UIViewController {
         let keyboardFrameInView = view.convert(keyboardFrame, from: nil)
         let keyboardOverlap = max(0, view.bounds.height - keyboardFrameInView.origin.y)
 
+        // Guard against invalid keyboard positions during sheet animation transitions
+        // If keyboard is above the view (negative Y) or overlap exceeds view height, skip adjustment
+        if keyboardFrameInView.origin.y < 0 || keyboardOverlap > view.bounds.height {
+            return
+        }
+
         webViewBottomConstraint?.constant = -keyboardOverlap
 
         UIView.animate(withDuration: duration, delay: 0, options: options) {
@@ -308,7 +340,6 @@ final class AIChatContextualWebViewController: UIViewController {
         )
         userContentController.delegate = self
         configuration.userContentController = userContentController
-        self.userContentController = userContentController
         return configuration
     }
 
@@ -367,7 +398,6 @@ final class AIChatContextualWebViewController: UIViewController {
         lastContextualChatURL = contextualChatURL
 
         delegate?.contextualWebViewController(self, didUpdateContextualChatURL: contextualChatURL)
-        onContextualChatURLChange?(contextualChatURL)
     }
 }
 
@@ -398,7 +428,7 @@ extension AIChatContextualWebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         guard let url = navigationAction.request.url else { return .allow }
 
-        if url.scheme == "blob" || url.isDuckAIURL || navigationAction.targetFrame?.isMainFrame == false {
+        if url.scheme == "blob" || url.isDuckAIURL || debugSettings.matchesCustomURL(url) || navigationAction.targetFrame?.isMainFrame == false {
             return .allow
         }
 

@@ -144,10 +144,6 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212206087745586?focus=true
     case tabClosingEventRecreation
 
-    /// Feature Flag for the Tab Spinner
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866479296718
-    case tabProgressIndicator
-
     /// Feature flag for Themes
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866720557742
     case themes
@@ -171,6 +167,18 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Memory Pressure Reporter
     /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1212762049862427?focus=true
     case memoryPressureReporting
+
+    /// Memory Usage Reporting
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1212762049862432?focus=true
+    case memoryUsageReporting
+
+    /// Failsafe flag to bring back keys sorting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037849588149
+    case crashCollectionDisableKeysSorting
+
+    /// Failsafe flag for disabling call stack tree depth limiting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764817
+    case crashCollectionLimitCallStackTreeDepth
 }
 
 public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
@@ -214,6 +222,14 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Whether the wide event POST endpoint is enabled
     /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
     case wideEventPostEndpoint
+
+    /// Failsafe flag to bring back keys sorting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037849588149
+    case crashCollectionDisableKeysSorting
+
+    /// Failsafe flag for disabling call stack tree depth limiting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764805
+    case crashCollectionLimitCallStackTreeDepth
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -441,6 +457,7 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case vpnMenuItem
     case blackFridayCampaign
     case allowProTierPurchase
+    case freeTrialConversionWideEvent
 }
 
 public enum DuckPlayerSubfeature: String, PrivacySubfeature {

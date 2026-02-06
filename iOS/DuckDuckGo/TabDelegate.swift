@@ -27,13 +27,19 @@ protocol TabDelegate: AnyObject {
     func tabWillRequestNewTab(_ tab: TabViewController) -> UIKeyModifierFlags?
 
     func tabDidRequestNewTab(_ tab: TabViewController)
+    
+    func newTab(reuseExisting: Bool)
+
+    func tabDidRequestActivate(_ tab: TabViewController)
 
     func tab(_ tab: TabViewController,
              didRequestNewWebViewWithConfiguration configuration: WKWebViewConfiguration,
              for navigationAction: WKNavigationAction,
              inheritingAttribution: AdClickAttributionLogic.State?) -> WKWebView?
 
-    func tabDidRequestClose(_ tab: TabViewController, shouldCreateEmptyTabAtSamePosition: Bool)
+    func tabDidRequestClose(_ tab: Tab,
+                            shouldCreateEmptyTabAtSamePosition: Bool,
+                            clearTabHistory: Bool)
 
     func tab(_ tab: TabViewController,
              didRequestNewTabForUrl url: URL,
@@ -136,7 +142,7 @@ protocol TabDelegate: AnyObject {
 extension TabDelegate {
 
     func tabDidRequestClose(_ tab: TabViewController) {
-        tabDidRequestClose(tab, shouldCreateEmptyTabAtSamePosition: false)
+        tabDidRequestClose(tab.tabModel, shouldCreateEmptyTabAtSamePosition: false, clearTabHistory: true)
     }
     
 }
