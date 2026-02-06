@@ -32,6 +32,8 @@ enum SubscriptionTransactionErrorAlert {
     }
 
     /// Whether to show an alert and which message type. Returns nil when no alert should be shown (e.g. user cancelled).
+    /// Intentionally does not show alerts for missingEntitlements, failedToSetSubscription, or subscriptionExpired
+    /// (may resolve later or are not actionable via a generic error dialog).
     static func displayContent(for error: SubscriptionPurchaseError?) -> MessageType? {
         guard let error = error else { return nil }
         switch error {
@@ -41,8 +43,10 @@ enum SubscriptionTransactionErrorAlert {
             return .activeSubscription
         case .failedToRestorePastPurchase, .purchaseFailed, .purchasePendingTransaction:
             return .appStore
-        case .failedToGetSubscriptionOptions, .generalError, .missingEntitlements, .failedToSetSubscription, .subscriptionExpired:
+        case .failedToGetSubscriptionOptions, .generalError:
             return .backend
+        case .missingEntitlements, .failedToSetSubscription, .subscriptionExpired:
+            return nil
         }
     }
 
