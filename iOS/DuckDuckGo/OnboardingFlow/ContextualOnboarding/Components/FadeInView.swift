@@ -1,5 +1,5 @@
 //
-//  OnboardingRebranding.swift
+//  FadeInView.swift
 //  DuckDuckGo
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
@@ -18,9 +18,22 @@
 //
 
 import SwiftUI
-import Onboarding
 
-// Legacy view state used by the linear onboarding flow.
-typealias LegacyOnboardingViewState = OnboardingView.ViewState
-
-typealias RebrandedOnboardingView = OnboardingRebranding.OnboardingView
+struct FadeInView<Content: View>: View {
+    var content: Content
+    @State private var opacity: Double = 0
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+        content
+            .opacity(opacity)
+            .onAppear {
+                withAnimation(.easeIn(duration: 0.4)) {
+                    opacity = 1.0
+                }
+            }
+    }
+}

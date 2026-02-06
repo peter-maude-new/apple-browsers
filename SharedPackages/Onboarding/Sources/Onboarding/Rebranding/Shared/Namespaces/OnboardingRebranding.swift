@@ -1,6 +1,5 @@
 //
 //  OnboardingRebranding.swift
-//  DuckDuckGo
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
@@ -17,10 +16,10 @@
 //  limitations under the License.
 //
 
-import SwiftUI
-import Onboarding
+/// Defines a namespace for Onboarding Rebranding
+public enum OnboardingRebranding {}
 
-// Legacy view state used by the linear onboarding flow.
-typealias LegacyOnboardingViewState = OnboardingView.ViewState
-
-typealias RebrandedOnboardingView = OnboardingRebranding.OnboardingView
+public extension OnboardingRebranding {
+    /// Defines a namespace for the Onboarding Rebranding Styles
+    enum OnboardingStyles {}
+}

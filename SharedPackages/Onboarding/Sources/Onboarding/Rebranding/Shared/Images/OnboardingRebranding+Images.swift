@@ -1,6 +1,5 @@
 //
-//  OnboardingRebranding.swift
-//  DuckDuckGo
+//  OnboardingRebranding+Images.swift
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
@@ -18,9 +17,15 @@
 //
 
 import SwiftUI
-import Onboarding
 
-// Legacy view state used by the linear onboarding flow.
-typealias LegacyOnboardingViewState = OnboardingView.ViewState
+extension OnboardingRebranding {
 
-typealias RebrandedOnboardingView = OnboardingRebranding.OnboardingView
+    enum OnboardingImages {
+
+        enum Contextual {
+            static let tryASearchBackground = Image("Rebranding/contextual-bg-try-search", bundle: .module)
+        }
+
+    }
+
+}
