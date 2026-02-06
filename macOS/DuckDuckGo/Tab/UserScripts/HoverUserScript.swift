@@ -38,6 +38,14 @@ final class HoverUserScript: NSObject, UserScript {
         webkit.messageHandlers.hoverHandler.postMessage({ href: href });
     }, true);
 
+    try {
+        if (window.top === window) {
+            document.addEventListener("mouseleave", function() {
+                webkit.messageHandlers.hoverHandler.postMessage({ href: null });
+            });
+        }
+    } catch(e) {}
+
 }) ();
 """
 
