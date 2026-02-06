@@ -150,7 +150,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     private let wideEvent: WideEventManaging
     private let tierEventReporter: SubscriptionTierEventReporting
     private let pendingTransactionHandler: PendingTransactionHandling
-    private let tierChangePerformer: SubscriptionFlowPerforming
+    private let tierChangePerformer: SubscriptionFlowsExecuting
     private var purchaseWideEventData: SubscriptionPurchaseWideEventData?
     private var subscriptionRestoreWideEventData: SubscriptionRestoreWideEventData?
 
@@ -164,7 +164,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
          wideEvent: WideEventManaging,
          tierEventReporter: SubscriptionTierEventReporting = DefaultSubscriptionTierEventReporter(),
          pendingTransactionHandler: PendingTransactionHandling,
-         tierChangePerformer: DefaultSubscriptionFlowPerformer) {
+         tierChangePerformer: DefaultSubscriptionFlowsExecuter) {
         self.subscriptionManager = subscriptionManager
         self.subscriptionFeatureAvailability = subscriptionFeatureAvailability
         self.appStorePurchaseFlow = appStorePurchaseFlow

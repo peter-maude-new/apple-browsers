@@ -709,7 +709,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(tierChangePerformer: SubscriptionFlowPerforming? = nil) -> SubscriptionSettingsViewModel {
+    private func makeSUT(tierChangePerformer: SubscriptionFlowsExecuting? = nil) -> SubscriptionSettingsViewModel {
         SubscriptionSettingsViewModel(
             subscriptionManager: mockSubscriptionManager,
             featureFlagger: mockFeatureFlagger,
@@ -739,7 +739,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
 
 // MARK: - Mock Tier Change Performer
 
-private final class MockTierChangePerformer: SubscriptionFlowPerforming {
+private final class MockTierChangePerformer: SubscriptionFlowsExecuting {
     var capturedProductId: String?
     var setTransactionStatus: ((SubscriptionTransactionStatus) -> Void)?
     var setTransactionError: ((AppStorePurchaseFlowError?) -> Void)?

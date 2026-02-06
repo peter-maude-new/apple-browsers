@@ -643,7 +643,7 @@ final class SubscriptionDebugViewController: UITableViewController {
                 featureFlagProvider: SubscriptionPageFeatureFlagAdapter(featureFlagger: AppDependencyProvider.shared.featureFlagger)
             )
 
-            let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+            let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
                 subscriptionManager: subscriptionManager,
                 appStorePurchaseFlow: appStorePurchaseFlow,
                 wideEvent: AppDependencyProvider.shared.wideEvent,

@@ -56,7 +56,7 @@ final class SubscriptionPagesUseSubscriptionFeatureSimplifiedPaywallTests: XCTes
         mockWideEvent = WideEventMock()
         mockPendingTransactionHandler = MockPendingTransactionHandler()
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: mockAppStorePurchaseFlow,
             wideEvent: mockWideEvent,

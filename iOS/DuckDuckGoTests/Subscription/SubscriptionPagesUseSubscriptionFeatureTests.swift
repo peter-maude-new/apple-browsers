@@ -54,7 +54,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockInternalUserDecider = MockInternalUserDecider(isInternalUser: true)
         mockTierEventReporter = MockSubscriptionTierEventReporter()
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: mockAppStorePurchaseFlow,
             wideEvent: mockWideEvent,
@@ -463,7 +463,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.purchaseSubscriptionResult = .success((transactionJWS: "jws", accountCreationDuration: nil))
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -514,7 +514,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.purchaseSubscriptionResult = .failure(.cancelledByUser)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -553,7 +553,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.purchaseSubscriptionResult = .failure(.cancelledByUser)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -587,7 +587,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("mock-transaction-jws")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -625,7 +625,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -662,7 +662,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.purchaseFailed(NSError(domain: "test", code: 0)))
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -700,7 +700,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("mock-transaction-jws")
         purchaseFlow.completeSubscriptionPurchaseResult = .failure(.missingEntitlements)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -735,7 +735,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         // Given
         let purchaseFlow = AppStorePurchaseFlowMock()
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -773,7 +773,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -815,7 +815,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let storeManager = StorePurchaseManagerMock()
         mockSubscriptionManager.resultStorePurchaseManager = storeManager
         
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -873,7 +873,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("jws-token")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -936,7 +936,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.cancelledByUser)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -990,7 +990,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         let purchaseFlow = AppStorePurchaseFlowMock()
         purchaseFlow.changeTierResult = .failure(.purchaseFailed(NSError(domain: "Test", code: -1)))
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,
@@ -1048,7 +1048,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         purchaseFlow.changeTierResult = .success("jws-token")
         purchaseFlow.completeSubscriptionPurchaseResult = .success(.completed)
 
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: mockSubscriptionManager,
             appStorePurchaseFlow: purchaseFlow,
             wideEvent: mockWideEvent,

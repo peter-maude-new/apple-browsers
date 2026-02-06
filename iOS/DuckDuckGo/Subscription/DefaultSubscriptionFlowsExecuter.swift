@@ -25,7 +25,7 @@ import os.log
 
 /// Protocol for performing App Store subscription tier changes (upgrade, downgrade, cancel pending downgrade).
 /// Callback-based API used by the subscription page feature and native Settings cancel-downgrade.
-public protocol SubscriptionFlowPerforming: AnyObject {
+public protocol SubscriptionFlowsExecuting: AnyObject {
 
     /// Performs an App Store tier change. Reports progress and result via callbacks.
     @MainActor
@@ -39,7 +39,7 @@ public protocol SubscriptionFlowPerforming: AnyObject {
 
 /// Performs App Store tier changes (upgrade, downgrade, cancel pending downgrade).
 /// Used by both SubscriptionPagesUseSubscriptionFeature (Web flow) and native Settings cancel-downgrade.
-public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming {
+public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting {
 
     private let subscriptionManager: SubscriptionManager
     private let appStorePurchaseFlow: AppStorePurchaseFlow

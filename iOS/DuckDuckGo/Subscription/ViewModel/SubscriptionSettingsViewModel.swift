@@ -34,7 +34,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     private var signOutObserver: Any?
     private var subscriptionChangeObserver: Any?
     private let featureFlagger: FeatureFlagger
-    private let tierChangePerformerToUse: SubscriptionFlowPerforming
+    private let tierChangePerformerToUse: SubscriptionFlowsExecuting
 
     private var externalAllowedDomains = ["stripe.com"]
 
@@ -182,7 +182,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
          featureFlagger: FeatureFlagger = AppDependencyProvider.shared.featureFlagger,
          keyValueStorage: KeyValueStoring = SubscriptionSettingsStore(),
          userScriptsDependencies: DefaultScriptSourceProvider.Dependencies,
-         tierChangePerformer: SubscriptionFlowPerforming? = nil) {
+         tierChangePerformer: SubscriptionFlowsExecuting? = nil) {
         self.subscriptionManager = subscriptionManager
         self.userScriptsDependencies = userScriptsDependencies
         self.featureFlagger = featureFlagger

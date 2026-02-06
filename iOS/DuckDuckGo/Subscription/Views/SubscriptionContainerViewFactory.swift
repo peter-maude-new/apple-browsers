@@ -34,7 +34,7 @@ enum SubscriptionContainerViewFactory {
 
     /// Creates a tier-change performer for native cancel-pending-downgrade (Settings). Caller owns the instance.
     static func makeTierChangePerformer(subscriptionManager: SubscriptionManager,
-                                        wideEvent: WideEventManaging) -> DefaultSubscriptionFlowPerformer {
+                                        wideEvent: WideEventManaging) -> DefaultSubscriptionFlowsExecuter {
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                          pixelHandler: SubscriptionPixelHandler(source: .mainApp))
         let appStoreRestoreFlow = DefaultAppStoreRestoreFlow(subscriptionManager: subscriptionManager,
@@ -45,7 +45,7 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        return DefaultSubscriptionFlowPerformer(subscriptionManager: subscriptionManager,
+        return DefaultSubscriptionFlowsExecuter(subscriptionManager: subscriptionManager,
                                                 appStorePurchaseFlow: appStorePurchaseFlow,
                                                 wideEvent: wideEvent,
                                                 pendingTransactionHandler: pendingTransactionHandler)
@@ -74,7 +74,7 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(subscriptionManager: subscriptionManager,
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(subscriptionManager: subscriptionManager,
                                                                    appStorePurchaseFlow: appStorePurchaseFlow,
                                                                    wideEvent: wideEvent,
                                                                    pendingTransactionHandler: pendingTransactionHandler)
@@ -131,7 +131,7 @@ enum SubscriptionContainerViewFactory {
                                                                  appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(subscriptionManager: subscriptionManager,
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(subscriptionManager: subscriptionManager,
                                                                    appStorePurchaseFlow: appStorePurchaseFlow,
                                                                    wideEvent: wideEvent,
                                                                    pendingTransactionHandler: pendingTransactionHandler)
@@ -177,7 +177,7 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(subscriptionManager: subscriptionManager,
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(subscriptionManager: subscriptionManager,
                                                                    appStorePurchaseFlow: appStorePurchaseFlow,
                                                                    wideEvent: wideEvent,
                                                                    pendingTransactionHandler: pendingTransactionHandler)
@@ -238,7 +238,7 @@ enum SubscriptionContainerViewFactory {
                                                                appStoreRestoreFlow: appStoreRestoreFlow,
                                                                wideEvent: wideEvent,
                                                                pendingTransactionHandler: pendingTransactionHandler)
-        let tierChangePerformer = DefaultSubscriptionFlowPerformer(subscriptionManager: subscriptionManager,
+        let tierChangePerformer = DefaultSubscriptionFlowsExecuter(subscriptionManager: subscriptionManager,
                                                                    appStorePurchaseFlow: appStorePurchaseFlow,
                                                                    wideEvent: wideEvent,
                                                                    pendingTransactionHandler: pendingTransactionHandler)
