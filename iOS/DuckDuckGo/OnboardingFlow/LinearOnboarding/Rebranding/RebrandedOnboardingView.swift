@@ -24,7 +24,7 @@ import MetricBuilder
 
 enum RebrandedOnboardingViewMetrics {
     // Timing
-    static let daxDialogDelay: TimeInterval = 300.0
+    static let daxDialogDelay: TimeInterval = 2.0
     static let daxDialogVisibilityDelay: TimeInterval = 0.5
     static let comparisonChartAnimationDuration = 0.25
 

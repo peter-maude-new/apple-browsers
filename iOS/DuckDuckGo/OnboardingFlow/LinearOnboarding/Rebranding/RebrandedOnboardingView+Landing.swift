@@ -18,22 +18,15 @@
 //
 
 import SwiftUI
+import DesignResourcesKit
 
 private enum LandingViewMetrics {
     static let logoSize: CGFloat = 80
     static let topPadding: CGFloat = 96
     static let welcomeBottomPadding: CGFloat = 20
     static let titleSize: CGFloat = 44
-    static let titleColor = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor.white.withAlphaComponent(0.96)
-            : UIColor.black.withAlphaComponent(0.96)
-    })
-    static let backgroundColor = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0x14 / 255.0, green: 0x30 / 255.0, blue: 0x7E / 255.0, alpha: 1)
-            : .white
-    })
+    static let titleColor = Color(singleUseColor: .rebranding(.landingTitle))
+    static let backgroundColor = Color(singleUseColor: .rebranding(.landingBackground))
 }
 
 extension OnboardingRebranding.OnboardingView {
@@ -71,15 +64,3 @@ extension OnboardingRebranding.OnboardingView {
     }
 
 }
-
-#if DEBUG
-#Preview("Landing Light") {
-    OnboardingRebranding.OnboardingView.LandingView(animationNamespace: Namespace().wrappedValue)
-        .preferredColorScheme(.light)
-}
-
-#Preview("Landing Dark") {
-    OnboardingRebranding.OnboardingView.LandingView(animationNamespace: Namespace().wrappedValue)
-        .preferredColorScheme(.dark)
-}
-#endif
