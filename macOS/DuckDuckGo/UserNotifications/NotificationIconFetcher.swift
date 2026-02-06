@@ -25,9 +25,11 @@ import UserNotifications
 protocol NotificationIconFetching {
 
     /// Fetches an image from the given URL and creates a notification attachment.
-    /// - Parameter url: The URL of the image to fetch.
+    /// - Parameters:
+    ///   - url: The URL of the image to fetch.
+    ///   - originURL: The URL of the page requesting the notification (for same-origin validation).
     /// - Returns: A notification attachment, or `nil` if the fetch fails.
-    func fetchIcon(from url: URL) async -> UNNotificationAttachment?
+    func fetchIcon(from url: URL, originURL: URL) async -> UNNotificationAttachment?
 }
 
 /// Downloads images from URLs and creates `UNNotificationAttachment` instances.
@@ -46,15 +48,38 @@ final class NotificationIconFetcher: NotificationIconFetching {
         static let extensionGIF = "gif"
 
         static let supportedExtensions = [extensionPNG, extensionJPG, extensionJPEG, extensionGIF]
+
+        // Security limits
+        static let maxFileSizeBytes: Int64 = 5 * 1024 * 1024 // 5 MB
+        static let requestTimeoutSeconds: TimeInterval = 10.0
     }
 
-    func fetchIcon(from url: URL) async -> UNNotificationAttachment? {
+    private lazy var urlSession: URLSession = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = Constants.requestTimeoutSeconds
+        configuration.timeoutIntervalForResource = Constants.requestTimeoutSeconds
+        return URLSession(configuration: configuration)
+    }()
+
+    func fetchIcon(from url: URL, originURL: URL) async -> UNNotificationAttachment? {
+        // Validate URL before fetching
+        guard validateIconURL(url, originURL: originURL) else {
+            Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - validation failed for \(url.absoluteString)")
+            return nil
+        }
+
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await urlSession.data(from: url)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == Constants.httpStatusOK else {
-                Logger.general.debug("WebNotificationsHandler: Icon fetch failed - bad response")
+                Logger.general.debug("WebNotificationsHandler: Icon fetch failed - bad response: \(String(describing: response))")
+                return nil
+            }
+
+            // Enforce file size limit to prevent DoS
+            guard Int64(data.count) <= Constants.maxFileSizeBytes else {
+                Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - file too large: \(data.count) bytes")
                 return nil
             }
 
@@ -74,6 +99,73 @@ final class NotificationIconFetcher: NotificationIconFetching {
         } catch {
             Logger.general.debug("WebNotificationsHandler: Icon fetch failed - \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    // MARK: - URL Validation
+
+    /// Validates that the icon URL is safe to fetch.
+    /// - Parameters:
+    ///   - url: The icon URL to validate.
+    ///   - originURL: The origin URL of the page requesting the notification.
+    /// - Returns: `true` if the URL is safe to fetch, `false` otherwise.
+    private func validateIconURL(_ url: URL, originURL: URL) -> Bool {
+        // Block file:// scheme to prevent local file system access
+        if url.scheme?.lowercased() == "file" {
+            Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - file:// scheme not allowed")
+            return false
+        }
+
+        // Only allow http/https schemes
+        guard let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else {
+            Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - invalid scheme: \(url.scheme ?? "nil")")
+            return false
+        }
+
+        // Enforce same-origin policy (automatically blocks cross-origin requests including internal networks)
+        guard isSameOrigin(url, originURL: originURL) else {
+            Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - cross-origin request not allowed")
+            return false
+        }
+
+        return true
+    }
+
+    /// Checks if two URLs have the same origin (scheme, host, and port must match).
+    private func isSameOrigin(_ url: URL, originURL: URL) -> Bool {
+        // Use SecurityOrigin comparison, but normalize ports first
+        var iconOrigin = url.securityOrigin
+        var pageOrigin = originURL.securityOrigin
+
+        // Normalize ports (0 means default port for the scheme)
+        if iconOrigin.port == 0 {
+            iconOrigin = SecurityOrigin(
+                protocol: iconOrigin.protocol,
+                host: iconOrigin.host,
+                port: defaultPort(for: iconOrigin.protocol)
+            )
+        }
+        if pageOrigin.port == 0 {
+            pageOrigin = SecurityOrigin(
+                protocol: pageOrigin.protocol,
+                host: pageOrigin.host,
+                port: defaultPort(for: pageOrigin.protocol)
+            )
+        }
+
+        return iconOrigin == pageOrigin
+    }
+
+    /// Returns the default port for a given scheme.
+    private func defaultPort(for scheme: String) -> Int {
+        switch scheme.lowercased() {
+        case "http":
+            return 80
+        case "https":
+            return 443
+        default:
+            return 0
         }
     }
 
