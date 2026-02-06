@@ -228,14 +228,15 @@ final class UserScripts: UserScriptsProvider {
         let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
         let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
-                                                                         pixelHandler: SubscriptionPixelHandler(source: .mainApp))
-        let flowPerformer = DefaultSubscriptionFlowPerformer(
+                                                                         pixelHandler: SubscriptionPixelHandler(source: .mainApp, pixelKit: PixelKit.shared))
+        let flowPerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: subscriptionManager,
             uiHandler: Application.appDelegate.subscriptionUIHandler,
             wideEvent: Application.appDelegate.wideEvent,
             subscriptionEventReporter: DefaultSubscriptionEventReporter(),
             pendingTransactionHandler: pendingTransactionHandler
         )
+
         delegate = SubscriptionPagesUseSubscriptionFeature(subscriptionManager: subscriptionManager,
                                                            stripePurchaseFlow: stripePurchaseFlow,
                                                            uiHandler: Application.appDelegate.subscriptionUIHandler,

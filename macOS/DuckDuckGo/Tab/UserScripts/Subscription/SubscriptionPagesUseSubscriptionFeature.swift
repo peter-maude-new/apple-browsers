@@ -85,7 +85,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
     private var planChangeWideEventData: SubscriptionPlanChangeWideEventData?
 
     private let pendingTransactionHandler: PendingTransactionHandling
-    private let flowPerformer: any SubscriptionFlowPerforming
+    private let flowPerformer: any SubscriptionFlowsExecuting
 
     public init(subscriptionManager: SubscriptionManager,
                 subscriptionSuccessPixelHandler: SubscriptionAttributionPixelHandling = SubscriptionAttributionPixelHandler(),
@@ -99,7 +99,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
                 wideEvent: WideEventManaging,
                 subscriptionEventReporter: SubscriptionEventReporter = DefaultSubscriptionEventReporter(),
                 pendingTransactionHandler: PendingTransactionHandling,
-                flowPerformer: any SubscriptionFlowPerforming) {
+                flowPerformer: any SubscriptionFlowsExecuting) {
         self.subscriptionManager = subscriptionManager
         self.stripePurchaseFlow = stripePurchaseFlow
         self.subscriptionSuccessPixelHandler = subscriptionSuccessPixelHandler
