@@ -16,8 +16,8 @@
 //  limitations under the License.
 //
 
-import UserScript
 import WebKit
+import UserScript
 
 protocol PageObserverUserScriptDelegate: AnyObject {
 
