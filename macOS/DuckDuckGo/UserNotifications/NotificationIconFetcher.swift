@@ -194,18 +194,6 @@ final class NotificationIconFetcher: NotificationIconFetching {
         return iconOrigin == pageOrigin
     }
 
-    /// Returns the default port for a given scheme.
-    private func defaultPort(for scheme: String) -> Int {
-        switch scheme.lowercased() {
-        case "http":
-            return 80
-        case "https":
-            return 443
-        default:
-            return 0
-        }
-    }
-
     /// Determines file extension from HTTP response content type, falling back to URL path extension.
     private func fileExtension(from response: HTTPURLResponse, url: URL) -> String {
         if let contentType = response.value(forHTTPHeaderField: Constants.contentTypeHeader) {
