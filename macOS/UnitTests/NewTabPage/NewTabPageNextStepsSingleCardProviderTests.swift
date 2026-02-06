@@ -840,7 +840,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         XCTAssertEqual(cards.first, .defaultApp, "DefaultApp should be first in subsequent sessions")
     }
 
-    func testFirstSession_WhenNewHomePageTabOpens_ThenCardOrderRemainsStable_AndIsFirstSessionIsSet() {
+    func testFirstSession_WhenNewHomePageTabOpens_ThenCardsAreShuffled_AndIsFirstSessionIsSet() {
         featureFlagger.enabledFeatureFlags = []
         let testProvider = createProvider(isFirstSession: true)
         let initialCards = testProvider.standardCards
@@ -856,25 +856,8 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         cancellable.cancel()
 
         XCTAssertFalse(persistor.isFirstSession)
-        XCTAssertEqual(provider.standardCards, initialCards, "Standard card order should remain the same when new tab page open notification is received on the first session")
-    }
-
-    func testSubsequentSession_WhenNewHomePageTabOpens_ThenCardsAreShuffled_AndIsFirstSessionIsSet() {
-        featureFlagger.enabledFeatureFlags = []
-        let testProvider = createProvider(isFirstSession: false)
-        let initialCards = testProvider.standardCards
-        let expectation = XCTestExpectation(description: "New tab page open notification is published")
-        let cancellable = NotificationCenter.default.publisher(for: HomePage.Models.newHomePageTabOpen)
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
-                expectation.fulfill()
-            }
-
-        NotificationCenter.default.post(name: HomePage.Models.newHomePageTabOpen, object: nil)
-        wait(for: [expectation], timeout: 1.0)
-        cancellable.cancel()
-
-        XCTAssertNotEqual(provider.standardCards, initialCards, "Standard cards should be shuffled when new tab page open notification is received")
+        XCTAssertNotEqual(testProvider.standardCards, initialCards, "Standard cards should be shuffled when new tab page open notification is received")
+        XCTAssertEqual(testProvider.cards, initialCards, "Card list order should not be immediately updated when new tab page open notification is received")
     }
 
     func testSubsequentSession_WhenWindowBecomesKey_ThenCardOrderRemainsStable() {

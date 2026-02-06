@@ -415,6 +415,7 @@ private extension NewTabPageNextStepsSingleCardProvider {
             }
             .prepend(featureFlagger.isFeatureOn(.nextStepsListAdvancedCardOrdering))
             .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] isAdvancedOrderingOn in
                 guard let self else { return }
                 shouldUseAdvancedCardOrdering = isAdvancedOrderingOn
