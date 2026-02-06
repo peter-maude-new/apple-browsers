@@ -34,7 +34,7 @@ enum SubscriptionContainerViewFactory {
 
     /// Creates a tier-change performer for native cancel-pending-downgrade (Settings). Caller owns the instance.
     static func makeSubscriptionFlowsExecuter(subscriptionManager: SubscriptionManager,
-                                        wideEvent: WideEventManaging) -> DefaultSubscriptionFlowsExecuter {
+                                              wideEvent: WideEventManaging) -> DefaultSubscriptionFlowsExecuter {
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                          pixelHandler: SubscriptionPixelHandler(source: .mainApp, pixelKit: PixelKit.shared))
         let appStoreRestoreFlow = DefaultAppStoreRestoreFlow(subscriptionManager: subscriptionManager,
