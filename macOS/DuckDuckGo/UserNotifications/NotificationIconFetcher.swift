@@ -32,6 +32,30 @@ protocol NotificationIconFetching {
     func fetchIcon(from url: URL, originURL: URL) async -> UNNotificationAttachment?
 }
 
+/// URLSession delegate that blocks redirects violating same-origin policy.
+private final class RedirectBlockingDelegate: NSObject, URLSessionTaskDelegate {
+    let originURL: URL
+    let validateURL: (URL, URL) -> Bool
+
+    init(originURL: URL, validateURL: @escaping (URL, URL) -> Bool) {
+        self.originURL = originURL
+        self.validateURL = validateURL
+    }
+
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest,
+                    completionHandler: @escaping (URLRequest?) -> Void) {
+        guard let redirectURL = request.url, validateURL(redirectURL, originURL) else {
+            Logger.general.debug("WebNotificationsHandler: Icon fetch blocked - invalid redirect")
+            completionHandler(nil)
+            return
+        }
+        completionHandler(request)
+    }
+}
+
 /// Downloads images from URLs and creates `UNNotificationAttachment` instances.
 ///
 /// `UNNotificationAttachment` requires a file URL, so this fetcher writes the downloaded
@@ -68,8 +92,12 @@ final class NotificationIconFetcher: NotificationIconFetching {
             return nil
         }
 
+        // Create session with redirect blocking delegate
+        let delegate = RedirectBlockingDelegate(originURL: originURL, validateURL: validateIconURL)
+        let session = URLSession(configuration: urlSession.configuration, delegate: delegate, delegateQueue: nil)
+
         do {
-            let (data, response) = try await urlSession.data(from: url)
+            let (data, response) = try await session.data(from: url)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == Constants.httpStatusOK else {
@@ -83,7 +111,8 @@ final class NotificationIconFetcher: NotificationIconFetching {
                 return nil
             }
 
-            let fileExtension = self.fileExtension(from: httpResponse, url: url)
+            let finalURL = response.url ?? url
+            let fileExtension = self.fileExtension(from: httpResponse, url: finalURL)
             let tempDirectory = FileManager.default.temporaryDirectory
             let fileName = UUID().uuidString + "." + fileExtension
             let fileURL = tempDirectory.appendingPathComponent(fileName)
@@ -99,6 +128,14 @@ final class NotificationIconFetcher: NotificationIconFetching {
         } catch {
             Logger.general.debug("WebNotificationsHandler: Icon fetch failed - \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    private func defaultPort(for scheme: String) -> Int {
+        switch scheme.lowercased() {
+        case "http": return 80
+        case "https": return 443
+        default: return 0
         }
     }
 
