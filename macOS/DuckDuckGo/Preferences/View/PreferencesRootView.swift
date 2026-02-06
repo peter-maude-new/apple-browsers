@@ -317,7 +317,7 @@ enum Preferences {
             let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
             let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                              pixelHandler: SubscriptionPixelHandler(source: .mainApp, pixelKit: PixelKit.shared))
-            let flowPerformer = DefaultSubscriptionFlowPerformer(
+            let flowPerformer = DefaultSubscriptionFlowsExecuter(
                 subscriptionManager: subscriptionManager,
                 uiHandler: subscriptionUIHandler,
                 wideEvent: wideEvent,

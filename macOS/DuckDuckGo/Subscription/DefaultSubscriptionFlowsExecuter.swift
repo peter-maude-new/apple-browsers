@@ -1,5 +1,5 @@
 //
-//  DefaultSubscriptionFlowPerformer.swift
+//  DefaultSubscriptionFlowsExecuter.swift
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
@@ -26,7 +26,7 @@ import os.log
 /// Allows the subscription page feature and native UI (e.g. Preferences cancel downgrade)
 /// to share the same implementation via dependency injection.
 @MainActor
-public protocol SubscriptionFlowPerforming: AnyObject {
+public protocol SubscriptionFlowsExecuting: AnyObject {
 
     /// Performs an App Store tier change.
     /// - Returns: `PurchaseUpdate` on success; `nil` on failure or user cancel.
@@ -34,7 +34,7 @@ public protocol SubscriptionFlowPerforming: AnyObject {
 }
 
 @MainActor
-public final class DefaultSubscriptionFlowPerformer: SubscriptionFlowPerforming {
+public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting {
 
     private let subscriptionManager: SubscriptionManager
     private let uiHandler: SubscriptionUIHandling

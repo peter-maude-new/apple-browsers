@@ -229,7 +229,7 @@ final class UserScripts: UserScriptsProvider {
         let subscriptionUserDefaults = UserDefaults(suiteName: subscriptionAppGroup)!
         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults,
                                                                          pixelHandler: SubscriptionPixelHandler(source: .mainApp, pixelKit: PixelKit.shared))
-        let flowPerformer = DefaultSubscriptionFlowPerformer(
+        let flowPerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: subscriptionManager,
             uiHandler: Application.appDelegate.subscriptionUIHandler,
             wideEvent: Application.appDelegate.wideEvent,

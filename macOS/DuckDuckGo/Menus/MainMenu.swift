@@ -904,7 +904,7 @@ final class MainMenu: NSMenu {
                         let pixelHandler = SubscriptionPixelHandler(source: .mainApp, pixelKit: nil)
                         let pendingTransactionHandler = DefaultPendingTransactionHandler(userDefaults: subscriptionUserDefaults, pixelHandler: pixelHandler)
 
-                        let flowPerformer = DefaultSubscriptionFlowPerformer(
+                        let flowPerformer = DefaultSubscriptionFlowsExecuter(
                             subscriptionManager: subscriptionManager,
                             uiHandler: Application.appDelegate.subscriptionUIHandler,
                             wideEvent: Application.appDelegate.wideEvent,
