@@ -144,10 +144,6 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212206087745586?focus=true
     case tabClosingEventRecreation
 
-    /// Feature Flag for the Tab Spinner
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866479296718
-    case tabProgressIndicator
-
     /// Feature flag for Themes
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866720557742
     case themes
@@ -234,6 +230,9 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Failsafe flag for disabling call stack tree depth limiting in crash collector
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764805
     case crashCollectionLimitCallStackTreeDepth
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212835969125260
+    case browsingMenuSheetEnabledByDefault
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
