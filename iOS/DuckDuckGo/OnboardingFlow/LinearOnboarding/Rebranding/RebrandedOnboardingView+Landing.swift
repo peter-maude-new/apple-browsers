@@ -11,50 +11,60 @@
 //  http://www.apache.org/licenses/LICENSE-2.0
 //
 //  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
+//  distributed under the License is distrib    uted on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 //
 
 import SwiftUI
-import MetricBuilder
 import Onboarding
 
 private enum LandingViewMetrics {
-    static let logoSize = MetricBuilder<CGSize>(default: .init(width: 96, height: 96)).iPad(landscape: .init(width: 128, height: 128))
-    static let spacing = MetricBuilder<CGFloat>(iPhone: 24, iPad: 32)
-    static let titleSize = MetricBuilder<CGFloat>(iPhone: 48, iPad: 96).iPad(landscape: 48)
+    static let logoSize: CGFloat = 80
+    static let topPadding: CGFloat = 96
+    static let welcomeBottomPadding: CGFloat = 20
+    static let titleSize: CGFloat = 44
+    static let titleColor = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.96)
+            : UIColor.black.withAlphaComponent(0.96)
+    })
+    static let backgroundColor = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0x14 / 255.0, green: 0x30 / 255.0, blue: 0x7E / 255.0, alpha: 1)
+            : .white
+    })
 }
 
 extension OnboardingRebranding.OnboardingView {
 
     struct LandingView: View {
-        @Environment(\.verticalSizeClass) private var verticalSizeClass
-        @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
         let animationNamespace: Namespace.ID
 
         var body: some View {
-            ZStack(alignment: .top) {
-                Color.white.ignoresSafeArea()
+            ZStack {
+                LandingViewMetrics.backgroundColor.ignoresSafeArea()
 
-                welcomeView
-                    .padding(.top, 100)
+                VStack(spacing: 0) {
+                    welcomeView
+                        .padding(.top, LandingViewMetrics.topPadding)
+
+                    Spacer()
+                }
             }
         }
 
         private var welcomeView: some View {
-            let logoSize = LandingViewMetrics.logoSize.build(v: verticalSizeClass, h: horizontalSizeClass)
-
-            return VStack(alignment: .center, spacing: LandingViewMetrics.spacing.build(v: verticalSizeClass, h: horizontalSizeClass)) {
+            VStack(alignment: .center, spacing: LandingViewMetrics.welcomeBottomPadding) {
                 Image("DuckDuckGoLogo", bundle: nil)
                     .resizable()
                     .matchedGeometryEffect(id: OnboardingView.daxGeometryEffectID, in: animationNamespace)
-                    .frame(width: logoSize.width, height: logoSize.height)
+                    .frame(width: LandingViewMetrics.logoSize, height: LandingViewMetrics.logoSize)
 
                 Text(UserText.onboardingWelcomeHeader)
-                    .onboardingTitleStyle(fontSize: LandingViewMetrics.titleSize.build(v: verticalSizeClass, h: horizontalSizeClass))
+                    .font(.system(size: LandingViewMetrics.titleSize, weight: .medium))
+                    .foregroundStyle(LandingViewMetrics.titleColor)
                     .multilineTextAlignment(.center)
             }
         }
@@ -62,3 +72,15 @@ extension OnboardingRebranding.OnboardingView {
     }
 
 }
+
+#if DEBUG
+#Preview("Landing Light") {
+    OnboardingRebranding.OnboardingView.LandingView(animationNamespace: Namespace().wrappedValue)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Landing Dark") {
+    OnboardingRebranding.OnboardingView.LandingView(animationNamespace: Namespace().wrappedValue)
+        .preferredColorScheme(.dark)
+}
+#endif

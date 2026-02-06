@@ -22,11 +22,15 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
-private enum RebrandedOnboardingViewMetrics {
+enum RebrandedOnboardingViewMetrics {
     // Timing
-    static let daxDialogDelay: TimeInterval = 2.0
+    static let daxDialogDelay: TimeInterval = 300.0
     static let daxDialogVisibilityDelay: TimeInterval = 0.5
     static let comparisonChartAnimationDuration = 0.25
+
+    // Shared Content Layout
+    static let contentOuterSpacing: CGFloat = 16.0
+    static let contentInnerSpacing: CGFloat = 24
 
     // Layout
     static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
