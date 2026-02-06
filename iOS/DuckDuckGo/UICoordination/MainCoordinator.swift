@@ -258,7 +258,8 @@ final class MainCoordinator {
         switch HistoryManager.make(isAutocompleteEnabledByUser: provider.appSettings.autocomplete,
                                    isRecentlyVisitedSitesEnabledByUser: provider.appSettings.recentlyVisitedSites,
                                    openTabIDsProvider: { tabsModel.tabs.map { $0.uid } },
-                                   tld: provider.storageCache.tld) {
+                                   tld: provider.storageCache.tld,
+                                   dataClearingBurnTabsPixelsHandling: DataClearingBurnTabsPixelsHandler()) {
         case .failure(let error):
             throw TerminationError.historyDatabase(error)
         case .success(let historyManager):
@@ -292,10 +293,12 @@ final class MainCoordinator {
     }
 
     private static func makeWebsiteDataManager(fireproofing: Fireproofing,
-                                               dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared) -> WebsiteDataManaging {
+                                               dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared,
+                                               dataClearingPixelsHandler: DataClearingPixelsHandling = DataClearingBurnWebCachePixelsHandler()) -> WebsiteDataManaging {
         WebCacheManager(cookieStorage: MigratableCookieStorage(),
                         fireproofing: fireproofing,
-                        dataStoreIDManager: dataStoreIDManager)
+                        dataStoreIDManager: dataStoreIDManager,
+                        dataClearingPixelsHandling: dataClearingPixelsHandler)
     }
 
     // MARK: - Public API

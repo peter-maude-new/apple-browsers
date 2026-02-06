@@ -241,6 +241,7 @@
 		369E692A2E5F579B00F98A8F /* NotificationServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369E69292E5F579500F98A8F /* NotificationServiceManager.swift */; };
 		369E692D2E5F6EC200F98A8F /* InactivityNotificationSchedulerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369E692C2E5F6EB500F98A8F /* InactivityNotificationSchedulerServiceTests.swift */; };
 		36A96A0A2E6606CF003D4529 /* LocalNotificationsPlaygroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A96A092E6606C0003D4529 /* LocalNotificationsPlaygroundView.swift */; };
+		36B05F4C2F35F99C00CF5FCA /* DataClearingPixelsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B05F4B2F35F99700CF5FCA /* DataClearingPixelsHandler.swift */; };
 		36D3EF0E2F34E0B4006F1638 /* DataClearingPixels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D3EF0C2F34E0AE006F1638 /* DataClearingPixels.swift */; };
 		36D3EF112F34E0DF006F1638 /* DataClearingPixelsReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D3EF0F2F34E0DA006F1638 /* DataClearingPixelsReporter.swift */; };
 		36D3EF142F34E5EF006F1638 /* DataClearingPixelsReporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D3EF132F34E5E4006F1638 /* DataClearingPixelsReporterTests.swift */; };
@@ -2555,6 +2556,7 @@
 		369E69292E5F579500F98A8F /* NotificationServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceManager.swift; sourceTree = "<group>"; };
 		369E692C2E5F6EB500F98A8F /* InactivityNotificationSchedulerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactivityNotificationSchedulerServiceTests.swift; sourceTree = "<group>"; };
 		36A96A092E6606C0003D4529 /* LocalNotificationsPlaygroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotificationsPlaygroundView.swift; sourceTree = "<group>"; };
+		36B05F4B2F35F99700CF5FCA /* DataClearingPixelsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingPixelsHandler.swift; sourceTree = "<group>"; };
 		36D3EF0C2F34E0AE006F1638 /* DataClearingPixels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingPixels.swift; sourceTree = "<group>"; };
 		36D3EF0F2F34E0DA006F1638 /* DataClearingPixelsReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingPixelsReporter.swift; sourceTree = "<group>"; };
 		36D3EF132F34E5E4006F1638 /* DataClearingPixelsReporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataClearingPixelsReporterTests.swift; sourceTree = "<group>"; };
@@ -5856,6 +5858,7 @@
 		36D3EF122F34E599006F1638 /* Statistics */ = {
 			isa = PBXGroup;
 			children = (
+				36B05F4B2F35F99700CF5FCA /* DataClearingPixelsHandler.swift */,
 				36D3EF0C2F34E0AE006F1638 /* DataClearingPixels.swift */,
 				36D3EF0F2F34E0DA006F1638 /* DataClearingPixelsReporter.swift */,
 			);
@@ -7034,6 +7037,7 @@
 		85A5FEE42ED9D87B001B5605 /* Telemetry */ = {
 			isa = PBXGroup;
 			children = (
+				36D3EF152F350A0D006F1638 /* DataClearingPixelsHandler.swift */,
 				85A5FEE52ED9D884001B5605 /* ProductSurfaceTelemetry.swift */,
 			);
 			path = Telemetry;
@@ -9665,7 +9669,6 @@
 		F143C2E51E4A4CD400CFDE3A /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				36D3EF152F350A0D006F1638 /* DataClearingPixelsHandler.swift */,
 				85DDB83D2E4CDDEB00C6FA9F /* AppConfigurationKeyNames.swift */,
 				C1CAAAA12CFCBBAC00C37EE6 /* Authenticator */,
 				C1CAAA962CFCAB8000C37EE6 /* Autofill */,
@@ -11754,6 +11757,7 @@
 				C1C23C362D4C0F1A00B6BDF6 /* ZipContentSelectionViewController.swift in Sources */,
 				85449EF523FDA02800512AAF /* KeyboardSettingsViewController.swift in Sources */,
 				85C11E4C2090888C00BFFEB4 /* HomeRowReminder.swift in Sources */,
+				36B05F4C2F35F99C00CF5FCA /* DataClearingPixelsHandler.swift in Sources */,
 				C1935A122C88D1D8001AD72D /* AutofillHeaderViewFactory.swift in Sources */,
 				C1DA98E92E7C464000F8BED9 /* SyncRecoveryPromptService.swift in Sources */,
 				CB7E0A212D5E1D96002A7C0C /* UIInteractionManager.swift in Sources */,

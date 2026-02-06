@@ -118,10 +118,11 @@ extension DataClearingPixels: PixelKitEvent {
             return ["duration": String(duration)]
             
         case .burnTabsDuration(let duration, let scope),
-                .burnWebsiteDataDuration(let duration, let scope),
                 .burnAIChatHistoryDuration(let duration, let scope):
             return ["duration": String(duration), "scope": scope]
-            
+        
+        case .burnWebsiteDataDuration(let duration, let step):
+            return ["duration": String(duration), "step": step]
 
         case .burnWebsiteDataHasResidue(let step):
             return ["step": step]

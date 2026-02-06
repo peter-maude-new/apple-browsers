@@ -18,10 +18,9 @@
 //
 
 
-public protocol DataClearingPixelsHandler {
-    func fireBurnTabHistoryError(error: Error)
-    
-    func fireBurnWebsiteDataDuration(from: Date, scope: String)
-    func fireBurnWebsiteDataHasResidue(step: String)
-    func fireBurnWebsiteDataError(error: Error)
+public protocol DataClearingPixelsHandling {
+    func fireErrorPixel(error: Error)
+    func fireDurationPixel(from: Date, scope: String?)
+    func fireDurationPixel(duration: Int, step: String)
+    func fireHasResiduePixel(step: String?)
 }

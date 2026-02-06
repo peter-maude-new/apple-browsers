@@ -136,21 +136,21 @@ public class WebCacheManager: WebsiteDataManaging {
     let dataStoreIDManager: DataStoreIDManaging
     let dataStoreCleaner: WebsiteDataStoreCleaning
     let observationsCleaner: ObservationsDataCleaning
-    let dataClearingPixelsHandler: DataClearingPixelsHandler?
+    let dataClearingPixelsHandling: DataClearingPixelsHandling?
 
     public init(cookieStorage: MigratableCookieStorage,
                 fireproofing: Fireproofing,
                 dataStoreIDManager: DataStoreIDManaging,
                 dataStoreCleaner: WebsiteDataStoreCleaning = DefaultWebsiteDataStoreCleaner(),
                 observationsCleaner: ObservationsDataCleaning = DefaultObservationsDataCleaner(),
-                dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
+                dataClearingPixelsHandling: DataClearingPixelsHandling? = nil
     ) {
         self.cookieStorage = cookieStorage
         self.fireproofing = fireproofing
         self.dataStoreIDManager = dataStoreIDManager
         self.dataStoreCleaner = dataStoreCleaner
         self.observationsCleaner = observationsCleaner
-        self.dataClearingPixelsHandler = dataClearingPixelsHandler
+        self.dataClearingPixelsHandling = dataClearingPixelsHandling
     }
 
     /// The previous version saved cookies externally to the data so we can move them between containers.  We now use
@@ -187,9 +187,7 @@ public class WebCacheManager: WebsiteDataManaging {
     public func clear(dataStore: any DDGWebsiteDataStore) async {
         let count = await dataStoreCleaner.countContainers()
         await performMigrationIfNeeded(dataStoreIDManager: dataStoreIDManager, cookieStorage: cookieStorage, destinationStore: dataStore)
-        let startTime = Date()
         await clearData(inDataStore: dataStore, withFireproofing: fireproofing, scope: .all)
-        dataClearingPixelsHandler?.fireBurnWebsiteDataDuration(from: startTime, scope: Scope.all.description)
         await dataStoreCleaner.removeAllContainersAfterDelay(previousCount: count)
 
     }
@@ -214,9 +212,7 @@ public class WebCacheManager: WebsiteDataManaging {
         
         let scope = Scope.limited(dataRecords: dataRecordInScope, cookies: cookieInScope)
         await performMigrationIfNeeded(dataStoreIDManager: dataStoreIDManager, cookieStorage: cookieStorage, destinationStore: dataStore)
-        let startTime = Date()
         await clearData(inDataStore: dataStore, withFireproofing: fireproofing, scope: scope)
-        dataClearingPixelsHandler?.fireBurnWebsiteDataDuration(from: startTime, scope: scope.description)
     }
 
 }
@@ -256,12 +252,15 @@ extension WebCacheManager {
         let startTime = CACurrentMediaTime()
 
         await clearDataForSafelyRemovableDataTypes(fromStore: dataStore, scope: scope)
+        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
         await clearFireproofableDataForNonFireproofDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
+        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
         await clearCookiesForNonFireproofedDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
+        dataClearingPixelsHandling?.fireDurationPixel(duration: Int(CACurrentMediaTime() - startTime), step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
         await observationsCleaner.removeObservationsData()
 
         let totalTime = CACurrentMediaTime() - startTime
-        Pixel.fire(pixel: .clearDataInDefaultPersistence(.init(number: totalTime)))
+        Pixel.fire(pixel: .clearDataInDefaultPersistence(.init(number: totalTime), scope.description))
     }
 
     @MainActor
@@ -272,7 +271,7 @@ extension WebCacheManager {
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
             Task {
                 if await !dataStore.dataRecords(ofTypes:  Self.safelyRemovableWebsiteDataTypes).isEmpty {
-                    dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
                 }
             }
         case .limited(let dataRecords, _):
@@ -285,7 +284,7 @@ extension WebCacheManager {
             Task {
                 let remainingRecords = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
                 if remainingRecords.contains(where: { record in dataRecords(record.displayName) }) {
-                    dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearDataForSafelyRemovableDataTypes.rawValue)
                 }
             }
         }
@@ -311,7 +310,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
             }
             if hasResidue {
-                dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(step: BurningStep.clearFireproofableDataForNonFireproofDomains.rawValue)
+                dataClearingPixelsHandling?.fireHasResiduePixel(step: BurningStep.clearFireproofableDataForNonFireproofDomains.rawValue)
             }
         }
     }
@@ -337,7 +336,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.cookiesEvaluator(cookie)
             }
             if hasResidue {
-                dataClearingPixelsHandler?.fireBurnWebsiteDataHasResidue(
+                dataClearingPixelsHandling?.fireHasResiduePixel(
                     step: BurningStep.clearCookiesForNonFireproofedDomains.rawValue
                 )
             }

@@ -51,7 +51,7 @@ public class HistoryManager: HistoryManaging {
         }
         return dbCoordinator
     }
-    private let dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
+    private let dataClearingPixelsHandling: DataClearingPixelsHandling?
 
     public let isAutocompleteEnabledByUser: () -> Bool
     public let isRecentlyVisitedSitesEnabledByUser: () -> Bool
@@ -66,7 +66,7 @@ public class HistoryManager: HistoryManaging {
          tabHistoryCoordinator: TabHistoryCoordinating,
          isAutocompleteEnabledByUser: @autoclosure @escaping () -> Bool,
          isRecentlyVisitedSitesEnabledByUser: @autoclosure @escaping () -> Bool,
-         dataClearingPixelsHandler: DataClearingPixelsHandler? = nil
+         dataClearingPixelsHandling: DataClearingPixelsHandling? = nil
     ) {
 
         self.dbCoordinator = dbCoordinator
@@ -74,6 +74,7 @@ public class HistoryManager: HistoryManaging {
         self.tabHistoryCoordinator = tabHistoryCoordinator
         self.isAutocompleteEnabledByUser = isAutocompleteEnabledByUser
         self.isRecentlyVisitedSitesEnabledByUser = isRecentlyVisitedSitesEnabledByUser
+        self.dataClearingPixelsHandling = dataClearingPixelsHandling
     }
     
     @MainActor
@@ -135,7 +136,7 @@ public class HistoryManager: HistoryManaging {
         do {
             try await tabHistoryCoordinator.removeVisits(for: tabIDs)
         } catch {
-            dataClearingPixelsHandler?.fireBurnTabHistoryError(error: error)
+            dataClearingPixelsHandling?.fireErrorPixel(error: error)
             Logger.history.error("Failed to remove tab history: \(error.localizedDescription)")
         }
     }
@@ -313,7 +314,8 @@ extension HistoryManager {
     public static func make(isAutocompleteEnabledByUser: @autoclosure @escaping () -> Bool,
                             isRecentlyVisitedSitesEnabledByUser: @autoclosure @escaping () -> Bool,
                             openTabIDsProvider: @escaping () -> [String],
-                            tld: TLD) -> Result<HistoryManager, Error> {
+                            tld: TLD,
+                            dataClearingBurnTabsPixelsHandling: DataClearingPixelsHandling? = nil) -> Result<HistoryManager, Error> {
 
         let database = HistoryDatabase.make()
         var loadError: Error?
@@ -334,7 +336,8 @@ extension HistoryManager {
                                             tld: tld,
                                             tabHistoryCoordinator: tabHistoryCoordinator,
                                             isAutocompleteEnabledByUser: isAutocompleteEnabledByUser(),
-                                            isRecentlyVisitedSitesEnabledByUser: isRecentlyVisitedSitesEnabledByUser())
+                                            isRecentlyVisitedSitesEnabledByUser: isRecentlyVisitedSitesEnabledByUser(),
+                                            dataClearingPixelsHandling: dataClearingBurnTabsPixelsHandling)
 
         MainActor.assumeMainThread {
             dbCoordinator.loadHistory(onCleanFinished: {
