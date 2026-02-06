@@ -11,7 +11,7 @@
 //  http://www.apache.org/licenses/LICENSE-2.0
 //
 //  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distrib    uted on an "AS IS" BASIS,
+//  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
@@ -25,8 +25,8 @@ private enum LandingViewMetrics {
     static let topPadding: CGFloat = 96
     static let welcomeBottomPadding: CGFloat = 20
     static let titleSize: CGFloat = 44
-    static let titleColor = Color(singleUseColor: .rebranding(.landingTitle))
-    static let backgroundColor = Color(singleUseColor: .rebranding(.landingBackground))
+    static let titleColor = Color(singleUseColor: .rebranding(.textPrimary))
+    static let backgroundColor = Color(singleUseColor: .rebranding(.onboardingBackground))
 }
 
 extension OnboardingRebranding.OnboardingView {

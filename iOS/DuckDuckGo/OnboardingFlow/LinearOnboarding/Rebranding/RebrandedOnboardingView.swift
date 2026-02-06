@@ -98,6 +98,9 @@ extension OnboardingRebranding {
                     case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
                         introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
                             .frame(width: geometry.size.width, alignment: .center)
+                            .onAppear {
+                                model.introState.animateIntroText = true
+                            }
                     default:
                         DaxDialogView(
                             logoPosition: .top,
@@ -174,6 +177,8 @@ extension OnboardingRebranding {
             return IntroDialogContent(
                 title: model.copy.introTitle,
                 skipOnboardingView: skipOnboardingView,
+                animateText: $model.introState.animateIntroText,
+                showCTA: $model.introState.showIntroButton,
                 isSkipped: $model.isSkipped,
                 continueAction: {
                     animateBrowserComparisonViewState(isResumingOnboarding: false)

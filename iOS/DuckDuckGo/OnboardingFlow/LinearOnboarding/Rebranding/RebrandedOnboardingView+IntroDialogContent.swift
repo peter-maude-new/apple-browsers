@@ -37,6 +37,8 @@ extension OnboardingRebranding.OnboardingView {
 
         private let title: String
         private let skipOnboardingView: AnyView?
+        private var animateText: Binding<Bool>
+        private var showCTA: Binding<Bool>
         private var isSkipped: Binding<Bool>
         private let continueAction: () -> Void
         private let skipAction: () -> Void
@@ -46,12 +48,16 @@ extension OnboardingRebranding.OnboardingView {
         init(
             title: String,
             skipOnboardingView: AnyView?,
+            animateText: Binding<Bool> = .constant(true),
+            showCTA: Binding<Bool> = .constant(false),
             isSkipped: Binding<Bool>,
             continueAction: @escaping () -> Void,
             skipAction: @escaping () -> Void
         ) {
             self.title = title
             self.skipOnboardingView = skipOnboardingView
+            self.animateText = animateText
+            self.showCTA = showCTA
             self.isSkipped = isSkipped
             self.continueAction = continueAction
             self.skipAction = skipAction
@@ -74,24 +80,16 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var bubbleContent: some View {
-            let titleComponents = title.components(separatedBy: "\n\n")
-            let greeting = titleComponents.first ?? title
-            let subtitle = titleComponents.count > 1 ? titleComponents[1] : ""
-
-            return OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
+            OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
                 VStack(alignment: .center, spacing: IntroDialogContentMetrics.contentSpacing) {
-                    VStack(alignment: .center, spacing: IntroDialogContentMetrics.textSpacing) {
-                        Text(greeting)
-                            .font(onboardingTheme.typography.title)
-                            .multilineTextAlignment(.center)
-
-                        if !subtitle.isEmpty {
-                            Text(subtitle)
-                                .font(onboardingTheme.typography.body)
-                                .multilineTextAlignment(.center)
+                    AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
+                        withAnimation {
+                            showCTA.wrappedValue = true
                         }
                     }
                     .foregroundColor(onboardingTheme.colorPalette.textPrimary)
+                    .font(onboardingTheme.typography.title)
+                    .multilineTextAlignment(.center)
 
                     VStack(spacing: IntroDialogContentMetrics.buttonSpacing) {
                         Button(action: continueAction) {
@@ -110,6 +108,7 @@ extension OnboardingRebranding.OnboardingView {
                             .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
                         }
                     }
+                    .visibility(showCTA.wrappedValue ? .visible : .invisible)
                 }
             }
         }
