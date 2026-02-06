@@ -28,8 +28,6 @@ import Foundation
 enum VPNConnectionError: Equatable {
     case authenticationFailed
     case connectionFailed
-    case configurationIncomplete
-    case sessionInterrupted
     case subscriptionExpired
     case unknown
 
@@ -90,19 +88,12 @@ enum VPNConnectionError: Equatable {
             self = .authenticationFailed
         case .couldNotGenerateTunnelConfiguration:
             self = .connectionFailed
-        case .simulateTunnelFailureError:
-            self = .connectionFailed
-        case .settingsMissing:
-            self = .configurationIncomplete
-        case .simulateSubscriptionExpiration:
-            // Don't show error UI for simulated subscription expiration
-            return nil
-        case .tokenReset:
-            self = .sessionInterrupted
         case .vpnAccessRevoked, .vpnAccessRevokedDetectedByMonitorCheck:
             self = .subscriptionExpired
-        case .appRequestedCancellation:
-            // User-initiated disconnection, don't show error
+        case .simulateTunnelFailureError, .settingsMissing, .tokenReset:
+            self = .unknown
+        case .simulateSubscriptionExpiration, .appRequestedCancellation:
+            // Don't show error UI for simulated expiration or user-initiated disconnection
             return nil
         }
     }
@@ -122,10 +113,6 @@ enum VPNConnectionError: Equatable {
             self = .authenticationFailed
         case let msg where msg.contains("Failed to generate a tunnel configuration"):
             self = .connectionFailed
-        case "VPN settings are missing or invalid":
-            self = .configurationIncomplete
-        case "Abnormal situation caused the token to be reset":
-            self = .sessionInterrupted
         case "VPN disconnected due to expired subscription":
             self = .subscriptionExpired
         default:
@@ -142,12 +129,8 @@ enum VPNConnectionError: Equatable {
             return UserText.vpnErrorAuthenticationFailed
         case .connectionFailed:
             return UserText.vpnErrorConnectionFailed
-        case .configurationIncomplete:
-            return UserText.vpnErrorConfigurationIncomplete
-        case .sessionInterrupted:
-            return UserText.vpnErrorSessionInterrupted
         case .subscriptionExpired:
-            return UserText.vpnAccessRevokedAlertTitle
+            return UserText.vpnErrorSubscriptionExpired
         case .unknown:
             return UserText.vpnErrorUnknown
         }
