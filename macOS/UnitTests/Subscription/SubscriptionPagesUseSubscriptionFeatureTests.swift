@@ -68,7 +68,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockWideEvent = WideEventMock()
         mockEventReporter = MockSubscriptionEventReporter()
 
-        let flowPerformer = DefaultSubscriptionFlowPerformer(
+        let flowPerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: subscriptionManager,
             uiHandler: mockUIHandler,
             wideEvent: mockWideEvent,
@@ -537,7 +537,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         stripeSubscriptionManager.resultStorePurchaseManager = mockStorePurchaseManager
         stripeSubscriptionManager.resultURL = URL(string: "https://duckduckgo.com/subscription/feature")!
 
-        let flowPerformer = DefaultSubscriptionFlowPerformer(
+        let flowPerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: stripeSubscriptionManager,
             uiHandler: mockUIHandler,
             wideEvent: mockWideEvent,
@@ -606,7 +606,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         stripeSubscriptionManager.resultStorePurchaseManager = mockStorePurchaseManager
         stripeSubscriptionManager.resultURL = URL(string: "https://duckduckgo.com/subscription/feature")!
 
-        let flowPerformer = DefaultSubscriptionFlowPerformer(
+        let flowPerformer = DefaultSubscriptionFlowsExecuter(
             subscriptionManager: stripeSubscriptionManager,
             uiHandler: mockUIHandler,
             wideEvent: mockWideEvent,
