@@ -379,10 +379,10 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         case .missingEntitlements:
             return .missingEntitlements
         case .purchaseFailed:
-            return .purchaseFailed  // AppStorePurchaseFlowError.purchaseFailed(Error)
+            return .purchaseFailed
         case .internalError:
             return .generalError
-        @unknown default:
+        default:
             return .purchaseFailed
         }
     }

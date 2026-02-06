@@ -98,25 +98,15 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
         case .failure(let error):
             Logger.subscription.error("[TierChange] Tier change failed: \(error.localizedDescription)")
             setTransactionStatus?(.idle)
+            setTransactionError?(error)
             switch error {
             case .cancelledByUser:
-                setTransactionError?(.cancelledByUser)
                 wideEvent.completeFlow(wideData, status: .cancelled, onComplete: { _, _ in })
             case .transactionPendingAuthentication:
                 pendingTransactionHandler.markPurchasePending()
-                setTransactionError?(.transactionPendingAuthentication)
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            case .purchaseFailed:
-                setTransactionError?(.purchaseFailed(error))
-                wideData.markAsFailed(at: .payment, error: error)
-                wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
-            case .internalError:
-                setTransactionError?(.purchaseFailed(error))
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             default:
-                setTransactionError?(.purchaseFailed(error))
                 wideData.markAsFailed(at: .payment, error: error)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             }
@@ -154,11 +144,7 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
         case .failure(let error):
             Logger.subscription.error("[TierChange] Complete tier change error: \(error, privacy: .public)")
             setTransactionStatus?(.idle)
-            if case .missingEntitlements = error {
-                setTransactionError?(.missingEntitlements)
-            } else {
-                setTransactionError?(.purchaseFailed(error))
-            }
+            setTransactionError?(error)
             await pushPurchaseUpdate?(.completed)
             if error != .missingEntitlements {
                 wideData.markAsFailed(at: .confirmation, error: error)
