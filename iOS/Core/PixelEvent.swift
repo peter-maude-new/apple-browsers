@@ -766,6 +766,8 @@ extension Pixel {
         case remoteMessageSheet
         case remoteMessageCardShown
         case remoteMessageCardClicked
+        case remoteMessageImageLoadSuccess
+        case remoteMessageImageLoadFailed
 
         // MARK: debug pixels
         case dbCrashDetected(appIdentifier: String?)
@@ -2280,6 +2282,8 @@ extension Pixel.Event {
         case .remoteMessageSheet: return "m_remote_message_sheet"
         case .remoteMessageCardShown: return "m_remote_message_card_shown"
         case .remoteMessageCardClicked: return "m_remote_message_card_clicked"
+        case .remoteMessageImageLoadSuccess: return "m_remote_message_image_load_success"
+        case .remoteMessageImageLoadFailed: return "m_remote_message_image_load_failed"
 
             // MARK: debug pixels
 

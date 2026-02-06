@@ -28,6 +28,7 @@ import Kingfisher
 import BrowserServicesKit
 import Bookmarks
 import Persistence
+import RemoteMessaging
 import PrivacyDashboard
 import Networking
 import Suggestions
@@ -101,6 +102,8 @@ class MainViewController: UIViewController {
 
     let homePageConfiguration: HomePageConfiguration
     let remoteMessagingActionHandler: RemoteMessagingActionHandling
+    let remoteMessagingImageLoader: RemoteMessagingImageLoading
+    let remoteMessagingPixelReporter: RemoteMessagingPixelReporting?
     let whatsNewRepository: WhatsNewMessageRepository
     let tabManager: TabManager
     let previewsSource: TabPreviewsSource
@@ -315,6 +318,8 @@ class MainViewController: UIViewController {
         aichatFullModeFeature: AIChatFullModeFeatureProviding = AIChatFullModeFeature(),
         mobileCustomization: MobileCustomization,
         remoteMessagingActionHandler: RemoteMessagingActionHandling,
+        remoteMessagingImageLoader: RemoteMessagingImageLoading,
+        remoteMessagingPixelReporter: RemoteMessagingPixelReporting?,
         productSurfaceTelemetry: ProductSurfaceTelemetry,
         fireExecutor: FireExecuting,
         remoteMessagingDebugHandler: RemoteMessagingDebugHandling,
@@ -323,6 +328,8 @@ class MainViewController: UIViewController {
         whatsNewRepository: WhatsNewMessageRepository
     ) {
         self.remoteMessagingActionHandler = remoteMessagingActionHandler
+        self.remoteMessagingImageLoader = remoteMessagingImageLoader
+        self.remoteMessagingPixelReporter = remoteMessagingPixelReporter
         self.privacyConfigurationManager = privacyConfigurationManager
         self.bookmarksDatabase = bookmarksDatabase
         self.historyManager = historyManager
@@ -423,6 +430,8 @@ class MainViewController: UIViewController {
             newTabDaxDialogManager: daxDialogsManager,
             faviconLoader: faviconLoader,
             remoteMessagingActionHandler: remoteMessagingActionHandler,
+            remoteMessagingImageLoader: remoteMessagingImageLoader,
+            remoteMessagingPixelReporter: remoteMessagingPixelReporter,
             appSettings: appSettings,
             internalUserCommands: internalUserCommands)
     }()
@@ -1174,6 +1183,8 @@ class MainViewController: UIViewController {
                                                   daxDialogsManager: daxDialogsManager,
                                                   faviconLoader: faviconLoader,
                                                   remoteMessagingActionHandler: remoteMessagingActionHandler,
+                                                  remoteMessagingImageLoader: remoteMessagingImageLoader,
+                                                  remoteMessagingPixelReporter: remoteMessagingPixelReporter,
                                                   appSettings: appSettings,
                                                   internalUserCommands: internalUserCommands,
                                                   narrowLayoutInLandscape: narrowLayoutInLandscape
