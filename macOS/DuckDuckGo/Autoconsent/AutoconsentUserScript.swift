@@ -562,7 +562,7 @@ extension AutoconsentUserScript {
            let selfTestFrameInfo = selfTestFrameInfo {
             Logger.autoconsent.debug("requesting self-test in: \(messageData.url)")
             selfTestWebView.evaluateJavaScript(
-                "window.autoconsentMessageCallback({ type: 'selfTest' })",
+                "typeof window.autoconsentMessageCallback === 'function' && window.autoconsentMessageCallback({ type: 'selfTest' })",
                 in: selfTestFrameInfo,
                 in: WKContentWorld.defaultClient,
                 completionHandler: { (result) in

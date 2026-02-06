@@ -198,7 +198,9 @@
                         blocked: !unprotectedDomain && !isTrackerAllowlisted(topLevelUrl, url),
                         pageUrl: topLevelUrl.href
                     })
-                } catch (e) {}
+                } catch (e) {
+                    // Expected: processRule handler may not be registered
+                }
             }
         }
 

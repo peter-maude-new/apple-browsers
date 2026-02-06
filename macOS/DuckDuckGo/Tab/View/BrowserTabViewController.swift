@@ -327,7 +327,7 @@ final class BrowserTabViewController: NSViewController {
         }
 
         tabCollectionViewModel.select(tab: previouslySelectedTab)
-        previouslySelectedTab.webView.evaluateJavaScript("window.openAutofillAfterClosingEmailProtectionTab()", in: nil, in: WKContentWorld.defaultClient)
+        previouslySelectedTab.webView.evaluateJavaScript("typeof window.openAutofillAfterClosingEmailProtectionTab === 'function' && window.openAutofillAfterClosingEmailProtectionTab()", in: nil, in: WKContentWorld.defaultClient)
         self.previouslySelectedTab = nil
     }
 
@@ -338,10 +338,10 @@ final class BrowserTabViewController: NSViewController {
             guard Application.appDelegate.windowControllersManager.lastKeyMainWindowController === self.view.window?.windowController else { return }
             if let previouslySelectedTab {
                 tabCollectionViewModel.select(tab: previouslySelectedTab)
-                previouslySelectedTab.webView.evaluateJavaScript("window.credentialsImportFinished()", in: nil, in: WKContentWorld.defaultClient)
+                previouslySelectedTab.webView.evaluateJavaScript("typeof window.credentialsImportFinished === 'function' && window.credentialsImportFinished()", in: nil, in: WKContentWorld.defaultClient)
                 self.previouslySelectedTab = nil
             } else {
-                webView?.evaluateJavaScript("window.credentialsImportFinished()", in: nil, in: WKContentWorld.defaultClient)
+                webView?.evaluateJavaScript("typeof window.credentialsImportFinished === 'function' && window.credentialsImportFinished()", in: nil, in: WKContentWorld.defaultClient)
             }
         }
     }

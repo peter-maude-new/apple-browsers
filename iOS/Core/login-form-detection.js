@@ -8,13 +8,17 @@
             signpostEvent = function signpostEvent (data) {
                 try {
                     webkit.messageHandlers.signpostMessage.postMessage(data)
-                } catch (error) {}
+                } catch (error) {
+                    // Expected: debug message handler may not be registered in production builds
+                }
             }
 
             log = function log () {
                 try {
                     webkit.messageHandlers.log.postMessage(JSON.stringify(arguments))
-                } catch (error) {}
+                } catch (error) {
+                    // Expected: debug message handler may not be registered in production builds
+                }
             }
         }
 

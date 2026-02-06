@@ -333,6 +333,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             let status = try syncHandler.getSyncStatus(featureAvailable: featureFlagger.isFeatureOn(.aiChatSync))
             syncStatusSubject.send(status)
         } catch {
+            // Expected: sync status may be unavailable if sync is not configured
             return
         }
     }

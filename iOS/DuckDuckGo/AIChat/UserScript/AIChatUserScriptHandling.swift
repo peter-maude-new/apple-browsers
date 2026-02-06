@@ -238,6 +238,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             inputBoxHandler?.aiChatStatus = decodedStatus.status
             return nil
         } catch {
+            Logger.aiChat.debug("Failed to decode AIChatStatus in getResponseState: \(error)")
             return nil
         }
     }
@@ -382,6 +383,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             let status = try syncHandler.getSyncStatus(featureAvailable: featureFlagger.isFeatureOn(.aiChatSync))
             syncStatusChangedHandler(status)
         } catch {
+            // Expected: sync status may be unavailable if sync is not configured
             return
         }
     }
