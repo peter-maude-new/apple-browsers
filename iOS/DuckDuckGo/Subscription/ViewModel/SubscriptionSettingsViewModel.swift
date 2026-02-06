@@ -314,7 +314,9 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     /// Handles cancel pending downgrade based on subscription platform (mirrors navigateToPlans pattern).
     func cancelPendingDowngrade() {
         guard let platform = state.subscriptionInfo?.platform else {
-            assertionFailure("Missing or unknown subscription platform")
+            if state.subscriptionInfo != nil {
+                assertionFailure("Missing or unknown subscription platform")
+            }
             displayInternalSubscriptionNotice(true)
             return
         }

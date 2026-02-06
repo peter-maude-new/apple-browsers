@@ -38,6 +38,7 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         super.setUp()
         mockSubscriptionManager = SubscriptionManagerMock()
         mockSubscriptionManager.resultURL = URL(string: "https://example.com")!
+        mockSubscriptionManager.resultStorePurchaseManager = StorePurchaseManagerMock()
         mockFeatureFlagger = MockFeatureFlagger()
         cancellables = Set<AnyCancellable>()
     }
@@ -661,7 +662,6 @@ final class SubscriptionSettingsViewModelTests: XCTestCase {
         mockSubscriptionManager.resultSubscription = nil
         mockSubscriptionManager.resultTokenContainer = nil
         sut = makeSUT()
-        // Do not call onFirstAppear so subscriptionInfo stays nil
 
         sut.cancelPendingDowngrade()
 
