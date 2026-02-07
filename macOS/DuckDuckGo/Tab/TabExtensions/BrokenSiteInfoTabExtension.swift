@@ -33,6 +33,7 @@ final class BrokenSiteInfoTabExtension {
     private(set) var refreshCountSinceLoad: Int = 0
 
     private(set) var breakageReportingSubfeature: BreakageReportingSubfeature?
+    private(set) var performanceMetricsSubfeature: PerformanceMetricsSubfeature?
     private(set) var lastPageLoadTiming: WKPageLoadTiming?
 
     private var cancellables = Set<AnyCancellable>()
@@ -43,6 +44,7 @@ final class BrokenSiteInfoTabExtension {
 
         webViewPublisher.sink { [weak self] webView in
             self?.breakageReportingSubfeature = BreakageReportingSubfeature(targetWebview: webView)
+            self?.performanceMetricsSubfeature = PerformanceMetricsSubfeature()
         }.store(in: &cancellables)
 
         contentScopeUserScriptPublisher.sink { [weak self] contentScopeUserScript in
@@ -50,6 +52,9 @@ final class BrokenSiteInfoTabExtension {
 
             if let breakageReportingSubfeature {
                 contentScopeUserScript.registerSubfeature(delegate: breakageReportingSubfeature)
+            }
+            if let performanceMetricsSubfeature {
+                contentScopeUserScript.registerSubfeature(delegate: performanceMetricsSubfeature)
             }
         }.store(in: &cancellables)
     }
@@ -139,6 +144,7 @@ protocol BrokenSiteInfoTabExtensionProtocol: AnyObject, NavigationResponder {
     var refreshCountSinceLoad: Int { get }
 
     var breakageReportingSubfeature: BreakageReportingSubfeature? { get }
+    var performanceMetricsSubfeature: PerformanceMetricsSubfeature? { get }
     var lastPageLoadTiming: WKPageLoadTiming? { get }
 
     func tabReloadRequested()
