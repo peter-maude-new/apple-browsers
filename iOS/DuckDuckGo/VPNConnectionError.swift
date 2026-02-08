@@ -18,6 +18,7 @@
 //
 
 import Foundation
+import VPN
 
 /// Represents VPN connection errors with user-friendly localized messages.
 ///
@@ -31,19 +32,7 @@ enum VPNConnectionError: Equatable {
     case subscriptionExpired
     case unknown
 
-    private static let tunnelErrorDomain = "VPN.PacketTunnelProvider.TunnelError"
-
-    private enum TunnelErrorCode: Int {
-        case startingTunnelWithoutAuthToken = 0
-        case couldNotGenerateTunnelConfiguration = 1
-        case simulateTunnelFailureError = 2
-        case settingsMissing = 3
-        case simulateSubscriptionExpiration = 4
-        case tokenReset = 5
-        case vpnAccessRevoked = 100
-        case vpnAccessRevokedDetectedByMonitorCheck = 101
-        case appRequestedCancellation = 200
-    }
+    private typealias TunnelErrorCode = PacketTunnelProvider.TunnelError.Code
 
     // MARK: - Initialization
 
@@ -69,7 +58,7 @@ enum VPNConnectionError: Equatable {
         }
 
         // Check if this is a TunnelError
-        guard domain == Self.tunnelErrorDomain else {
+        guard domain == PacketTunnelProvider.TunnelError.errorDomain else {
             self = .unknown
             return
         }
