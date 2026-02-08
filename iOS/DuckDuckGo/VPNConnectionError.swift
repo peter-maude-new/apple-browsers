@@ -31,12 +31,8 @@ enum VPNConnectionError: Equatable {
     case subscriptionExpired
     case unknown
 
-    // MARK: - TunnelError Domain and Codes
-
-    /// The error domain used by PacketTunnelProvider.TunnelError
     private static let tunnelErrorDomain = "VPN.PacketTunnelProvider.TunnelError"
 
-    /// Error codes from PacketTunnelProvider.TunnelError
     private enum TunnelErrorCode: Int {
         case startingTunnelWithoutAuthToken = 0
         case couldNotGenerateTunnelConfiguration = 1

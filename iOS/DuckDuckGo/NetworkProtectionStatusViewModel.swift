@@ -372,13 +372,12 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
 
     private func setUpErrorPublishers() {
         errorObserver.publisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] errorMessage in
                 guard let self else { return }
 
                 guard let errorMessage else {
-                    Task { @MainActor in
-                        self.error = nil
-                    }
+                    self.error = nil
                     return
                 }
 
@@ -392,36 +391,24 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    /// Creates an ErrorItem by first trying to fetch the disconnect error from the tunnel session,
-    /// falling back to string-based mapping if the NSError is not available.
     private func createErrorItem(fallbackMessage: String) async -> ErrorItem? {
-        // Try to get the actual NSError from the tunnel session (iOS 16+)
         if #available(iOS 16.0, *), let session = await tunnelController.activeSession() {
             let connectionError = await fetchConnectionError(from: session, fallbackMessage: fallbackMessage)
 
             if let connectionError {
-                return ErrorItem(
-                    title: UserText.netPStatusViewErrorConnectionFailedTitle,
-                    message: connectionError.localizedMessage
-                )
+                return ErrorItem(title: UserText.netPStatusViewErrorConnectionFailedTitle, message: connectionError.localizedMessage)
             } else {
-                // VPNConnectionError init returned nil, meaning we shouldn't show an error
                 return nil
             }
         }
 
-        // Fallback to string-based mapping (iOS 15 or when session unavailable)
         if let connectionError = VPNConnectionError(errorMessage: fallbackMessage) {
-            return ErrorItem(
-                title: UserText.netPStatusViewErrorConnectionFailedTitle,
-                message: connectionError.localizedMessage
-            )
+            return ErrorItem(title: UserText.netPStatusViewErrorConnectionFailedTitle, message: connectionError.localizedMessage)
         }
 
         return nil
     }
 
-    /// Fetches the last disconnect error from the tunnel session and converts it to a VPNConnectionError.
     @available(iOS 16.0, *)
     private func fetchConnectionError(from session: NETunnelProviderSession, fallbackMessage: String) async -> VPNConnectionError? {
         await withCheckedContinuation { continuation in
@@ -429,7 +416,6 @@ final class NetworkProtectionStatusViewModel: ObservableObject {
                 if let nsError = error as? NSError {
                     continuation.resume(returning: VPNConnectionError(nsError: nsError))
                 } else {
-                    // Fall back to string-based mapping
                     continuation.resume(returning: VPNConnectionError(errorMessage: fallbackMessage))
                 }
             }
