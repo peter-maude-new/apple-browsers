@@ -31,6 +31,7 @@ public extension OnboardingTheme {
 
         let typography: OnboardingTheme.Typography = .system
         let colorPalette = ColorPalette(
+            background: Color(singleUseColor: .rebranding(.backdrop)),
             bubbleBorder: Color(singleUseColor: .rebranding(.accentAltPrimary)),
             bubbleBackground: Color(singleUseColor: .rebranding(.surfaceTertiary)),
             bubbleShadow: Color.shade(0.03),

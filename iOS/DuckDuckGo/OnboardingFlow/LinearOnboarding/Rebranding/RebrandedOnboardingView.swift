@@ -22,11 +22,15 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
-private enum RebrandedOnboardingViewMetrics {
+enum RebrandedOnboardingViewMetrics {
     // Timing
     static let daxDialogDelay: TimeInterval = 2.0
     static let daxDialogVisibilityDelay: TimeInterval = 0.5
     static let comparisonChartAnimationDuration = 0.25
+
+    // Shared Content Layout
+    static let contentOuterSpacing: CGFloat = 16.0
+    static let contentInnerSpacing: CGFloat = 24
 
     // Layout
     static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
@@ -34,6 +38,60 @@ private enum RebrandedOnboardingViewMetrics {
     static let progressBarTopPadding: CGFloat = 12.0
     static let rebrandingBadgeLeadingPadding: CGFloat = 12.0
     static let rebrandingBadgeTopPadding: CGFloat = 12.0
+}
+
+extension OnboardingRebranding.OnboardingView {
+
+    struct LinearDialogContentContainer<Title: View, Actions: View>: View {
+
+        struct Metrics {
+            let outerSpacing: CGFloat
+            let textSpacing: CGFloat
+            let contentSpacing: CGFloat
+        }
+
+        private let metrics: Metrics
+        private let message: AnyView?
+        private let content: AnyView?
+        private let title: Title
+        private let actions: Actions
+
+        init(
+            metrics: Metrics,
+            message: AnyView? = nil,
+            content: AnyView? = nil,
+            @ViewBuilder title: () -> Title,
+            @ViewBuilder actions: () -> Actions
+        ) {
+            self.metrics = metrics
+            self.message = message
+            self.content = content
+            self.title = title()
+            self.actions = actions()
+        }
+
+        var body: some View {
+            VStack(spacing: metrics.outerSpacing) {
+                VStack(spacing: metrics.textSpacing) {
+                    title
+
+                    if let message {
+                        message
+                    }
+                }
+
+                VStack(spacing: metrics.contentSpacing) {
+                    if let content {
+                        content
+                    }
+
+                    actions
+                }
+            }
+        }
+
+    }
+
 }
 
 // MARK: - Main View
@@ -59,7 +117,7 @@ extension OnboardingRebranding {
 
         var body: some View {
             ZStack(alignment: .topTrailing) {
-                Color.white
+                OnboardingTheme.rebranding2026.colorPalette.background
                     .ignoresSafeArea()
 
                 switch model.state {
@@ -134,7 +192,6 @@ extension OnboardingRebranding {
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogVisibilityDelay) {
                                 model.introState.showDaxDialogBox = true
-                                model.introState.animateIntroText = true
                             }
                         }
                     }
@@ -177,6 +234,7 @@ extension OnboardingRebranding {
             return IntroDialogContent(
                 title: model.copy.introTitle,
                 skipOnboardingView: skipOnboardingView,
+                showCTA: $model.introState.showIntroButton,
                 isSkipped: $model.isSkipped,
                 continueAction: {
                     animateBrowserComparisonViewState(isResumingOnboarding: false)

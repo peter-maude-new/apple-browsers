@@ -22,8 +22,6 @@ import DuckUI
 import Onboarding
 
 private enum AppIconPickerContentMetrics {
-    static let outerSpacing: CGFloat = 16.0
-    static let innerSpacing: CGFloat = 24
     static let titleFont = Font.system(size: 20, weight: .semibold)
     static let messageFont = Font.system(size: 16)
 }
@@ -53,7 +51,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: AppIconPickerContentMetrics.outerSpacing) {
+            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.Onboarding.AppIconSelection.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     animateMessage.wrappedValue = true
                 }
@@ -68,7 +66,7 @@ extension OnboardingRebranding.OnboardingView {
                 .foregroundColor(.primary)
                 .font(AppIconPickerContentMetrics.messageFont)
 
-                VStack(spacing: AppIconPickerContentMetrics.innerSpacing) {
+                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
                     RebrandedOnboardingView.AppIconPicker()
 
                     Button(action: action) {

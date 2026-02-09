@@ -30,6 +30,7 @@ public extension OnboardingTheme {
         return OnboardingTheme(
             typography: .system,
             colorPalette: ColorPalette(
+                background: Color(designSystemColor: .surfaceBackdrop),
                 bubbleBorder: Color(designSystemColor: .accentAltPrimary),
                 bubbleBackground: Color(designSystemColor: .surfaceTertiary),
                 bubbleShadow: Color.shade(0.03),
@@ -37,8 +38,8 @@ public extension OnboardingTheme {
                 textSecondary: Color(designSystemColor: .textSecondary),
                 primaryButtonBackgroundColor: Color(designSystemColor: .buttonsPrimaryDefault),
                 primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText),
-                secondaryButtonBackgroundColor: Color(designSystemColor: .buttonsSecondaryDefault),
-                secondaryButtonTextColor: Color(designSystemColor: .buttonsSecondaryText)
+                secondaryButtonBackgroundColor: Color(designSystemColor: .buttonsSecondaryFillDefault),
+                secondaryButtonTextColor: Color(designSystemColor: .buttonsSecondaryFillText)
             ),
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),

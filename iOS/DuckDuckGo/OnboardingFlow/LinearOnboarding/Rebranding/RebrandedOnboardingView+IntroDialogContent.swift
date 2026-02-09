@@ -22,11 +22,12 @@ import DuckUI
 import Onboarding
 
 private enum IntroDialogContentMetrics {
-    static let topMargin: CGFloat = 140
+    static let topMarginRatio: CGFloat = 0.18
+    static let minTopMargin: CGFloat = 96
+    static let maxTopMargin: CGFloat = 140
     static let horizontalPadding: CGFloat = 12
     static let bubbleTailOffset: CGFloat = 0.2
-    static let contentSpacing: CGFloat = 20
-    static let textSpacing: CGFloat = 12
+    static let sectionSpacing: CGFloat = 20
     static let buttonSpacing: CGFloat = 12
 }
 
@@ -37,6 +38,7 @@ extension OnboardingRebranding.OnboardingView {
 
         private let title: String
         private let skipOnboardingView: AnyView?
+        private var showCTA: Binding<Bool>
         private var isSkipped: Binding<Bool>
         private let continueAction: () -> Void
         private let skipAction: () -> Void
@@ -46,72 +48,84 @@ extension OnboardingRebranding.OnboardingView {
         init(
             title: String,
             skipOnboardingView: AnyView?,
+            showCTA: Binding<Bool> = .constant(false),
             isSkipped: Binding<Bool>,
             continueAction: @escaping () -> Void,
             skipAction: @escaping () -> Void
         ) {
             self.title = title
             self.skipOnboardingView = skipOnboardingView
+            self.showCTA = showCTA
             self.isSkipped = isSkipped
             self.continueAction = continueAction
             self.skipAction = skipAction
         }
 
         var body: some View {
-            if showSkipOnboarding {
-                skipOnboardingView
-            } else {
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: IntroDialogContentMetrics.topMargin)
+            GeometryReader { geometry in
+                if showSkipOnboarding {
+                    skipOnboardingView
+                } else {
+                    VStack(spacing: 0) {
+                        Spacer()
+                            .frame(height: topMargin(for: geometry.size.height))
 
-                    bubbleContent
-                        .padding(.horizontal, IntroDialogContentMetrics.horizontalPadding)
+                        bubbleContent
+                            .padding(.horizontal, IntroDialogContentMetrics.horizontalPadding)
 
-                    Spacer()
+                        Spacer()
+                    }
+                    .onAppear {
+                        guard !showCTA.wrappedValue else { return }
+                        withAnimation {
+                            showCTA.wrappedValue = true
+                        }
+                    }
                 }
             }
         }
 
         private var bubbleContent: some View {
-            let titleComponents = title.components(separatedBy: "\n\n")
-            let greeting = titleComponents.first ?? title
-            let subtitle = titleComponents.count > 1 ? titleComponents[1] : ""
-
-            return OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
-                VStack(alignment: .center, spacing: IntroDialogContentMetrics.contentSpacing) {
-                    VStack(alignment: .center, spacing: IntroDialogContentMetrics.textSpacing) {
-                        Text(greeting)
+            OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
+                LinearDialogContentContainer(
+                    metrics: .init(
+                        outerSpacing: IntroDialogContentMetrics.sectionSpacing,
+                        textSpacing: 0,
+                        contentSpacing: IntroDialogContentMetrics.buttonSpacing
+                    ),
+                    title: {
+                        Text(title)
+                            .foregroundColor(onboardingTheme.colorPalette.textPrimary)
                             .font(onboardingTheme.typography.title)
                             .multilineTextAlignment(.center)
-
-                        if !subtitle.isEmpty {
-                            Text(subtitle)
-                                .font(onboardingTheme.typography.body)
-                                .multilineTextAlignment(.center)
-                        }
-                    }
-                    .foregroundColor(onboardingTheme.colorPalette.textPrimary)
-
-                    VStack(spacing: IntroDialogContentMetrics.buttonSpacing) {
-                        Button(action: continueAction) {
-                            Text(UserText.Onboarding.Intro.continueCTA)
-                        }
-                        .buttonStyle(onboardingTheme.primaryButtonStyle.style)
-
-                        if skipOnboardingView != nil {
-                            Button(action: {
-                                isSkipped.wrappedValue = false
-                                showSkipOnboarding = true
-                                skipAction()
-                            }) {
-                                Text(UserText.Onboarding.Intro.skipCTA)
+                    },
+                    actions: {
+                        VStack(spacing: IntroDialogContentMetrics.buttonSpacing) {
+                            Button(action: continueAction) {
+                                Text(UserText.Onboarding.Intro.continueCTA)
                             }
-                            .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
+                            .buttonStyle(onboardingTheme.primaryButtonStyle.style)
+
+                            if skipOnboardingView != nil {
+                                Button(action: {
+                                    isSkipped.wrappedValue = false
+                                    showSkipOnboarding = true
+                                    skipAction()
+                                }) {
+                                    Text(UserText.Onboarding.Intro.skipCTA)
+                                }
+                                .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
+                            }
                         }
+                        .visibility(showCTA.wrappedValue ? .visible : .invisible)
                     }
-                }
+                )
             }
+        }
+
+        private func topMargin(for height: CGFloat) -> CGFloat {
+            let scaled = height * IntroDialogContentMetrics.topMarginRatio
+            return min(max(scaled, IntroDialogContentMetrics.minTopMargin), IntroDialogContentMetrics.maxTopMargin)
         }
 
     }

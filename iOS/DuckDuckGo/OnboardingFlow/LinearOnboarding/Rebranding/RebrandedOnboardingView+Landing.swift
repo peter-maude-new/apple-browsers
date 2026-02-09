@@ -18,42 +18,40 @@
 //
 
 import SwiftUI
-import MetricBuilder
+import Onboarding
 
 private enum LandingViewMetrics {
-    static let logoSize = MetricBuilder<CGSize>(default: .init(width: 96, height: 96)).iPad(landscape: .init(width: 128, height: 128))
-    static let spacing = MetricBuilder<CGFloat>(iPhone: 24, iPad: 32)
-    static let titleSize = MetricBuilder<CGFloat>(iPhone: 48, iPad: 96).iPad(landscape: 48)
+    static let logoSize: CGFloat = 80
+    static let topPadding: CGFloat = 96
+    static let welcomeBottomPadding: CGFloat = 20
 }
 
 extension OnboardingRebranding.OnboardingView {
 
     struct LandingView: View {
-        @Environment(\.verticalSizeClass) private var verticalSizeClass
-        @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         let animationNamespace: Namespace.ID
 
         var body: some View {
-            ZStack(alignment: .top) {
-                Color.white.ignoresSafeArea()
-
+            VStack(spacing: 0) {
                 welcomeView
-                    .padding(.top, 100)
+                    .padding(.top, LandingViewMetrics.topPadding)
+
+                Spacer()
             }
         }
 
         private var welcomeView: some View {
-            let logoSize = LandingViewMetrics.logoSize.build(v: verticalSizeClass, h: horizontalSizeClass)
-
-            return VStack(alignment: .center, spacing: LandingViewMetrics.spacing.build(v: verticalSizeClass, h: horizontalSizeClass)) {
-                Image("DuckDuckGoLogo", bundle: nil)
+            VStack(alignment: .center, spacing: LandingViewMetrics.welcomeBottomPadding) {
+                OnboardingRebrandingImages.Rebranding.duckDuckGoLogo
                     .resizable()
                     .matchedGeometryEffect(id: OnboardingView.daxGeometryEffectID, in: animationNamespace)
-                    .frame(width: logoSize.width, height: logoSize.height)
+                    .frame(width: LandingViewMetrics.logoSize, height: LandingViewMetrics.logoSize)
 
                 Text(UserText.onboardingWelcomeHeader)
-                    .onboardingTitleStyle(fontSize: LandingViewMetrics.titleSize.build(v: verticalSizeClass, h: horizontalSizeClass))
+                    .font(onboardingTheme.typography.largeTitle)
+                    .foregroundStyle(onboardingTheme.colorPalette.textPrimary)
                     .multilineTextAlignment(.center)
             }
         }
