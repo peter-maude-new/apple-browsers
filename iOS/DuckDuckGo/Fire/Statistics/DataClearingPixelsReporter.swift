@@ -19,33 +19,32 @@
 
 import Foundation
 import PixelKit
+import QuartzCore
 
 final class DataClearingPixelsReporter {
 
-    // MARK: - Properties
-
-    var endDateProvider: () -> Date
+    var timeProvider: () -> CFTimeInterval
     private let pixelFiring: PixelFiring?
 
     @MainActor
-    private var lastFireTime: Date?
+    private var lastFireTime: CFTimeInterval?
     private let retriggerWindow: TimeInterval = 20.0
 
     // MARK: - Initialization
 
     init(pixelFiring: PixelFiring? = PixelKit.shared,
-         endDateProvider: @escaping () -> Date = { Date() }) {
+         timeProvider: @escaping () -> CFTimeInterval = { CACurrentMediaTime() }) {
         self.pixelFiring = pixelFiring
-        self.endDateProvider = endDateProvider
+        self.timeProvider = timeProvider
     }
 
     // MARK: - Overall Flow Metrics
 
-    func fireClearingCompletionPixel(from startTime: Date,
+    func fireClearingCompletionPixel(from startTime: CFTimeInterval,
                                      request: FireRequest) {
         pixelFiring?.fire(
             DataClearingPixels.clearingCompletion(
-                duration: prepareDuration(from: startTime, to: endDateProvider()),
+                duration: prepareDuration(from: startTime, to: timeProvider()),
                 option: request.options.description,
                 trigger: request.trigger.description,
                 scope: request.scope.description
@@ -56,8 +55,8 @@ final class DataClearingPixelsReporter {
 
     @MainActor
     func fireRetriggerPixelIfNeeded() {
-        let now = endDateProvider()
-        if let lastFire = lastFireTime, now.timeIntervalSince(lastFire) <= retriggerWindow {
+        let now = timeProvider()
+        if let lastFire = lastFireTime, (now - lastFire) <= retriggerWindow {
             pixelFiring?.fire(DataClearingPixels.retriggerIn20s, frequency: .standard)
         }
         lastFireTime = now
@@ -70,18 +69,18 @@ final class DataClearingPixelsReporter {
     // MARK: - Per-Action Quality Metrics
 
     func fireDurationPixel(_ durationPixel: @escaping (Int) -> DataClearingPixels,
-                           from startTime: Date) {
+                           from startTime: CFTimeInterval) {
         pixelFiring?.fire(
-            durationPixel(prepareDuration(from: startTime, to: endDateProvider())),
+            durationPixel(prepareDuration(from: startTime, to: timeProvider())),
             frequency: .standard
         )
     }
     
     func fireDurationPixel(_ durationPixel: @escaping (Int, String) -> DataClearingPixels,
-                           from startTime: Date,
+                           from startTime: CFTimeInterval,
                            scope: FireRequest.Scope) {
         pixelFiring?.fire(
-            durationPixel(prepareDuration(from: startTime, to: endDateProvider()), scope.description),
+            durationPixel(prepareDuration(from: startTime, to: timeProvider()), scope.description),
             frequency: .standard
         )
     }
@@ -105,7 +104,7 @@ final class DataClearingPixelsReporter {
 
 private extension DataClearingPixelsReporter {
 
-    func prepareDuration(from startTime: Date, to endTime: Date) -> Int {
-        Int(endTime.timeIntervalSince(startTime) * 1000)
+    private func prepareDuration(from startTime: CFTimeInterval, to endTime: CFTimeInterval) -> Int {
+        Int((endTime - startTime) * 1000)
     }
 }

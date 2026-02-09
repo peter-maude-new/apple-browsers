@@ -55,14 +55,11 @@ public protocol WebsiteDataManaging {
 }
 
 public struct WebCacheClearingReporter {
-    public var onDuration: (CFTimeInterval, String) -> Void
     public var onResidue: (String) -> Void
 
     public init(
-        onDuration: @escaping (CFTimeInterval, String) -> Void,
         onResidue: @escaping (String) -> Void
     ) {
-        self.onDuration = onDuration
         self.onResidue = onResidue
     }
 }
@@ -264,11 +261,8 @@ extension WebCacheManager {
         let startTime = CACurrentMediaTime()
 
         await clearDataForSafelyRemovableDataTypes(fromStore: dataStore, scope: scope)
-        clearingReporter?.onDuration(startTime, scope.description)
         await clearFireproofableDataForNonFireproofDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
-        clearingReporter?.onDuration(startTime, scope.description)
         await clearCookiesForNonFireproofedDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
-        clearingReporter?.onDuration(startTime, scope.description)
         await observationsCleaner.removeObservationsData()
 
         let totalTime = CACurrentMediaTime() - startTime

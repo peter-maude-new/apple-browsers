@@ -188,7 +188,7 @@ class FireExecutor: FireExecuting {
               applicationState: DataStoreWarmup.ApplicationState) async {
         assert(delegate != nil, "Delegate should not be nil. This leads to unexpected behavior.")
         dataClearingPixelsReporter.fireRetriggerPixelIfNeeded()
-        let startTime = Date()
+        let startTime = CACurrentMediaTime()
         
         // Ensure all requested options are prepared
         let unpreparedOptions = request.options.subtracting(preparedOptions)
@@ -246,7 +246,7 @@ class FireExecutor: FireExecuting {
     }
 
     @MainActor
-    private func didFinishBurning(fireRequest: FireRequest, startTime: Date) async {
+    private func didFinishBurning(fireRequest: FireRequest, startTime: CFTimeInterval) async {
         if case .tab(let viewModel) = fireRequest.scope,
            fireRequest.options.contains(.tabs) {
             await historyManager.removeTabHistory(for: [viewModel.tab.uid])
@@ -298,7 +298,7 @@ class FireExecutor: FireExecuting {
     private func burnTabs(scope: FireRequest.Scope, domains: [String]?) {
         switch scope {
         case .all:
-            let startTime = Date()
+            let startTime = CACurrentMediaTime()
             tabManager.prepareCurrentTabForDataClearing()
             tabManager.removeAll()
             dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope)
@@ -311,7 +311,7 @@ class FireExecutor: FireExecuting {
                 Logger.general.error("Expected domains to be present when burning a single tab")
                 return
             }
-            let startTime = Date()
+            let startTime = CACurrentMediaTime()
             // Prepare the tab if it's the current tab (non-current tabs were prepared earlier)
             if tabManager.isCurrentTab(viewModel.tab) {
                 tabManager.prepareTab(viewModel.tab)
@@ -326,7 +326,7 @@ class FireExecutor: FireExecuting {
             dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
                 tabManager.controller(for: viewModel.tab) != nil
             }
-            
+
             Favicons.shared.removeTabFavicons(forDomains: domains)
         }
     }
@@ -361,9 +361,9 @@ class FireExecutor: FireExecuting {
     
     @MainActor
     private func burnAllData() async {
-        let startTime = Date()
+        let urlSessionClearStartTime = CACurrentMediaTime()
         URLSession.shared.configuration.urlCache?.removeAllCachedResponses()
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: startTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: urlSessionClearStartTime)
         dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnURLCacheHasResidue) {
             let cache = URLSession.shared.configuration.urlCache
             return (cache?.currentDiskUsage ?? 0) > 0 || (cache?.currentMemoryUsage ?? 0) > 0
@@ -385,7 +385,9 @@ class FireExecutor: FireExecuting {
         }
 
         self.forgetTextZoom()
+        let clearHistoryStartTime = CACurrentMediaTime()
         await historyManager.removeAllHistory()
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: urlSessionClearStartTime)
         await privacyStats?.clearPrivacyStats()
     }
     
@@ -460,7 +462,7 @@ class FireExecutor: FireExecuting {
     }
     
     private func burnAIHistory(request: FireRequest) async {
-        let startTime = Date()
+        let startTime = CACurrentMediaTime()
         switch request.scope {
         case .tab(let viewModel):
             let startTime = Date()

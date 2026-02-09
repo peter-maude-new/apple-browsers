@@ -41,14 +41,12 @@ enum DataClearingPixels {
 
     // MARK: - Website Data
 
-    case burnWebsiteDataDuration(duration: Int, scope: String)
     case burnWebsiteDataHasResidue(step: String)
     case burnWebsiteDataError(Error)
 
     // MARK: - History
 
     case burnHistoryDuration(Int)
-    case burnHistoryHasResidue
     case burnHistoryError(Error)
 
     // MARK: - AI Chat History
@@ -82,8 +80,6 @@ extension DataClearingPixels: PixelKitEvent {
         case .burnURLCacheHasResidue:
             return "m_fire_burn_url_cache_has_residue"
 
-        case .burnWebsiteDataDuration:
-            return "m_fire_burn_website_data_duration"
         case .burnWebsiteDataHasResidue:
             return "m_fire_burn_website_data_has_residue"
         case .burnWebsiteDataError:
@@ -91,8 +87,6 @@ extension DataClearingPixels: PixelKitEvent {
 
         case .burnHistoryDuration:
             return "m_fire_burn_history_duration"
-        case .burnHistoryHasResidue:
-            return "m_fire_burn_history_has_residue"
         case .burnHistoryError:
             return "m_fire_burn_history_error"
 
@@ -120,15 +114,12 @@ extension DataClearingPixels: PixelKitEvent {
         case .burnTabsDuration(let duration, let scope),
                 .burnAIChatHistoryDuration(let duration, let scope):
             return ["duration": String(duration), "scope": scope]
-        
-        case .burnWebsiteDataDuration(let duration, let step):
-            return ["duration": String(duration), "step": step]
 
         case .burnWebsiteDataHasResidue(let step):
             return ["step": step]
             
         case .retriggerIn20s, .userActionBeforeCompletion,
-              .burnTabsHasResidue, .burnURLCacheHasResidue,.burnHistoryHasResidue,
+              .burnTabsHasResidue, .burnURLCacheHasResidue,
              .burnTabsError, .burnHistoryError, .burnWebsiteDataError, .burnAIChatHistoryError:
             return nil
         }

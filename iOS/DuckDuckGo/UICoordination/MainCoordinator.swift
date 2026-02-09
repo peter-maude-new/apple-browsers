@@ -259,7 +259,8 @@ final class MainCoordinator {
                                    isRecentlyVisitedSitesEnabledByUser: provider.appSettings.recentlyVisitedSites,
                                    openTabIDsProvider: { tabsModel.tabs.map { $0.uid } },
                                    tld: provider.storageCache.tld,
-                                   dataClearingBurnTabsPixelsHandling: DataClearingBurnTabsPixelsHandler()) {
+                                   burnTabsPixelsHandling: DataClearingBurnTabsPixelsHandler(),
+                                   burnHistoryPixelsHandling: DataClearingBurnHistoryPixelsHandler()) {
         case .failure(let error):
             throw TerminationError.historyDatabase(error)
         case .success(let historyManager):
@@ -296,9 +297,6 @@ final class MainCoordinator {
                                                dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared) -> WebsiteDataManaging {
         let dataClearingBurnWebCachePixelsHandler = DataClearingBurnWebCachePixelsHandler()
         let webCacheClearingReporter = WebCacheClearingReporter(
-            onDuration: { startTime, step in
-                dataClearingBurnWebCachePixelsHandler.fireDurationPixel(from: startTime, at: step)
-            },
             onResidue: { step in
                 dataClearingBurnWebCachePixelsHandler.fireHasResiduePixel(at: step)
             }

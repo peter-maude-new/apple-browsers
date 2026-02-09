@@ -41,6 +41,29 @@ struct DataClearingBurnTabsPixelsHandler: DataClearingPixelsHandling {
     func fireHasResiduePixel(at step: String) {}
 }
 
+struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
+    
+    let dataClearingPixelsResporter: DataClearingPixelsReporter
+    
+    init(dataClearingPixelsReporter: DataClearingPixelsReporter = .init()) {
+        self.dataClearingPixelsResporter = dataClearingPixelsReporter
+    }
+    
+    func fireErrorPixel(_ error: Error) {
+        dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
+    }
+    
+    func fireDurationPixel(from startTime: CFTimeInterval) {
+        dataClearingPixelsResporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime)
+    }
+    
+    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
+    
+    func fireHasResiduePixel() {}
+    
+    func fireHasResiduePixel(at step: String) {}
+}
+
 
 struct DataClearingBurnWebCachePixelsHandler: DataClearingPixelsHandling {
     
