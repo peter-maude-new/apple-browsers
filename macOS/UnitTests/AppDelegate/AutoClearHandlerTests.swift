@@ -40,6 +40,12 @@ final class MockAutoClearAlertPresenter: AutoClearAlertPresenting {
 
 final class MockAppStateRestorationManager: AppStateRestorationManaging {
     var isRelaunchingAutomatically: Bool = false
+    var resetRelaunchFlagCalled = false
+
+    func resetRelaunchFlag() {
+        resetRelaunchFlagCalled = true
+        isRelaunchingAutomatically = false
+    }
 }
 
 @MainActor
@@ -233,6 +239,34 @@ class AutoClearHandlerTests: XCTestCase {
         XCTAssertEqual(result, .terminateNow)
         XCTAssertFalse(mockAlertPresenter.confirmAutoClearCalled)
         XCTAssertFalse(handler.burnOnStartIfNeeded())
+    }
+
+    func testDeciderSequenceCompleted_whenTerminationCancelledAndRelaunchFlagTrue_resetsFlag() {
+        mockStateRestoration.isRelaunchingAutomatically = true
+        dataClearingPreferences.isAutoClearEnabled = true
+
+        handler.deciderSequenceCompleted(shouldProceed: false)
+
+        XCTAssertTrue(mockStateRestoration.resetRelaunchFlagCalled)
+        XCTAssertFalse(mockStateRestoration.isRelaunchingAutomatically)
+    }
+
+    func testDeciderSequenceCompleted_whenTerminationSucceedsAndRelaunchFlagTrue_doesNotResetFlag() {
+        mockStateRestoration.isRelaunchingAutomatically = true
+        dataClearingPreferences.isAutoClearEnabled = true
+
+        handler.deciderSequenceCompleted(shouldProceed: true)
+
+        XCTAssertFalse(mockStateRestoration.resetRelaunchFlagCalled)
+        XCTAssertTrue(mockStateRestoration.isRelaunchingAutomatically)
+    }
+
+    func testDeciderSequenceCompleted_whenTerminationCancelledAndRelaunchFlagFalse_doesNothing() {
+        mockStateRestoration.isRelaunchingAutomatically = false
+
+        handler.deciderSequenceCompleted(shouldProceed: false)
+
+        XCTAssertFalse(mockStateRestoration.resetRelaunchFlagCalled)
     }
 
 }

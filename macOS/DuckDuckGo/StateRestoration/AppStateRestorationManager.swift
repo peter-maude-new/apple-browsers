@@ -27,6 +27,7 @@ import BrowserServicesKit
 @MainActor
 protocol AppStateRestorationManaging {
     var isRelaunchingAutomatically: Bool { get }
+    func resetRelaunchFlag()
 }
 
 @MainActor
@@ -52,6 +53,10 @@ final class AppStateRestorationManager: NSObject, AppStateRestorationManaging {
 
     var isRelaunchingAutomatically: Bool {
         appIsRelaunchingAutomatically
+    }
+
+    func resetRelaunchFlag() {
+        appIsRelaunchingAutomatically = false
     }
 
     private var appDidTerminateAsExpected: Bool {

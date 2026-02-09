@@ -99,6 +99,14 @@ final class AutoClearHandler: ApplicationTerminationDecider {
         })
     }
 
+    @MainActor
+    func deciderSequenceCompleted(shouldProceed: Bool) {
+        // Reset stale relaunch flag if termination was cancelled
+        if !shouldProceed && stateRestorationManager.isRelaunchingAutomatically {
+            stateRestorationManager.resetRelaunchFlag()
+        }
+    }
+
     func resetTheCorrectTerminationFlag() {
         appTerminationHandledCorrectly = false
     }
