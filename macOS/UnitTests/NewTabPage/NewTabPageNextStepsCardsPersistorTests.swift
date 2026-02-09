@@ -220,16 +220,16 @@ final class NewTabPageNextStepsCardsPersistorTests: XCTestCase {
 
     // MARK: - First Session Tests
 
-    func testIsFirstSessionsReturnsTrueByDefault() {
+    func testIsFirstSessionReturnsTrueByDefault() {
         XCTAssertTrue(persistor.isFirstSession)
     }
 
-    func testWhenIsFirstSessionsIsSetThenValueIsStored() throws {
+    func testWhenIsFirstSessionIsSetThenValueIsStored() throws {
         persistor.isFirstSession = false
         XCTAssertEqual(try keyValueStore.object(forKey: "new.tab.page.next.steps.is.first.session") as? Bool, false)
     }
 
-    func testWhenIsFirstSessionsIsRetrievedThenStoredValueIsReturned() throws {
+    func testWhenIsFirstSessionIsRetrievedThenStoredValueIsReturned() throws {
         try keyValueStore.set(false, forKey: "new.tab.page.next.steps.is.first.session")
         XCTAssertEqual(persistor.isFirstSession, false)
     }

@@ -30,7 +30,6 @@ import SubscriptionTestingUtilities
 @testable import DuckDuckGo_Privacy_Browser
 
 final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
-    private var provider: NewTabPageNextStepsSingleCardProvider!
     private var pixelHandler: MockNewTabPageNextStepsCardsPixelHandler!
     private var actionHandler: MockNewTabPageNextStepsCardsActionHandler!
     private var keyValueStore: MockKeyValueFileStore!
@@ -76,27 +75,9 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
         keyValueStore = MockKeyValueFileStore()
         legacyKeyValueStore = MockKeyValueStore()
-
-        provider = NewTabPageNextStepsSingleCardProvider(
-            cardActionHandler: actionHandler,
-            pixelHandler: pixelHandler,
-            persistor: persistor,
-            legacyPersistor: legacyPersistor,
-            legacySubscriptionCardPersistor: legacySubscriptionCardPersistor,
-            appearancePreferences: appearancePreferences,
-            featureFlagger: featureFlagger,
-            defaultBrowserProvider: defaultBrowserProvider,
-            dockCustomizer: dockCustomizer,
-            dataImportProvider: dataImportProvider,
-            emailManager: emailManager,
-            duckPlayerPreferences: duckPlayerPreferences,
-            subscriptionCardVisibilityManager: subscriptionCardVisibilityManager,
-            syncService: syncService
-        )
     }
 
     override func tearDown() {
-        provider = nil
         pixelHandler = nil
         actionHandler = nil
         keyValueStore = nil
@@ -119,10 +100,9 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     // MARK: - Initialization Tests
 
     func testWhenInitializedThenCardListIsRefreshed() {
-        // The card list should be populated based on visibility conditions
-        // This test verifies that refreshCardList() was called during init
-        // We can verify by checking that cards property is not nil (it's initialized)
-        XCTAssertNotNil(provider.cards)
+        featureFlagger.enabledFeatureFlags = []
+        let testProvider = createProvider()
+        XCTAssertEqual(testProvider.cards, testProvider.defaultStandardCards)
     }
 
     func testWhenInitializedWithNoVisibleCardsThenContinueSetUpCardsClosedIsSet() {
@@ -177,16 +157,17 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenCardListChangesThenPublisherEmitsNewCards() {
+        let testProvider = createProvider()
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
             }
 
         // Trigger card list refreshes by dismissing cards
-        provider.dismiss(.defaultApp)
-        provider.dismiss(.duckplayer)
-        provider.dismiss(.emailProtection)
+        testProvider.dismiss(.defaultApp)
+        testProvider.dismiss(.duckplayer)
+        testProvider.dismiss(.emailProtection)
 
         cancellable.cancel()
 
@@ -196,15 +177,16 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     @MainActor
     func testWhenCardsViewIsOutdatedThenPublisherEmitsEmptyArray() {
         appearancePreferences.isContinueSetUpCardsViewOutdated = true
+        let testProvider = createProvider()
 
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
             }
 
         // Trigger card list refresh by dismissing card
-        provider.dismiss(.defaultApp)
+        testProvider.dismiss(.defaultApp)
 
         cancellable.cancel()
 
@@ -214,18 +196,19 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     @MainActor
     func testWhenCardsViewBecomesOutdatedThenPublisherStopsEmittingCards() {
         appearancePreferences.isContinueSetUpCardsViewOutdated = false
+        let testProvider = createProvider()
 
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
             }
 
         // Trigger card list refreshes by dismissing cards
-        provider.dismiss(.defaultApp)
-        provider.dismiss(.duckplayer)
+        testProvider.dismiss(.defaultApp)
+        testProvider.dismiss(.duckplayer)
         appearancePreferences.isContinueSetUpCardsViewOutdated = true
-        provider.dismiss(.emailProtection)
+        testProvider.dismiss(.emailProtection)
 
         cancellable.cancel()
 
@@ -235,11 +218,12 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     func testWhenSubscriptionVisibilityChangesThenCardListRefreshes() {
         appearancePreferences.isContinueSetUpCardsViewOutdated = false
         subscriptionCardVisibilityManager.shouldShowSubscriptionCard = true
-        XCTAssertTrue(provider.cards.contains(.subscription))
+        let testProvider = createProvider()
+        XCTAssertTrue(testProvider.cards.contains(.subscription))
 
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
         let expectation = XCTestExpectation(description: "Cards publisher emits when subscription visibility changes")
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
                 expectation.fulfill()
@@ -256,10 +240,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     func testWhenWindowBecomesKeyThenCardListRefreshes() {
         appearancePreferences.isContinueSetUpCardsViewOutdated = false
+        let testProvider = createProvider()
 
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
         let expectation = XCTestExpectation(description: "Cards publisher emits on window key notification")
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
                 expectation.fulfill()
@@ -275,10 +260,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     func testWhenNewTabPageWebViewAppearsThenCardListRefreshes() {
         appearancePreferences.isContinueSetUpCardsViewOutdated = false
+        let testProvider = createProvider()
 
         var cardsEvents = [[NewTabPageDataModel.CardID]]()
         let expectation = XCTestExpectation(description: "Cards publisher emits when New Tab Page WebView appears")
-        let cancellable = provider.cardsPublisher
+        let cancellable = testProvider.cardsPublisher
             .sink { cards in
                 cardsEvents.append(cards)
                 expectation.fulfill()
@@ -548,9 +534,10 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenHandleActionIsCalledThenActionHandlerIsInvoked() {
+        let testProvider = createProvider()
         let card: NewTabPageDataModel.CardID = .defaultApp
 
-        provider.handleAction(for: card)
+        testProvider.handleAction(for: card)
 
         XCTAssertEqual(actionHandler.cardActionsPerformed, [card])
     }
@@ -559,18 +546,20 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenCardIsDismissedThenPixelIsFired() {
+        let testProvider = createProvider()
         let card: NewTabPageDataModel.CardID = .defaultApp
 
-        provider.dismiss(card)
+        testProvider.dismiss(card)
 
         XCTAssertEqual(pixelHandler.fireNextStepsCardDismissedPixelCalledWith, card)
     }
 
     @MainActor
     func testWhenSubscriptionCardIsDismissedThenBothPixelsAreFired() {
+        let testProvider = createProvider()
         let card: NewTabPageDataModel.CardID = .subscription
 
-        provider.dismiss(card)
+        testProvider.dismiss(card)
 
         XCTAssertEqual(pixelHandler.fireNextStepsCardDismissedPixelCalledWith, card)
         XCTAssertTrue(pixelHandler.fireSubscriptionCardDismissedPixelCalled)
@@ -578,10 +567,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenCardIsDismissedThenTimesDismissedIsIncremented() {
+        let testProvider = createProvider()
         let card: NewTabPageDataModel.CardID = .defaultApp
         let initialTimesDismissed = persistor.timesDismissed(for: card)
 
-        provider.dismiss(card)
+        testProvider.dismiss(card)
 
         XCTAssertEqual(persistor.timesDismissed(for: card), initialTimesDismissed + 1)
     }
@@ -590,18 +580,20 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenWillDisplayCardsIsCalledThenPixelIsFiredForFirstCard() {
+        let testProvider = createProvider()
         let cards: [NewTabPageDataModel.CardID] = [.defaultApp, .emailProtection, .bringStuff]
 
-        provider.willDisplayCards(cards)
+        testProvider.willDisplayCards(cards)
 
         XCTAssertEqual(pixelHandler.fireNextStepsCardShownPixelsCalledWith, [.defaultApp])
     }
 
     @MainActor
     func testWhenWillDisplayCardsIsCalledWithAddToDockFirstThenBothPixelsAreFired() {
+        let testProvider = createProvider()
         let cards: [NewTabPageDataModel.CardID] = [.addAppToDockMac, .emailProtection, .bringStuff]
 
-        provider.willDisplayCards(cards)
+        testProvider.willDisplayCards(cards)
 
         XCTAssertEqual(pixelHandler.fireNextStepsCardShownPixelsCalledWith, [.addAppToDockMac])
         XCTAssertEqual(pixelHandler.fireAddToDockPresentedPixelIfNeededCalledWith, [.addAppToDockMac])
@@ -609,10 +601,11 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
 
     @MainActor
     func testWhenWillDisplayCardsIsCalledThenTimesShownIsIncrementedForFirstCard() {
+        let testProvider = createProvider()
         let cards: [NewTabPageDataModel.CardID] = [.defaultApp, .emailProtection]
         let initialTimesShown = persistor.timesShown(for: .defaultApp)
 
-        provider.willDisplayCards(cards)
+        testProvider.willDisplayCards(cards)
 
         XCTAssertEqual(persistor.timesShown(for: .defaultApp), initialTimesShown + 1)
         // Email protection should not be incremented (only first card)
@@ -840,7 +833,7 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         XCTAssertEqual(cards.first, .defaultApp, "DefaultApp should be first in subsequent sessions")
     }
 
-    func testFirstSession_WhenNewHomePageTabOpens_ThenCardsAreShuffled_AndIsFirstSessionIsSet() {
+    func testFirstSession_WhenNewHomePageTabOpens_ThenCardsAreNotShuffled_AndIsFirstSessionIsSet() {
         featureFlagger.enabledFeatureFlags = []
         let testProvider = createProvider(isFirstSession: true)
         let initialCards = testProvider.standardCards
@@ -856,8 +849,26 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
         cancellable.cancel()
 
         XCTAssertFalse(persistor.isFirstSession)
-        XCTAssertNotEqual(testProvider.standardCards, initialCards, "Standard cards should be shuffled when new tab page open notification is received")
-        XCTAssertEqual(testProvider.cards, initialCards, "Card list order should not be immediately updated when new tab page open notification is received")
+        XCTAssertEqual(testProvider.standardCards, initialCards, "Standard cards should remain the same when new tab page open notification is received in the first session")
+    }
+
+    func testSubsequentSession_WhenNewHomePageTabOpens_ThenCardsAreShuffled() {
+        featureFlagger.enabledFeatureFlags = []
+        let testProvider = createProvider(isFirstSession: false)
+        let initialCards = testProvider.standardCards
+        let expectation = XCTestExpectation(description: "New tab page open notification is published")
+        let cancellable = NotificationCenter.default.publisher(for: HomePage.Models.newHomePageTabOpen)
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                expectation.fulfill()
+            }
+
+        NotificationCenter.default.post(name: HomePage.Models.newHomePageTabOpen, object: nil)
+        wait(for: [expectation], timeout: 1.0)
+        cancellable.cancel()
+
+        XCTAssertFalse(persistor.isFirstSession)
+        XCTAssertNotEqual(testProvider.standardCards, initialCards, "Standard cards should be shuffled when new tab page open notification is received in subsequent sessions")
     }
 
     func testSubsequentSession_WhenWindowBecomesKey_ThenCardOrderRemainsStable() {

@@ -70,7 +70,7 @@ final class NewTabPageNextStepsSingleCardProvider: NewTabPageNextStepsCardsProvi
     }
 
     /// Whether to use standard or advanced ordering for the card list.
-    var shouldUseAdvancedCardOrdering: Bool
+    private var shouldUseAdvancedCardOrdering: Bool
 
     /// Which card level to show first in the list of cards.
     /// This is used to swap the card order after `cardLevel1DemonstrationDays` have passed.
