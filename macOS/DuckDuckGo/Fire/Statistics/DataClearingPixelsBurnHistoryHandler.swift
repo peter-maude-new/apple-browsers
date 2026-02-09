@@ -20,7 +20,6 @@ import History
 import Foundation
 
 struct DataClearingPixelsBurnHistoryHandler: DataClearingPixelsHandling {
-
     private let dataClearingPixelsReporter: DataClearingPixelsReporter
 
     init(_ dataClearingPixelsReporter: DataClearingPixelsReporter = DataClearingPixelsReporter()) {
@@ -31,7 +30,7 @@ struct DataClearingPixelsBurnHistoryHandler: DataClearingPixelsHandling {
         dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
     }
 
-    func fireDurationPixel(_ startTime: CFTimeInterval) {
+    func fireDurationPixel(from startTime: CFTimeInterval) {
         // BurnVisits is one step inside burnHistory
         // Firing burnVisits pixel instead of burnHistory pixel to get a more granular measurement
         dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnVisitsDuration, from: startTime)

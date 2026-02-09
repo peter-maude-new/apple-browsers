@@ -21,7 +21,14 @@ import Foundation
 public protocol DataClearingPixelsHandling {
     func fireErrorPixel(_ error: Error)
     func fireDurationPixel(from startTime: CFTimeInterval)
-    func fireDurationPixel(from startTime: CFTimeInterval, at step: String)
-    func fireHasResiduePixel()
-    func fireHasResiduePixel(at step: String)
+}
+
+public extension DataClearingPixelsHandling {
+    func fireErrorPixel(_ error: Error) {
+        // Default: no-op
+    }
+
+    func fireDurationPixel(from startTime: CFTimeInterval) {
+        // Default: no-op
+    }
 }

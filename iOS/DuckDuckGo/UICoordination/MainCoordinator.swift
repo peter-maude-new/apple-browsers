@@ -297,10 +297,10 @@ final class MainCoordinator {
 
     private static func makeWebsiteDataManager(fireproofing: Fireproofing,
                                                dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared) -> WebsiteDataManaging {
-        let dataClearingBurnWebCachePixelsHandler = DataClearingBurnWebCachePixelsHandler()
+        let dataClearingPixelsReporter = DataClearingPixelsReporter()
         let webCacheClearingReporter = WebCacheClearingReporter(
             onResidue: { step in
-                dataClearingBurnWebCachePixelsHandler.fireHasResiduePixel(at: step)
+                dataClearingPixelsReporter.fireResiduePixel(DataClearingPixels.burnWebsiteDataHasResidue(step: step))
             }
         )
         return WebCacheManager(cookieStorage: MigratableCookieStorage(),

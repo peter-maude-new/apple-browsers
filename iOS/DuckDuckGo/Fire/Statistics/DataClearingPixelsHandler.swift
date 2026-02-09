@@ -31,14 +31,6 @@ struct DataClearingBurnTabsPixelsHandler: DataClearingPixelsHandling {
     func fireErrorPixel(_ error: Error) {
         dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
     }
-    
-    func fireDurationPixel(from startTime: CFTimeInterval) {}
-    
-    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
-    
-    func fireHasResiduePixel() {}
-    
-    func fireHasResiduePixel(at step: String) {}
 }
 
 struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
@@ -56,32 +48,4 @@ struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
     func fireDurationPixel(from startTime: CFTimeInterval) {
         dataClearingPixelsResporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime)
     }
-    
-    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
-    
-    func fireHasResiduePixel() {}
-    
-    func fireHasResiduePixel(at step: String) {}
-}
-
-
-struct DataClearingBurnWebCachePixelsHandler: DataClearingPixelsHandling {
-    
-    let dataClearingPixelsResporter: DataClearingPixelsReporter
-    
-    init(dataClearingPixelsReporter: DataClearingPixelsReporter = .init()) {
-        self.dataClearingPixelsResporter = dataClearingPixelsReporter
-    }
-    
-    func fireErrorPixel(_ error: Error) {
-        dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
-    }
-    
-    func fireDurationPixel(from startTime: CFTimeInterval) {}
-    
-    func fireDurationPixel(from startTime: CFTimeInterval, at step: String) {}
-    
-    func fireHasResiduePixel() {}
-    
-    func fireHasResiduePixel(at step: String) {}
 }
