@@ -1868,7 +1868,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor
     private func setUpPasswordsMenuBarVisibility() {
         let preferences = AutofillPreferences()
-        passwordsStatusBarMenu = PasswordsStatusBarMenu(preferences: preferences)
+        passwordsStatusBarMenu = PasswordsStatusBarMenu(preferences: preferences, pinningManager: pinningManager)
 
         if preferences.showInMenuBar {
             passwordsStatusBarMenu?.show()

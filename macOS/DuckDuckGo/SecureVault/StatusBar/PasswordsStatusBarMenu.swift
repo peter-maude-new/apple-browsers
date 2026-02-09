@@ -28,6 +28,7 @@ final class PasswordsStatusBarMenu: NSObject {
     private let statusItem: NSStatusItem
     private var popover: PasswordsStatusBarPopover?
     private var preferences: AutofillPreferencesPersistor
+    private let pinningManager: PinningManager
 
     // MARK: - Initialization
 
@@ -36,13 +37,16 @@ final class PasswordsStatusBarMenu: NSObject {
     /// - Parameters:
     ///     - statusItem: (meant for testing) allows injection of a custom NSStatusItem for testing.
     ///     - preferences: The preferences persistor for autofill settings.
+    ///     - pinningManager: The pinning manager for the password management view.
     ///
     init(statusItem: NSStatusItem? = nil,
-         preferences: AutofillPreferencesPersistor = AutofillPreferences()) {
+         preferences: AutofillPreferencesPersistor = AutofillPreferences(),
+         pinningManager: PinningManager) {
 
         let statusItem = statusItem ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.statusItem = statusItem
         self.preferences = preferences
+        self.pinningManager = pinningManager
 
         super.init()
 
@@ -79,10 +83,7 @@ final class PasswordsStatusBarMenu: NSObject {
 
     private func togglePopover() {
         if let popover, popover.isShown {
-            // Don't close if authentication is required (lock screen showing) or in progress
-            guard !DeviceAuthenticator.shared.requiresAuthentication,
-                  !DeviceAuthenticator.shared.isAuthenticating else { return }
-
+            guard popover.canDismiss else { return }
             popover.close()
             self.popover = nil
         } else {
@@ -90,7 +91,7 @@ final class PasswordsStatusBarMenu: NSObject {
                 return
             }
 
-            let popover = PasswordsStatusBarPopover()
+            let popover = PasswordsStatusBarPopover(pinningManager: pinningManager)
             self.popover = popover
             popover.select(category: .allItems)
 
