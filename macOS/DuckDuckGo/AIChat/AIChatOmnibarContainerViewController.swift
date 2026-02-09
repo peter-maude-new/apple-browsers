@@ -76,6 +76,10 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     /// Constraint for suggestions view height
     private var suggestionsHeightConstraint: NSLayoutConstraint?
 
+    /// Model picker trailing constraints - toggled based on submit button visibility
+    private var modelPickerToSubmitConstraint: NSLayoutConstraint?
+    private var modelPickerToContainerConstraint: NSLayoutConstraint?
+
     let themeManager: ThemeManaging
     let omnibarController: AIChatOmnibarController
     var themeUpdateCancellable: AnyCancellable?
@@ -173,6 +177,16 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private func updateSubmitButtonVisibility(for text: String) {
         let hasText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         submitButton.isHidden = !hasText
+
+        // Reposition model picker: next to submit button or at container edge
+        // Deactivate first to avoid conflicting constraints
+        if hasText {
+            modelPickerToContainerConstraint?.isActive = false
+            modelPickerToSubmitConstraint?.isActive = true
+        } else {
+            modelPickerToSubmitConstraint?.isActive = false
+            modelPickerToContainerConstraint?.isActive = true
+        }
     }
 
     private func updateToolButtonsVisibility(isEnabled: Bool) {
@@ -284,7 +298,6 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
 
-            modelPickerButton.trailingAnchor.constraint(equalTo: submitButton.leadingAnchor, constant: -Constants.modelPickerTrailingSpacing),
             modelPickerButton.heightAnchor.constraint(equalToConstant: Constants.modelPickerHeight),
 
             customizeButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.toolButtonLeadingInset),
@@ -300,6 +313,12 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             imageUploadButton.widthAnchor.constraint(equalToConstant: Constants.toolButtonSize),
             imageUploadButton.heightAnchor.constraint(equalToConstant: Constants.toolButtonSize),
         ])
+
+        // Model picker trailing: next to submit button when visible, or near container edge when hidden
+        modelPickerToSubmitConstraint = modelPickerButton.trailingAnchor.constraint(equalTo: submitButton.leadingAnchor, constant: -Constants.modelPickerTrailingSpacing)
+        modelPickerToContainerConstraint = modelPickerButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.submitButtonTrailingInset)
+        modelPickerToSubmitConstraint?.isActive = false
+        modelPickerToContainerConstraint?.isActive = true
 
         applyTheme(theme: themeManager.theme)
     }
@@ -426,8 +445,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
     @objc private func modelPickerButtonClicked() {
         let menu = buildModelPickerMenu()
-        // Position menu below the button (y=0 is bottom in AppKit)
-        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: modelPickerButton)
+        // Position menu below the button with a small gap (y=0 is bottom in AppKit)
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -5), in: modelPickerButton)
     }
 
     private var selectedModelId: String = AIChatModelProvider.defaultModel.id
