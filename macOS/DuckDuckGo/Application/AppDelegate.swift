@@ -384,6 +384,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let memoryUsageMonitor: MemoryUsageMonitor
     let memoryPressureReporter: MemoryPressureReporter
     let memoryUsageThresholdReporter: MemoryUsageThresholdReporter
+    /// Optional `var` because its `syncServiceProvider` closure captures `self`,
+    /// which is unavailable before `super.init()`. Initialized immediately after `super.init()`.
+    var memoryUsageIntervalReporter: MemoryUsageIntervalReporter?
 
     @MainActor
     // swiftlint:disable cyclomatic_complexity
@@ -1055,6 +1058,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         super.init()
+
+        memoryUsageIntervalReporter = MemoryUsageIntervalReporter(
+            memoryUsageMonitor: memoryUsageMonitor,
+            featureFlagger: featureFlagger,
+            pixelFiring: PixelKit.shared,
+            windowControllersManager: windowControllersManager,
+            syncServiceProvider: { [weak self] in self?.syncService },
+            logger: .memory
+        )
 
         appContentBlocking?.userContentUpdating.userScriptDependenciesProvider = self
     }

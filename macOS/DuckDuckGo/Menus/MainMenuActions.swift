@@ -680,6 +680,35 @@ extension AppDelegate {
         alert.runModal()
     }
 
+    @objc func fireIntervalPixelNow(_ sender: Any?) {
+        let reporter = NSApp.delegateTyped.memoryUsageIntervalReporter
+
+        let alert = NSAlert()
+        alert.messageText = "Fire Interval Pixel"
+        alert.informativeText = "Select a trigger to fire. The reporter will collect current context and fire the m_mac_memory_usage pixel."
+        alert.alertStyle = .informational
+
+        let popup = NSPopUpButton(frame: NSRect(x: 0, y: 0, width: 200, height: 24), pullsDown: false)
+        for trigger in MemoryUsageIntervalPixel.Trigger.allCases {
+            popup.addItem(withTitle: trigger.rawValue)
+        }
+        alert.accessoryView = popup
+
+        alert.addButton(withTitle: "Fire")
+        alert.addButton(withTitle: "Cancel")
+
+        let response = alert.runModal()
+        guard response == .alertFirstButtonReturn else { return }
+
+        let selectedIndex = popup.indexOfSelectedItem
+        let trigger = MemoryUsageIntervalPixel.Trigger.allCases[selectedIndex]
+
+        Task {
+            await reporter?.fireTriggerNow(trigger)
+            Logger.memory.info("Interval pixel fired for trigger: \(trigger.rawValue, privacy: .public)")
+        }
+    }
+
     @objc func resetSecureVaultData(_ sender: Any?) {
         let vault = try? AutofillSecureVaultFactory.makeVault(reporter: SecureVaultReporter.shared)
 
