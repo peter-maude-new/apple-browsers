@@ -29,3 +29,19 @@ public enum OnboardingRebrandingImages {
     }
 
 }
+
+extension OnboardingRebranding {
+
+    enum OnboardingImages {
+
+        enum Contextual {
+            static let tryASearchBackground = OnboardingRebrandingImages.Contextual.tryASearchBackground
+        }
+
+        enum Rebranding {
+            static let duckDuckGoLogo = OnboardingRebrandingImages.Rebranding.duckDuckGoLogo
+        }
+
+    }
+
+}

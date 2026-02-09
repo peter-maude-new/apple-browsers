@@ -29,14 +29,12 @@ public struct OnboardingTheme: Equatable {
     public let bubbleMetrics: BubbleMetrics
     /// Layout metrics for positioning and sizing the dismiss button.
     public let dismissButtonMetrics: DismissButtonMetrics
+    /// Layout metrics for the contextual onboarding flow.
+    public let contextualOnboardingMetrics: ContextualOnboardingMetrics
     /// Text alignment for linear flow titles.
     public let linearTitleTextAlignment: TextAlignment
     /// Text alignment for linear flow body copy.
     public let linearBodyTextAlignment: TextAlignment
-    /// Text alignment for contextual flow titles.
-    public let contextualTitleTextAlignment: TextAlignment
-    /// Text alignment for contextual flow body copy.
-    public let contextualBodyTextAlignment: TextAlignment
     /// Style used by the primary onboarding button.
     public let primaryButtonStyle: OnboardingButtonStyle
     /// Style used by the secondary onboarding button.
@@ -63,10 +61,9 @@ public struct OnboardingTheme: Equatable {
         colorPalette: ColorPalette,
         bubbleMetrics: BubbleMetrics,
         dismissButtonMetrics: DismissButtonMetrics,
+        contextualOnboardingMetrics: ContextualOnboardingMetrics,
         linearTitleTextAlignment: TextAlignment,
         linearBodyTextAlignment: TextAlignment,
-        contextualTitleTextAlignment: TextAlignment,
-        contextualBodyTextAlignment: TextAlignment,
         primaryButtonStyle: OnboardingButtonStyle,
         secondaryButtonStyle: OnboardingButtonStyle,
         dismissButtonStyle: OnboardingButtonStyle,
@@ -75,10 +72,9 @@ public struct OnboardingTheme: Equatable {
         self.colorPalette = colorPalette
         self.bubbleMetrics = bubbleMetrics
         self.dismissButtonMetrics = dismissButtonMetrics
+        self.contextualOnboardingMetrics = contextualOnboardingMetrics
         self.linearTitleTextAlignment = linearTitleTextAlignment
         self.linearBodyTextAlignment = linearBodyTextAlignment
-        self.contextualTitleTextAlignment = contextualTitleTextAlignment
-        self.contextualBodyTextAlignment = contextualBodyTextAlignment
         self.primaryButtonStyle = primaryButtonStyle
         self.secondaryButtonStyle = secondaryButtonStyle
         self.dismissButtonStyle = dismissButtonStyle

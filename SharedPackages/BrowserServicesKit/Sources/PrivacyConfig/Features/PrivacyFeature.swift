@@ -230,6 +230,9 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Failsafe flag for disabling call stack tree depth limiting in crash collector
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764805
     case crashCollectionLimitCallStackTreeDepth
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212835969125260
+    case browsingMenuSheetEnabledByDefault
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -284,6 +287,7 @@ public enum DBPSubfeature: String, Equatable, PrivacySubfeature {
     case foregroundRunningWhenDashboardOpen
     case clickActionDelayReductionOptimization
     case pirRollout
+    case goToMarket
 }
 
 public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
@@ -347,6 +351,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Enables the omnibar cluster for AI Chat
     case omnibarCluster
+
+    /// Enables the omnibar tools (customize, search toggle, image upload) for AI Chat
+    case omnibarTools
 
     /// Controls showing the Hide AI section in Settings -> AI Features
     case showHideAiGeneratedImages

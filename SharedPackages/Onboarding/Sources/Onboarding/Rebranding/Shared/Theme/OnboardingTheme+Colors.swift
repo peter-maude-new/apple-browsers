@@ -22,7 +22,7 @@ public extension OnboardingTheme {
 
     /// Color tokens used by onboarding components.
     struct ColorPalette: Equatable {
-        /// Full-screen onboarding background color.
+        /// Background color used behind onboarding surfaces and contextual illustrations.
         public let background: Color
         /// Bubble border color.
         public let bubbleBorder: Color
@@ -35,6 +35,13 @@ public extension OnboardingTheme {
         public let textPrimary: Color
         /// Secondary text color.
         public let textSecondary: Color
+
+        /// Border color for contextual onboarding multiple option list rows.
+        public let optionsListBorderColor: Color
+        /// Icon tint color for contextual onboarding option list rows.
+        public let optionsListIconColor: Color
+        /// Text color for contextual onboarding option list rows.
+        public let optionsListTextColor: Color
 
         /// Primary button background color.
         public let primaryButtonBackgroundColor: Color
@@ -52,7 +59,11 @@ public extension OnboardingTheme {
             bubbleBorder: Color,
             bubbleBackground: Color,
             bubbleShadow: Color,
-            textPrimary: Color, textSecondary: Color,
+            textPrimary: Color,
+            textSecondary: Color,
+            optionsListBorderColor: Color,
+            optionsListIconColor: Color,
+            optionsListTextColor: Color,
             primaryButtonBackgroundColor: Color,
             primaryButtonTextColor: Color,
             secondaryButtonBackgroundColor: Color,
@@ -64,6 +75,9 @@ public extension OnboardingTheme {
             self.bubbleShadow = bubbleShadow
             self.textPrimary = textPrimary
             self.textSecondary = textSecondary
+            self.optionsListBorderColor = optionsListBorderColor
+            self.optionsListIconColor = optionsListIconColor
+            self.optionsListTextColor = optionsListTextColor
             self.primaryButtonBackgroundColor = primaryButtonBackgroundColor
             self.primaryButtonTextColor = primaryButtonTextColor
             self.secondaryButtonBackgroundColor = secondaryButtonBackgroundColor
