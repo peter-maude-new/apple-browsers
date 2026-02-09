@@ -20,7 +20,7 @@ import Foundation
 
 @testable import DuckDuckGo_Privacy_Browser
 
-struct ApplicationBuildTypeMock: ApplicationBuildType {
+final class ApplicationBuildTypeMock: ApplicationBuildType {
     var isSparkleBuild: Bool = false
     var isAppStoreBuild: Bool = false
     var isDebugBuild: Bool = false
