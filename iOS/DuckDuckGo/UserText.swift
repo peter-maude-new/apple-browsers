@@ -2336,4 +2336,10 @@ public struct UserText {
     public static let daxEasterEggSwitchToThisLogo = NSLocalizedString("dax.easter.egg.switch.to.this.logo", value: "Switch to This Logo", comment: "Button to switch to the displayed easter egg logo")
     public static let daxEasterEggResetToDefault = NSLocalizedString("dax.easter.egg.reset.to.default", value: "Reset Search Logo", comment: "Button to reset the search logo to the default Dax logo")
     public static let daxEasterEggLogoSaved = NSLocalizedString("dax.easter.egg.logo.saved", value: "Logo Saved", comment: "Toast message shown when the user saves a custom logo")
+
+    // MARK: - AI Chat Dashboard
+
+    static let dashboardFavoritesTitle = NSLocalizedString("aichat.dashboard.favorites", value: "Favorites", comment: "Title for the Favorites button on the AI Chat dashboard")
+    static let dashboardBookmarksTitle = NSLocalizedString("aichat.dashboard.bookmarks", value: "Bookmarks", comment: "Title for the Bookmarks button on the AI Chat dashboard")
+    static let dashboardBackToPrefix = NSLocalizedString("aichat.dashboard.back.to", value: "Back to", comment: "Prefix label for the 'Back to [page title]' button on the AI Chat dashboard")
 }

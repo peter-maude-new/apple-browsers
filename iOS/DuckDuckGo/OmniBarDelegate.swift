@@ -19,6 +19,7 @@
 
 import Foundation
 import UIKit
+import Core
 import Suggestions
 import Bookmarks
 import AIChat
@@ -95,12 +96,18 @@ protocol OmniBarDelegate: AnyObject {
 
     func didRequestCurrentURL() -> URL?
 
+    func currentTabLink() -> Core.Link?
+
     func isSuggestionTrayVisible() -> Bool
 
     func onDaxLogoTapped(logoURL: URL?, image: UIImage?, sourceFrame: CGRect)
 
     /// Called when user selects a chat from the AI Chat history list
     func onChatHistorySelected(url: URL)
+
+    func onDashboardBookmarksRequested()
+    func onDashboardFavoritesRequested()
+    func onDashboardPreviousPageRequested()
 
     // MARK: - Experimental Address Bar (pixels only)
     func onExperimentalAddressBarTapped()
@@ -169,6 +176,19 @@ extension OmniBarDelegate {
     }
 
     func onChatHistorySelected(url: URL) {
+    }
+
+    func currentTabLink() -> Core.Link? {
+        return nil
+    }
+
+    func onDashboardBookmarksRequested() {
+    }
+
+    func onDashboardFavoritesRequested() {
+    }
+
+    func onDashboardPreviousPageRequested() {
     }
 
     // Default no-op implementations for experimental address bar pixel hooks

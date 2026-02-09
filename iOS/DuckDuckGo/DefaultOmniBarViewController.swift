@@ -193,6 +193,7 @@ final class DefaultOmniBarViewController: OmniBarViewController {
 
         let editingStateViewController = OmniBarEditingStateViewController(switchBarHandler: switchBarHandler)
         editingStateViewController.delegate = self
+        editingStateViewController.previousPageLink = omniDelegate?.currentTabLink()
 
         editingStateViewController.modalPresentationStyle = .custom
         editingStateViewController.transitioningDelegate = self
@@ -291,6 +292,24 @@ extension DefaultOmniBarViewController: OmniBarEditingStateViewControllerDelegat
     func onDismissRequested() {
         // Fire cancel pixel only (no other side effects) when experimental bar is dismissed via back button
         omniDelegate?.onExperimentalAddressBarCancelPressed()
+    }
+
+    func onBookmarksRequested() {
+        editingStateViewController?.dismissAnimated { [weak self] in
+            self?.omniDelegate?.onDashboardBookmarksRequested()
+        }
+    }
+
+    func onFavoritesRequested() {
+        editingStateViewController?.dismissAnimated { [weak self] in
+            self?.omniDelegate?.onDashboardFavoritesRequested()
+        }
+    }
+
+    func onPreviousPageRequested() {
+        editingStateViewController?.dismissAnimated { [weak self] in
+            self?.omniDelegate?.onDashboardPreviousPageRequested()
+        }
     }
 }
 

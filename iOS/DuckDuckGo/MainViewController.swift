@@ -2729,7 +2729,25 @@ extension MainViewController: OmniBarDelegate {
     func didRequestCurrentURL() -> URL? {
         return currentTab?.url
     }
-    
+
+    func currentTabLink() -> Core.Link? {
+        return currentTab?.link
+    }
+
+    func onDashboardBookmarksRequested() {
+        performCancel()
+        segueToBookmarks()
+    }
+
+    func onDashboardFavoritesRequested() {
+        performCancel()
+        segueToBookmarks()
+    }
+
+    func onDashboardPreviousPageRequested() {
+        performCancel()
+    }
+
     func onCustomizableButtonPressed() {
         guard mobileCustomization.state.isEnabled else {
             shareCurrentURLFromAddressBar()

@@ -172,6 +172,15 @@
 /* Settings screen title for AI features */
 "ai-features.settings.title" = "AI Features";
 
+/* Prefix label for the 'Back to [page title]' button on the AI Chat dashboard */
+"aichat.dashboard.back.to" = "Back to";
+
+/* Title for the Bookmarks button on the AI Chat dashboard */
+"aichat.dashboard.bookmarks" = "Bookmarks";
+
+/* Title for the Favorites button on the AI Chat dashboard */
+"aichat.dashboard.favorites" = "Favorites";
+
 /* No comment provided by engineer. */
 "alert.message.bookmarkAll" = "Existing bookmarks will not be duplicated.";
 

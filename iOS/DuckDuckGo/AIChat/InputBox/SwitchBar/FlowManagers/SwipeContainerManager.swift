@@ -81,6 +81,27 @@ final class SwipeContainerManager: NSObject {
         manager.installInContainerView(chatPageContainer, parentViewController: containerViewController)
     }
 
+    /// Installs a dashboard hosting controller in the chat page container
+    /// - Parameter hostingController: The UIHostingController to install
+    @MainActor
+    func installDashboard(hostingController: UIViewController) {
+        let container = chatPageContainer
+        let parent = containerViewController
+
+        parent.addChild(hostingController)
+        container.addSubview(hostingController.view)
+
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: container.safeAreaLayoutGuide.bottomAnchor)
+        ])
+
+        hostingController.didMove(toParent: parent)
+    }
+
     /// Installs the swipe container in the provided parent view
     func installInViewController(_ parentController: UIViewController, asSubviewOf view: UIView, barView: UIView, isTopBarPosition: Bool) {
         parentController.addChild(containerViewController)

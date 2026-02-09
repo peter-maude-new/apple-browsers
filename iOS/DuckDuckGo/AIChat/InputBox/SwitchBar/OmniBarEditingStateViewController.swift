@@ -40,6 +40,9 @@ protocol OmniBarEditingStateViewControllerDelegate: AnyObject {
     func onVoiceSearchRequested(from mode: TextEntryMode)
     func onChatHistorySelected(url: URL)
     func onDismissRequested()
+    func onBookmarksRequested()
+    func onFavoritesRequested()
+    func onPreviousPageRequested()
 }
 
 /// Main coordinator for the OmniBar editing state, managing multiple specialized components
@@ -50,6 +53,7 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
     var actionBarView: UIView? { navigationActionBarManager?.view }
 
     var suggestionTrayDependencies: SuggestionTrayDependencies?
+    var previousPageLink: Core.Link?
 
     weak var delegate: OmniBarEditingStateViewControllerDelegate?
     var automaticallySelectsTextOnAppear = false
@@ -94,6 +98,10 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
     private var navigationActionBarManager: NavigationActionBarManager?
     private var suggestionTrayManager: SuggestionTrayManager?
     private var aiChatHistoryManager: AIChatHistoryManager?
+    private var dashboardViewModel: AIChatDashboardViewModel?
+    private var dashboardHostingController: UIHostingController<AIChatDashboardView>?
+    private var dashboardSuggestionsReader: AIChatSuggestionsReading?
+    private var dashboardFetchTask: Task<Void, Never>?
     private let daxLogoManager: DaxLogoManager
     private var notificationCancellable: AnyCancellable?
     private let switchBarSubmissionMetrics: SwitchBarSubmissionMetricsProviding
@@ -147,7 +155,9 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if aiChatHistoryManager == nil && featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
+        if dashboardHostingController == nil && featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
+            installDashboard()
+        } else if aiChatHistoryManager == nil && featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
             installChatHistoryList()
         }
 
@@ -170,6 +180,7 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         super.viewDidDisappear(animated)
         aiChatHistoryManager?.tearDown()
         aiChatHistoryManager = nil
+        tearDownDashboard()
     }
 
     // MARK: - Public Methods
@@ -321,6 +332,75 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         swipeContainerManager.installChatHistory(using: manager)
         manager.subscribeToTextChanges(switchBarHandler.currentTextPublisher)
         aiChatHistoryManager = manager
+    }
+
+    private func installDashboard() {
+        guard let swipeContainerManager else { return }
+
+        let viewModel = AIChatDashboardViewModel(
+            previousPageTitle: previousPageLink?.displayTitle,
+            previousPageURL: previousPageLink?.url,
+            aiChatSettings: aiChatSettings
+        )
+        viewModel.delegate = self
+        self.dashboardViewModel = viewModel
+
+        let dashboardView = AIChatDashboardView(viewModel: viewModel)
+        let hostingController = UIHostingController(rootView: dashboardView)
+        hostingController.view.backgroundColor = .clear
+        self.dashboardHostingController = hostingController
+
+        swipeContainerManager.installDashboard(hostingController: hostingController)
+
+        // Set up suggestions reader for recent chats
+        let reader = SuggestionsReader(featureFlagger: featureFlagger, privacyConfig: privacyConfigurationManager)
+        let historySettings = AIChatHistorySettings(privacyConfig: privacyConfigurationManager)
+        let suggestionsReader = AIChatSuggestionsReader(suggestionsReader: reader, historySettings: historySettings)
+        self.dashboardSuggestionsReader = suggestionsReader
+
+        // Initial fetch
+        fetchDashboardSuggestions(query: nil, suggestionsReader: suggestionsReader)
+
+        // Subscribe to text changes for filtering
+        switchBarHandler.currentTextPublisher
+            .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
+            .sink { [weak self] text in
+                guard let self, let reader = self.dashboardSuggestionsReader else { return }
+                let query = text.isEmpty ? nil : text
+                self.fetchDashboardSuggestions(query: query, suggestionsReader: reader)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func fetchDashboardSuggestions(query: String?, suggestionsReader: AIChatSuggestionsReading) {
+        dashboardFetchTask?.cancel()
+
+        let maxChats = suggestionsReader.maxHistoryCount
+
+        dashboardFetchTask = Task { [weak self] in
+            let suggestions = await suggestionsReader.fetchSuggestions(query: query, maxChats: maxChats)
+            guard !Task.isCancelled, let self else { return }
+
+            var allChats = suggestions.pinned + suggestions.recent
+            allChats.sort { ($0.timestamp ?? .distantPast) > ($1.timestamp ?? .distantPast) }
+            self.dashboardViewModel?.recentChats = Array(allChats.prefix(maxChats))
+        }
+    }
+
+    private func tearDownDashboard() {
+        dashboardFetchTask?.cancel()
+        dashboardFetchTask = nil
+
+        if let hostingVC = dashboardHostingController {
+            hostingVC.willMove(toParent: nil)
+            hostingVC.view.removeFromSuperview()
+            hostingVC.removeFromParent()
+            dashboardHostingController = nil
+        }
+
+        dashboardSuggestionsReader?.tearDown()
+        dashboardSuggestionsReader = nil
+        dashboardViewModel = nil
     }
 
     private func installDaxLogoView() {
@@ -513,7 +593,7 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         let shouldDisplaySuggestionTray = suggestionTrayManager?.shouldDisplaySuggestionTray == true
         let shouldDisplayFavoritesOverlay = suggestionTrayManager?.shouldDisplayFavoritesOverlay == true
         let isHorizontallyCompactLayoutEnabled = requiresHorizontallyCompactLayout(for: view.bounds.size)
-        let isShowingChatHistory = aiChatHistoryManager != nil
+        let isShowingChatHistory = aiChatHistoryManager != nil || dashboardHostingController != nil
 
         let isHomeDaxVisible = !shouldDisplaySuggestionTray && !shouldDisplayFavoritesOverlay && !isHorizontallyCompactLayoutEnabled
 
@@ -655,6 +735,27 @@ extension OmniBarEditingStateViewController: AIChatHistoryManagerDelegate {
 
     func aiChatHistoryManager(_ manager: AIChatHistoryManager, didSelectChatURL url: URL) {
         delegate?.onChatHistorySelected(url: url)
+    }
+}
+
+// MARK: - AIChatDashboardViewModelDelegate
+
+extension OmniBarEditingStateViewController: AIChatDashboardViewModelDelegate {
+
+    func dashboardDidSelectChat(url: URL) {
+        delegate?.onChatHistorySelected(url: url)
+    }
+
+    func dashboardDidRequestFavorites() {
+        delegate?.onFavoritesRequested()
+    }
+
+    func dashboardDidRequestBookmarks() {
+        delegate?.onBookmarksRequested()
+    }
+
+    func dashboardDidRequestPreviousPage() {
+        delegate?.onPreviousPageRequested()
     }
 }
 
