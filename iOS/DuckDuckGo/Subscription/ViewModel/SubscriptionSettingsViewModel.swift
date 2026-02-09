@@ -154,7 +154,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         }
 
         switch platform {
-        case .apple:
+        case .apple, .stripe:
             if tier != nil {
                 state.pendingUpgradeTier = tier
                 state.isShowingUpgradeView = true
@@ -163,8 +163,6 @@ final class SubscriptionSettingsViewModel: ObservableObject {
             }
         case .google:
             displayGoogleView(true)
-        case .stripe:
-            Task { await manageStripeSubscription() }
         case .unknown:
             displayInternalSubscriptionNotice(true)
         }

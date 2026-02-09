@@ -155,7 +155,14 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
     }
 
     private func determineChangeType(change: String?) -> SubscriptionPlanChangeWideEventData.ChangeType? {
-        guard let change = change?.lowercased() else { return nil }
+        SubscriptionPlanChangeWideEventData.ChangeType.parse(string: change)
+    }
+}
+
+extension SubscriptionPlanChangeWideEventData.ChangeType {
+    /// Parses a change type string from the frontend (e.g. "upgrade", "downgrade", "crossgrade"; case-insensitive).
+    static func parse(string: String?) -> SubscriptionPlanChangeWideEventData.ChangeType? {
+        guard let change = string?.lowercased() else { return nil }
         switch change {
         case "upgrade": return .upgrade
         case "downgrade": return .downgrade
