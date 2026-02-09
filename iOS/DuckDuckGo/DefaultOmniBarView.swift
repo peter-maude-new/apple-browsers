@@ -245,6 +245,15 @@ final class DefaultOmniBarView: UIView, OmniBarView {
 
     private var masksTop: Bool = true
     private var clipsContent: Bool = true
+
+    /// Returns true if we should use iOS 26+ liquid glass material (disabling shadows and custom backgrounds)
+    private var shouldUseLiquidGlassMaterial: Bool {
+        if #available(iOS 26.0, *) {
+            return true
+        }
+        return false
+    }
+
     private let omniBarProgressView = OmniBarProgressView()
     var progressView: ProgressView? { omniBarProgressView.progressView }
 
@@ -419,7 +428,12 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-        backgroundColor = UIColor(designSystemColor: .background)
+        // On iOS 26+, clear background to let toolbar's liquid glass material show through
+        if shouldUseLiquidGlassMaterial {
+            backgroundColor = .clear
+        } else {
+            backgroundColor = UIColor(designSystemColor: .background)
+        }
 
         searchAreaAlignmentView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         searchAreaAlignmentView.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -429,7 +443,8 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         searchAreaContainerView.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         searchAreaContainerView.setContentHuggingPriority(.defaultLow, for: .vertical)
 
-        searchAreaContainerView.backgroundColor = UIColor(designSystemColor: .urlBar)
+        // Keep the search area's background color - it's the parent that's clear on iOS 26+
+        searchAreaContainerView.backgroundColor = shouldUseLiquidGlassMaterial ? .clear : UIColor(designSystemColor: .urlBar)
         searchAreaContainerView.layer.cornerRadius = Metrics.cornerRadius
         searchAreaContainerView.layer.cornerCurve = .continuous
 
@@ -507,6 +522,13 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     }
 
     private func updateShadows() {
+        // On iOS 26+, UIToolbar's liquid glass material provides depth
+        if shouldUseLiquidGlassMaterial {
+            searchAreaContainerView.shadows = []
+            return
+        }
+
+        // Legacy shadow behavior for iOS <26
         if isActiveState {
             searchAreaContainerView.applyActiveShadow()
         } else {
@@ -770,6 +792,13 @@ extension DefaultOmniBarView {
     func updateMaskLayer(maskTop: Bool, clip: Bool) {
         self.masksTop = maskTop
         self.clipsContent = clip
+
+        // No shadows on iOS 26+, so no need for mask
+        if shouldUseLiquidGlassMaterial {
+            layer.mask = nil
+            return
+        }
+
         updateMaskLayer()
     }
 

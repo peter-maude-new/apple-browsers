@@ -138,10 +138,19 @@ extension MainViewFactory {
         coordinator.navigationBarContainer.addSubview(coordinator.navigationBarCollectionView)
     }
     
-    final class NavigationBarContainer: UIView { }
     private func createNavigationBarContainer() {
-        coordinator.navigationBarContainer = NavigationBarContainer()
+        coordinator.navigationBarContainer = OmniBarToolbar()
         superview.addSubview(coordinator.navigationBarContainer)
+    }
+
+    private func addOmniBarToToolbar() {
+        guard let toolbar = coordinator.navigationBarContainer as? OmniBarToolbar else {
+            // Fallback if not toolbar
+            coordinator.navigationBarContainer.addSubview(coordinator.omniBar.barView)
+            return
+        }
+
+        toolbar.setOmniBarView(coordinator.omniBar.barView)
     }
 
     final class ContentContainer: UIView { }
@@ -211,6 +220,7 @@ extension MainViewFactory {
         constrainSuggestionTrayContainer()
         constrainStatusBackground()
         constrainTabBarContainer()
+        addOmniBarToToolbar()
         constrainNavigationBarContainer()
         constrainToolbar()
     }

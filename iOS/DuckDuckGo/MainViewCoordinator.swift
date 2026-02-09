@@ -121,6 +121,11 @@ class MainViewCoordinator {
         }
 
         addressBarPosition = position
+
+        // Update toolbar material for new position
+        if let toolbar = navigationBarContainer as? OmniBarToolbar {
+            toolbar.updateForAddressBarPosition(position)
+        }
     }
 
     func hideNavigationBarWithBottomPosition() {
