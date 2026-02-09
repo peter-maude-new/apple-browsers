@@ -99,7 +99,7 @@ class TabSwitcherViewController: UIViewController {
 
     weak var delegate: TabSwitcherDelegate!
     weak var previewsSource: TabPreviewsSource!
-    
+
     var selectedTabs: [IndexPath] {
         collectionView.indexPathsForSelectedItems ?? []
     }
@@ -141,6 +141,7 @@ class TabSwitcherViewController: UIViewController {
     private var trackerCountViewModel: TabSwitcherTrackerCountViewModel?
     private var lastAppliedTrackerCountState: TabSwitcherTrackerCountViewModel.State?
     private var trackerInfoModel: InfoPanelView.Model?
+
     private let initialTrackerCountState: TabSwitcherTrackerCountViewModel.State
     
     private(set) var aichatFullModeFeature: AIChatFullModeFeatureProviding
@@ -292,6 +293,12 @@ class TabSwitcherViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         productSurfaceTelemetry.tabManagerUsed()
+        showFireButtonPulseIfNeeded()
+    }
+
+    private func showFireButtonPulseIfNeeded() {
+        guard daxDialogsManager.isShowingFireDialog, let window = view.window else { return }
+        ViewHighlighter.showIn(window, focussedOnButton: barsHandler.fireButton)
     }
 
     private func setupBackgroundView() {
@@ -515,13 +522,17 @@ class TabSwitcherViewController: UIViewController {
     }
 
     func dismiss() {
+        ViewHighlighter.hideAll()
         dismiss(animated: true, completion: nil)
     }
 
     override func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         canUpdateCollection = false
         tabsModel.tabs.forEach { $0.removeObserver(self) }
-        super.dismiss(animated: animated, completion: completion)
+        super.dismiss(animated: animated) {
+            completion?()
+            self.delegate?.tabSwitcherDidDismiss(tabSwitcher: self)
+        }
     }
 }
 

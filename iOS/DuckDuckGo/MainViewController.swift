@@ -551,7 +551,6 @@ class MainViewController: UIViewController {
         }
 
         presentSyncRecoveryPromptIfNeeded()
-
     }
 
     override func performSegue(withIdentifier identifier: String, sender: Any?) {
@@ -2831,6 +2830,9 @@ extension MainViewController: OmniBarDelegate {
             launchDefaultBrowsingMenu(in: context, tabController: tab)
         }
 
+        // Remove view highlighter in this run loop. Menu items will be highlighted after presentation
+        ViewHighlighter.hideAll()
+
         tab.didLaunchBrowsingMenu()
 
         switch context {
@@ -2885,6 +2887,7 @@ extension MainViewController: OmniBarDelegate {
                                                daxDialogsManager: daxDialogsManager,
                                                productSurfaceTelemetry: productSurfaceTelemetry)
         browsingMenu.onDismiss = { wasActionSelected in
+            self.showMenuHighlighterIfNeeded()
             self.viewCoordinator.menuToolbarButton.isEnabled = true
             if !wasActionSelected {
                 Pixel.fire(pixel: .browsingMenuDismissed)
@@ -2926,6 +2929,7 @@ extension MainViewController: OmniBarDelegate {
                                          headerDataSource: browsingMenuHeaderDataSource,
                                          highlightRowWithTag: menuHighlightingTag,
                                          onDismiss: { wasActionSelected in
+                                             self.showMenuHighlighterIfNeeded()
                                              self.viewCoordinator.menuToolbarButton.isEnabled = true
                                              if !wasActionSelected {
                                                  Pixel.fire(pixel: .experimentalBrowsingMenuDismissed)
@@ -3642,6 +3646,10 @@ extension MainViewController: TabDelegate {
 }
 
 extension MainViewController: TabSwitcherDelegate {
+
+    func tabSwitcherDidDismiss(tabSwitcher: TabSwitcherViewController) {
+        showMenuHighlighterIfNeeded()
+    }
 
     private func animateLogoAppearance() {
         newTabPageViewController?.view.transform = CGAffineTransform().scaledBy(x: 0.5, y: 0.5)
