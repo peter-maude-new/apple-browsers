@@ -40,6 +40,60 @@ enum RebrandedOnboardingViewMetrics {
     static let rebrandingBadgeTopPadding: CGFloat = 12.0
 }
 
+extension OnboardingRebranding.OnboardingView {
+
+    struct LinearDialogContentContainer<Title: View, Actions: View>: View {
+
+        struct Metrics {
+            let outerSpacing: CGFloat
+            let textSpacing: CGFloat
+            let contentSpacing: CGFloat
+        }
+
+        private let metrics: Metrics
+        private let message: AnyView?
+        private let content: AnyView?
+        private let title: Title
+        private let actions: Actions
+
+        init(
+            metrics: Metrics,
+            message: AnyView? = nil,
+            content: AnyView? = nil,
+            @ViewBuilder title: () -> Title,
+            @ViewBuilder actions: () -> Actions
+        ) {
+            self.metrics = metrics
+            self.message = message
+            self.content = content
+            self.title = title()
+            self.actions = actions()
+        }
+
+        var body: some View {
+            VStack(spacing: metrics.outerSpacing) {
+                VStack(spacing: metrics.textSpacing) {
+                    title
+
+                    if let message {
+                        message
+                    }
+                }
+
+                VStack(spacing: metrics.contentSpacing) {
+                    if let content {
+                        content
+                    }
+
+                    actions
+                }
+            }
+        }
+
+    }
+
+}
+
 // MARK: - Main View
 
 extension OnboardingRebranding {
@@ -63,7 +117,7 @@ extension OnboardingRebranding {
 
         var body: some View {
             ZStack(alignment: .topTrailing) {
-                Color.white
+                OnboardingTheme.rebranding2026.colorPalette.background
                     .ignoresSafeArea()
 
                 switch model.state {
@@ -98,9 +152,6 @@ extension OnboardingRebranding {
                     case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
                         introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
                             .frame(width: geometry.size.width, alignment: .center)
-                            .onAppear {
-                                model.introState.animateIntroText = true
-                            }
                     default:
                         DaxDialogView(
                             logoPosition: .top,
@@ -134,7 +185,6 @@ extension OnboardingRebranding {
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogVisibilityDelay) {
                                 model.introState.showDaxDialogBox = true
-                                model.introState.animateIntroText = true
                             }
                         }
                     }
@@ -146,7 +196,7 @@ extension OnboardingRebranding {
         private var landingView: some View {
             LandingView(animationNamespace: animationNamespace)
                 .ignoresSafeArea(edges: .bottom)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogDelay) {
                         withAnimation {
@@ -178,7 +228,6 @@ extension OnboardingRebranding {
                 title: model.copy.introTitle,
                 message: model.copy.introMessage,
                 skipOnboardingView: skipOnboardingView,
-                animateText: $model.introState.animateIntroText,
                 showCTA: $model.introState.showIntroButton,
                 isSkipped: $model.isSkipped,
                 continueAction: {

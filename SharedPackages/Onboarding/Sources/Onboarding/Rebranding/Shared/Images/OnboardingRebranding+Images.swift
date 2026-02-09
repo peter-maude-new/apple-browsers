@@ -38,6 +38,10 @@ extension OnboardingRebranding {
             static let tryASearchBackground = OnboardingRebrandingImages.Contextual.tryASearchBackground
         }
 
+        enum Rebranding {
+            static let duckDuckGoLogo = OnboardingRebrandingImages.Rebranding.duckDuckGoLogo
+        }
+
     }
 
 }
