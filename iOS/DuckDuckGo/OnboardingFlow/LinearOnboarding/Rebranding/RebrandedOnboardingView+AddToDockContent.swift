@@ -22,10 +22,6 @@ import DuckUI
 import Onboarding
 import UIKit
 
-private enum AddToDockContentMetrics {
-    static let messageFont = Font.system(size: 16)
-}
-
 extension OnboardingRebranding.OnboardingView {
 
     struct AddToDockPromoContent: View {
@@ -66,7 +62,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var promoContent: some View {
-            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
+            VStack(spacing: 16.0) {
                 AnimatableTypingText(UserText.AddToDockOnboarding.Promo.title, startAnimating: $animateTitle, skipAnimation: isSkipped) {
                     withAnimation {
                         animateMessage = true
@@ -81,9 +77,9 @@ extension OnboardingRebranding.OnboardingView {
                     }
                 }
                 .foregroundColor(.primary)
-                .font(AddToDockContentMetrics.messageFont)
+                .font(Font.system(size: 16))
 
-                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
+                VStack(spacing: 24) {
                     addToDockPromoView
                     customActionView
                 }
