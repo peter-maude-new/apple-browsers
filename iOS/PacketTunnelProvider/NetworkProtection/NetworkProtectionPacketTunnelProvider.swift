@@ -501,10 +501,6 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
 
     @MainActor
     @objc init() {
-#if DEBUG
-        Pixel.isDryRun = true
-#endif
-
         APIRequest.Headers.setUserAgent(DefaultUserAgentManager.duckDuckGoUserAgent)
 
         let settings = VPNSettings(defaults: .networkProtectionGroupDefaults)
@@ -541,7 +537,7 @@ final class NetworkProtectionPacketTunnelProvider: PacketTunnelProvider {
         let authService = DefaultOAuthService(baseURL: authEnvironment.url,
                                               apiService: APIServiceFactory.makeAPIServiceForAuthV2(withUserAgent: DefaultUserAgentManager.duckDuckGoUserAgent))
 
-        let pixelHandler = SubscriptionPixelHandler(source: .systemExtension)
+        let pixelHandler = SubscriptionPixelHandler(source: .systemExtension, pixelKit: PixelKit.shared)
         // keychain storage
         let subscriptionAppGroup = Bundle.main.appGroup(bundle: .subs)
         let keychainType: KeychainType = .dataProtection(.named(subscriptionAppGroup))

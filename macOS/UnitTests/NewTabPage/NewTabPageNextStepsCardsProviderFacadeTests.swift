@@ -41,7 +41,8 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         appearancePreferences = AppearancePreferences(
             persistor: MockAppearancePreferencesPersistor(),
             privacyConfigurationManager: MockPrivacyConfigurationManager(),
-            featureFlagger: MockFeatureFlagger()
+            featureFlagger: MockFeatureFlagger(),
+            aiChatMenuConfig: MockAIChatConfig()
         )
     }
 
@@ -86,6 +87,7 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         XCTAssertEqual(pixelHandler.fireNextStepsCardShownPixelsCalledWith, [.duckplayer])
     }
 
+    @MainActor
     func testWhenFeatureFlagIsOff_ThenCardsPublisher_EmitsChangesFromLegacyProvider() throws {
         featureFlagger.enabledFeatureFlags = []
         let facade = createFacade(featureFlagger: featureFlagger)
@@ -104,6 +106,7 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         XCTAssertEqual(receivedCards, [[.defaultApp]])
     }
 
+    @MainActor
     func testWhenFeatureFlagIsOff_ThenIsViewExpandedPublisher_EmitsChangesLegacyProvider() throws {
         featureFlagger.enabledFeatureFlags = []
         let facade = createFacade(featureFlagger: featureFlagger)
@@ -172,6 +175,7 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         XCTAssertEqual(receivedCards, [defaultCards(for: provider).filter({ $0 != .defaultApp })])
     }
 
+    @MainActor
     func testWhenFeatureFlagIsOn_ThenIsViewExpandedPublisher_EmitsChangesFromSingleCardProvider() throws {
         featureFlagger.enabledFeatureFlags = [.nextStepsListWidget]
         let facade = createFacade(featureFlagger: featureFlagger)
@@ -202,6 +206,16 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
             receivedCards.append(cards)
         }
 
+        let singleCardProviderExpectation = XCTestExpectation(description: "Active provider was updated to single card provider")
+        let legacyProviderExpectation = XCTestExpectation(description: "Active provider was updated to legacy provider")
+        let cancellable2 = facade.$activeProvider.dropFirst().sink { provider in
+            if provider is NewTabPageNextStepsSingleCardProvider {
+                singleCardProviderExpectation.fulfill()
+            } else if provider is NewTabPageNextStepsCardsProvider {
+                legacyProviderExpectation.fulfill()
+            }
+        }
+
         // Initially uses legacy provider
         let legacyProvider = try XCTUnwrap(facade.activeProvider as? NewTabPageNextStepsCardsProvider)
         XCTAssertEqual(facade.cards, legacyProvider.cards)
@@ -212,6 +226,7 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         // Switch flag on
         featureFlagger.enabledFeatureFlags = [.nextStepsListWidget]
         featureFlagger.triggerUpdate()
+        wait(for: [singleCardProviderExpectation], timeout: 1.0)
 
         // Now uses single card provider
         let singleCardProvider = try XCTUnwrap(facade.activeProvider as? NewTabPageNextStepsSingleCardProvider)
@@ -222,6 +237,8 @@ final class NewTabPageNextStepsCardsProviderFacadeTests: XCTestCase {
         // Switch flag off
         featureFlagger.enabledFeatureFlags = []
         featureFlagger.triggerUpdate()
+        wait(for: [legacyProviderExpectation], timeout: 1.0)
+        cancellable2.cancel()
 
         // Back to legacy provider
         let legacyProvider2 = try XCTUnwrap(facade.activeProvider as? NewTabPageNextStepsCardsProvider)
@@ -256,7 +273,8 @@ private extension NewTabPageNextStepsCardsProviderFacadeTests {
             legacySubscriptionCardPersistor: MockHomePageSubscriptionCardPersisting(),
             persistor: MockNewTabPageNextStepsCardsPersistor(),
             duckPlayerPreferences: DuckPlayerPreferencesPersistorMock(),
-            syncService: MockDDGSyncing(authState: .inactive, isSyncInProgress: false)
+            syncService: MockDDGSyncing(authState: .inactive, isSyncInProgress: false),
+            scheduler: .immediate
         )
     }
 }

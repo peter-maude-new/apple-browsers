@@ -50,12 +50,28 @@ final class AIChatOmnibarController {
     private var hasBeenActivated = false
 
     /// View model for managing chat suggestions. Always initialized, but only populated when feature flag is enabled.
-    let suggestionsViewModel = AIChatSuggestionsViewModel()
+    let suggestionsViewModel: AIChatSuggestionsViewModel
 
     /// Whether the suggestions feature is enabled.
     /// Requires both the feature flag and the autocomplete setting to be on.
     var isSuggestionsEnabled: Bool {
         featureFlagger.isFeatureOn(.aiChatSuggestions) && searchPreferencesPersistor.showAutocompleteSuggestions
+    }
+
+    /// Whether the omnibar tools (customize, search toggle, image upload) are enabled.
+    var isOmnibarToolsEnabled: Bool {
+        featureFlagger.isFeatureOn(.aiChatOmnibarTools)
+    }
+
+    /// Publisher that emits when the omnibar tools enabled state changes.
+    var isOmnibarToolsEnabledPublisher: AnyPublisher<Bool, Never> {
+        featureFlagger.updatesPublisher
+            .compactMap { [weak self] in
+                self?.isOmnibarToolsEnabled
+            }
+            .prepend(isOmnibarToolsEnabled)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     /// Gets the shared text state from the current tab's view model
@@ -79,6 +95,9 @@ final class AIChatOmnibarController {
         self.featureFlagger = featureFlagger
         self.searchPreferencesPersistor = searchPreferencesPersistor
         self.suggestionsReader = suggestionsReader
+        self.suggestionsViewModel = AIChatSuggestionsViewModel(
+            maxSuggestions: suggestionsReader?.maxHistoryCount ?? AIChatSuggestionsViewModel.defaultMaxSuggestions
+        )
 
         subscribeToSelectedTabViewModel()
         subscribeToTextChangesForSuggestions()

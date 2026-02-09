@@ -76,6 +76,7 @@ protocol AIChatMetricReportingHandling: AnyObject {
 protocol AIChatUserScriptHandling: AnyObject {
     var displayMode: AIChatDisplayMode? { get set }
     func setPageContextProvider(_ provider: ((PageContextRequestReason) -> AIChatPageContextData?)?)
+    func setContextualModePixelHandler(_ pixelHandler: AIChatContextualModePixelFiring)
     func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatNativeHandoffData(params: Any, message: UserScriptMessage) -> Encodable?
     func getAIChatPageContext(params: Any, message: UserScriptMessage) -> Encodable?
@@ -88,6 +89,7 @@ protocol AIChatUserScriptHandling: AnyObject {
     func hideChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func showChatInput(params: Any, message: UserScriptMessage) async -> Encodable?
     func reportMetric(params: Any, message: UserScriptMessage) async -> Encodable?
+    func togglePageContextTelemetry(params: Any, message: UserScriptMessage) async -> Encodable?
     func openKeyboard(params: Any, message: UserScriptMessage, webView: WKWebView?) async -> Encodable?
     func storeMigrationData(params: Any, message: UserScriptMessage) -> Encodable?
     func getMigrationDataByIndex(params: Any, message: UserScriptMessage) -> Encodable?
@@ -117,6 +119,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
     private let migrationStore = AIChatMigrationStore()
     private let aichatFullModeFeature: AIChatFullModeFeatureProviding
     private let aichatContextualModeFeature: AIChatContextualModeFeatureProviding
+    private var contextualModePixelHandler: AIChatContextualModePixelFiring?
 
     /// Set externally via `AIChatContentHandler.setup()`.
     var displayMode: AIChatDisplayMode?
@@ -176,6 +179,20 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
         return nil
     }
 
+    func togglePageContextTelemetry(params: Any, message: UserScriptMessage) async -> Encodable? {
+        guard self.displayMode == .contextual else { return nil }
+        guard let paramsDict = params as? [String: Any],
+              let enabled = paramsDict["enabled"] as? Int else { return nil }
+
+        if enabled != 0 {
+            self.contextualModePixelHandler?.firePageContextManuallyAttachedFrontend()
+        } else {
+            self.contextualModePixelHandler?.firePageContextRemovedFrontend()
+        }
+
+        return nil
+    }
+
     public func getAIChatNativeConfigValues(params: Any, message: UserScriptMessage) -> Encodable? {
         let defaults = AIChatNativeConfigValues.defaultValues
 
@@ -203,7 +220,7 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
             supportsNativeChatInput: defaults.supportsNativeChatInput,
             supportsURLChatIDRestoration: aichatFullModeFeature.isAvailable ? true : defaults.supportsURLChatIDRestoration,
             supportsFullChatRestoration: defaults.supportsFullChatRestoration,
-            supportsPageContext: aichatContextualModeFeature.isAvailable ? true : defaults.supportsPageContext,
+            supportsPageContext: supportsContextualMode,
             supportsAIChatFullMode: supportsFullMode,
             supportsAIChatContextualMode: supportsContextualMode,
             appVersion: AppVersion.shared.versionAndBuildNumber,
@@ -267,6 +284,10 @@ final class AIChatUserScriptHandler: AIChatUserScriptHandling {
 
     func setPageContextProvider(_ provider: ((PageContextRequestReason) -> AIChatPageContextData?)?) {
         self.pageContextProvider = provider
+    }
+
+    func setContextualModePixelHandler(_ pixelHandler: AIChatContextualModePixelFiring) {
+        self.contextualModePixelHandler = pixelHandler
     }
 
     func setSyncStatusChangedHandler(_ handler: ((AIChatSyncHandler.SyncStatus) -> Void)?) {

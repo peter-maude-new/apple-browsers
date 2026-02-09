@@ -19,6 +19,7 @@
 import Combine
 import PrivacyConfig
 import PixelKit
+import PixelKitTestingUtilities
 import XCTest
 @testable import DuckDuckGo_Privacy_Browser
 
@@ -26,13 +27,13 @@ final class MemoryPressureReporterTests: XCTestCase {
 
     private var sut: MemoryPressureReporter!
     private var mockFeatureFlagger: MockFeatureFlagger!
-    private var mockPixelFiring: MockPixelFiring!
+    private var mockPixelFiring: PixelKitMock!
     private var notificationCenter: NotificationCenter!
 
     override func setUp() {
         super.setUp()
         mockFeatureFlagger = MockFeatureFlagger()
-        mockPixelFiring = MockPixelFiring()
+        mockPixelFiring = PixelKitMock()
         notificationCenter = NotificationCenter()
     }
 
@@ -46,14 +47,6 @@ final class MemoryPressureReporterTests: XCTestCase {
 
     // MARK: - Pixel Name Tests
 
-    func testMemoryPressureWarningPixelName() {
-        // Given/When
-        let pixel = MemoryPressurePixel.memoryPressureWarning
-
-        // Then
-        XCTAssertEqual(pixel.name, "m_mac_memory_pressure_warning")
-    }
-
     func testMemoryPressureCriticalPixelName() {
         // Given/When
         let pixel = MemoryPressurePixel.memoryPressureCritical
@@ -64,38 +57,14 @@ final class MemoryPressureReporterTests: XCTestCase {
 
     func testMemoryPressurePixelParameters() {
         // Given/When
-        let warningPixel = MemoryPressurePixel.memoryPressureWarning
         let criticalPixel = MemoryPressurePixel.memoryPressureCritical
 
         // Then
-        XCTAssertNil(warningPixel.parameters)
         XCTAssertNil(criticalPixel.parameters)
-        XCTAssertNil(warningPixel.standardParameters)
         XCTAssertNil(criticalPixel.standardParameters)
     }
 
     // MARK: - Notification + Pixel tests
-
-    func testWhenWarningEventProcessed_ThenPostsWarningNotificationAndFiresWarningPixel() {
-        // Given
-        mockFeatureFlagger.enabledFeatureFlags = [.memoryPressureReporting]
-        sut = MemoryPressureReporter(featureFlagger: mockFeatureFlagger,
-                                     pixelFiring: mockPixelFiring,
-                                     notificationCenter: notificationCenter)
-
-        let notificationExpectation = expectation(forNotification: .memoryPressureWarning, object: nil, notificationCenter: notificationCenter) { notification in
-            return notification.object as AnyObject? === self.sut
-        }
-
-        // When
-        sut.processMemoryPressureEventForTesting(.warning)
-
-        // Then
-        wait(for: [notificationExpectation], timeout: 1.0)
-        XCTAssertEqual(mockPixelFiring.firedPixels.count, 1)
-        XCTAssertEqual(mockPixelFiring.firedPixels.first?.event.name, "m_mac_memory_pressure_warning")
-        XCTAssertEqual(mockPixelFiring.firedPixels.first?.frequency, .dailyAndStandard)
-    }
 
     func testWhenCriticalEventProcessed_ThenPostsCriticalNotificationAndFiresCriticalPixel() {
         // Given
@@ -113,9 +82,9 @@ final class MemoryPressureReporterTests: XCTestCase {
 
         // Then
         wait(for: [notificationExpectation], timeout: 1.0)
-        XCTAssertEqual(mockPixelFiring.firedPixels.count, 1)
-        XCTAssertEqual(mockPixelFiring.firedPixels.first?.event.name, "m_mac_memory_pressure_critical")
-        XCTAssertEqual(mockPixelFiring.firedPixels.first?.frequency, .dailyAndStandard)
+        XCTAssertEqual(mockPixelFiring.actualFireCalls.count, 1)
+        XCTAssertEqual(mockPixelFiring.actualFireCalls.first?.pixel.name, "m_mac_memory_pressure_critical")
+        XCTAssertEqual(mockPixelFiring.actualFireCalls.first?.frequency, .dailyAndStandard)
     }
 
     func testWhenNormalEventProcessed_ThenDoesNotPostNotificationsOrFirePixels() {
@@ -125,9 +94,6 @@ final class MemoryPressureReporterTests: XCTestCase {
                                      pixelFiring: mockPixelFiring,
                                      notificationCenter: notificationCenter)
 
-        let warningNotificationExpectation = expectation(forNotification: .memoryPressureWarning, object: nil, notificationCenter: notificationCenter, handler: nil)
-        warningNotificationExpectation.isInverted = true
-
         let criticalNotificationExpectation = expectation(forNotification: .memoryPressureCritical, object: nil, notificationCenter: notificationCenter, handler: nil)
         criticalNotificationExpectation.isInverted = true
 
@@ -135,7 +101,7 @@ final class MemoryPressureReporterTests: XCTestCase {
         sut.processMemoryPressureEventForTesting(.normal)
 
         // Then
-        wait(for: [warningNotificationExpectation, criticalNotificationExpectation], timeout: 0.2)
-        XCTAssertTrue(mockPixelFiring.firedPixels.isEmpty)
+        wait(for: [criticalNotificationExpectation], timeout: 0.2)
+        XCTAssertTrue(mockPixelFiring.actualFireCalls.isEmpty)
     }
 }

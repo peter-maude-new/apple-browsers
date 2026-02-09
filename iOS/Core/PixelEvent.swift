@@ -67,6 +67,10 @@ extension Pixel {
         case forgetAllPressedBrowsingDaily
         case forgetAllPressedTabSwitcherDaily
         case forgetAllExecutedDaily
+
+        // MARK: Single Tab Burn
+        case singleTabBurnExecuted
+        case singleTabDataCleared
         
         case privacyDashboardOpened
         case privacyDashboardFirstTimeOpenedUnique
@@ -146,6 +150,13 @@ extension Pixel {
         case experimentalBrowsingMenuDisplayedAIChat
         case experimentalBrowsingMenuDisplayedError
         case experimentalBrowsingMenuDismissed
+
+        // Used to compare engagement vs old menu
+        case sheetBrowsingMenuSettings
+        case sheetBrowsingMenuAIChat
+        case sheetBrowsingMenuVPN
+        case sheetBrowsingMenuPasswords
+        case sheetBrowsingMenuNewDuckAddress
 
         case browsingMenuOpened
         case browsingMenuOpenedNewTabPage
@@ -755,6 +766,8 @@ extension Pixel {
         case remoteMessageSheet
         case remoteMessageCardShown
         case remoteMessageCardClicked
+        case remoteMessageImageLoadSuccess
+        case remoteMessageImageLoadFailed
 
         // MARK: debug pixels
         case dbCrashDetected(appIdentifier: String?)
@@ -992,6 +1005,10 @@ extension Pixel {
         case swipeTabsUsedDaily
         case swipeToOpenNewTab
 
+        case temporaryTelemetrySettingsClearDataAnimation(animation: String)
+        case temporaryTelemetrySettingsCustomizedAddressBarButton(button: String)
+        case temporaryTelemetrySettingsCustomizedToolbarButton(button: String)
+
         case bookmarksCleanupFailed
         case bookmarksCleanupAttemptedWhileSyncWasEnabled
         case favoritesCleanupFailed
@@ -1207,6 +1224,12 @@ extension Pixel {
         case subscriptionWinBackOfferSubscriptionSettingsShown
         case subscriptionWinBackOfferSubscriptionSettingsCTAClicked
 
+        // Free Trial Journey
+        case privacyProFreeTrialStart
+        case privacyProFreeTrialVPNActivation
+        case privacyProFreeTrialPIRActivation
+        case privacyProFreeTrialDuckAIActivation
+
         // MARK: Pixel Experiment
         case pixelExperimentEnrollment
 
@@ -1392,9 +1415,13 @@ extension Pixel {
         case aiChatSettingsBrowserMenuTurnedOn
         case aiChatSettingsTabManagerTurnedOff
         case aiChatSettingsTabManagerTurnedOn
+        case aiChatSettingsChatSuggestionsTurnedOff
+        case aiChatSettingsChatSuggestionsTurnedOn
         case aiChatSettingsDisplayed
         case aiChatSettingsEnabled
         case aiChatSettingsDisabled
+        case aiChatSettingsAutoContextEnabled
+        case aiChatSettingsAutoContextDisabled
 
         case aiChatOpen
         case aiChatMetricStartNewConversation
@@ -1457,11 +1484,37 @@ extension Pixel {
         // MARK: AI Chat History Deletion
         case aiChatHistoryDeleteSuccessful
         case aiChatHistoryDeleteFailed
+        case aiChatSingleDeleteSuccessful
+        case aiChatSingleDeleteFailed
 
         // MARK: AI Chat Contextual Onboarding
         case aiChatContextualOnboardingDisplayed
         case aiChatContextualOnboardingConfirmPressed
         case aiChatContextualOnboardingSettingsPressed
+
+        // MARK: AI Chat Recent Chats
+        case aiChatRecentChatSelectedPinned
+        case aiChatRecentChatSelected
+
+        // MARK: AI Chat Contextual Mode
+        case aiChatContextualSheetOpened
+        case aiChatContextualSheetDismissed
+        case aiChatContextualExpandButtonTapped
+        case aiChatContextualNewChatButtonTapped
+        case aiChatContextualQuickActionSummarizeSelected
+        case aiChatContextualPageContextPlaceholderShown
+        case aiChatContextualPageContextPlaceholderTapped
+        case aiChatContextualPageContextAutoAttached
+        case aiChatContextualPageContextUpdatedOnNavigation
+        case aiChatContextualPageContextManuallyAttachedNative
+        case aiChatContextualPageContextManuallyAttachedFrontend
+        case aiChatContextualPageContextRemovedNative
+        case aiChatContextualPageContextRemovedFrontend
+        case aiChatContextualPromptSubmittedWithContextNative
+        case aiChatContextualPromptSubmittedWithoutContextNative
+        case aiChatContextualSessionRestored
+        case aiChatContextualPageContextCollectionEmpty
+        case aiChatContextualPageContextCollectionUnavailable
 
         // MARK: Customization
         case customizationAddressBarStarted
@@ -1538,6 +1591,7 @@ extension Pixel {
         case dbpNotificationOpenedFirstRemoval
         case dbpNotificationOpenedAllRecordsRemoved
         case dbpNotificationOpened1WeekCheckIn
+        case dbpNotificationOpenedGoToMarketFirstScan
 
         // MARK: - App Intent
         case appIntentPerformed
@@ -1611,6 +1665,10 @@ extension Pixel.Event {
         case .forgetAllPressedBrowsingDaily: return "m_forget-all-pressed_browsing_daily"
         case .forgetAllPressedTabSwitcherDaily: return "m_forget-all-pressed_tab-switcher_daily"
         case .forgetAllExecutedDaily: return "m_forget-all-executed_daily"
+
+        // MARK: Single Tab Burn
+        case .singleTabBurnExecuted: return "m_single-tab-burn_executed"
+        case .singleTabDataCleared: return "m_single-tab-data_cleared"
             
         case .privacyDashboardOpened: return "mp"
         case .privacyDashboardFirstTimeOpenedUnique: return "m_privacy_dashboard_first_time_used_unique"
@@ -1681,6 +1739,13 @@ extension Pixel.Event {
         case .experimentalBrowsingMenuDisplayedAIChat: return "m_experimental-browsing-menu_displayed_aichat"
         case .experimentalBrowsingMenuDisplayedError: return "m_experimental-browsing-menu_displayed_error"
         case .experimentalBrowsingMenuDismissed: return "m_experimental-browsing-menu_dismissed"
+
+        case .sheetBrowsingMenuSettings: return "m_sheet-menu_settings"
+        case .sheetBrowsingMenuAIChat: return "m_sheet-menu_aichat"
+        case .sheetBrowsingMenuVPN: return "m_sheet-menu_vpn"
+        case .sheetBrowsingMenuPasswords: return "m_sheet-menu_passwords"
+        case .sheetBrowsingMenuNewDuckAddress: return "m_sheet-menu_new-duck-address"
+
         case .browsingMenuOpened: return "mb"
         case .browsingMenuOpenedNewTabPage: return "m_nav_menu_ntp"
         case .browsingMenuOpenedError: return "m_nav_menu_error"
@@ -2220,6 +2285,8 @@ extension Pixel.Event {
         case .remoteMessageSheet: return "m_remote_message_sheet"
         case .remoteMessageCardShown: return "m_remote_message_card_shown"
         case .remoteMessageCardClicked: return "m_remote_message_card_clicked"
+        case .remoteMessageImageLoadSuccess: return "m_remote_message_image_load_success"
+        case .remoteMessageImageLoadFailed: return "m_remote_message_image_load_failed"
 
             // MARK: debug pixels
 
@@ -2526,6 +2593,10 @@ extension Pixel.Event {
         case .swipeTabsUsedDaily: return "m_swipe-tabs-used-daily"
         case .swipeToOpenNewTab: return "m_addressbar_swipe_new_tab"
 
+        case .temporaryTelemetrySettingsClearDataAnimation(let value): return "m_temporary-telemetry_settings_clear-data-animation_\(value)"
+        case .temporaryTelemetrySettingsCustomizedAddressBarButton(let value): return "m_temporary-telemetry_settings_customized-address-bar-button_\(value)"
+        case .temporaryTelemetrySettingsCustomizedToolbarButton(let value): return "m_temporary-telemetry_settings_customized-toolbar-button_\(value)"
+
         case .bookmarksCleanupFailed: return "m_d_bookmarks_cleanup_failed"
         case .bookmarksCleanupAttemptedWhileSyncWasEnabled: return "m_d_bookmarks_cleanup_attempted_while_sync_was_enabled"
         case .favoritesCleanupFailed: return "m_d_favorites_cleanup_failed"
@@ -2655,6 +2726,12 @@ extension Pixel.Event {
         case .subscriptionWinBackOfferSettingsLoggedInOfferShown: return "m_privacy-pro_winback_settings_logged_in_offer_shown"
         case .subscriptionWinBackOfferSubscriptionSettingsShown: return "m_privacy-pro_winback_subscription_settings_shown"
         case .subscriptionWinBackOfferSubscriptionSettingsCTAClicked: return "m_privacy-pro_winback_subscription_settings_clicked"
+
+        // Free Trial Journey
+        case .privacyProFreeTrialStart: return "m_privacy-pro_freetrial_start"
+        case .privacyProFreeTrialVPNActivation: return "m_privacy-pro_freetrial_vpn_activation"
+        case .privacyProFreeTrialPIRActivation: return "m_privacy-pro_freetrial_pir_activation"
+        case .privacyProFreeTrialDuckAIActivation: return "m_privacy-pro_freetrial_duck_ai_activation"
 
         // MARK: Pixel Experiment
         case .pixelExperimentEnrollment: return "pixel_experiment_enrollment"
@@ -2842,9 +2919,13 @@ extension Pixel.Event {
         case .aiChatSettingsBrowserMenuTurnedOn: return "m_aichat_settings_browser_menu_turned_on"
         case .aiChatSettingsTabManagerTurnedOff: return "m_aichat_settings_tab_manager_turned_off"
         case .aiChatSettingsTabManagerTurnedOn: return "m_aichat_settings_tab_manager_turned_on"
+        case .aiChatSettingsChatSuggestionsTurnedOff: return "m_aichat_settings_chat_suggestions_turned_off"
+        case .aiChatSettingsChatSuggestionsTurnedOn: return "m_aichat_settings_chat_suggestions_turned_on"
         case .aiChatSettingsDisplayed: return "m_aichat_settings_displayed"
         case .aiChatSettingsEnabled: return "m_aichat_settings_enabled"
         case .aiChatSettingsDisabled: return "m_aichat_settings_disabled"
+        case .aiChatSettingsAutoContextEnabled: return "m_aichat_settings_auto_context_enabled"
+        case .aiChatSettingsAutoContextDisabled: return "m_aichat_settings_auto_context_disabled"
         case .aiChatSettingsSearchInputTurnedOff: return "m_aichat_settings_search_input_turned_off"
         case .aiChatSettingsSearchInputTurnedOn: return "m_aichat_settings_search_input_turned_on"
 
@@ -2902,11 +2983,37 @@ extension Pixel.Event {
         // MARK: AI Chat History Deletion
         case .aiChatHistoryDeleteSuccessful: return "m_aichat_history_delete_successful"
         case .aiChatHistoryDeleteFailed: return "m_aichat_history_delete_failed"
+        case .aiChatSingleDeleteSuccessful: return "m_aichat_single_delete_successful"
+        case .aiChatSingleDeleteFailed: return "m_aichat_single_delete_failed"
 
         // MARK: AI Chat Contextual Onboarding
         case .aiChatContextualOnboardingDisplayed: return "m_aichat_contextual_onboarding_displayed"
         case .aiChatContextualOnboardingConfirmPressed: return "m_aichat_contextual_onboarding_confirm_pressed"
         case .aiChatContextualOnboardingSettingsPressed: return "m_aichat_contextual_onboarding_settings_pressed"
+
+        // MARK: AI Chat Recent Chats
+        case .aiChatRecentChatSelectedPinned: return "m_aichat_recent_chat_selected_pinned"
+        case .aiChatRecentChatSelected: return "m_aichat_recent_chat_selected"
+
+        // MARK: AI Chat Contextual Mode
+        case .aiChatContextualSheetOpened: return "m_aichat_contextual_sheet_opened"
+        case .aiChatContextualSheetDismissed: return "m_aichat_contextual_sheet_dismissed"
+        case .aiChatContextualExpandButtonTapped: return "m_aichat_contextual_expand_button_tapped"
+        case .aiChatContextualNewChatButtonTapped: return "m_aichat_contextual_new_chat_button_tapped"
+        case .aiChatContextualQuickActionSummarizeSelected: return "m_aichat_contextual_quick_action_summarize_selected"
+        case .aiChatContextualPageContextPlaceholderShown: return "m_aichat_contextual_page_context_placeholder_shown"
+        case .aiChatContextualPageContextPlaceholderTapped: return "m_aichat_contextual_page_context_placeholder_tapped"
+        case .aiChatContextualPageContextAutoAttached: return "m_aichat_contextual_page_context_auto_attached"
+        case .aiChatContextualPageContextUpdatedOnNavigation: return "m_aichat_contextual_page_context_updated_on_navigation"
+        case .aiChatContextualPageContextManuallyAttachedNative: return "m_aichat_contextual_page_context_manually_attached_native"
+        case .aiChatContextualPageContextManuallyAttachedFrontend: return "m_aichat_contextual_page_context_manually_attached_frontend"
+        case .aiChatContextualPageContextRemovedNative: return "m_aichat_contextual_page_context_removed_native"
+        case .aiChatContextualPageContextRemovedFrontend: return "m_aichat_contextual_page_context_removed_frontend"
+        case .aiChatContextualPromptSubmittedWithContextNative: return "m_aichat_contextual_prompt_submitted_with_context_native"
+        case .aiChatContextualPromptSubmittedWithoutContextNative: return "m_aichat_contextual_prompt_submitted_without_context_native"
+        case .aiChatContextualSessionRestored: return "m_aichat_contextual_session_restored"
+        case .aiChatContextualPageContextCollectionEmpty: return "m_aichat_contextual_page_context_collection_empty"
+        case .aiChatContextualPageContextCollectionUnavailable: return "m_aichat_contextual_page_context_collection_unavailable"
 
         // MARK: AI Chat Sync
 
@@ -3031,11 +3138,12 @@ extension Pixel.Event {
         case .userNotificationAuthorizationStatusDaily: return "m_push-notification_user-notification-authorization-status"
 
         // MARK: Data Broker Protection Notifications
-        case .dbpNotificationOpenedFirstScanComplete: return "m_ios_dbp_notification_opened_first_scan_complete"
-        case .dbpNotificationOpenedFirstFreemiumScanComplete: return "m_ios_dbp_freemium_notification_opened_first_scan_complete"
-        case .dbpNotificationOpenedFirstRemoval: return "m_ios_dbp_notification_opened_first_removal"
-        case .dbpNotificationOpenedAllRecordsRemoved: return "m_ios_dbp_notification_opened_all_records_removed"
-        case .dbpNotificationOpened1WeekCheckIn: return "m_ios_dbp_notification_opened_1_week_check_in"
+        case .dbpNotificationOpenedFirstScanComplete: return "m_dbp_notification_opened_first_scan_complete"
+        case .dbpNotificationOpenedFirstFreemiumScanComplete: return "m_dbp_freemium_notification_opened_first_scan_complete"
+        case .dbpNotificationOpenedFirstRemoval: return "m_dbp_notification_opened_first_removal"
+        case .dbpNotificationOpenedAllRecordsRemoved: return "m_dbp_notification_opened_all_records_removed"
+        case .dbpNotificationOpened1WeekCheckIn: return "m_dbp_notification_opened_1_week_check_in"
+        case .dbpNotificationOpenedGoToMarketFirstScan: return "m_dbp_notification_opened_go_to_market_first_scan"
 
         // MARK: App Intent
         case .appIntentPerformed: return "m_app-intent_intent-performed"
