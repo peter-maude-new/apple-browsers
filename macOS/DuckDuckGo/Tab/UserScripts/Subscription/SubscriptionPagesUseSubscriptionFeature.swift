@@ -510,12 +510,6 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
             }
         case .stripe:
             // For Stripe tier changes, we always send the auth token so the backend can modify the existing subscription
-            guard let subscriptionSelection: SubscriptionChangeSelection = CodableHelper.decode(from: params) else {
-                assertionFailure("SubscriptionPagesUserScript: expected JSON representation of SubscriptionChangeSelection")
-                subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
-                return nil
-            }
-
             Logger.subscription.log("[TierChange] Stripe - id: \(subscriptionSelection.id, privacy: .public), change: \(subscriptionSelection.change ?? "nil", privacy: .public)")
 
             // Get current subscription info for wide event tracking

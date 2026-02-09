@@ -266,14 +266,25 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
         }
     }
 
-    /// If the FE never redirects after we push Stripe redirect the back button stays hidden. Reset to idle after this delay so the user can go back.
+    /// If the FE never redirects after we push Stripe redirect (e.g. mobile), the back button stays hidden. Reset to idle after this delay so the user can go back.
     private static let stripeRedirectSafetyTimeoutSeconds: UInt64 = 8
+
+    private enum StripeRedirectSafetyTimeoutError: Error {
+        case couldNotRedirect
+    }
 
     private func startStripeRedirectSafetyTimeout() {
         Task { [weak self] in
             try? await Task.sleep(nanoseconds: Self.stripeRedirectSafetyTimeoutSeconds * 1_000_000_000)
             await MainActor.run {
-                self?.setTransactionStatus(.idle)
+                guard let self = self else { return }
+                self.setTransactionStatus(.idle)
+                if let data = self.planChangeWideEventData {
+                    data.markAsFailed(at: SubscriptionPlanChangeWideEventData.FailingStep.confirmation,
+                                     error: StripeRedirectSafetyTimeoutError.couldNotRedirect)
+                    self.wideEvent.completeFlow(data, status: .failure, onComplete: { _, _ in })
+                    self.planChangeWideEventData = nil
+                }
             }
         }
     }
@@ -585,7 +596,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
 
         switch effectivePlatform {
         case .apple:
-            Logger.subscription.log("[TierChange] APPLE")
             await subscriptionFlowsExecuter.performTierChange(
                 to: subscriptionSelection.id,
                 changeType: subscriptionSelection.change,
@@ -596,7 +606,6 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             )
             return nil
         case .stripe:
-            Logger.subscription.log("[TierChange] Stripe")
             setTransactionError(nil)
             setTransactionStatus(.purchasing)
 
@@ -630,9 +639,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
 
             wideData.confirmationDuration = WideEvent.MeasuredInterval.startingNow()
             wideEvent.updateFlow(wideData)
-            // Push onPurchaseUpdate({ type: "redirect", token }) so the FE can redirect (e.g. window.location) to Stripe. Allowed domains include stripe.com so that navigation is not blocked by HeadlessWebViewCoordinator.
             await pushPurchaseUpdate(originalMessage: message, purchaseUpdate: PurchaseUpdate.redirect(withToken: accessToken))
-            Logger.subscription.log("[TierChange] Redirect")
             // Spinner stays until FE redirects (completeStripePayment) or safety timeout clears it so back button reappears
             startStripeRedirectSafetyTimeout()
             return nil
@@ -782,7 +789,10 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     }
 
     func pushAction(method: SubscribeActionName, webView: WKWebView, params: Encodable) {
-        let broker = UserScriptMessageBroker(context: SubscriptionPagesUserScript.context, requiresRunInPageContentWorld: true)
+        guard let broker else {
+            assertionFailure("Cannot continue without broker instance")
+            return
+        }
         broker.push(method: method.rawValue, params: params, for: self, into: webView)
     }
 
