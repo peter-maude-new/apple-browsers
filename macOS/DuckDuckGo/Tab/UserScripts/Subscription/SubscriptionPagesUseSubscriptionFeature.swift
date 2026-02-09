@@ -558,6 +558,7 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         default:
             assertionFailure("SubscriptionPagesUserScript: expected Apple or Stipe platform on SubscriptionChangeSelection")
             subscriptionEventReporter.report(subscriptionActivationError: .otherPurchaseError)
+            await uiHandler.dismissProgressViewController()
             return nil
         }
         await uiHandler.dismissProgressViewController()

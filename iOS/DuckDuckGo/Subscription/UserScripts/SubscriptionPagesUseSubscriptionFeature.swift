@@ -789,11 +789,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
     }
 
     func pushAction(method: SubscribeActionName, webView: WKWebView, params: Encodable) {
-        guard let broker else {
-            assertionFailure("Cannot continue without broker instance")
-            return
-        }
-        broker.push(method: method.rawValue, params: params, for: self, into: webView)
+        let broker = UserScriptMessageBroker(context: SubscriptionPagesUserScript.context, requiresRunInPageContentWorld: true)
     }
 
     // MARK: Native methods - Called from ViewModels
