@@ -18,45 +18,40 @@
 //
 
 import SwiftUI
-import DesignResourcesKit
+import Onboarding
 
 private enum LandingViewMetrics {
     static let logoSize: CGFloat = 80
     static let topPadding: CGFloat = 96
     static let welcomeBottomPadding: CGFloat = 20
-    static let titleSize: CGFloat = 44
-    static let titleColor = Color(singleUseColor: .rebranding(.textPrimary))
-    static let backgroundColor = Color(singleUseColor: .rebranding(.onboardingBackground))
 }
 
 extension OnboardingRebranding.OnboardingView {
 
     struct LandingView: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
+
         let animationNamespace: Namespace.ID
 
         var body: some View {
-            ZStack {
-                LandingViewMetrics.backgroundColor.ignoresSafeArea()
+            VStack(spacing: 0) {
+                welcomeView
+                    .padding(.top, LandingViewMetrics.topPadding)
 
-                VStack(spacing: 0) {
-                    welcomeView
-                        .padding(.top, LandingViewMetrics.topPadding)
-
-                    Spacer()
-                }
+                Spacer()
             }
         }
 
         private var welcomeView: some View {
             VStack(alignment: .center, spacing: LandingViewMetrics.welcomeBottomPadding) {
-                Image("DuckDuckGoLogo", bundle: nil)
+                OnboardingRebrandingAssets.duckDuckGoLogo
                     .resizable()
                     .matchedGeometryEffect(id: OnboardingView.daxGeometryEffectID, in: animationNamespace)
                     .frame(width: LandingViewMetrics.logoSize, height: LandingViewMetrics.logoSize)
 
                 Text(UserText.onboardingWelcomeHeader)
-                    .font(.system(size: LandingViewMetrics.titleSize, weight: .medium))
-                    .foregroundStyle(LandingViewMetrics.titleColor)
+                    .font(onboardingTheme.typography.largeTitle)
+                    .foregroundStyle(onboardingTheme.colorPalette.textPrimary)
                     .multilineTextAlignment(.center)
             }
         }

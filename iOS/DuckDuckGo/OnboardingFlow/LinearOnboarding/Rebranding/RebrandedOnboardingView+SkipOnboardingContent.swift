@@ -59,39 +59,48 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: SkipOnboardingContentMetrics.outerSpacing) {
-                AnimatableTypingText(Copy.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
-                    withAnimation {
-                        animateMessage.wrappedValue = true
+            LinearDialogContentContainer(
+                metrics: .init(
+                    outerSpacing: SkipOnboardingContentMetrics.outerSpacing,
+                    textSpacing: SkipOnboardingContentMetrics.outerSpacing,
+                    contentSpacing: 0
+                ),
+                message: AnyView(
+                    AnimatableTypingText(Copy.message.attributed.withFont(.daxBodyBold(), forText: Self.fireButtonCopy), startAnimating: animateMessage, skipAnimation: isSkipped) {
+                        withAnimation {
+                            showCTA.wrappedValue = true
+                        }
                     }
-                }
-                .foregroundColor(.primary)
-                .font(SkipOnboardingContentMetrics.titleFont)
-
-                AnimatableTypingText(Copy.message.attributed.withFont(.daxBodyBold(), forText: Self.fireButtonCopy), startAnimating: animateMessage, skipAnimation: isSkipped) {
-                    withAnimation {
-                        showCTA.wrappedValue = true
+                    .foregroundColor(.primary)
+                    .font(SkipOnboardingContentMetrics.messageFont)
+                ),
+                title: {
+                    AnimatableTypingText(Copy.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
+                        withAnimation {
+                            animateMessage.wrappedValue = true
+                        }
                     }
-                }
-                .foregroundColor(.primary)
-                .font(SkipOnboardingContentMetrics.messageFont)
+                    .foregroundColor(.primary)
+                    .font(SkipOnboardingContentMetrics.titleFont)
+                },
+                actions: {
+                    VStack {
+                        Button(action: startBrowsingAction) {
+                            Text(Copy.confirmSkipOnboardingCTA)
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
 
-                VStack {
-                    Button(action: startBrowsingAction) {
-                        Text(Copy.confirmSkipOnboardingCTA)
+                        OnboardingBorderedButton(
+                            maxHeight: SkipOnboardingContentMetrics.buttonMaxHeight,
+                            content: {
+                                Text(Copy.resumeOnboardingCTA)
+                            },
+                            action: resumeOnboardingAction
+                        )
                     }
-                    .buttonStyle(PrimaryButtonStyle())
-
-                    OnboardingBorderedButton(
-                        maxHeight: SkipOnboardingContentMetrics.buttonMaxHeight,
-                        content: {
-                            Text(Copy.resumeOnboardingCTA)
-                        },
-                        action: resumeOnboardingAction
-                    )
+                    .visibility(showCTA.wrappedValue ? .visible : .invisible)
                 }
-                .visibility(showCTA.wrappedValue ? .visible : .invisible)
-            }
+            )
         }
 
     }

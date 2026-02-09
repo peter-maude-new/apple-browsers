@@ -30,6 +30,7 @@ public extension OnboardingTheme {
         return OnboardingTheme(
             typography: .system,
             colorPalette: ColorPalette(
+                background: Color(designSystemColor: .backdrop),
                 bubbleBorder: Color(designSystemColor: .accentAltPrimary),
                 bubbleBackground: Color(designSystemColor: .surfaceTertiary),
                 bubbleShadow: Color.shade(0.03),

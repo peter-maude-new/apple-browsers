@@ -279,6 +279,8 @@ private extension DefaultColorPalette {
             return DynamicColor(lightColor: RebrandingColor.Pondwater.pondwater50, darkColor: RebrandingColor.Pondwater.pondwater40)
         case .accentAltPrimary:
             return DynamicColor(lightColor: RebrandingColor.Pondwater.pondwater20, darkColor: Color(0x133E7C))
+        case .backdrop:
+            return DynamicColor(lightColor: RebrandingColor.GrayScale.white, darkColor: .blue80)
         case .surfaceTertiary:
             return DynamicColor(lightColor: RebrandingColor.GrayScale.white, darkColor: Color(0x011D34))
         case .buttonsPrimaryDefault:
@@ -289,8 +291,6 @@ private extension DefaultColorPalette {
             return DynamicColor(lightColor: RebrandingColor.GrayScale.gray10, darkColor: RebrandingColor.GrayScale.gray80)
         case .buttonsSecondaryText:
             return DynamicColor(lightColor: RebrandingColor.Eggshell.eggshell90, darkColor: RebrandingColor.Eggshell.eggshell10)
-        case .onboardingBackground:
-            return DynamicColor(lightColor: RebrandingColor.GrayScale.white, darkColor: .blue80)
         }
     }
 
