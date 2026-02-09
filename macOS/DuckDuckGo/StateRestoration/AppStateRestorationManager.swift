@@ -45,6 +45,10 @@ final class AppStateRestorationManager: NSObject {
     @UserDefaultsWrapper(key: .appIsRelaunchingAutomatically, defaultValue: false)
     private var appIsRelaunchingAutomatically: Bool
 
+    var isRelaunchingAutomatically: Bool {
+        appIsRelaunchingAutomatically
+    }
+
     private var appDidTerminateAsExpected: Bool {
         get {
             do {

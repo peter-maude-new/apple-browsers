@@ -68,6 +68,12 @@ final class AutoClearHandler: ApplicationTerminationDecider {
     func shouldTerminate(isAsync: Bool) -> TerminationQuery {
         guard dataClearingPreferences.isAutoClearEnabled else { return .sync(.next) }
 
+        // Skip auto-clear if app is relaunching for an update
+        if stateRestorationManager.isRelaunchingAutomatically {
+            appTerminationHandledCorrectly = true
+            return .sync(.next)
+        }
+
         if dataClearingPreferences.isWarnBeforeClearingEnabled {
             switch confirmAutoClear() {
             case .alertFirstButtonReturn:

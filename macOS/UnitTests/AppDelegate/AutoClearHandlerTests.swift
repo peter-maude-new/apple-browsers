@@ -38,6 +38,14 @@ final class MockAutoClearAlertPresenter: AutoClearAlertPresenting {
     }
 }
 
+final class MockAppStateRestorationManager: AppStateRestorationManager {
+    var isRelaunchingAutomaticallyOverride: Bool?
+
+    override var isRelaunchingAutomatically: Bool {
+        return isRelaunchingAutomaticallyOverride ?? super.isRelaunchingAutomatically
+    }
+}
+
 @MainActor
 class AutoClearHandlerTests: XCTestCase {
 
@@ -46,6 +54,7 @@ class AutoClearHandlerTests: XCTestCase {
     var startupPreferences: StartupPreferences!
     var fireViewModel: FireViewModel!
     var mockAlertPresenter: MockAutoClearAlertPresenter!
+    var mockStateRestoration: MockAppStateRestorationManager!
 
     override func setUp() {
         super.setUp()
@@ -76,18 +85,18 @@ class AutoClearHandlerTests: XCTestCase {
         let fileName = "AutoClearHandlerTests"
         let fileStore = FileStoreMock()
         let service = StatePersistenceService(fileStore: fileStore, fileName: fileName)
-        let appStateRestorationManager = AppStateRestorationManager(fileStore: fileStore,
-                                                                    service: service,
-                                                                    startupPreferences: NSApp.delegateTyped.startupPreferences,
-                                                                    tabsPreferences: NSApp.delegateTyped.tabsPreferences,
-                                                                    keyValueStore: NSApp.delegateTyped.keyValueStore,
-                                                                    sessionRestorePromptCoordinator: NSApp.delegateTyped.sessionRestorePromptCoordinator,
-                                                                    pixelFiring: nil)
+        mockStateRestoration = MockAppStateRestorationManager(fileStore: fileStore,
+                                                              service: service,
+                                                              startupPreferences: NSApp.delegateTyped.startupPreferences,
+                                                              tabsPreferences: NSApp.delegateTyped.tabsPreferences,
+                                                              keyValueStore: NSApp.delegateTyped.keyValueStore,
+                                                              sessionRestorePromptCoordinator: NSApp.delegateTyped.sessionRestorePromptCoordinator,
+                                                              pixelFiring: nil)
         mockAlertPresenter = MockAutoClearAlertPresenter()
         handler = AutoClearHandler(dataClearingPreferences: dataClearingPreferences,
                                    startupPreferences: startupPreferences,
                                    fireViewModel: fireViewModel,
-                                   stateRestorationManager: appStateRestorationManager,
+                                   stateRestorationManager: mockStateRestoration,
                                    aiChatSyncCleaner: nil,
                                    alertPresenter: mockAlertPresenter)
     }
@@ -98,6 +107,7 @@ class AutoClearHandlerTests: XCTestCase {
         startupPreferences = nil
         fireViewModel = nil
         mockAlertPresenter = nil
+        mockStateRestoration = nil
         super.tearDown()
     }
 
@@ -199,6 +209,28 @@ class AutoClearHandlerTests: XCTestCase {
         handler.resetTheCorrectTerminationFlag()
 
         XCTAssertFalse(handler.burnOnStartIfNeeded())
+    }
+
+    func testShouldTerminate_whenRelaunchingAutomatically_skipsClearPrompt() {
+        mockStateRestoration.isRelaunchingAutomaticallyOverride = true
+        dataClearingPreferences.isAutoClearEnabled = true
+        handler.resetTheCorrectTerminationFlag() // Ensure flag is false initially
+
+        let result = handler.shouldTerminate(isAsync: false)
+
+        // Verify bypass returns .sync(.next)
+        switch result {
+        case .sync(.next):
+            break
+        case .sync(.cancel):
+            XCTFail("Expected .sync(.next), got .sync(.cancel)")
+        case .async:
+            XCTFail("Expected .sync(.next), got .async")
+        }
+
+        // Verify burn-on-start will NOT trigger on next launch
+        XCTAssertFalse(handler.burnOnStartIfNeeded(),
+                       "Burn-on-start should not trigger after automatic relaunch termination")
     }
 
 }
