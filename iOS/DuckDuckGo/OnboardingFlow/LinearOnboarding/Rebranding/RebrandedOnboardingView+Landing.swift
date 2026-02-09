@@ -50,7 +50,7 @@ extension OnboardingRebranding.OnboardingView {
 
         private var welcomeView: some View {
             VStack(alignment: .center, spacing: LandingViewMetrics.welcomeBottomPadding) {
-                Image("DuckDuckGoLogo", bundle: nil)
+                OnboardingRebrandingImages.Rebranding.duckDuckGoLogo
                     .resizable()
                     .matchedGeometryEffect(id: OnboardingView.daxGeometryEffectID, in: animationNamespace)
                     .frame(width: LandingViewMetrics.logoSize, height: LandingViewMetrics.logoSize)

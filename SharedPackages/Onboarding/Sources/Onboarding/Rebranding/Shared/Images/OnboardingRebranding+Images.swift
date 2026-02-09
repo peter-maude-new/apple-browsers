@@ -18,12 +18,24 @@
 
 import SwiftUI
 
+public enum OnboardingRebrandingImages {
+
+    public enum Contextual {
+        public static let tryASearchBackground = Image("Rebranding/contextual-bg-try-search", bundle: .module)
+    }
+
+    public enum Rebranding {
+        public static let duckDuckGoLogo = Image("Rebranding/DuckDuckGoLogo", bundle: .module)
+    }
+
+}
+
 extension OnboardingRebranding {
 
     enum OnboardingImages {
 
         enum Contextual {
-            static let tryASearchBackground = Image("Rebranding/contextual-bg-try-search", bundle: .module)
+            static let tryASearchBackground = OnboardingRebrandingImages.Contextual.tryASearchBackground
         }
 
     }
