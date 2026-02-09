@@ -176,6 +176,7 @@ extension OnboardingRebranding {
 
             return IntroDialogContent(
                 title: model.copy.introTitle,
+                message: model.copy.introMessage,
                 skipOnboardingView: skipOnboardingView,
                 animateText: $model.introState.animateIntroText,
                 showCTA: $model.introState.showIntroButton,

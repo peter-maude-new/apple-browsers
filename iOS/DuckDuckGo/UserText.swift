@@ -2042,7 +2042,8 @@ public struct UserText {
     public enum Onboarding {
 
         public enum Intro {
-            public static let title = NSLocalizedString("onboarding.highlights.intro.title", value: "Hi there.\n\nReady for a faster browser that keeps you protected?", comment: "The title of the onboarding dialog popup")
+            public static let title = NSLocalizedString("onboarding.highlights.intro.title", value: "Hi there.", comment: "The title of the onboarding dialog popup")
+            public static let message = NSLocalizedString("onboarding.highlights.intro.message", value: "Ready for a faster browser that keeps you protected?", comment: "The subtitle message of the onboarding dialog popup")
             public static let continueCTA = NSLocalizedString("onboarding.intro.cta", value: "Let’s do it!", comment: "Button to continue the onboarding process")
             public static let skipCTA = NSLocalizedString("onboarding.intro.cta.skip", value: "I’ve been here before", comment: "Button to skip the onboarding process")
 
