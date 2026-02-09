@@ -18,22 +18,25 @@
 
 import Cocoa
 import Combine
+import PixelKitTestingUtilities
+import PrivacyConfig
 import XCTest
 
 @testable import DuckDuckGo_Privacy_Browser
 
 final class UpdateControllerProtocolTests: XCTestCase {
 
-    // MARK: - Simple Protocol Extension Tests
-    // Testing the logic of the protocol extension without complex mocking
-
-    // MARK: - Basic Protocol Tests
-
-#if APPSTORE
-    func testUpdateControllerProtocol_DefaultImplementationExists() {
+    func testUpdateControllerProtocol_DefaultImplementationExists() throws {
         // This test just verifies the protocol extension exists and compiles
         // Given
-        let controller = AppStoreUpdateController(notificationPresenter: MockNotificationPresenter())
+        let controllerType = try XCTUnwrap(UpdateControllerFactory(featureFlagger: MockFeatureFlagger()).updateControllerType)
+        let controller = controllerType.init(internalUserDecider: MockInternalUserDecider(),
+                                             featureFlagger: MockFeatureFlagger(),
+                                             eventMapping: nil,
+                                             notificationPresenter: MockNotificationPresenter(),
+                                             keyValueStore: UserDefaults.standard,
+                                             buildType: nil,
+                                             wideEvent: WideEventMock())
 
         // When/Then - Just verify the default implementation method exists
         controller.showUpdateNotificationIfNeeded()
@@ -41,18 +44,5 @@ final class UpdateControllerProtocolTests: XCTestCase {
         // No assertions needed - if it compiles and doesn't crash, the extension works
         XCTAssertNotNil(controller)
     }
-#endif
 
-    func testNotificationTimingLogic() {
-        // Test the 7-day logic directly
-        let now = Date()
-        let sevenDaysAgo = now.addingTimeInterval(-7 * 24 * 60 * 60)
-        let eightDaysAgo = now.addingTimeInterval(-8 * 24 * 60 * 60)
-        let threeDaysAgo = now.addingTimeInterval(-3 * 24 * 60 * 60)
-
-        // Test the logic directly
-        XCTAssertFalse(now.timeIntervalSince(sevenDaysAgo) > (7 * 24 * 60 * 60))
-        XCTAssertTrue(now.timeIntervalSince(eightDaysAgo) > (7 * 24 * 60 * 60))
-        XCTAssertFalse(now.timeIntervalSince(threeDaysAgo) > (7 * 24 * 60 * 60))
-    }
 }
