@@ -79,7 +79,7 @@ final class PasswordsStatusBarPopover: NSPopover {
     private func setupClickOutsideMonitor() {
         clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             guard let self, self.isShown, self.canDismiss else { return }
-            self.performClose(nil)
+            self.close()
         }
     }
 }
