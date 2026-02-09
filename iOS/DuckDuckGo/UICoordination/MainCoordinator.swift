@@ -299,8 +299,8 @@ final class MainCoordinator {
                                                dataStoreIDManager: DataStoreIDManaging = DataStoreIDManager.shared) -> WebsiteDataManaging {
         let dataClearingPixelsReporter = DataClearingPixelsReporter()
         let webCacheClearingReporter = WebCacheClearingReporter(
-            onResidue: { step in
-                dataClearingPixelsReporter.fireResiduePixel(DataClearingPixels.burnWebsiteDataHasResidue(step: step))
+            onResidue: { step, scope in
+                dataClearingPixelsReporter.fireResiduePixel(DataClearingPixels.burnWebsiteDataHasResidue(step: step, scope: scope))
             }
         )
         return WebCacheManager(cookieStorage: MigratableCookieStorage(),

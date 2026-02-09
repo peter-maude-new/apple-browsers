@@ -28,7 +28,7 @@
                 "key": "scope",
                 "type": "string",
                 "description": "The scope of the clearing operation",
-                "enum": ["single_tab", "all_tabs"]
+                "enum": ["tab", "all"]
             }
         ]
     },
@@ -66,7 +66,7 @@
                 "key": "scope",
                 "type": "string",
                 "description": "The scope of tabs being cleared",
-                "enum": ["single_tab", "all_tabs"]
+                "enum": ["tab", "all"]
             }
         ]
     },
@@ -76,7 +76,16 @@
         "owners": ["hanyutang-sandra"],
         "triggers": ["other"],
         "suffixes": ["platform", "form_factor"],
-        "parameters": ["appVersion", "pixelSource"]
+        "parameters": [
+            "appVersion",
+            "pixelSource",
+            {
+                "key": "scope",
+                "type": "string",
+                "description": "The scope of tabs being cleared",
+                "enum": ["tab", "all"]
+            }
+        ]
     },
 
     "m_fire_burn_tabs_error": {
@@ -124,6 +133,12 @@
                 "type": "string",
                 "description": "The clearing step where residue was detected",
                 "examples": ["cookies", "local_storage", "cache", "service_workers"]
+            },
+            {
+                "key": "scope",
+                "type": "string",
+                "description": "The scope of tabs being cleared",
+                "enum": ["limited", "all"]
             }
         ]
     },
@@ -148,6 +163,12 @@
                 "key": "duration",
                 "type": "integer",
                 "description": "Duration of history clearing in milliseconds"
+            },
+            {
+                "key": "scope",
+                "type": "string",
+                "description": "The scope of tabs being cleared",
+                "enum": ["tab", "all"]
             }
         ]
     },
@@ -177,7 +198,7 @@
                 "key": "scope",
                 "type": "string",
                 "description": "The scope of AI chat history being cleared",
-                "enum": ["single_chat", "all_chats"]
+                "enum": ["tab", "all"]
             }
         ]
     },

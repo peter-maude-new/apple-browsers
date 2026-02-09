@@ -3962,6 +3962,7 @@ extension MainViewController {
 extension MainViewController: FireExecutorDelegate {
     
     func willStartBurning(fireRequest: FireRequest) {
+        showBurningOverlay()
         switch fireRequest.trigger {
         case .manualFire:
             return
@@ -3971,7 +3972,6 @@ extension MainViewController: FireExecutorDelegate {
             autoClearInProgress = true
             clearNavigationStack()
         }
-        showBurningOverlay()
     }
     
     private func firePixels(for request: FireRequest) {
@@ -4059,14 +4059,17 @@ extension MainViewController: FireExecutorDelegate {
 extension MainViewController {
     
     private func showBurningOverlay() {
-        let overlay = UIView(frame: view.bounds)
+        guard let window = view.window else { return }
+        
+        let overlay = UIView(frame: window.bounds)
         overlay.backgroundColor = .clear
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(burningOverlayTapped))
         tap.cancelsTouchesInView = false
         overlay.addGestureRecognizer(tap)
         
-        view.addSubview(overlay)
+        window.addSubview(overlay)
+        window.bringSubviewToFront(overlay)
         burningOverlayView = overlay
     }
     

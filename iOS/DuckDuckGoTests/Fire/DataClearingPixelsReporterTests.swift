@@ -217,11 +217,11 @@ final class DataClearingPixelsReporterTests: XCTestCase {
     
     func testWhenFireResiduePixelCalledThenPixelIsFired() {
         // When
-        sut.fireResiduePixel(DataClearingPixels.burnTabsHasResidue)
+        sut.fireResiduePixel(DataClearingPixels.burnTabsHasResidue(scope: "all"))
         
         // Then
         mockPixelFiring.expectedFireCalls = [
-            .init(pixel: DataClearingPixels.burnTabsHasResidue, frequency: .standard)
+            .init(pixel: DataClearingPixels.burnTabsHasResidue(scope: "all"), frequency: .standard)
         ]
         mockPixelFiring.verifyExpectations(file: #file, line: #line)
     }
@@ -230,18 +230,18 @@ final class DataClearingPixelsReporterTests: XCTestCase {
     
     func testWhenResidueCheckReturnsTrueThenPixelIsFired() {
         // When
-        sut.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) { true }
+        sut.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: "all")) { true }
         
         // Then
         mockPixelFiring.expectedFireCalls = [
-            .init(pixel: DataClearingPixels.burnTabsHasResidue, frequency: .standard)
+            .init(pixel: DataClearingPixels.burnTabsHasResidue(scope: "all"), frequency: .standard)
         ]
         mockPixelFiring.verifyExpectations(file: #file, line: #line)
     }
     
     func testWhenResidueCheckReturnsFalseThenNoPixelIsFired() {
         // When
-        sut.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) { false }
+        sut.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: "all")) { false }
         
         // Then
         XCTAssertTrue(mockPixelFiring.actualFireCalls.isEmpty)

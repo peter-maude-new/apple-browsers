@@ -313,7 +313,7 @@ class FireExecutor: FireExecuting {
             tabManager.prepareCurrentTabForDataClearing()
             tabManager.removeAll()
             dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
-            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
+            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: scope.description)) {
                 tabManager.count > 1
             }
             Favicons.shared.clearCache(.tabs)
@@ -334,7 +334,7 @@ class FireExecutor: FireExecuting {
             // Close the tab and append a new empty tab, reusing existing one if exists
             tabManager.closeTabAndNavigateToHomepage(viewModel.tab, clearTabHistory: false)
             dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
-            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
+            dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: scope.description)) {
                 tabManager.controller(for: viewModel.tab) != nil
             }
 

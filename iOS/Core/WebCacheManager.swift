@@ -55,10 +55,10 @@ public protocol WebsiteDataManaging {
 }
 
 public struct WebCacheClearingReporter {
-    public var onResidue: (String) -> Void
+    public var onResidue: (String, String?) -> Void
 
     public init(
-        onResidue: @escaping (String) -> Void
+        onResidue: @escaping (String, String?) -> Void
     ) {
         self.onResidue = onResidue
     }
@@ -277,7 +277,7 @@ extension WebCacheManager {
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
             Task {
                 if await !dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes).isEmpty {
-                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue, scope.description)
                 }
             }
         case .limited(let dataRecords, _):
@@ -290,7 +290,7 @@ extension WebCacheManager {
             Task {
                 let remainingRecords = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
                 if remainingRecords.contains(where: { record in dataRecords(record.displayName) }) {
-                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                    clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue, scope.description)
                 }
             }
         }
@@ -316,7 +316,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
             }
             if hasResidue {
-                clearingReporter?.onResidue(ClearingStep.clearFireproofableDataForNonFireproofDomains.rawValue)
+                clearingReporter?.onResidue(ClearingStep.clearFireproofableDataForNonFireproofDomains.rawValue, nil)
             }
         }
     }
@@ -342,7 +342,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.cookiesEvaluator(cookie)
             }
             if hasResidue {
-                clearingReporter?.onResidue(ClearingStep.clearCookiesForNonFireproofedDomains.rawValue)
+                clearingReporter?.onResidue(ClearingStep.clearCookiesForNonFireproofedDomains.rawValue, nil)
             }
         }
     }

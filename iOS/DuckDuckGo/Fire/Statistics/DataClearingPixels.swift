@@ -31,7 +31,7 @@ enum DataClearingPixels {
     // MARK: - Tab Manager
 
     case burnTabsDuration(duration: Int, scope: String)
-    case burnTabsHasResidue
+    case burnTabsHasResidue(scope: String)
     case burnTabsError(Error)
 
     // MARK: - URL Cache
@@ -41,7 +41,7 @@ enum DataClearingPixels {
 
     // MARK: - Website Data
 
-    case burnWebsiteDataHasResidue(step: String)
+    case burnWebsiteDataHasResidue(step: String, scope: String?)
     case burnWebsiteDataError(Error)
 
     // MARK: - History
@@ -116,11 +116,18 @@ extension DataClearingPixels: PixelKitEvent {
                 .burnAIChatHistoryDuration(let duration, let scope):
             return ["duration": String(duration), "scope": scope]
 
-        case .burnWebsiteDataHasResidue(let step):
-            return ["step": step]
+        case .burnWebsiteDataHasResidue(let step, let scope):
+            var params = ["step": step]
+            if let scope {
+                params["scope"] = scope
+            }
+            return params
+            
+        case .burnTabsHasResidue(let scope):
+            return ["scope": scope]
             
         case .retriggerIn20s, .userActionBeforeCompletion,
-              .burnTabsHasResidue, .burnURLCacheHasResidue,
+              .burnURLCacheHasResidue,
              .burnTabsError, .burnHistoryError, .burnWebsiteDataError, .burnAIChatHistoryError:
             return nil
         }
