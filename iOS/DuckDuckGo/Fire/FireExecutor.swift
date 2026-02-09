@@ -43,7 +43,7 @@ struct FireRequest {
         static let aiChats = Options(rawValue: 1 << 2)
         static let all: Options = [.tabs, .data, .aiChats]
         
-        private static let descriptions: [(Options, String)] = [(.tabs, "tabs"), (.data, "data"),(.aiChats, "ai_chats")]
+        private static let descriptions: [(Options, String)] = [(.tabs, "tabs"), (.data, "data"), (.aiChats, "ai_chats")]
             
         var description: String {
             let components = Self.descriptions
@@ -312,9 +312,9 @@ class FireExecutor: FireExecuting {
             let startTime = CACurrentMediaTime()
             tabManager.prepareCurrentTabForDataClearing()
             tabManager.removeAll()
-            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope)
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
             dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
-                tabManager.count > 0
+                tabManager.count > 1
             }
             Favicons.shared.clearCache(.tabs)
         case .tab(let viewModel):
@@ -333,7 +333,7 @@ class FireExecutor: FireExecuting {
             // didFinishBurning(fireRequest:) manually clears data after burn is complete
             // Close the tab and append a new empty tab, reusing existing one if exists
             tabManager.closeTabAndNavigateToHomepage(viewModel.tab, clearTabHistory: false)
-            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope)
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
             dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue) {
                 tabManager.controller(for: viewModel.tab) != nil
             }
@@ -398,7 +398,7 @@ class FireExecutor: FireExecuting {
         self.forgetTextZoom()
         let clearHistoryStartTime = CACurrentMediaTime()
         await historyManager.removeAllHistory()
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: urlSessionClearStartTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: clearHistoryStartTime, scope: FireRequest.Scope.all.description)
         await privacyStats?.clearPrivacyStats()
     }
     
@@ -486,13 +486,11 @@ class FireExecutor: FireExecuting {
         let startTime = CACurrentMediaTime()
         switch request.scope {
         case .tab(let viewModel):
-            let startTime = Date()
             await burnTabAIHistory(tabViewModel: viewModel)
         case .all:
-            let startTime = Date()
             await burnAllAIHistory(trigger: request.trigger)
         }
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnAIChatHistoryDuration, from: startTime, scope: request.scope)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnAIChatHistoryDuration, from: startTime, scope: request.scope.description)
     }
     
     private func burnAllAIHistory(trigger: FireRequest.Trigger) async {

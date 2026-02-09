@@ -47,7 +47,8 @@ final class DataClearingPixelsReporter {
                 duration: prepareDuration(from: startTime, to: timeProvider()),
                 option: request.options.description,
                 trigger: request.trigger.description,
-                scope: request.scope.description
+                scope: request.scope.description,
+                source: request.source.rawValue
             ),
             frequency: .standard
         )
@@ -78,9 +79,9 @@ final class DataClearingPixelsReporter {
     
     func fireDurationPixel(_ durationPixel: @escaping (Int, String) -> DataClearingPixels,
                            from startTime: CFTimeInterval,
-                           scope: FireRequest.Scope) {
+                           scope: String) {
         pixelFiring?.fire(
-            durationPixel(prepareDuration(from: startTime, to: timeProvider()), scope.description),
+            durationPixel(prepareDuration(from: startTime, to: timeProvider()), scope),
             frequency: .standard
         )
     }

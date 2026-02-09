@@ -20,7 +20,7 @@ import Foundation
 
 public protocol DataClearingPixelsHandling {
     func fireErrorPixel(_ error: Error)
-    func fireDurationPixel(from startTime: CFTimeInterval)
+    func fireDurationPixel(from startTime: CFTimeInterval, scope: String?)
 }
 
 public extension DataClearingPixelsHandling {
@@ -28,7 +28,7 @@ public extension DataClearingPixelsHandling {
         // Default: no-op
     }
 
-    func fireDurationPixel(from startTime: CFTimeInterval) {
+    func fireDurationPixel(from startTime: CFTimeInterval, scope: String? = nil) {
         // Default: no-op
     }
 }

@@ -276,7 +276,7 @@ extension WebCacheManager {
         case .all:
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
             Task {
-                if await !dataStore.dataRecords(ofTypes:  Self.safelyRemovableWebsiteDataTypes).isEmpty {
+                if await !dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes).isEmpty {
                     clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
                 }
             }
@@ -316,7 +316,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
             }
             if hasResidue {
-                clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue)
+                clearingReporter?.onResidue(ClearingStep.clearFireproofableDataForNonFireproofDomains.rawValue)
             }
         }
     }

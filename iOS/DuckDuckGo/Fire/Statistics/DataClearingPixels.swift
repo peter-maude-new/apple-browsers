@@ -24,7 +24,7 @@ enum DataClearingPixels {
 
     // MARK: - Overall Flow Metrics
 
-    case clearingCompletion(duration: Int, option: String, trigger: String, scope: String)
+    case clearingCompletion(duration: Int, option: String, trigger: String, scope: String, source: String)
     case retriggerIn20s
     case userActionBeforeCompletion
 
@@ -46,7 +46,7 @@ enum DataClearingPixels {
 
     // MARK: - History
 
-    case burnHistoryDuration(Int)
+    case burnHistoryDuration(duration: Int, scope: String)
     case burnHistoryError(Error)
 
     // MARK: - AI Chat History
@@ -99,19 +99,20 @@ extension DataClearingPixels: PixelKitEvent {
 
     var parameters: [String: String]? {
         switch self {
-        case .clearingCompletion(let duration, let option, let trigger, let scope):
+        case .clearingCompletion(let duration, let option, let trigger, let scope, let source):
             return [
                 "duration": String(duration),
                 "option": option,
                 "trigger": trigger,
-                "scope": scope
+                "scope": scope,
+                "source": source
             ]
 
-        case .burnURLCacheDuration(let duration),
-                .burnHistoryDuration(let duration):
+        case .burnURLCacheDuration(let duration):
             return ["duration": String(duration)]
             
         case .burnTabsDuration(let duration, let scope),
+                .burnHistoryDuration(let duration, let scope),
                 .burnAIChatHistoryDuration(let duration, let scope):
             return ["duration": String(duration), "scope": scope]
 

@@ -151,7 +151,9 @@ public class HistoryManager: HistoryManaging {
     @MainActor
     public func removeBrowsingHistory(tabID: String) async {
         do {
+            let startTime = CACurrentMediaTime()
             try await dbCoordinator.burnVisits(for: tabID)
+            burnHistoryPixelsHandling?.fireDurationPixel(from: startTime, scope: "tab")
         } catch {
             burnHistoryPixelsHandling?.fireErrorPixel(error)
             Logger.history.error("Failed to remove global history for tab: \(error.localizedDescription)")
@@ -345,7 +347,7 @@ extension HistoryManager {
                                             tabHistoryCoordinator: tabHistoryCoordinator,
                                             isAutocompleteEnabledByUser: isAutocompleteEnabledByUser(),
                                             isRecentlyVisitedSitesEnabledByUser: isRecentlyVisitedSitesEnabledByUser(),
-                                            burnTabsPixelsHandling: burnHistoryPixelsHandling,
+                                            burnTabsPixelsHandling: burnTabsPixelsHandling,
                                             burnHistoryPixelsHandling: burnHistoryPixelsHandling)
 
         MainActor.assumeMainThread {

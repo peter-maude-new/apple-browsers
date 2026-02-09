@@ -1,5 +1,5 @@
 //
-//  DataClearingHandler.swift
+//  DataClearingPixelsHandler.swift
 //  DuckDuckGo
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
@@ -45,7 +45,7 @@ struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
         dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
     }
     
-    func fireDurationPixel(from startTime: CFTimeInterval) {
-        dataClearingPixelsResporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime)
+    func fireDurationPixel(from startTime: CFTimeInterval, scope: String) {
+        dataClearingPixelsResporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime, scope: scope)
     }
 }

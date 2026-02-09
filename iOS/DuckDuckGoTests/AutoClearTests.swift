@@ -21,6 +21,8 @@ import XCTest
 @testable import DuckDuckGo
 @testable import Core
 import BrowserServicesKit
+import PixelKit
+import PixelKitTestingUtilities
 
 @MainActor
 class AutoClearTests: XCTestCase {
@@ -32,6 +34,7 @@ class AutoClearTests: XCTestCase {
         var burnApplicationState: DataStoreWarmup.ApplicationState?
         
         weak var delegate: FireExecutorDelegate?
+        var dataClearingPixelsReporter: DataClearingPixelsReporter = .init(pixelFiring: PixelKitMock())
         
         func prepare(for request: FireRequest) { }
         
