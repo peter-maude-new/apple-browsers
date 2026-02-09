@@ -386,7 +386,10 @@
                     "funnel_appsettings_ios",
                     "funnel_appmenu_ios",
                     "funnel_app_ios",
-                    "funnel_app_ios__details"
+                    "funnel_app_ios__details",
+                    "funnel_duckai_ios__aisidebar",
+                    "funnel_duckai_ios__activatesubscription",
+                    "funnel_appdevices_website__details"
                 ]
             }
         ]

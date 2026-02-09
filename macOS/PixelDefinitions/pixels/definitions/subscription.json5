@@ -363,7 +363,12 @@
                     "funnel_appmenu_macos",
                     "funnel_freescan_macos",
                     "funnel_toolbar_macos",
-                    "funnel_appmenu_macos_winback"
+                    "funnel_appmenu_macos_winback",
+                    "funnel_home_website__tagline",
+                    "funnel_newtab_macos_nextstepscard",
+                    "funnel_applaunch_macos_winback",
+                    "funnel_appsettings_macos_winback",
+                    "funnel_duckai_macos__activatesubscription"
                 ]
             }
         ]
