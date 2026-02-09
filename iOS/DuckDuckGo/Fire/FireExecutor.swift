@@ -32,6 +32,8 @@ struct FireRequest {
     let options: Options
     let trigger: Trigger
     let scope: Scope
+    let source: Source
+    
     struct Options: OptionSet {
         
         let rawValue: Int
@@ -80,6 +82,15 @@ struct FireRequest {
                 return "all"
             }
         }
+    }
+    
+    enum Source: String {
+        case browsing
+        case tabSwitcher
+        case settings
+        case quickFire
+        case deeplink
+        case autoClear
     }
 }
 
@@ -193,7 +204,7 @@ class FireExecutor: FireExecuting {
         // Ensure all requested options are prepared
         let unpreparedOptions = request.options.subtracting(preparedOptions)
         if !unpreparedOptions.isEmpty {
-            let newRequest = FireRequest(options: unpreparedOptions, trigger: request.trigger, scope: request.scope)
+            let newRequest = FireRequest(options: unpreparedOptions, trigger: request.trigger, scope: request.scope, source: request.source)
             prepare(for: newRequest)
         }
         
@@ -397,6 +408,9 @@ class FireExecutor: FireExecuting {
             Logger.general.error("Expected domains to be present when burning tab scoped data")
             return
         }
+        
+        let timedPixel = TimedPixel(.singleTabDataCleared)
+        
         // If the user is on a version that uses containers, then we'll clear the current container, then migrate it. Otherwise
         //  this is the same as `WKWebsiteDataStore.default()`
         let storeToUse = dataStore ?? DDGWebsiteDataStoreProvider.current()
@@ -412,6 +426,13 @@ class FireExecutor: FireExecuting {
         
         // Await async tasks
         _ = await (websiteDataTask, historyTask, contextualChatTask)
+        
+        // Fire completion pixel with timing
+        let tabType = tabViewModel.tab.isAITab ? "ai" : "web"
+        timedPixel.fire(withAdditionalParameters: [
+            PixelParameters.tabType: tabType,
+            PixelParameters.domainsCount: "\(domains.count)"
+        ])
     }
     
     private func forgetTextZoom() {
@@ -515,10 +536,10 @@ class FireExecutor: FireExecuting {
         let result = await cleaner.deleteAIChat(chatID: chatID)
         switch result {
         case .success:
-            // TODO: - Add Pixel
+            DailyPixel.fireDailyAndCount(pixel: .aiChatSingleDeleteSuccessful)
             await aiChatSyncCleaner.recordChatDeletion(chatID: chatID)
         case .failure(let error):
-            // TODO: - Add Pixel
+            DailyPixel.fireDailyAndCount(pixel: .aiChatSingleDeleteFailed)
             Logger.aiChat.debug("Failed to delete AI Chat: \(error.localizedDescription)")
             if let userScriptError = error as? UserScriptError {
                 userScriptError.fireLoadJSFailedPixelIfNeeded()
