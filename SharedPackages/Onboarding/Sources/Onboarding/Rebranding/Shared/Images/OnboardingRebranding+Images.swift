@@ -1,5 +1,5 @@
 //
-//  OnboardingRebrandingAssets.swift
+//  OnboardingRebranding+Images.swift
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
@@ -18,6 +18,14 @@
 
 import SwiftUI
 
-public enum OnboardingRebrandingAssets {
-    public static let duckDuckGoLogo = Image("DuckDuckGoLogo", bundle: .module)
+public enum OnboardingRebrandingImages {
+
+    public enum Contextual {
+        public static let tryASearchBackground = Image("Rebranding/contextual-bg-try-search", bundle: .module)
+    }
+
+    public enum Rebranding {
+        public static let duckDuckGoLogo = Image("Rebranding/DuckDuckGoLogo", bundle: .module)
+    }
+
 }
