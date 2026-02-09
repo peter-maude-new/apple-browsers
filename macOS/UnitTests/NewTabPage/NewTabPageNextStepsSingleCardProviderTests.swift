@@ -102,7 +102,14 @@ final class NewTabPageNextStepsSingleCardProviderTests: XCTestCase {
     func testWhenInitializedThenCardListIsRefreshed() {
         featureFlagger.enabledFeatureFlags = []
         let testProvider = createProvider()
-        XCTAssertEqual(testProvider.cards, testProvider.defaultStandardCards)
+
+#if !APPSTORE
+        let expectedCards = testProvider.defaultStandardCards
+#else
+        let expectedCards = testProvider.defaultStandardCards.filter { $0 != .addAppToDockMac }
+#endif
+
+        XCTAssertEqual(testProvider.cards, expectedCards)
     }
 
     func testWhenInitializedWithNoVisibleCardsThenContinueSetUpCardsClosedIsSet() {
