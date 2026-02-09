@@ -832,6 +832,8 @@ class TabViewController: UIViewController {
             webView.trailingAnchor.constraint(equalTo: webViewContainer.trailingAnchor)
         ])
 
+        webView.scrollView.layer.masksToBounds = false
+
         updateContentInsetAdjustment()
 
         pullToRefreshViewAdapter = PullToRefreshViewAdapter(with: webView.scrollView,
