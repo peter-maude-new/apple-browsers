@@ -37,6 +37,7 @@ extension OnboardingRebranding.OnboardingView {
         @Environment(\.onboardingTheme) private var onboardingTheme
 
         private let title: String
+        private let message: String
         private let skipOnboardingView: AnyView?
         private var showCTA: Binding<Bool>
         private var isSkipped: Binding<Bool>
@@ -47,6 +48,7 @@ extension OnboardingRebranding.OnboardingView {
 
         init(
             title: String,
+            message: String,
             skipOnboardingView: AnyView?,
             showCTA: Binding<Bool> = .constant(false),
             isSkipped: Binding<Bool>,
@@ -54,6 +56,7 @@ extension OnboardingRebranding.OnboardingView {
             skipAction: @escaping () -> Void
         ) {
             self.title = title
+            self.message = message
             self.skipOnboardingView = skipOnboardingView
             self.showCTA = showCTA
             self.isSkipped = isSkipped

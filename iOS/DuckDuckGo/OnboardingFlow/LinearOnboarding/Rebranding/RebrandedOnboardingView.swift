@@ -203,7 +203,7 @@ extension OnboardingRebranding {
         private var landingView: some View {
             LandingView(animationNamespace: animationNamespace)
                 .ignoresSafeArea(edges: .bottom)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogDelay) {
                         withAnimation {
@@ -233,6 +233,7 @@ extension OnboardingRebranding {
 
             return IntroDialogContent(
                 title: model.copy.introTitle,
+                message: model.copy.introMessage,
                 skipOnboardingView: skipOnboardingView,
                 showCTA: $model.introState.showIntroButton,
                 isSkipped: $model.isSkipped,

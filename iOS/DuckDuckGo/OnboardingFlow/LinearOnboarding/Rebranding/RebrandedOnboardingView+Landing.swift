@@ -24,6 +24,7 @@ private enum LandingViewMetrics {
     static let logoSize: CGFloat = 80
     static let topPadding: CGFloat = 96
     static let welcomeBottomPadding: CGFloat = 20
+    static let horizontalPadding: CGFloat = 40
 }
 
 extension OnboardingRebranding.OnboardingView {
@@ -54,6 +55,7 @@ extension OnboardingRebranding.OnboardingView {
                     .foregroundStyle(onboardingTheme.colorPalette.textPrimary)
                     .multilineTextAlignment(.center)
             }
+            .padding(.horizontal, LandingViewMetrics.horizontalPadding)
         }
 
     }

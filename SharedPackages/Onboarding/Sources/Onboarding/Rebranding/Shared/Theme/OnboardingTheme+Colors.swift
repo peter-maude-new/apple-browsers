@@ -47,6 +47,10 @@ public extension OnboardingTheme {
         public let primaryButtonBackgroundColor: Color
         /// Primary button foreground/text color.
         public let primaryButtonTextColor: Color
+        /// Secondary button background color.
+        public let secondaryButtonBackgroundColor: Color
+        /// Secondary button foreground/text color.
+        public let secondaryButtonTextColor: Color
 
         /// Secondary button background color.
         public let secondaryButtonBackgroundColor: Color

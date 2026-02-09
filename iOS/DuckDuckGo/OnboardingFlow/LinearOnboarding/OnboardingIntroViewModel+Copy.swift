@@ -22,6 +22,7 @@ import Foundation
 extension OnboardingIntroViewModel {
     struct Copy {
         let introTitle: String
+        let introMessage: String
         let browserComparisonTitle: String
     }
 }
@@ -30,6 +31,7 @@ extension OnboardingIntroViewModel.Copy {
 
     static let `default` = OnboardingIntroViewModel.Copy(
         introTitle: UserText.Onboarding.Intro.title,
+        introMessage: UserText.Onboarding.Intro.message,
         browserComparisonTitle: UserText.Onboarding.BrowsersComparison.title
     )
 

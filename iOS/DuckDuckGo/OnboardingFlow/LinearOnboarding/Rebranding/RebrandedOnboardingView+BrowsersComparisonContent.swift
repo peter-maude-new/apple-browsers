@@ -21,6 +21,10 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum BrowsersComparisonContentMetrics {
+    static let titleFont = Font.system(size: 20, weight: .bold)
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct BrowsersComparisonContent: View {
