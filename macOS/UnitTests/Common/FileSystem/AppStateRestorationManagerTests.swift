@@ -220,7 +220,7 @@ final class AppStateRestorationManagerTests: XCTestCase {
         mockStartupPreferences.restorePreviousSession = false
 
         // And: The app is relaunching automatically (e.g., after update)
-        UserDefaults.standard.set(true, forKey: "appIsRelaunchingAutomatically")
+        UserDefaults.standard.set(true, forKey: "app-relaunching-automatically")
 
         // And: There is session data to restore
         addMockSessionData()
@@ -229,7 +229,7 @@ final class AppStateRestorationManagerTests: XCTestCase {
         appStateManager.applicationDidFinishLaunching()
 
         // Then: The automatic relaunch flag should be reset
-        XCTAssertEqual(UserDefaults.standard.bool(forKey: "appIsRelaunchingAutomatically"), false)
+        XCTAssertEqual(UserDefaults.standard.bool(forKey: "app-relaunching-automatically"), false)
 
         // Note: The actual tab restoration is verified through integration tests
         // since it requires the full WindowsManager stack to decode state properly
