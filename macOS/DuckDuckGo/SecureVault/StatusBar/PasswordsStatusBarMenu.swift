@@ -19,6 +19,7 @@
 import AppKit
 import Combine
 import Foundation
+import PixelKit
 
 /// Manages the passwords status bar menu item in the macOS menu bar.
 ///
@@ -91,6 +92,8 @@ final class PasswordsStatusBarMenu: NSObject {
                 return
             }
 
+            PixelKit.fire(GeneralPixel.autofillPasswordsStatusBarIconClicked)
+
             let popover = PasswordsStatusBarPopover(pinningManager: pinningManager)
             self.popover = popover
             popover.select(category: .allItems)
@@ -132,6 +135,7 @@ final class PasswordsStatusBarMenu: NSObject {
     @objc
     private func hideFromMenuBar() {
         preferences.showInMenuBar = false
+        PixelKit.fire(GeneralPixel.autofillPasswordsStatusBarSettingDisabled)
     }
 
     // MARK: - Showing & Hiding the menu

@@ -66,6 +66,7 @@ final class AutofillPreferencesModel: ObservableObject {
     @Published var showInMenuBar: Bool {
         didSet {
             persistor.showInMenuBar = showInMenuBar
+            PixelKit.fire(showInMenuBar ? GeneralPixel.autofillPasswordsStatusBarSettingEnabled : GeneralPixel.autofillPasswordsStatusBarSettingDisabled)
         }
     }
 
