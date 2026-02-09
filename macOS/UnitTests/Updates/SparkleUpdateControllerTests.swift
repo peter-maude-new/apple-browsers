@@ -16,8 +16,6 @@
 //  limitations under the License.
 //
 
-import AppUpdaterShared
-import AppUpdaterTestHelpers
 import BrowserServicesKit
 import BrowserServicesKitTestsUtils
 import Persistence
@@ -29,7 +27,7 @@ import Sparkle
 import Subscription
 import XCTest
 
-@testable import SparkleAppUpdater
+@testable import DuckDuckGo_Privacy_Browser
 
 final class SparkleUpdateControllerTests: XCTestCase {
 

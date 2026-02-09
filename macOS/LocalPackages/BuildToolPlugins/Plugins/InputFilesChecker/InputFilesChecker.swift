@@ -83,7 +83,7 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
         .init("SparkleUpdaterAvailabilityCheckerTests.swift", .source),
         .init("UpdateCheckStateTests.swift", .source),
         .init("UpdateWideEventDataTests.swift", .source),
-        .init("UpdateControllerTests.swift", .source),
+        .init("SparkleUpdateControllerTests.swift", .source),
         .init("ApplicationUpdateDetectorTests.swift", .source),
         .init("SimplifiedSparkleUpdateControllerTests.swift", .source),
         .init("ReleaseNotesParserTests.swift", .source),

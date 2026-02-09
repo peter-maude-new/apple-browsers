@@ -360,7 +360,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var didFinishLaunching = false
 
-    var updateController: UpdateController!
+    var updateController: UpdateController?
 #if SPARKLE
     var dockCustomization: DockCustomization?
 #endif
@@ -1084,8 +1084,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 assertionFailure("Failed to get update controller type")
             }
-        } else {
-            updateController = nil
         }
 
         appIconChanger = AppIconChanger(internalUserDecider: internalUserDecider, appearancePreferences: appearancePreferences)
@@ -1757,7 +1755,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #if SPARKLE
         guard AppVersion.runType != .uiTests else { return }
 
-        updateProgressCancellable = updateController.updateProgressPublisher
+        updateProgressCancellable = updateController?.updateProgressPublisher
             .sink { [weak self] progress in
                 self?.updateController?.checkNewApplicationVersionIfNeeded(updateProgress: progress)
             }

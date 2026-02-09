@@ -16,7 +16,7 @@
 //  limitations under the License.
 //
 
-final class StandardApplicationBuildType: ApplicationBuildType {
+struct StandardApplicationBuildType: ApplicationBuildType {
     var isSparkleBuild: Bool {
 #if SPARKLE
         return true

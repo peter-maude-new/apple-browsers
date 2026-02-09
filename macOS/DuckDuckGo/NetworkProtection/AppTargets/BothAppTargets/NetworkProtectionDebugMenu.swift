@@ -234,11 +234,7 @@ final class NetworkProtectionDebugMenu: NSMenu {
     ///
     @objc func disableLoginItem(_ sender: Any?) {
         Task { @MainActor in
-            do {
-                try await debugUtilities.disableLoginItems()
-            } catch {
-                await NSAlert(error: error).runModal()
-            }
+            debugUtilities.disableLoginItems()
         }
     }
 
