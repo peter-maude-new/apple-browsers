@@ -40,7 +40,9 @@ public extension OnboardingTheme {
             optionsListIconColor: Color(designSystemColor: .accentPrimary),
             optionsListTextColor: Color(designSystemColor: .textLink),
             primaryButtonBackgroundColor: Color(designSystemColor: .buttonsPrimaryDefault),
-            primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText)
+            primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText),
+            secondaryButtonBackgroundColor: Color(designSystemColor: .buttonsSecondaryFillDefault),
+            secondaryButtonTextColor: Color(designSystemColor: .buttonsSecondaryFillText)
         )
 
         let dismissButtonMetrics = DismissButtonMetrics(
