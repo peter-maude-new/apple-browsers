@@ -189,7 +189,8 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
                     preferencesPersistor: DuckPlayerPreferencesPersistorMock(),
                     privacyConfigurationManager: MockPrivacyConfigurationManager(),
                     internalUserDecider: featureFlagger.internalUserDecider
-                )
+                ),
+                pinningManager: MockPinningManager()
             )
             _=viewController.view
             window = MockWindow()
@@ -485,7 +486,7 @@ final class BrowserTabViewControllerOnboardingTests: XCTestCase {
                                               historyProvider: MockHistoryViewDataProvider())
         let mainViewController = MainViewController(
             tabCollectionViewModel: TabCollectionViewModel(tabCollection: TabCollection(tabs: [])),
-            autofillPopoverPresenter: DefaultAutofillPopoverPresenter(),
+            autofillPopoverPresenter: DefaultAutofillPopoverPresenter(pinningManager: MockPinningManager()),
             aiChatSidebarProvider: AIChatSidebarProvider(featureFlagger: MockFeatureFlagger()),
             fireCoordinator: fireCoordinator
         )

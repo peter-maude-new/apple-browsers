@@ -80,7 +80,7 @@ final class PreferencesSidebarModelTests: XCTestCase {
         mockFeatureFlagger = MockFeatureFlagger()
         mockPrivacyConfigurationManager = MockPrivacyConfigurationManager()
         mockSyncService = MockDDGSyncing(authState: .inactive, isSyncInProgress: false)
-        mockVPNGatekeeper = DefaultVPNFeatureGatekeeper(subscriptionManager: mockSubscriptionManager)
+        mockVPNGatekeeper = DefaultVPNFeatureGatekeeper(vpnUninstaller: VPNUninstaller(pinningManager: MockPinningManager()), subscriptionManager: mockSubscriptionManager)
         cancellables.removeAll()
     }
 
