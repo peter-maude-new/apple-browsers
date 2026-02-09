@@ -26,9 +26,6 @@ let nonSandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("BWManager.swift", .source),
     .init("DuckDuckGo VPN.app", .unknown),
     .init("DuckDuckGo Personal Information Removal.app", .unknown),
-    .init("SparkleDebugHelper.swift", .source),
-    .init("SparkleUpdateMenuItemFactory.swift", .source),
-    .init("UpdatesDebugMenu.swift", .source),
     .init("ApplicationUpdateDetector.swift", .source),
     .init("ReleaseNotesTabExtension.swift", .source),
     .init("ReleaseNotesUserScript.swift", .source),
@@ -51,7 +48,6 @@ let sandboxedExtraInputFiles: Set<InputFile> = Set([
     .init("AppStoreInfoPlist.xcstrings", .resource),
     .init("AppStoreOpener.swift", .source),
     .init("AppStoreUpdateController.swift", .source),
-    .init("AppStoreUpdateMenuItemFactory.swift", .source),
     .init("AppStoreUpdaterAvailabilityChecker.swift", .source),
     .init("LatestReleaseChecker.swift", .source),
 ])
@@ -77,7 +73,6 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
         .init("BWEncryptionTests.swift", .source),
         .init("WKWebViewPrivateMethodsAvailabilityTests.swift", .source),
         .init("SupportedOSCheckerTests.swift", .source),
-        .init("SparkleUpdateMenuItemFactoryTests.swift", .source),
         .init("SparkleUpdateCompletionValidatorTests.swift", .source),
         .init("SparkleUpdateWideEventTests.swift", .source),
         .init("SparkleUpdaterAvailabilityCheckerTests.swift", .source),
@@ -91,7 +86,6 @@ let extraInputFiles: [TargetName: Set<InputFile>] = [
 
     "Unit Tests App Store": [
         .init("AppStoreUpdateControllerTests.swift", .source),
-        .init("AppStoreUpdateMenuItemFactoryTests.swift", .source),
         .init("AppStoreUpdaterAvailabilityCheckerTests.swift", .source),
         .init("LatestReleaseCheckerTests.swift", .source),
     ],

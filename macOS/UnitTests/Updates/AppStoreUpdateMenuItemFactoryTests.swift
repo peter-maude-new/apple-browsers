@@ -68,7 +68,7 @@ final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {
         let menuItem = AppStoreUpdateMenuItemFactory.menuItem(for: mockUpdate)
 
         // Then
-        XCTAssertEqual(menuItem.action, #selector(AppStoreUpdateController.openUpdatesPage))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.openUpdatesPage))
     }
 
     func testMenuItem_IsEnabled() {
@@ -99,7 +99,7 @@ final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {
 
         // Then
         XCTAssertEqual(menuItem.title, UserText.updateAvailableMenuItemAppStore)
-        XCTAssertEqual(menuItem.action, #selector(AppStoreUpdateController.openUpdatesPage))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.openUpdatesPage))
     }
 
     func testMenuItem_WithInstalledUpdate() {
@@ -120,6 +120,6 @@ final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {
 
         // Then
         XCTAssertEqual(menuItem.title, UserText.updateAvailableMenuItemAppStore)
-        XCTAssertEqual(menuItem.action, #selector(AppStoreUpdateController.openUpdatesPage))
+        XCTAssertEqual(menuItem.action, #selector(UpdateController.openUpdatesPage))
     }
 }

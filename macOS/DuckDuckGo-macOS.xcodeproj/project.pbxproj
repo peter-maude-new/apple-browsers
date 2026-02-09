@@ -2299,6 +2299,12 @@
 		8409BD792ED878C400E39FA7 /* popup-servicenow.html in Resources */ = {isa = PBXBuildFile; fileRef = 8409BD772ED878C400E39FA7 /* popup-servicenow.html */; };
 		8409BD7A2ED878C400E39FA7 /* popup-links.html in Resources */ = {isa = PBXBuildFile; fileRef = 8409BD762ED878C400E39FA7 /* popup-links.html */; };
 		840B66832F39FC2A001E20C6 /* SparkleUpdateControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840B66822F39FC2A001E20C6 /* SparkleUpdateControllerTests.swift */; };
+		840B66842F3A01FB001E20C6 /* SparkleUpdateMenuItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA84D312C119AE70011C80F /* SparkleUpdateMenuItemFactory.swift */; };
+		840B66852F3A0200001E20C6 /* AppStoreUpdateMenuItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0B4EA12E7B1318005A2F57 /* AppStoreUpdateMenuItemFactory.swift */; };
+		840B66882F3A0273001E20C6 /* UpdatesDebugMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC641142DD1FBD600272A9D /* UpdatesDebugMenu.swift */; };
+		840B668A2F3A02EA001E20C6 /* SparkleUpdateMenuItemFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0B4EA92E7B5084005A2F57 /* SparkleUpdateMenuItemFactoryTests.swift */; };
+		840B668B2F3A02FC001E20C6 /* AppStoreUpdateMenuItemFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0B4EA62E7B5084005A2F57 /* AppStoreUpdateMenuItemFactoryTests.swift */; };
+		840B668D2F3A0474001E20C6 /* SparkleDebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5886382EAFEF310079F8B1 /* SparkleDebugHelper.swift */; };
 		840E57E42F30A988009CFCEE /* LatestReleaseChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840E57E32F30A988009CFCEE /* LatestReleaseChecker.swift */; };
 		840E57E92F30A9AA009CFCEE /* Update+Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840E57E82F30A9AA009CFCEE /* Update+Sparkle.swift */; };
 		840E57EA2F30A9AA009CFCEE /* SPUUpdater+UpdaterAvailabilityChecking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840E57E72F30A9AA009CFCEE /* SPUUpdater+UpdaterAvailabilityChecking.swift */; };
@@ -14142,6 +14148,7 @@
 				37197EAB2942443D00394917 /* WebViewContainerView.swift in Sources */,
 				84F1C8DF2C774D4200716446 /* NSTableViewExtension.swift in Sources */,
 				3706FA88293F65D500E42796 /* Logger+Multiple.swift in Sources */,
+				840B66882F3A0273001E20C6 /* UpdatesDebugMenu.swift in Sources */,
 				3745DE0C2D53969300024FC8 /* HistoryDebugMenu.swift in Sources */,
 				EECA36BC2E869E49005A42EE /* SafariArchiveImporter.swift in Sources */,
 				846FA8DD2ED6CDAC00F263AA /* NewWindowPolicyDecisionMaking.swift in Sources */,
@@ -14372,6 +14379,7 @@
 				BBFB72802C48047C0088884C /* SortBookmarksViewModel.swift in Sources */,
 				37197EA72942443D00394917 /* AuthenticationAlert.swift in Sources */,
 				37C7493A2D55FE710065B48B /* HistoryViewActionsHandler.swift in Sources */,
+				840B668D2F3A0474001E20C6 /* SparkleDebugHelper.swift in Sources */,
 				3706FEC3293F6F0600E42796 /* NativeMessagingCommunicator.swift in Sources */,
 				1DA6D0FE2A1FF9A100540406 /* HTTPCookie.swift in Sources */,
 				3706FAFC293F65D500E42796 /* DownloadListItem.swift in Sources */,
@@ -14623,6 +14631,7 @@
 				3707C717294B5D0F00682A9F /* FindInPageTabExtension.swift in Sources */,
 				8470EAF22F10F62C009DCEB6 /* ActiveDownloadsAppTerminationDecider.swift in Sources */,
 				BB486B552E749A060026B972 /* AppStoreUpdateController.swift in Sources */,
+				840B66842F3A01FB001E20C6 /* SparkleUpdateMenuItemFactory.swift in Sources */,
 				840E57E42F30A988009CFCEE /* LatestReleaseChecker.swift in Sources */,
 				3706FB81293F65D500E42796 /* IndexPathExtension.swift in Sources */,
 				4BF97AD62B43C45800EB4240 /* NetworkProtectionNavBarPopoverManager.swift in Sources */,
@@ -15461,6 +15470,7 @@
 				BB9BA2202D10BC72009229F3 /* TabBarRemoteMessageViewModelTests.swift in Sources */,
 				CCD89A142ECE2C01008E738B /* DefaultBrowserAndDockPromptNotificationPresenterTests.swift in Sources */,
 				C13909F52B85FD79001626ED /* AutofillDeleteAllPasswordsExecutorTests.swift in Sources */,
+				840B668A2F3A02EA001E20C6 /* SparkleUpdateMenuItemFactoryTests.swift in Sources */,
 				37D046A52C7DAA8900AEAA50 /* ImageProcessorMock.swift in Sources */,
 				857E44642A9F70F200ED77A7 /* CampaignVariantTests.swift in Sources */,
 				C181945A2C7CA9AB00381092 /* FreemiumDBPFeatureTests.swift in Sources */,
@@ -17101,6 +17111,7 @@
 				371E1D682D0B2E9F00F9205B /* NewTabPageCustomizationProvider.swift in Sources */,
 				9FFBEE7E2DDF02F30058B11A /* DefaultBrowserAndDockPromptStatusUpdateNotifier.swift in Sources */,
 				B568715F2EC528950075A270 /* CABasicAnimationExtension.swift in Sources */,
+				840B66852F3A0200001E20C6 /* AppStoreUpdateMenuItemFactory.swift in Sources */,
 				37E794912EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityStorage.swift in Sources */,
 				37E794922EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivity.swift in Sources */,
 				37E794932EB9E955007BF23C /* DefaultBrowserAndDockPromptUserActivityProvider.swift in Sources */,
@@ -17461,6 +17472,7 @@
 				CC26B6162F0BE1DC00D380B6 /* MockNewTabPageNextStepsCardsPixelHandler.swift in Sources */,
 				37EC314D2D8C02C00026C348 /* FaviconTests.swift in Sources */,
 				1DE717D12E44B24D009BDFFA /* NewTabPagePreloaderTests.swift in Sources */,
+				840B668B2F3A02FC001E20C6 /* AppStoreUpdateMenuItemFactoryTests.swift in Sources */,
 				1E2A88802E2E532600C29AC0 /* AIChatSidebarPresenterTests.swift in Sources */,
 				37534CA52811987D002621E7 /* AdjacentItemEnumeratorTests.swift in Sources */,
 				9FBB0C092CBD39B70006B6A6 /* ViewHighlighterTests.swift in Sources */,
