@@ -48,11 +48,6 @@ public extension OnboardingTheme {
         /// Primary button foreground/text color.
         public let primaryButtonTextColor: Color
 
-        /// Secondary button background color.
-        public let secondaryButtonBackgroundColor: Color
-        /// Secondary button foreground/text color.
-        public let secondaryButtonTextColor: Color
-
         /// Creates a color palette for onboarding surfaces, text, and controls.
         public init(
             background: Color,

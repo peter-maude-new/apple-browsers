@@ -60,7 +60,7 @@ public extension OnboardingTheme {
         )
 
         return OnboardingTheme(
-            typography: .system,
+            typography: typography,
             colorPalette: colorPalette,
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
@@ -70,45 +70,17 @@ public extension OnboardingTheme {
                 shadowPosition: CGPoint(x: 0, y: 7)
             ),
             dismissButtonMetrics: dismissButtonMetrics,
-            contextualOnboardingMetrics: OnboardingTheme.ContextualOnboardingMetrics(
-                contentSpacing: 20,
-                titleBodyVerticalSpacing: 10,
-                titleBodyInset: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
-                contextualTitleTextAlignment: .leading,
-                contextualBodyTextAlignment: .leading,
-                optionsListMetrics: contextualOptionsListMetrics,
-                optionsListButtonStyle: OnboardingButtonStyle(
-                    id: .list,
-                    style: AnyButtonStyle(
-                        OnboardingRebranding.OnboardingStyles.ListButtonStyle(
-                            typography: typography,
-                            colorPalette: colorPalette,
-                            optionsListMetrics: contextualOptionsListMetrics
-                        )
-                    )
-                )
-            ),
             linearTitleTextAlignment: .center,
             linearBodyTextAlignment: .center,
+            contextualTitleTextAlignment: .leading,
+            contextualBodyTextAlignment: .leading,
             primaryButtonStyle: OnboardingButtonStyle(
                 id: .primary,
                 style: AnyButtonStyle(OnboardingPrimaryButtonStyle())
             ),
-            secondaryButtonStyle: OnboardingButtonStyle(
-                id: .secondary,
-                style: AnyButtonStyle(OnboardingSecondaryButtonStyle())
-            ),
             dismissButtonStyle: OnboardingButtonStyle(
                 id: .dismiss,
-                style: AnyButtonStyle(
-                    OnboardingRebranding.OnboardingStyles.BubbleDismissButtonStyle(
-                        contentPadding: dismissButtonMetrics.contentPadding,
-                        backgroundColor: colorPalette.bubbleBackground,
-                        borderColor: colorPalette.bubbleBorder,
-                        borderWidth: borderWidth,
-                        buttonSize: dismissButtonMetrics.buttonSize
-                    )
-                )
+                style: AnyButtonStyle(OnboardingBubbleDismissButtonStyle())
             )
         )
     }()
