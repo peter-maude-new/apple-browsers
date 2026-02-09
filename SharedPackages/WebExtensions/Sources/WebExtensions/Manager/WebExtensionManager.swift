@@ -42,6 +42,41 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
     /// Optional internal site handler for platform-specific URL handling.
     public private(set) var internalSiteHandler: (any WebExtensionInternalSiteHandling)?
 
+    // MARK: - Native Messaging Ports
+    // Stores active message ports for bidirectional communication with extensions
+    private var messagePorts: [String: WKWebExtension.MessagePort] = [:]
+
+    /// Send a message to a connected extension via its MessagePort
+    /// - Parameters:
+    ///   - message: The message to send (will be serialized to JSON)
+    ///   - extensionContext: The extension context to send to
+    /// - Returns: true if message was queued, false if no port is connected
+    @discardableResult
+    func sendMessageToExtension(_ message: [String: Any], for extensionContext: WKWebExtensionContext) -> Bool {
+        let identifier = extensionContext.uniqueIdentifier
+        let extensionName = extensionContext.webExtension.displayName ?? identifier
+
+        guard let port = messagePorts[identifier] else {
+            Logger.webExtensions.warning("⚠️ No message port for extension: \(extensionName)")
+            return false
+        }
+
+        Logger.webExtensions.log("📤 Sending message TO extension '\(extensionName)': \(message)")
+        port.sendMessage(message) { error in
+            if let error = error {
+                Logger.webExtensions.error("❌ Failed to send message to '\(extensionName)': \(error.localizedDescription)")
+            }
+        }
+        return true
+    }
+
+    /// Send a message to all connected extensions
+    func broadcastMessageToExtensions(_ message: [String: Any]) {
+        for context in contexts {
+            sendMessageToExtension(message, for: context)
+        }
+    }
+
     // MARK: - AsyncStream
 
     private var continuation: AsyncStream<Void>.Continuation?
@@ -302,6 +337,94 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
                                        in tab: (any WKWebExtensionTab)?,
                                        for extensionContext: WKWebExtensionContext) async -> (Set<WKWebExtension.MatchPattern>, Date?) {
         (matchPatterns, nil)
+    }
+
+    // MARK: - Native Messaging API (Web Extension → Native)
+
+    public func webExtensionController(_ controller: WKWebExtensionController,
+                                       sendMessage message: Any,
+                                       toApplicationWithIdentifier applicationIdentifier: String?,
+                                       for extensionContext: WKWebExtensionContext) async throws -> Any? {
+
+        let extensionName = extensionContext.webExtension.displayName ?? "Unknown"
+
+        // Log the received message from web extension
+        if let messageDict = message as? [String: Any] {
+            let messageType = messageDict["type"] as? String ?? "unknown"
+            let userMessage = messageDict["message"] as? String ?? ""
+
+            Logger.webExtensions.log("📩 RECEIVED from web extension '\(extensionName)':")
+            Logger.webExtensions.log("   Type: \(messageType)")
+            Logger.webExtensions.log("   Message: \(userMessage)")
+            Logger.webExtensions.log("   Full payload: \(messageDict)")
+
+            return [
+                "status": "received",
+                "nativeTimestamp": Date().timeIntervalSince1970
+            ]
+        } else {
+            Logger.webExtensions.log("📩 RECEIVED from web extension (raw): \(String(describing: message))")
+            return ["status": "received"]
+        }
+    }
+
+    public func webExtensionController(_ controller: WKWebExtensionController,
+                                       connectUsing port: WKWebExtension.MessagePort,
+                                       for extensionContext: WKWebExtensionContext) async throws {
+        let extensionName = extensionContext.webExtension.displayName ?? "Unknown"
+        let identifier = extensionContext.uniqueIdentifier
+
+        Logger.webExtensions.log("🔌 Native messaging port CONNECTED from extension: \(extensionName)")
+
+        // Store the port for later use
+        messagePorts[identifier] = port
+
+        // Set up handler for messages FROM the extension
+        port.messageHandler = { [weak self] message, error in
+            if let error = error {
+                Logger.webExtensions.error("❌ Port message error: \(error.localizedDescription)")
+                return
+            }
+
+            guard let message = message else { return }
+
+            Logger.webExtensions.log("📩 RECEIVED via MessagePort from '\(extensionName)':")
+            Logger.webExtensions.log("   Payload: \(String(describing: message))")
+
+            // Handle the message - you can add custom logic here
+            if let messageDict = message as? [String: Any],
+               let type = messageDict["type"] as? String {
+                Logger.webExtensions.log("   Type: \(type)")
+
+                if let userMessage = messageDict["message"] as? String {
+                    Logger.webExtensions.log("   Message: \(userMessage)")
+                }
+            }
+        }
+
+        // Set up disconnect handler
+        port.disconnectHandler = { [weak self] error in
+            Logger.webExtensions.log("🔌 Native messaging port DISCONNECTED from extension: \(extensionName)")
+            self?.messagePorts.removeValue(forKey: identifier)
+
+            if let error = error {
+                Logger.webExtensions.error("   Disconnect error: \(error.localizedDescription)")
+            }
+        }
+
+        // Send a welcome message to the extension
+        Logger.webExtensions.log("📤 Sending welcome message to '\(extensionName)'...")
+        port.sendMessage([
+            "type": "connected",
+            "message": "Hello from DuckDuckGo native layer!",
+            "timestamp": Date().timeIntervalSince1970
+        ], completionHandler: { error in
+            if let error = error {
+                Logger.webExtensions.error("❌ Failed to send welcome message: \(error.localizedDescription)")
+            } else {
+                Logger.webExtensions.log("✅ Welcome message sent successfully")
+            }
+        })
     }
 }
 
