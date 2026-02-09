@@ -38,12 +38,8 @@ final class MockAutoClearAlertPresenter: AutoClearAlertPresenting {
     }
 }
 
-final class MockAppStateRestorationManager: AppStateRestorationManager {
-    var isRelaunchingAutomaticallyOverride: Bool?
-
-    override var isRelaunchingAutomatically: Bool {
-        return isRelaunchingAutomaticallyOverride ?? super.isRelaunchingAutomatically
-    }
+final class MockAppStateRestorationManager: AppStateRestorationManaging {
+    var isRelaunchingAutomatically: Bool = false
 }
 
 @MainActor
@@ -82,16 +78,7 @@ class AutoClearHandlerTests: XCTestCase {
 
         fireViewModel = FireViewModel(tld: Application.appDelegate.tld,
                                       visualizeFireAnimationDecider: MockVisualizeFireAnimationDecider())
-        let fileName = "AutoClearHandlerTests"
-        let fileStore = FileStoreMock()
-        let service = StatePersistenceService(fileStore: fileStore, fileName: fileName)
-        mockStateRestoration = MockAppStateRestorationManager(fileStore: fileStore,
-                                                              service: service,
-                                                              startupPreferences: NSApp.delegateTyped.startupPreferences,
-                                                              tabsPreferences: NSApp.delegateTyped.tabsPreferences,
-                                                              keyValueStore: NSApp.delegateTyped.keyValueStore,
-                                                              sessionRestorePromptCoordinator: NSApp.delegateTyped.sessionRestorePromptCoordinator,
-                                                              pixelFiring: nil)
+        mockStateRestoration = MockAppStateRestorationManager()
         mockAlertPresenter = MockAutoClearAlertPresenter()
         handler = AutoClearHandler(dataClearingPreferences: dataClearingPreferences,
                                    startupPreferences: startupPreferences,
@@ -212,7 +199,7 @@ class AutoClearHandlerTests: XCTestCase {
     }
 
     func testShouldTerminate_whenRelaunchingAutomatically_skipsClearPrompt() {
-        mockStateRestoration.isRelaunchingAutomaticallyOverride = true
+        mockStateRestoration.isRelaunchingAutomatically = true
         dataClearingPreferences.isAutoClearEnabled = true
         handler.resetTheCorrectTerminationFlag() // Ensure flag is false initially
 
@@ -228,9 +215,24 @@ class AutoClearHandlerTests: XCTestCase {
             XCTFail("Expected .sync(.next), got .async")
         }
 
+        // Verify prompt was not shown
+        XCTAssertFalse(mockAlertPresenter.confirmAutoClearCalled)
+
         // Verify burn-on-start will NOT trigger on next launch
         XCTAssertFalse(handler.burnOnStartIfNeeded(),
                        "Burn-on-start should not trigger after automatic relaunch termination")
+    }
+
+    func testHandleAppTerminationFallback_whenRelaunchingAutomatically_skipsClearPrompt() {
+        mockStateRestoration.isRelaunchingAutomatically = true
+        dataClearingPreferences.isAutoClearEnabled = true
+        handler.resetTheCorrectTerminationFlag()
+
+        let result = handler.handleAppTerminationFallback()
+
+        XCTAssertEqual(result, .terminateNow)
+        XCTAssertFalse(mockAlertPresenter.confirmAutoClearCalled)
+        XCTAssertFalse(handler.burnOnStartIfNeeded())
     }
 
 }

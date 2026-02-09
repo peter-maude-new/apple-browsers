@@ -25,7 +25,12 @@ import Persistence
 import BrowserServicesKit
 
 @MainActor
-final class AppStateRestorationManager: NSObject {
+protocol AppStateRestorationManaging {
+    var isRelaunchingAutomatically: Bool { get }
+}
+
+@MainActor
+final class AppStateRestorationManager: NSObject, AppStateRestorationManaging {
     private enum Constants {
         static let fileName = "persistentState"
         static let appDidTerminateAsExpectedKey = "appDidTerminateAsExpected"

@@ -38,14 +38,14 @@ final class AutoClearHandler: ApplicationTerminationDecider {
     private let dataClearingPreferences: DataClearingPreferences
     private let startupPreferences: StartupPreferences
     private let fireViewModel: FireViewModel
-    private let stateRestorationManager: AppStateRestorationManager
+    private let stateRestorationManager: AppStateRestorationManaging
     private let aiChatSyncCleaner: AIChatSyncCleaning?
     private let alertPresenter: AutoClearAlertPresenting
 
     init(dataClearingPreferences: DataClearingPreferences,
          startupPreferences: StartupPreferences,
          fireViewModel: FireViewModel,
-         stateRestorationManager: AppStateRestorationManager,
+         stateRestorationManager: AppStateRestorationManaging,
          aiChatSyncCleaner: AIChatSyncCleaning?,
          alertPresenter: AutoClearAlertPresenting = DefaultAutoClearAlertPresenter()) {
         self.dataClearingPreferences = dataClearingPreferences
@@ -127,6 +127,12 @@ final class AutoClearHandler: ApplicationTerminationDecider {
     @MainActor
     func handleAppTerminationFallback() -> NSApplication.TerminateReply? {
         guard dataClearingPreferences.isAutoClearEnabled else { return nil }
+
+        // Skip auto-clear if app is relaunching for an update
+        if stateRestorationManager.isRelaunchingAutomatically {
+            appTerminationHandledCorrectly = true
+            return .terminateNow
+        }
 
         if dataClearingPreferences.isWarnBeforeClearingEnabled {
             switch confirmAutoClear() {
