@@ -30,6 +30,14 @@ We use Swift Package Manager for dependency management, which shouldn't require 
 
 We use [SwifLint](https://github.com/realm/SwiftLint) for enforcing Swift style and conventions, so you'll need to [install it](https://github.com/realm/SwiftLint#installation).
 
+## Onboarding Feature Flags (macOS)
+
+The `addressBarMode` onboarding step is controlled by remote feature flags.
+
+- It is shown only when both `aiChatOmnibarToggle` and `aiChatOmnibarOnboarding` are enabled.
+- If either flag is disabled, the step is excluded from onboarding configuration.
+- Both flags are `remoteReleasable`, so visibility can be controlled remotely via Privacy Config.
+
 ## Terminology
 
 We have taken steps to update our terminology and remove words with problematic racial connotations, most notably the change to `main` branches, `allow lists`, and `blocklists`.
