@@ -21,6 +21,10 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum BrowsersComparisonContentMetrics {
+    static let titleFont = Font.system(size: 20, weight: .bold)
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct BrowsersComparisonContent: View {
@@ -49,17 +53,17 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: 16.0) {
+            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
                 AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
                     withAnimation {
                         showContent.wrappedValue = true
                     }
                 }
                 .foregroundColor(.primary)
-                .font(Font.system(size: 20, weight: .bold))
+                .font(BrowsersComparisonContentMetrics.titleFont)
 
 
-                VStack(spacing: 24) {
+                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
                     BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.privacyFeatures)
 
                     RebrandedOnboardingView.OnboardingActions(
