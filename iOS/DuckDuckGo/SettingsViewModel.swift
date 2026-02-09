@@ -68,6 +68,17 @@ final class SettingsViewModel: ObservableObject {
     let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     var browsingMenuSheetCapability: BrowsingMenuSheetCapable
     private let onboardingSearchExperienceSettingsResolver: OnboardingSearchExperienceSettingsResolver
+    
+    private lazy var newBadgeVisibilityManager: NewBadgeVisibilityManaging = {
+        NewBadgeVisibilityManager(
+            keyValueStore: keyValueStore,
+            configProvider: DefaultNewBadgeConfigProvider(
+                featureFlagger: featureFlagger,
+                privacyConfigurationManager: privacyConfigurationManager
+            ),
+            currentAppVersionProvider: { AppVersion.shared.versionNumber }
+        )
+    }()
 
     // What's New Dependencies
     private let whatsNewCoordinator: ModalPromptProvider & OnDemandModalPromptProvider
@@ -142,6 +153,10 @@ final class SettingsViewModel: ObservableObject {
 
     var isPIREnabled: Bool {
         featureFlagger.isFeatureOn(.personalInformationRemoval)
+    }
+
+    var meetsLocaleRequirement: Bool {
+        runPrerequisitesDelegate?.meetsLocaleRequirement ?? false
     }
 
     var dbpMeetsProfileRunPrequisite: Bool {
@@ -981,6 +996,23 @@ extension SettingsViewModel {
         urlOpener.open(URL.emailProtectionSupportLink)
     }
 
+    func shouldShowNewBadge(for feature: NewBadgeFeature) -> Bool {
+        guard isFeatureAvailableForNewBadge(feature) else { return false }
+        return newBadgeVisibilityManager.shouldShowBadge(for: feature)
+    }
+
+    func storeNewBadgeFirstImpressionDateIfNeeded(for feature: NewBadgeFeature) {
+        guard isFeatureAvailableForNewBadge(feature) else { return }
+        newBadgeVisibilityManager.storeFirstImpressionDateIfNeeded(for: feature)
+    }
+
+    private func isFeatureAvailableForNewBadge(_ feature: NewBadgeFeature) -> Bool {
+        switch feature {
+        case .personalInformationRemoval:
+            return isPIREnabled && meetsLocaleRequirement && dataBrokerProtectionViewControllerProvider != nil
+        }
+    }
+
     func openOtherPlatforms() {
         urlOpener.open(URL.otherDevices)
     }
@@ -1442,6 +1474,18 @@ extension SettingsViewModel {
                 withAnimation {
                     self.objectWillChange.send()
                     self.aiChatSettings.enableAutomaticContextAttachment(enable: newValue)
+                }
+            }
+        )
+    }
+
+    var isChatSuggestionsEnabled: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.aiChatSettings.isChatSuggestionsEnabled },
+            set: { newValue in
+                withAnimation {
+                    self.objectWillChange.send()
+                    self.aiChatSettings.enableChatSuggestions(enable: newValue)
                 }
             }
         )
