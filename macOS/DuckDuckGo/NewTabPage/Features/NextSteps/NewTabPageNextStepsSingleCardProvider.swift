@@ -375,8 +375,9 @@ private extension NewTabPageNextStepsSingleCardProvider {
             .sink { [weak self] _ in
                 guard let self else { return }
 #if DEBUG || REVIEW || ALPHA
-                // Reset standard card list for debug menu actions, if needed
+                // Reset standard card list and mark first session as complete for debug menu reset action, if needed
                 if persistor.isFirstSession {
+                    persistor.isFirstSession = false
                     standardCards = defaultStandardCards
                 }
 #endif
