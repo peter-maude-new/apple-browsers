@@ -55,6 +55,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         static let toolButtonLeadingInset: CGFloat = 10
         static let toolButtonSpacing: CGFloat = 3
         static let toolButtonBottomInset: CGFloat = 8
+        static let modelPickerTrailingSpacing: CGFloat = 6
+        static let modelPickerHeight: CGFloat = 28
         static let suggestionsBottomPadding: CGFloat = 4
     }
 
@@ -66,6 +68,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
     private let customizeButton = AIChatOmnibarToolButton()
     private let searchToggleButton = AIChatOmnibarToolButton()
     private let imageUploadButton = AIChatOmnibarToolButton()
+    private let modelPickerButton = AIChatModelPickerButton()
 
     /// Suggestions view - always in hierarchy, height is 0 when no suggestions
     private let suggestionsView = AIChatSuggestionsView()
@@ -176,6 +179,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         customizeButton.isHidden = !isEnabled
         searchToggleButton.isHidden = !isEnabled
         imageUploadButton.isHidden = !isEnabled
+        modelPickerButton.isHidden = !isEnabled
         // Notify that passthrough height needs recalculation since tools area changed
         onPassthroughHeightNeedsUpdate?()
     }
@@ -251,6 +255,14 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         imageUploadButton.setAccessibilityLabel(UserText.aiChatImageUploadButtonTooltip)
         containerView.addSubview(imageUploadButton)
 
+        modelPickerButton.translatesAutoresizingMaskIntoConstraints = false
+        modelPickerButton.target = self
+        modelPickerButton.action = #selector(modelPickerButtonClicked)
+        modelPickerButton.modelName = AIChatModelProvider.defaultModel.shortDisplayName
+        modelPickerButton.toolTip = UserText.aiChatModelPickerButtonTooltip
+        modelPickerButton.setAccessibilityLabel(UserText.aiChatModelPickerButtonTooltip)
+        containerView.addSubview(modelPickerButton)
+
         NSLayoutConstraint.activate([
             backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -271,6 +283,9 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             // Bottom constraint is set in setupSuggestionsView() to be above suggestions
             submitButton.widthAnchor.constraint(equalToConstant: Constants.submitButtonSize),
             submitButton.heightAnchor.constraint(equalToConstant: Constants.submitButtonSize),
+
+            modelPickerButton.trailingAnchor.constraint(equalTo: submitButton.leadingAnchor, constant: -Constants.modelPickerTrailingSpacing),
+            modelPickerButton.heightAnchor.constraint(equalToConstant: Constants.modelPickerHeight),
 
             customizeButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.toolButtonLeadingInset),
             // Bottom constraints are set in setupSuggestionsView() to be above suggestions
@@ -311,7 +326,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             // Tool buttons sit above suggestions
             customizeButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.toolButtonBottomInset),
             searchToggleButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.toolButtonBottomInset),
-            imageUploadButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.toolButtonBottomInset)
+            imageUploadButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.toolButtonBottomInset),
+            modelPickerButton.bottomAnchor.constraint(equalTo: suggestionsView.topAnchor, constant: -Constants.toolButtonBottomInset)
         ])
 
         // Handle suggestion clicks
@@ -408,6 +424,51 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         // Implement image upload action
     }
 
+    @objc private func modelPickerButtonClicked() {
+        let menu = buildModelPickerMenu()
+        // Position menu below the button (y=0 is bottom in AppKit)
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: 0), in: modelPickerButton)
+    }
+
+    private var selectedModelId: String = AIChatModelProvider.defaultModel.id
+
+    private func buildModelPickerMenu() -> NSMenu {
+        let menu = NSMenu()
+
+        for model in AIChatModelProvider.freeModels {
+            let item = NSMenuItem(title: model.displayName, action: #selector(modelSelected(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = model
+            item.image = model.menuIcon
+            if model.id == selectedModelId {
+                item.state = .on
+            }
+            menu.addItem(item)
+        }
+
+        menu.addItem(.separator())
+
+        for model in AIChatModelProvider.premiumModels {
+            let item = NSMenuItem(title: model.displayName, action: #selector(modelSelected(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = model
+            item.image = model.menuIcon
+            item.isEnabled = false
+            if model.id == selectedModelId {
+                item.state = .on
+            }
+            menu.addItem(item)
+        }
+
+        return menu
+    }
+
+    @objc private func modelSelected(_ sender: NSMenuItem) {
+        guard let model = sender.representedObject as? AIChatModel else { return }
+        selectedModelId = model.id
+        modelPickerButton.modelName = model.shortDisplayName
+    }
+
     private func applyTheme(theme: ThemeStyleProviding) {
         let barStyleProvider = theme.addressBarStyleProvider
         let colorsProvider = theme.colorsProvider
@@ -430,6 +491,7 @@ final class AIChatOmnibarContainerViewController: NSViewController {
         customizeButton.tintColor = toolButtonTintColor
         searchToggleButton.tintColor = toolButtonTintColor
         imageUploadButton.tintColor = toolButtonTintColor
+        modelPickerButton.tintColor = toolButtonTintColor
 
         innerBorderView.cornerRadius = barStyleProvider.addressBarActiveBackgroundViewRadius
         innerBorderView.borderColor = NSColor(named: "AddressBarInnerBorderColor")
@@ -448,6 +510,8 @@ final class AIChatOmnibarContainerViewController: NSViewController {
             searchToggleButton.toggledTintColor = .selectedSuggestionTint
             imageUploadButton.hoverBackgroundColor = .buttonMouseOver
             imageUploadButton.pressedBackgroundColor = .buttonMouseDown
+            modelPickerButton.hoverBackgroundColor = .buttonMouseOver
+            modelPickerButton.pressedBackgroundColor = .buttonMouseDown
         }
     }
 }
