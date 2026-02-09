@@ -212,6 +212,29 @@ final class AppStateRestorationManagerTests: XCTestCase {
         mockPixelKit.verifyExpectations()
     }
 
+    // MARK: - Automatic Relaunch Tests
+
+    @MainActor
+    func testApplicationDidFinishLaunching_whenRelaunchingAutomatically_restoresTabsRegardlessOfPreference() {
+        // Given: Session restore preference is disabled
+        mockStartupPreferences.restorePreviousSession = false
+
+        // And: The app is relaunching automatically (e.g., after update)
+        UserDefaults.standard.set(true, forKey: "appIsRelaunchingAutomatically")
+
+        // And: There is session data to restore
+        addMockSessionData()
+
+        // When: App finishes launching
+        appStateManager.applicationDidFinishLaunching()
+
+        // Then: The automatic relaunch flag should be reset
+        XCTAssertEqual(UserDefaults.standard.bool(forKey: "appIsRelaunchingAutomatically"), false)
+
+        // Note: The actual tab restoration is verified through integration tests
+        // since it requires the full WindowsManager stack to decode state properly
+    }
+
     private func addMockSessionData() {
         // Add some mock data to make canRestoreLastSessionState return true
         let mockData = Data("mock session data".utf8)

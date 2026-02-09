@@ -152,8 +152,8 @@ final class AppStateRestorationManager: NSObject {
     func applicationDidFinishLaunching() {
         let isRelaunchingAutomatically = self.appIsRelaunchingAutomatically
         self.appIsRelaunchingAutomatically = false
-        // don‘t automatically restore windows if relaunched 2nd time with no recently updated app session state
-        readLastSessionState(restoreWindows: !service.isAppStateFileStale || isRelaunchingAutomatically, restoreRegularTabs: shouldRestoreRegularTabs)
+        // don't automatically restore windows if relaunched 2nd time with no recently updated app session state
+        readLastSessionState(restoreWindows: !service.isAppStateFileStale || isRelaunchingAutomatically, restoreRegularTabs: shouldRestoreRegularTabs || isRelaunchingAutomatically)
 
         detectUnexpectedAppTermination()
 
