@@ -1,5 +1,6 @@
 ---
 alwaysApply: false
+description: How to implement wide events in the DuckDuckGo Apple apps (iOS and macOS) — data types, flow lifecycle, testing, and framework APIs
 ---
 # Wide Events: Apple Implementation
 
@@ -21,6 +22,9 @@ Each wide event needs a **class** conforming to `WideEventData` (defined in `Wid
 - **`var contextData: WideEventContextData`** -- entry point context
 - **`var errorData: WideEventErrorData?`** -- error details captured on failure
 - **`func pixelParameters() -> [String: String]`** -- maps your custom data to dot-notation parameter keys (inherited from `WideEventParameterProviding`)
+- **`func completionDecision(for: WideEventCompletionTrigger) async -> WideEventCompletionDecision`** -- decides what to do with stale flows on app launch. The default implementation returns `.keepPending`, so you only need to override this for flows that may survive app restarts (see Completion Decision below)
+
+`WideEventParameterProviding` also defines `jsonParameters() -> [String: Encodable]` with a default implementation. You typically don't need to override this -- it's used internally by the framework for JSON serialization.
 
 The framework automatically assembles the full parameter set from `globalData`, `appData`, `contextData`, `errorData`, and your event's `pixelParameters()`. Your `pixelParameters()` should only return custom `feature.data.ext.*` fields.
 

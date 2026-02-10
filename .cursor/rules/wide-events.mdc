@@ -1,5 +1,6 @@
 ---
 alwaysApply: false
+description: Design guidance for wide events - when to use them, event formatting, naming, status, data selection, bucketing, and best practices
 ---
 # Wide Events
 
@@ -70,7 +71,7 @@ Always maintain a `failing_step` field that records the last step attempted befo
 - Personally identifiable information (emails, names, account IDs)
 - High-cardinality string values that create unbounded parameter spaces (free-form user input, URLs, file paths)
 - Data that duplicates what's already in the base event (app version, platform)
-- Intermediate state that's only meaningful during the flow, not at completion time
+- Flow state that isn't useful for post-hoc debugging or alerting (e.g., retry counters, temporary buffer sizes) -- only capture state that helps explain outcomes, like `failing_step` for failed flows
 - Granular timing data - use bucketed latency values instead (see Latency Measurement below)
 
 ### Latency Measurement
