@@ -80,6 +80,32 @@ public struct OnboardingTheme: Equatable {
         self.dismissButtonStyle = dismissButtonStyle
     }
 
+    /// Backward-compatible initializer for themes that only define a single button style.
+    public init(
+        typography: Typography,
+        colorPalette: ColorPalette,
+        bubbleMetrics: BubbleMetrics,
+        dismissButtonMetrics: DismissButtonMetrics,
+        contextualOnboardingMetrics: ContextualOnboardingMetrics,
+        linearTitleTextAlignment: TextAlignment,
+        linearBodyTextAlignment: TextAlignment,
+        primaryButtonStyle: OnboardingButtonStyle,
+        dismissButtonStyle: OnboardingButtonStyle,
+    ){
+        self.init(
+            typography: typography,
+            colorPalette: colorPalette,
+            bubbleMetrics: bubbleMetrics,
+            dismissButtonMetrics: dismissButtonMetrics,
+            contextualOnboardingMetrics: contextualOnboardingMetrics,
+            linearTitleTextAlignment: linearTitleTextAlignment,
+            linearBodyTextAlignment: linearBodyTextAlignment,
+            primaryButtonStyle: primaryButtonStyle,
+            secondaryButtonStyle: primaryButtonStyle,
+            dismissButtonStyle: dismissButtonStyle
+        )
+    }
+
 }
 
 // MARK: - Factory Helpers

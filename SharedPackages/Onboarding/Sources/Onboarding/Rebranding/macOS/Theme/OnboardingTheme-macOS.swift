@@ -40,9 +40,7 @@ public extension OnboardingTheme {
             optionsListIconColor: Color(designSystemColor: .accentPrimary),
             optionsListTextColor: Color(designSystemColor: .textLink),
             primaryButtonBackgroundColor: Color(designSystemColor: .buttonsPrimaryDefault),
-            primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText),
-            secondaryButtonBackgroundColor: Color(designSystemColor: .buttonsSecondaryFillDefault),
-            secondaryButtonTextColor: Color(designSystemColor: .buttonsSecondaryFillText)
+            primaryButtonTextColor: Color(designSystemColor: .buttonsPrimaryText)
         )
 
         let dismissButtonMetrics = DismissButtonMetrics(
@@ -60,7 +58,7 @@ public extension OnboardingTheme {
         )
 
         return OnboardingTheme(
-            typography: typography,
+            typography: .system,
             colorPalette: colorPalette,
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
@@ -70,17 +68,41 @@ public extension OnboardingTheme {
                 shadowPosition: CGPoint(x: 0, y: 7)
             ),
             dismissButtonMetrics: dismissButtonMetrics,
+            contextualOnboardingMetrics: OnboardingTheme.ContextualOnboardingMetrics(
+                contentSpacing: 20,
+                titleBodyVerticalSpacing: 10,
+                titleBodyInset: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
+                contextualTitleTextAlignment: .leading,
+                contextualBodyTextAlignment: .leading,
+                optionsListMetrics: contextualOptionsListMetrics,
+                optionsListButtonStyle: OnboardingButtonStyle(
+                    id: .list,
+                    style: AnyButtonStyle(
+                        OnboardingRebranding.OnboardingStyles.ListButtonStyle(
+                            typography: typography,
+                            colorPalette: colorPalette,
+                            optionsListMetrics: contextualOptionsListMetrics
+                        )
+                    )
+                )
+            ),
             linearTitleTextAlignment: .center,
             linearBodyTextAlignment: .center,
-            contextualTitleTextAlignment: .leading,
-            contextualBodyTextAlignment: .leading,
             primaryButtonStyle: OnboardingButtonStyle(
                 id: .primary,
                 style: AnyButtonStyle(OnboardingPrimaryButtonStyle())
             ),
             dismissButtonStyle: OnboardingButtonStyle(
                 id: .dismiss,
-                style: AnyButtonStyle(OnboardingBubbleDismissButtonStyle())
+                style: AnyButtonStyle(
+                    OnboardingRebranding.OnboardingStyles.BubbleDismissButtonStyle(
+                        contentPadding: dismissButtonMetrics.contentPadding,
+                        backgroundColor: colorPalette.bubbleBackground,
+                        borderColor: colorPalette.bubbleBorder,
+                        borderWidth: borderWidth,
+                        buttonSize: dismissButtonMetrics.buttonSize
+                    )
+                )
             )
         )
     }()

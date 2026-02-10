@@ -178,7 +178,7 @@ extension OnboardingRebranding {
                                     addressBarPreferenceSelectionView
                                 case .chooseSearchExperienceDialog:
                                     searchExperienceSelectionView
-                                case .startOnboardingDialog:
+                                default:
                                     EmptyView()
                                 }
                             }
