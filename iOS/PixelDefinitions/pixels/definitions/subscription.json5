@@ -381,16 +381,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the subscription flow",
-                "enum": [
-                    "funnel_onboarding_ios",
-                    "funnel_appsettings_ios",
-                    "funnel_appmenu_ios",
-                    "funnel_app_ios",
-                    "funnel_app_ios__details",
-                    "funnel_duckai_ios__aisidebar",
-                    "funnel_duckai_ios__activatesubscription",
-                    "funnel_appdevices_website__details"
-                ]
+                "pattern": "^funnel_.*"
             }
         ]
     },
@@ -467,12 +458,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the restore flow",
-                "enum": [
-                    "funnel_appsettings_ios",
-                    "funnel_purchaseoffer_ios",
-                    "funnel_prepurchasecheck_ios",
-                    "funnel_onpurchasecheck_multiple"
-                ]
+                "pattern": "^funnel_.*"
             }
         ]
     },
@@ -563,7 +549,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the plan change flow",
-                "enum": ["funnel_appsettings_ios", "funnel_app_ios"]
+                "pattern": "^funnel_.*"
             }
         ]
     },

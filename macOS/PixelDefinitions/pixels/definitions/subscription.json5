@@ -356,20 +356,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the subscription flow",
-                "enum": [
-                    "funnel_app_macos",
-                    "funnel_appsettings_macos",
-                    "funnel_appmenu_macos",
-                    "funnel_freescan_macos",
-                    "funnel_toolbar_macos",
-                    "funnel_appmenu_macos_winback",
-                    "funnel_home_website__tagline",
-                    "funnel_newtab_macos_nextstepscard",
-                    "funnel_onboarding_macOS__nextstepscard",
-                    "funnel_applaunch_macos_winback",
-                    "funnel_appsettings_macos_winback",
-                    "funnel_duckai_macos__activatesubscription"
-                ]
+                "pattern": "^funnel_.*"
             }
         ]
     },
@@ -445,12 +432,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the restore flow",
-                "enum": [
-                    "funnel_appsettings_macos",
-                    "funnel_purchaseoffer_macos",
-                    "funnel_prepurchasecheck_macos",
-                    "funnel_onpurchasecheck_multiple"
-                ]
+                "pattern": "^funnel_.*"
             }
         ]
     },
@@ -604,7 +586,7 @@
                 "key": "feature.data.ext.funnel_name",
                 "type": "string",
                 "description": "The funnel that led to the plan change flow",
-                "enum": ["funnel_appsettings_macos", "funnel_app_macos"]
+                "pattern": "^funnel_.*"
             }
         ]
     },
