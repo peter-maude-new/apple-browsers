@@ -23,11 +23,6 @@ import DuckUI
 import MetricBuilder
 
 enum RebrandedOnboardingViewMetrics {
-    // Timing
-    static let daxDialogDelay: TimeInterval = 2.0
-    static let daxDialogVisibilityDelay: TimeInterval = 0.5
-    static let comparisonChartAnimationDuration = 0.25
-
     // Shared Content Layout
     static let contentOuterSpacing: CGFloat = 16.0
     static let contentInnerSpacing: CGFloat = 24
@@ -181,9 +176,7 @@ extension OnboardingRebranding {
                         .frame(width: geometry.size.width, alignment: .center)
                         .offset(y: geometry.size.height * RebrandedOnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
                         .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogVisibilityDelay) {
-                                model.introState.showDaxDialogBox = true
-                            }
+                            model.introState.showDaxDialogBox = true
                         }
                     }
                 }
@@ -196,9 +189,7 @@ extension OnboardingRebranding {
                 .ignoresSafeArea(edges: .bottom)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogDelay) {
-                        model.onAppear()
-                    }
+                    model.onAppear()
                 }
         }
 
@@ -291,15 +282,9 @@ extension OnboardingRebranding {
         }
 
         private func animateBrowserComparisonViewState(isResumingOnboarding: Bool) {
-            // Hide intro content before moving to the next step.
-            model.introState.showIntroViewContent = false
-
             model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
-
-            // Keep existing state sequencing without view animations.
-            DispatchQueue.main.async {
-                model.browserComparisonState.animateComparisonText = true
-            }
+            model.browserComparisonState.showComparisonButton = true
+            model.browserComparisonState.animateComparisonText = true
         }
 
     }
