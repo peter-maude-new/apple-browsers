@@ -1,5 +1,5 @@
 //
-//  OnboardingSecondaryButtonStyle-iOS.swift
+//  OnboardingSecondaryButtonStyle.swift
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
 //
