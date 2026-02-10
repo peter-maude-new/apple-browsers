@@ -73,7 +73,7 @@ extension OnboardingRebranding.OnboardingView {
                     VStack(spacing: 20) {
                         RebrandedBrowsersComparisonTable()
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: 8) {
                             Button(action: setAsDefaultBrowserAction) {
                                 Text(UserText.Onboarding.BrowsersComparison.cta)
                             }

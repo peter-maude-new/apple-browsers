@@ -121,10 +121,7 @@ public extension OnboardingTheme {
         )
     }()
 
-    private static let bubbleContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
-        iPhone: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
-        iPad: EdgeInsets(top: 24, leading: 40, bottom: 24, trailing: 40)
-    ).build()
+    private static let bubbleContentInsets = EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
 
     private static let contextualTitleBodyContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
         iPhone: EdgeInsets(top: 0, leading: 8, bottom: 12, trailing: 0),

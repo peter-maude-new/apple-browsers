@@ -3,10 +3,22 @@ import DesignResourcesKit
 import DesignResourcesKitIcons
 import Onboarding
 
+private enum ComparisonTableMetrics {
+    static let rowSpacing: CGFloat = 8
+    static let cellHeight: CGFloat = 56
+    static let cellVerticalPadding: CGFloat = 12
+    static let cellCornerRadius: CGFloat = 12
+    static let featureIconSize: CGFloat = 24
+    static let featureTextSpacing: CGFloat = 8
+    static let featureTextFontSize: CGFloat = 13
+    static let availabilityIconSize: CGFloat = 20
+    static let availabilityColumnSpacing: CGFloat = 8
+}
+
 struct RebrandedBrowsersComparisonTable: View {
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: ComparisonTableMetrics.rowSpacing) {
             ForEach(Array(RebrandedBrowsersComparisonModel.features.enumerated()), id: \.element.type) { index, feature in
                 FeatureRow(feature: feature, index: index)
             }
@@ -27,56 +39,46 @@ private struct FeatureRow: View {
         ZStack(alignment: .leading) {
             // Background
             backgroundColor
-                .cornerRadius(12)
+                .cornerRadius(ComparisonTableMetrics.cellCornerRadius)
 
             // Content
             HStack(spacing: 0) {
                 // Left section: Feature icon + text
-                HStack(alignment: .center, spacing: 8) {
+                HStack(alignment: .center, spacing: ComparisonTableMetrics.featureTextSpacing) {
                     Image(uiImage: feature.type.icon)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .padding(.leading, 10)
+                        .frame(width: ComparisonTableMetrics.featureIconSize, height: ComparisonTableMetrics.featureIconSize)
 
                     Text(feature.type.title)
-                        .font(.system(size: 13, weight: .regular))
+                        .font(.system(size: ComparisonTableMetrics.featureTextFontSize, weight: .regular))
                         .foregroundColor(Color(singleUseColor: .rebranding(.textPrimary)))
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.vertical, 4)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Safari status
-                Image(uiImage: feature.safariAvailability.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 22, height: 22)
-                    .foregroundColor(feature.safariAvailability.color)
-                    .frame(width: 40)
-                    .padding(.vertical, 4)
+                // Availability icons
+                HStack(spacing: ComparisonTableMetrics.availabilityColumnSpacing) {
+                    // Safari status
+                    Image(uiImage: feature.safariAvailability.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
+                        .foregroundColor(feature.safariAvailability.color)
 
-                // DDG status
-                Image(uiImage: feature.ddgAvailability.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 22, height: 22)
-                    .foregroundColor(feature.ddgAvailability.color)
-                    .frame(width: 40)
-                    .padding(.vertical, 4)
-                    .padding(.trailing, 10)
+                    // DDG status
+                    Image(uiImage: feature.ddgAvailability.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
+                        .foregroundColor(feature.ddgAvailability.color)
+                }
             }
-
-            // Full-height divider overlay
-            GeometryReader { geometry in
-                Rectangle()
-                    .fill(Color(UIColor.separator))
-                    .frame(width: 1, height: geometry.size.height + 2)
-                    .position(x: geometry.size.width - 50, y: geometry.size.height / 2)
-            }
+            .padding(.vertical, ComparisonTableMetrics.cellVerticalPadding)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(height: ComparisonTableMetrics.cellHeight)
+        .clipShape(RoundedRectangle(cornerRadius: ComparisonTableMetrics.cellCornerRadius))
     }
 }
 
