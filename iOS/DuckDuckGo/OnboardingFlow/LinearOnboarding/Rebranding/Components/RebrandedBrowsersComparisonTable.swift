@@ -4,8 +4,7 @@ import Onboarding
 
 private enum ComparisonTableMetrics {
     // Header
-    static let headerIconSize: CGFloat = 60
-    static let headerBottomPadding: CGFloat = 8
+    static let headerIconSize: CGFloat = 64
 
     // Row layout
     static let rowSpacing: CGFloat = 0
@@ -14,12 +13,12 @@ private enum ComparisonTableMetrics {
     static let cellInsets: EdgeInsets = EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 4)
 
     // Feature section (left)
-    static let featureIconSize: CGFloat = 24
+    static let featureIconSize: CGFloat = 32
     static let featureTextSpacing: CGFloat = 8
 
     // Status section (right)
-    static let availabilityIconSize: CGFloat = 20
-    static let statusColumnWidth: CGFloat = 60
+    static let availabilityIconSize: CGFloat = 24
+    static let statusColumnWidth: CGFloat = 36
     static let statusColumnSpacing: CGFloat = 8
 
     // Separator
@@ -45,23 +44,21 @@ struct RebrandedBrowsersComparisonTable: View {
 private struct ComparisonHeader: View {
 
     var body: some View {
-        HStack(spacing: ComparisonTableMetrics.statusColumnSpacing) {
+        // NOTE: Negative spacing/padding compensates for built-in padding in the icon PDFs (shadow regions from export).
+        HStack(spacing: -10) {
             Spacer()
 
             OnboardingRebrandingImages.Comparison.safariIcon
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: ComparisonTableMetrics.headerIconSize, height: ComparisonTableMetrics.headerIconSize)
-                .frame(width: ComparisonTableMetrics.statusColumnWidth)
 
             OnboardingRebrandingImages.Comparison.ddgIcon
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: ComparisonTableMetrics.headerIconSize, height: ComparisonTableMetrics.headerIconSize)
-                .frame(width: ComparisonTableMetrics.statusColumnWidth)
         }
-        .padding(.trailing, ComparisonTableMetrics.cellInsets.trailing)
-        .padding(.bottom, ComparisonTableMetrics.headerBottomPadding)
+        .padding(.trailing, -10)
     }
 }
 

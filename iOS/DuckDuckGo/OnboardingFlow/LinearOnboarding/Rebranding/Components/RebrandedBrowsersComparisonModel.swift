@@ -72,12 +72,12 @@ struct RebrandedBrowsersComparisonModel {
         ),
         Feature(
             type: .blockTrackers,
-            safariAvailability: .unavailable,
+            safariAvailability: .partial,
             ddgAvailability: .available
         ),
         Feature(
             type: .blockCookies,
-            safariAvailability: .partial,
+            safariAvailability: .unavailable,
             ddgAvailability: .available
         ),
         Feature(

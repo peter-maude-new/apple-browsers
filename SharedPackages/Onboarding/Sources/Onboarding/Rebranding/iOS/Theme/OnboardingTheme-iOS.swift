@@ -77,7 +77,7 @@ public extension OnboardingTheme {
             contentInnerSpacing: 20,
             buttonSpacing: 12,
             bubbleMaxWidth: 360,
-            bubbleTailOffset: 0.31,
+            bubbleTailOffset: 0.8,
             topMarginRatio: 0.18,
             minTopMargin: 16,
             maxTopMargin: 16,
@@ -146,8 +146,8 @@ public extension OnboardingTheme {
     }()
 
     private static let linearBubbleContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
-        iPhone: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
-        iPad: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+        iPhone: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
+        iPad: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20)
     ).build()
 
     private static let bubbleContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
