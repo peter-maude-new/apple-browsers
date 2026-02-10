@@ -16,6 +16,8 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
+
 struct StandardApplicationBuildType: ApplicationBuildType {
     var isSparkleBuild: Bool {
 #if SPARKLE

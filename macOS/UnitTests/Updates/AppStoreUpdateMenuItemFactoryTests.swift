@@ -16,8 +16,9 @@
 //  limitations under the License.
 //
 
-import Cocoa
+import AppUpdaterShared
 import XCTest
+import Cocoa
 @testable import DuckDuckGo_Privacy_Browser
 
 final class AppStoreUpdateMenuItemFactoryTests: XCTestCase {

@@ -17,6 +17,7 @@
 //
 
 import AIChat
+import AppUpdaterShared
 import AutoconsentStats
 import Bookmarks
 import BrokenSitePrompt

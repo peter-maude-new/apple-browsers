@@ -97,6 +97,7 @@
 // - `isBannerPermanentlyDismissed`: User clicked "Never Ask Again"
 // - `debugSetDefaultAndAddToDockPromptCurrentDateKey`: Simulated date override (debug only)
 
+import AppUpdaterShared
 import BrowserServicesKit
 import Combine
 import FeatureFlags

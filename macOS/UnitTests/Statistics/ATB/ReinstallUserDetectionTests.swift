@@ -16,6 +16,7 @@
 //  limitations under the License.
 //
 
+import AppUpdaterShared
 import XCTest
 import PersistenceTestingUtils
 @testable import DuckDuckGo_Privacy_Browser

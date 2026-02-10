@@ -18,6 +18,7 @@
 
 import AppKit
 import AIChat
+import AppUpdaterShared
 import Common
 import CryptoKit
 import os.log
