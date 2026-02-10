@@ -20,6 +20,7 @@
 import UIKit
 import WebExtensions
 import WebKit
+import Core
 
 // MARK: - Factory
 
@@ -28,12 +29,23 @@ public enum WebExtensionManagerFactory {
 
     @MainActor
     static func makeManager(mainViewController: MainViewController) -> WebExtensionManager {
+        // Get privacy config as raw JSON string
+        let privacyConfigString = getPrivacyConfigString()
+
         let manager = WebExtensionManager(
             configuration: WebExtensionConfigurationProvider(),
             windowTabProvider: WebExtensionWindowTabProvider(mainViewController: mainViewController),
-            storageProvider: WebExtensionStorageProvider()
+            storageProvider: WebExtensionStorageProvider(),
+            privacyConfigString: privacyConfigString
         )
 
         return manager
+    }
+
+    /// Gets the raw privacy configuration JSON string.
+    @MainActor
+    private static func getPrivacyConfigString() -> String? {
+        let privacyConfigData = ContentBlocking.shared.privacyConfigurationManager.currentConfig
+        return String(data: privacyConfigData, encoding: .utf8)
     }
 }

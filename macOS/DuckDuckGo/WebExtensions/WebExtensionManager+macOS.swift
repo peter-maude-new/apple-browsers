@@ -17,6 +17,7 @@
 //
 
 import AppKit
+import BrowserServicesKit
 import WebExtensions
 import WebKit
 
@@ -91,15 +92,27 @@ enum WebExtensionManagerFactory {
     static func makeManager() -> WebExtensionManager {
         let internalSiteHandler = WebExtensionInternalSiteHandler()
 
+        // Get privacy config as raw JSON string
+        let privacyConfigString = getPrivacyConfigString()
+
         let manager = WebExtensionManager(
             configuration: WebExtensionConfigurationProvider(),
             windowTabProvider: WebExtensionWindowTabProvider(),
             storageProvider: WebExtensionStorageProvider(),
-            internalSiteHandler: internalSiteHandler
+            internalSiteHandler: internalSiteHandler,
+            privacyConfigString: privacyConfigString
         )
 
         internalSiteHandler.dataSource = manager
 
         return manager
+    }
+
+    /// Gets the raw privacy configuration JSON string.
+    @MainActor
+    private static func getPrivacyConfigString() -> String? {
+        let sourceProvider = DefaultScriptSourceProvider()
+        let privacyConfigData = sourceProvider.privacyConfigurationManager.currentConfig
+        return String(data: privacyConfigData, encoding: .utf8)
     }
 }

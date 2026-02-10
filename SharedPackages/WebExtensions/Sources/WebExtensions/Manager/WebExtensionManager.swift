@@ -19,6 +19,7 @@
 import Foundation
 import os.log
 import WebKit
+import BrowserServicesKit
 
 /// Manages web extensions including installation, loading, and lifecycle.
 /// Platform-specific behavior is delegated to the windowTabProvider and lifecycleDelegate.
@@ -42,9 +43,36 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
     /// Optional internal site handler for platform-specific URL handling.
     public private(set) var internalSiteHandler: (any WebExtensionInternalSiteHandling)?
 
+    /// Privacy configuration JSON string
+    public let privacyConfigString: String?
+
     // MARK: - Native Messaging Ports
     // Stores active message ports for bidirectional communication with extensions
     private var messagePorts: [String: WKWebExtension.MessagePort] = [:]
+
+    /// Calculate the size of a message in bytes by serializing to JSON
+    private func calculateMessageSize(_ message: Any) -> Int? {
+        guard JSONSerialization.isValidJSONObject(message) else {
+            // For non-JSON objects, estimate size from string description
+            return String(describing: message).utf8.count
+        }
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: message, options: [])
+            return jsonData.count
+        } catch {
+            Logger.webExtensions.debug("⚠️ Failed to serialize message for size calculation: \(error)")
+            return nil
+        }
+    }
+
+    /// Format byte size in a human-readable format
+    private func formatByteSize(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useBytes, .useKB, .useMB]
+        formatter.countStyle = .binary
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
 
     /// Send a message to a connected extension via its MessagePort
     /// - Parameters:
@@ -61,7 +89,14 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
             return false
         }
 
-        Logger.webExtensions.log("📤 Sending message TO extension '\(extensionName)': \(message)")
+        // Log message size before sending
+        if let messageSize = calculateMessageSize(message) {
+            let size = formatByteSize(messageSize)
+            Logger.webExtensions.log("📤 Sending message TO extension '\(extensionName)' (size: \(size)): \(message)")
+        } else {
+            Logger.webExtensions.log("📤 Sending message TO extension '\(extensionName)': \(message)")
+        }
+
         port.sendMessage(message) { error in
             if let error = error {
                 Logger.webExtensions.error("❌ Failed to send message to '\(extensionName)': \(error.localizedDescription)")
@@ -94,7 +129,8 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
                 loader: WebExtensionLoading? = nil,
                 eventsListener: WebExtensionEventsListening = WebExtensionEventsListener(),
                 lifecycleDelegate: WebExtensionLifecycleDelegate? = nil,
-                internalSiteHandler: (any WebExtensionInternalSiteHandling)? = nil) {
+                internalSiteHandler: (any WebExtensionInternalSiteHandling)? = nil,
+                privacyConfigString: String? = nil) {
         let controllerConfiguration = WKWebExtensionController.Configuration.default()
         controllerConfiguration.webViewConfiguration.applicationNameForUserAgent = configuration.applicationNameForUserAgent
         self.controller = WKWebExtensionController(configuration: controllerConfiguration)
@@ -106,6 +142,12 @@ open class WebExtensionManager: NSObject, WebExtensionManaging {
         self.eventsListener = eventsListener
         self.lifecycleDelegate = lifecycleDelegate
         self.internalSiteHandler = internalSiteHandler
+
+        if let privacyConfigString {
+            self.privacyConfigString = String(repeating: privacyConfigString, count: 15)
+        } else {
+            self.privacyConfigString = "(privacyConfig missing)"
+        }
 
         super.init()
 
@@ -348,22 +390,37 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
 
         let extensionName = extensionContext.webExtension.displayName ?? "Unknown"
 
+        // Log message size before processing
+        if let messageSize = calculateMessageSize(message) {
+            let size = formatByteSize(messageSize)
+            Logger.webExtensions.log("📩 RECEIVED from web extension '\(extensionName)' (size: \(size))")
+        } else {
+            Logger.webExtensions.log("📩 RECEIVED from web extension '\(extensionName)'")
+        }
+
         // Log the received message from web extension
         if let messageDict = message as? [String: Any] {
             let messageType = messageDict["type"] as? String ?? "unknown"
             let userMessage = messageDict["message"] as? String ?? ""
 
-            Logger.webExtensions.log("📩 RECEIVED from web extension '\(extensionName)':")
             Logger.webExtensions.log("   Type: \(messageType)")
             Logger.webExtensions.log("   Message: \(userMessage)")
             Logger.webExtensions.log("   Full payload: \(messageDict)")
 
-            return [
+            let response: [String: Any] = [
                 "status": "received",
                 "nativeTimestamp": Date().timeIntervalSince1970
             ]
+
+            // Log response size before sending
+            if let responseSize = calculateMessageSize(response) {
+                let size = formatByteSize(responseSize)
+                Logger.webExtensions.log("📤 Sending response (size: \(size))")
+            }
+
+            return response
         } else {
-            Logger.webExtensions.log("📩 RECEIVED from web extension (raw): \(String(describing: message))")
+            Logger.webExtensions.log("   Raw payload: \(String(describing: message))")
             return ["status": "received"]
         }
     }
@@ -375,6 +432,21 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
         let identifier = extensionContext.uniqueIdentifier
 
         Logger.webExtensions.log("🔌 Native messaging port CONNECTED from extension: \(extensionName)")
+
+        // Encode privacy config as base64 for transmission
+        let encodedPrivacyConfig = privacyConfigString?.data(using: .utf8)?.base64EncodedString()
+        
+        // Log privacy config availability and size
+        if let privacyConfigString = privacyConfigString {
+            Logger.webExtensions.log("📜 Privacy config available (length: \(privacyConfigString.count) characters)")
+            
+            if let encodedPrivacyConfig = encodedPrivacyConfig {
+                let dataSize = encodedPrivacyConfig.lengthOfBytes(using: .utf8)
+                Logger.webExtensions.log("ℹ️ Encoded privacy config size: \(dataSize) bytes")
+            }
+        } else {
+            Logger.webExtensions.log("⚠️ Privacy config not available")
+        }
 
         // Store the port for later use
         messagePorts[identifier] = port
@@ -388,7 +460,13 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
 
             guard let message = message else { return }
 
-            Logger.webExtensions.log("📩 RECEIVED via MessagePort from '\(extensionName)':")
+            // Log message size before processing
+            if let messageSize = self?.calculateMessageSize(message) {
+                Logger.webExtensions.log("📩 RECEIVED via MessagePort from '\(extensionName)' (size: \(self?.formatByteSize(messageSize) ?? "\(messageSize) bytes"))")
+            } else {
+                Logger.webExtensions.log("📩 RECEIVED via MessagePort from '\(extensionName)'")
+            }
+
             Logger.webExtensions.log("   Payload: \(String(describing: message))")
 
             // Handle the message - you can add custom logic here
@@ -400,6 +478,25 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
                     Logger.webExtensions.log("   Message: \(userMessage)")
                 }
             }
+
+            let replyMessage: [String: Any] = [
+                "type": "reply",
+                "message": encodedPrivacyConfig ?? "nil",
+                "timestamp": Date().timeIntervalSince1970
+            ]
+
+            // Log reply message size before sending
+            if let replySize = self?.calculateMessageSize(replyMessage) {
+                Logger.webExtensions.log("📤 Sending reply message (size: \(self?.formatByteSize(replySize) ?? "\(replySize) bytes"))")
+            }
+
+            port.sendMessage(replyMessage, completionHandler: { error in
+                if let error = error {
+                    Logger.webExtensions.error("❌ Failed to send reply message: \(error.localizedDescription)")
+                } else {
+                    Logger.webExtensions.log("✅ Reply message sent successfully")
+                }
+            })
         }
 
         // Set up disconnect handler
@@ -413,12 +510,20 @@ extension WebExtensionManager: WKWebExtensionControllerDelegate {
         }
 
         // Send a welcome message to the extension
-        Logger.webExtensions.log("📤 Sending welcome message to '\(extensionName)'...")
-        port.sendMessage([
+        let welcomeMessage: [String: Any] = [
             "type": "connected",
             "message": "Hello from DuckDuckGo native layer!",
             "timestamp": Date().timeIntervalSince1970
-        ], completionHandler: { error in
+        ]
+
+        if let welcomeSize = calculateMessageSize(welcomeMessage) {
+            let size = formatByteSize(welcomeSize)
+            Logger.webExtensions.log("📤 Sending welcome message to '\(extensionName)' (size: \(size))...")
+        } else {
+            Logger.webExtensions.log("📤 Sending welcome message to '\(extensionName)'...")
+        }
+
+        port.sendMessage(welcomeMessage, completionHandler: { error in
             if let error = error {
                 Logger.webExtensions.error("❌ Failed to send welcome message: \(error.localizedDescription)")
             } else {
