@@ -24,7 +24,8 @@ final class PasswordsStatusBarPopover: NSPopover {
 
     let themeManager: ThemeManaging = NSApp.delegateTyped.themeManager
     var themeUpdateCancellable: AnyCancellable?
-    private var clickOutsideMonitor: Any?
+    private var globalClickMonitor: Any?
+    private var localClickMonitor: Any?
     private let pinningManager: PinningManager
 
     init(pinningManager: PinningManager) {
@@ -48,9 +49,7 @@ final class PasswordsStatusBarPopover: NSPopover {
     }
 
     deinit {
-        if let monitor = clickOutsideMonitor {
-            NSEvent.removeMonitor(monitor)
-        }
+        removeClickMonitors()
 #if DEBUG
         contentViewController?.ensureObjectDeallocated(after: 1.0, do: .interrupt)
 #endif
@@ -77,9 +76,29 @@ final class PasswordsStatusBarPopover: NSPopover {
     }
 
     private func setupClickOutsideMonitor() {
-        clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+        globalClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             guard let self, self.isShown, self.canDismiss else { return }
             self.close()
+        }
+
+        localClickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self, self.isShown, self.canDismiss else { return event }
+            let popoverWindow = self.contentViewController?.view.window
+            if event.window !== popoverWindow {
+                self.close()
+            }
+            return event
+        }
+    }
+
+    private func removeClickMonitors() {
+        if let monitor = globalClickMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalClickMonitor = nil
+        }
+        if let monitor = localClickMonitor {
+            NSEvent.removeMonitor(monitor)
+            localClickMonitor = nil
         }
     }
 }
@@ -94,10 +113,7 @@ extension PasswordsStatusBarPopover: ThemeUpdateListening {
 extension PasswordsStatusBarPopover: NSPopoverDelegate {
 
     func popoverDidClose(_ notification: Notification) {
-        if let monitor = clickOutsideMonitor {
-            NSEvent.removeMonitor(monitor)
-            clickOutsideMonitor = nil
-        }
+        removeClickMonitors()
 
         if let window = viewController.view.window {
             for sheet in window.sheets {
