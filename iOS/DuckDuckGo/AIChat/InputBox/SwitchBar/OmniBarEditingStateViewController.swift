@@ -376,13 +376,14 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
             }
         }
 
-        // Hide dashboard when user types, show when empty
-        switchBarHandler.currentTextPublisher
+        // Hide dashboard only when the user actively types, not for pre-filled URL text
+        switchBarHandler.hasUserInteractedWithTextPublisher
+            .combineLatest(switchBarHandler.currentTextPublisher)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] text in
+            .sink { [weak self] hasInteracted, text in
                 guard let self else { return }
-                let hasText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                self.dashboardHostingController?.view.isHidden = hasText
+                let shouldHide = hasInteracted && !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                self.dashboardHostingController?.view.isHidden = shouldHide
                 self.updateDaxVisibility()
             }
             .store(in: &cancellables)
