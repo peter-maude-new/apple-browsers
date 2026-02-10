@@ -158,9 +158,7 @@ extension OnboardingRebranding {
                             matchLogoAnimation: (Self.daxGeometryEffectID, animationNamespace),
                             showDialogBox: $model.introState.showDaxDialogBox,
                             onTapGesture: {
-                                withAnimation {
-                                    model.tapped()
-                                }
+                                model.tapped()
                             },
                             content: {
                                 switch state.type {
@@ -199,9 +197,7 @@ extension OnboardingRebranding {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + RebrandedOnboardingViewMetrics.daxDialogDelay) {
-                        withAnimation {
-                            model.onAppear()
-                        }
+                        model.onAppear()
                     }
                 }
         }
@@ -295,28 +291,14 @@ extension OnboardingRebranding {
         }
 
         private func animateBrowserComparisonViewState(isResumingOnboarding: Bool) {
-            // Hide content of Intro dialog before animating
+            // Hide intro content before moving to the next step.
             model.introState.showIntroViewContent = false
 
-            // Animation with small delay for a better effect when intro content disappear
-            let animationDuration = RebrandedOnboardingViewMetrics.comparisonChartAnimationDuration
-            let animation = Animation
-                .linear(duration: animationDuration)
-                .delay(0.2)
+            model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
 
-            if #available(iOS 17, *) {
-                withAnimation(animation) {
-                    model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
-                } completion: {
-                    model.browserComparisonState.animateComparisonText = true
-                }
-            } else {
-                withAnimation(animation) {
-                    model.startOnboardingAction(isResumingOnboarding: isResumingOnboarding)
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-                    model.browserComparisonState.animateComparisonText = true
-                }
+            // Keep existing state sequencing without view animations.
+            DispatchQueue.main.async {
+                model.browserComparisonState.animateComparisonText = true
             }
         }
 
