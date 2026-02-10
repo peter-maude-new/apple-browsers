@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Išsiųstas su jūsų žinute Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Puslapio turinys";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "„Duck.ai“ dabar gali padėti atsakyti į klausimus apie peržiūrimą puslapį.\n\nPuslapio turinys įtraukiamas tik jį pridėjus. Tai gali bet kada pakeisti nustatymuose.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "„DuckDuckGo“ DI funkcijos yra privačios ir neprivalomos. Tavo duomenys nenaudojami dirbtinio intelekto mokymui.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Pridėkite puslapio turinį";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Apibendrinti šį puslapį";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Ištrinti viską";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Ištrinti šį pokalbį";
+"scoped.fire.confirmation.delete.this.chat.description" = "„Ištrinti viską“ neištrins tavo „Duck.ai“ pokalbių istorijos.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Ištrink šį skirtuką";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "„Ištrinti šią kortelę“ išvalo šį „Duck.ai“ pokalbį ir visus šioje kortelėje aplankytų svetainių duomenis.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Tai atšauks vykdomus atsisiuntimus.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Naujai sukurtus skirtukus taip pat galima ištrinti po vieną.";
+"scoped.fire.confirmation.new.tabs.info" = "Tavo sukurtas naujas korteles taip pat galima ištrinti atskirai.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Ištrynus svetainės duomenis, galite būti atjungti nuo paskyrų.";

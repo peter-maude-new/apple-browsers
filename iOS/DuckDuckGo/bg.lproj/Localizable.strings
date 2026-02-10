@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Изпратено с твоето съобщение до Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Съдържание на страницата";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai вече може да отговори на въпросите ти относно страницата, която разглеждаш.\n\nСъдържанието на страницата се включва само когато го прикачиш. Можеш да промениш това по всяко време в настройките.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Функциите на DuckDuckGo AI са поверителни и незадължителни. Вашите данни не се използват за обучение на изкуствен интелект.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Прикачи съдържанието на страницата";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Обобщи тази страница";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Изтриване на всички";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Изтриване на този чат";
+"scoped.fire.confirmation.delete.this.chat.description" = "„Изтриване на всички“ няма да изтрие историята на чатовете в Duck.ai.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Изтриване на този раздел";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "„Изтрий този раздел“ изчиства този Duck.ai чат и всички данни от сайтовете, посетени в този раздел.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Това ще отмени текущите изтегляния.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Новите раздели, които създаваш, също могат да бъдат изтрити поотделно.";
+"scoped.fire.confirmation.new.tabs.info" = "Новите раздели, които сте създали, могат да бъдат изтривани и поотделно.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Изтриването на данни от сайта може да те отпише от акаунтите.";

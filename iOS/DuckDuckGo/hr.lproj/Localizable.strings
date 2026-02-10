@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Poslano s tvojom porukom Duck.ai-u";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Sadržaj stranice";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai sada može pomoći u odgovaranju na pitanja o stranici koju pregledavaš.\n\nSadržaj stranice uključuje se samo kada ga priložiš. To možeš promijeniti u bilo kojem trenutku u Postavkama.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "DuckDuckGo AI značajke privatne su i neobavezne. Tvoji podaci se ne koriste za obuku AI-a.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Priloži sadržaj stranice";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Sažmi ovu stranicu";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Izbriši sve";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Izbriši ovo čavrljanje";
+"scoped.fire.confirmation.delete.this.chat.description" = "\"Izbriši sve\" neće izbrisati tvoju Duck.ai povijest čavrljanja.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Izbriši ovu karticu";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "\"Izbriši ovu karticu\" briše ovo Duck.ai čavrljanje i sve podatke s mrežnih lokacija posjećenih u ovoj kartici.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Ovo će otkazati preuzimanja u tijeku.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Nove kartice koje kreiraš također se mogu pojedinačno izbrisati.";
+"scoped.fire.confirmation.new.tabs.info" = "Nove kartice koje si kreirao također se mogu pojedinačno izbrisati.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Brisanje podataka mrežnih lokacija može te odjaviti s računa.";
