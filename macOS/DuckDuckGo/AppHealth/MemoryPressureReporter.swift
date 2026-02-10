@@ -17,6 +17,7 @@
 //
 
 import Combine
+import DDGSync
 import Foundation
 import os.log
 import PixelKit
@@ -27,8 +28,8 @@ extension Notification.Name {
 }
 
 enum MemoryPressurePixel: PixelKitEvent {
-    /// Fired when the system reports critical level memory pressure.
-    case memoryPressureCritical
+    /// Fired when the system reports critical level memory pressure, with context about browser state.
+    case memoryPressureCritical(context: MemoryReportingContext)
 
     var name: String {
         switch self {
@@ -37,7 +38,13 @@ enum MemoryPressurePixel: PixelKitEvent {
         }
     }
 
-    var parameters: [String: String]? { nil }
+    var parameters: [String: String]? {
+        switch self {
+        case .memoryPressureCritical(let context):
+            return context.parameters
+        }
+    }
+
     var standardParameters: [PixelKitStandardParameter]? { nil }
 }
 
@@ -50,6 +57,9 @@ final class MemoryPressureReporter {
 
     private let featureFlagger: FeatureFlagger
     private let pixelFiring: PixelFiring?
+    private let memoryUsageMonitor: MemoryUsageMonitoring
+    private let windowControllersManager: WindowControllersManagerProtocol?
+    private let syncServiceProvider: () -> DDGSyncing?
     private let logger: Logger?
     private let notificationCenter: NotificationCenter
     private var memoryPressureSource: DispatchSourceMemoryPressure?
@@ -57,10 +67,16 @@ final class MemoryPressureReporter {
 
     init(featureFlagger: FeatureFlagger,
          pixelFiring: PixelFiring?,
+         memoryUsageMonitor: MemoryUsageMonitoring,
+         windowControllersManager: WindowControllersManagerProtocol?,
+         syncServiceProvider: @escaping () -> DDGSyncing?,
          logger: Logger? = nil,
          notificationCenter: NotificationCenter = .default) {
         self.featureFlagger = featureFlagger
         self.pixelFiring = pixelFiring
+        self.memoryUsageMonitor = memoryUsageMonitor
+        self.windowControllersManager = windowControllersManager
+        self.syncServiceProvider = syncServiceProvider
         self.logger = logger
         self.notificationCenter = notificationCenter
         subscribeToFeatureFlagUpdates()
@@ -96,7 +112,9 @@ final class MemoryPressureReporter {
         source.setEventHandler { [weak self] in
             guard let self else { return }
             let event = source.data
-            self.handleMemoryPressureEvent(event)
+            Task { @MainActor in
+                self.handleMemoryPressureEvent(event)
+            }
         }
 
         source.resume()
@@ -110,11 +128,22 @@ final class MemoryPressureReporter {
         logger?.warning("Memory pressure reporter stopped")
     }
 
+    /// Handles a memory pressure event by collecting context and firing the pixel.
+    ///
+    /// This method is called on the main queue (set in `DispatchSource`), so
+    /// `MemoryReportingContext.collect()` can be called directly.
+    @MainActor
     private func handleMemoryPressureEvent(_ event: DispatchSource.MemoryPressureEvent) {
         if event.contains(.critical) {
             logger?.warning("Memory pressure: critical")
             notificationCenter.post(name: .memoryPressureCritical, object: self)
-            pixelFiring?.fire(MemoryPressurePixel.memoryPressureCritical, frequency: .dailyAndStandard)
+
+            let context = MemoryReportingContext.collect(
+                memoryUsageMonitor: memoryUsageMonitor,
+                windowControllersManager: windowControllersManager,
+                syncService: syncServiceProvider()
+            )
+            pixelFiring?.fire(MemoryPressurePixel.memoryPressureCritical(context: context), frequency: .dailyAndStandard)
         }
     }
 
@@ -131,6 +160,7 @@ final class MemoryPressureReporter {
     /// - Warning: Do not use this method in production code. It is designed exclusively
     ///   for debugging and testing purposes via the Debug menu.
     ///
+    @MainActor
     func simulateMemoryPressureEvent(level: DispatchSource.MemoryPressureEvent) {
         handleMemoryPressureEvent(level)
     }
@@ -138,6 +168,7 @@ final class MemoryPressureReporter {
 
 #if DEBUG
 extension MemoryPressureReporter {
+    @MainActor
     func processMemoryPressureEventForTesting(_ event: DispatchSource.MemoryPressureEvent) {
         handleMemoryPressureEvent(event)
     }
