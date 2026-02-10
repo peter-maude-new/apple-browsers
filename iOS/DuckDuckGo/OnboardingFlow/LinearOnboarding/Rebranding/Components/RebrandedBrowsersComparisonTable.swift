@@ -1,27 +1,38 @@
 import SwiftUI
 import DesignResourcesKit
-import DesignResourcesKitIcons
 import Onboarding
 
 private enum ComparisonTableMetrics {
-    static let rowSpacing: CGFloat = 8
+    // Header
+    static let headerIconSize: CGFloat = 60
+    static let headerBottomPadding: CGFloat = 8
+
+    // Row layout
+    static let rowSpacing: CGFloat = 0
     static let cellHeight: CGFloat = 56
-    static let cellInsets: EdgeInsets = EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 4)
     static let cellCornerRadius: CGFloat = 12
+    static let cellInsets: EdgeInsets = EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 4)
+
+    // Feature section (left)
     static let featureIconSize: CGFloat = 24
-    static let featureIconPadding: CGFloat = 20
     static let featureTextSpacing: CGFloat = 8
-    static let featureTextFontSize: CGFloat = 13
+
+    // Status section (right)
     static let availabilityIconSize: CGFloat = 20
-    static let availabilityIconSpacing: CGFloat = 8
-    static let availabilityIconCellSpacing: CGFloat = 8
-    static let horizontalPadding: CGFloat = 12
+    static let statusColumnWidth: CGFloat = 60
+    static let statusColumnSpacing: CGFloat = 8
+
+    // Separator
+    static let separatorColor = Color(red: 0x24/255, green: 0x23/255, blue: 0x23/255).opacity(0.09)
+    static let separatorWidth: CGFloat = 1
 }
 
 struct RebrandedBrowsersComparisonTable: View {
 
     var body: some View {
         VStack(spacing: ComparisonTableMetrics.rowSpacing) {
+            ComparisonHeader()
+
             ForEach(Array(RebrandedBrowsersComparisonModel.features.enumerated()), id: \.element.type) { index, feature in
                 FeatureRow(feature: feature, index: index)
             }
@@ -29,56 +40,79 @@ struct RebrandedBrowsersComparisonTable: View {
     }
 }
 
+// MARK: - Header
+
+private struct ComparisonHeader: View {
+
+    var body: some View {
+        HStack(spacing: ComparisonTableMetrics.statusColumnSpacing) {
+            Spacer()
+
+            OnboardingRebrandingImages.Comparison.safariIcon
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: ComparisonTableMetrics.headerIconSize, height: ComparisonTableMetrics.headerIconSize)
+                .frame(width: ComparisonTableMetrics.statusColumnWidth)
+
+            OnboardingRebrandingImages.Comparison.ddgIcon
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: ComparisonTableMetrics.headerIconSize, height: ComparisonTableMetrics.headerIconSize)
+                .frame(width: ComparisonTableMetrics.statusColumnWidth)
+        }
+        .padding(.trailing, ComparisonTableMetrics.cellInsets.trailing)
+        .padding(.bottom, ComparisonTableMetrics.headerBottomPadding)
+    }
+}
+
+// MARK: - Feature Row
+
 private struct FeatureRow: View {
+    @Environment(\.onboardingTheme) private var onboardingTheme
+
     let feature: RebrandedBrowsersComparisonModel.Feature
     let index: Int
 
-    // Alternating background
     private var backgroundColor: Color {
         index % 2 == 0 ? Color(singleUseColor: .rebranding(.accentAltGlowPrimary)) : Color.clear
     }
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Background
             backgroundColor
                 .cornerRadius(ComparisonTableMetrics.cellCornerRadius)
 
-            // Content
             HStack {
-                // Left section: Feature icon + text
                 HStack(alignment: .center, spacing: ComparisonTableMetrics.featureTextSpacing) {
-                    Image(uiImage: feature.type.icon)
+                    feature.type.icon
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: ComparisonTableMetrics.featureIconSize, height: ComparisonTableMetrics.featureIconSize)
 
                     Text(feature.type.title)
-                        .font(.system(size: ComparisonTableMetrics.featureTextFontSize, weight: .regular))
-                        .foregroundColor(Color(singleUseColor: .rebranding(.textPrimary)))
+                        .font(onboardingTheme.typography.rowDetails)
+                        .foregroundColor(onboardingTheme.colorPalette.textPrimary)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Availability icons
-                HStack(spacing: ComparisonTableMetrics.availabilityIconCellSpacing) {
-                    HStack {
-                        // Safari status
-                        Image(uiImage: feature.safariAvailability.icon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
-                            .foregroundColor(feature.safariAvailability.color)
-                        Divider()
-                        // DDG status
-                        Image(uiImage: feature.ddgAvailability.icon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
-                            .foregroundColor(feature.ddgAvailability.color)
-                            .padding(.horizontal, ComparisonTableMetrics.featureIconPadding)
-                        }
+                HStack(spacing: ComparisonTableMetrics.statusColumnSpacing) {
+                    feature.safariAvailability.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
+                        .frame(width: ComparisonTableMetrics.statusColumnWidth)
+
+                    Rectangle()
+                        .fill(ComparisonTableMetrics.separatorColor)
+                        .frame(width: ComparisonTableMetrics.separatorWidth)
+
+                    feature.ddgAvailability.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: ComparisonTableMetrics.availabilityIconSize, height: ComparisonTableMetrics.availabilityIconSize)
+                        .frame(width: ComparisonTableMetrics.statusColumnWidth)
                 }
             }
             .padding(ComparisonTableMetrics.cellInsets)

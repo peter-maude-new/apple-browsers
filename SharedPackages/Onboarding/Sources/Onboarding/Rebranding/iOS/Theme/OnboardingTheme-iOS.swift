@@ -49,11 +49,15 @@ public extension OnboardingTheme {
         )
         let bubbleMetrics = BubbleMetrics(
             contentInsets: bubbleContentInsets,
-            linearContentInsets: linearBubbleContentInsets,
             cornerRadius: bubbleCornerRadius,
             borderWidth: borderWidth,
             shadowRadius: 6.0,
             shadowPosition: CGPoint(x: 0, y: 7)
+        )
+        let linearBubbleMetrics = LinearBubbleMetrics(
+            contentInsets: linearBubbleContentInsets,
+            arrowLength: 40,
+            arrowWidth: 29
         )
         let dismissButtonMetrics = DismissButtonMetrics(
             buttonSize: CGSize(width: 44, height: 44),
@@ -72,22 +76,24 @@ public extension OnboardingTheme {
             contentOuterSpacing: 16.0,
             contentInnerSpacing: 20,
             buttonSpacing: 12,
-            bubbleMaxWidth: 340,
-            bubbleTailOffset: 0.2,
+            bubbleMaxWidth: 360,
+            bubbleTailOffset: 0.31,
             topMarginRatio: 0.18,
-            minTopMargin: 32,
-            maxTopMargin: 32,
+            minTopMargin: 16,
+            maxTopMargin: 16,
             progressBarTrailingPadding: 16.0,
             progressBarTopPadding: 12.0,
             rebrandingBadgeLeadingPadding: 12.0,
             rebrandingBadgeTopPadding: 12.0,
-            dialogVerticalOffsetPercentage: MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
+            dialogVerticalOffsetPercentage: MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01),
+            actionsSpacing: 12
         )
 
         return OnboardingTheme(
             typography: typography,
             colorPalette: colorPalette,
             bubbleMetrics: bubbleMetrics,
+            linearBubbleMetrics: linearBubbleMetrics,
             dismissButtonMetrics: dismissButtonMetrics,
             contextualOnboardingMetrics: ContextualOnboardingMetrics(
                 contentSpacing: 20,

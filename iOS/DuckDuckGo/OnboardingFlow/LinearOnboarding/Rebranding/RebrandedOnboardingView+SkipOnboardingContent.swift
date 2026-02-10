@@ -65,7 +65,8 @@ extension OnboardingRebranding.OnboardingView {
                 metrics: .init(
                     outerSpacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing,
                     textSpacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing,
-                    contentSpacing: 0
+                    contentSpacing: 0,
+                    actionsSpacing: onboardingTheme.linearOnboardingMetrics.actionsSpacing
                 ),
                 message: AnyView(
                     AnimatableTypingText(Copy.message.attributed.withFont(.daxBodyBold(), forText: Self.fireButtonCopy), startAnimating: animateMessage, skipAnimation: isSkipped) {

@@ -59,25 +59,22 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            GeometryReader { geometry in
-                if showSkipOnboarding {
-                    skipOnboardingView
-                } else {
-                    ZStack(alignment: .top) {
-                        VStack(spacing: 0) {
-                            bubbleContent
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
+            if showSkipOnboarding {
+                skipOnboardingView
+            } else {
+                ZStack(alignment: .top) {
+                    VStack(spacing: 0) {
+                        bubbleContent
+                        Spacer()
                     }
-                    .padding(.top, topMargin(for: geometry.size.height))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .padding(.top, IntroDialogContentMetrics.additionalTopMargin)
-                    .onAppear {
-                        guard !showCTA.wrappedValue else { return }
-                        withAnimation {
-                            showCTA.wrappedValue = true
-                        }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(.top, onboardingTheme.linearOnboardingMetrics.minTopMargin + IntroDialogContentMetrics.additionalTopMargin)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .onAppear {
+                    guard !showCTA.wrappedValue else { return }
+                    withAnimation {
+                        showCTA.wrappedValue = true
                     }
                 }
             }
@@ -86,13 +83,16 @@ extension OnboardingRebranding.OnboardingView {
         private var bubbleContent: some View {
             OnboardingBubbleView(
                 tailPosition: .bottom(offset: onboardingTheme.linearOnboardingMetrics.bubbleTailOffset, direction: .leading),
-                contentInsets: onboardingTheme.bubbleMetrics.linearContentInsets
+                contentInsets: onboardingTheme.linearBubbleMetrics.contentInsets,
+                arrowLength: onboardingTheme.linearBubbleMetrics.arrowLength,
+                arrowWidth: onboardingTheme.linearBubbleMetrics.arrowWidth
             ) {
                 LinearDialogContentContainer(
                     metrics: .init(
                         outerSpacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing,
                         textSpacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing,
-                        contentSpacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing
+                        contentSpacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing,
+                        actionsSpacing: onboardingTheme.linearOnboardingMetrics.actionsSpacing
                     ),
                     message: AnyView(
                         Text(message)
@@ -109,7 +109,7 @@ extension OnboardingRebranding.OnboardingView {
                     actions: {
                         VStack(spacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing) {
                             Button(action: continueAction) {
-                                Text(UserText.Onboarding.Intro.continueCTA)
+                                Text(UserText.RebrandedOnboarding.Intro.continueCTA)
                             }
                             .buttonStyle(onboardingTheme.primaryButtonStyle.style)
 
@@ -119,7 +119,7 @@ extension OnboardingRebranding.OnboardingView {
                                     showSkipOnboarding = true
                                     skipAction()
                                 }) {
-                                    Text(UserText.Onboarding.Intro.skipCTA)
+                                    Text(UserText.RebrandedOnboarding.Intro.skipCTA)
                                 }
                                 .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
                             }
@@ -132,10 +132,6 @@ extension OnboardingRebranding.OnboardingView {
             .frame(maxWidth: .infinity, alignment: .center)
         }
 
-        private func topMargin(for height: CGFloat) -> CGFloat {
-            let scaled = height * onboardingTheme.linearOnboardingMetrics.topMarginRatio
-            return min(max(scaled, onboardingTheme.linearOnboardingMetrics.minTopMargin), onboardingTheme.linearOnboardingMetrics.maxTopMargin)
-        }
 
     }
 }

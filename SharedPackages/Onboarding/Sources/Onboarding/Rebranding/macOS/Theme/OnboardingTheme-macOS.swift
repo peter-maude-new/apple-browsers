@@ -62,11 +62,15 @@ public extension OnboardingTheme {
             colorPalette: colorPalette,
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
-                linearContentInsets: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
                 cornerRadius: bubbleCornerRadius,
                 borderWidth: borderWidth,
                 shadowRadius: 6.0,
                 shadowPosition: CGPoint(x: 0, y: 7)
+            ),
+            linearBubbleMetrics: LinearBubbleMetrics(
+                contentInsets: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
+                arrowLength: 50,
+                arrowWidth: 36
             ),
             dismissButtonMetrics: dismissButtonMetrics,
             contextualOnboardingMetrics: OnboardingTheme.ContextualOnboardingMetrics(

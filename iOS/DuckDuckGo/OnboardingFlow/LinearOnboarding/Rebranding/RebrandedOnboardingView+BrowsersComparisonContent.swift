@@ -21,7 +21,7 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
-private enum BrowsersComparisonContentMetrics {
+enum BrowsersComparisonContentMetrics {
     static let additionalTopMargin: CGFloat = 0
 }
 
@@ -64,12 +64,12 @@ extension OnboardingRebranding.OnboardingView {
 
                         VStack(spacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing) {
                             Button(action: setAsDefaultBrowserAction) {
-                                Text(UserText.Onboarding.BrowsersComparison.cta)
+                                Text(UserText.RebrandedOnboarding.BrowsersComparison.cta)
                             }
                             .buttonStyle(onboardingTheme.primaryButtonStyle.style)
 
                             Button(action: cancelAction) {
-                                Text(UserText.onboardingSkip)
+                                Text(UserText.RebrandedOnboarding.skip)
                             }
                             .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
                         }

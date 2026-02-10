@@ -1,6 +1,5 @@
 import SwiftUI
-import DesignResourcesKit
-import DesignResourcesKitIcons
+import Onboarding
 
 struct RebrandedBrowsersComparisonModel {
 
@@ -31,18 +30,18 @@ struct RebrandedBrowsersComparisonModel {
                 }
             }
 
-            var icon: DesignSystemImage {
+            var icon: Image {
                 switch self {
                 case .privateSearch:
-                    return DesignSystemImages.Color.Size24.findSearch
+                    return OnboardingRebrandingImages.Comparison.privateSearchIcon
                 case .blockTrackers:
-                    return DesignSystemImages.Color.Size24.shield
+                    return OnboardingRebrandingImages.Comparison.blockTrackersIcon
                 case .blockCookies:
-                    return DesignSystemImages.Color.Size24.cookieBlocked
+                    return OnboardingRebrandingImages.Comparison.blockCookiesIcon
                 case .blockAds:
-                    return DesignSystemImages.Color.Size24.adsBlocked
+                    return OnboardingRebrandingImages.Comparison.blockAdsIcon
                 case .eraseData:
-                    return DesignSystemImages.Color.Size24.fire
+                    return OnboardingRebrandingImages.Comparison.eraseDataIcon
                 }
             }
         }
@@ -52,25 +51,14 @@ struct RebrandedBrowsersComparisonModel {
             case partial
             case unavailable
 
-            var icon: DesignSystemImage {
+            var image: Image {
                 switch self {
                 case .available:
-                    return DesignSystemImages.Glyphs.Size20.checkSolid
+                    return OnboardingRebrandingImages.Comparison.availableIcon
                 case .partial:
-                    return DesignSystemImages.Glyphs.Size20.stopSolid
+                    return OnboardingRebrandingImages.Comparison.partialIcon
                 case .unavailable:
-                    return DesignSystemImages.Glyphs.Size20.closeSolid
-                }
-            }
-
-            var color: Color {
-                switch self {
-                case .available:
-                    return Color(red: 0x39/255, green: 0xB2/255, blue: 0x5E/255) // green40
-                case .partial:
-                    return Color(red: 0xFF/255, green: 0xD8/255, blue: 0x85/255) // pollen30
-                case .unavailable:
-                    return Color(red: 0x88/255, green: 0x88/255, blue: 0x88/255) // gray50
+                    return OnboardingRebrandingImages.Comparison.unavailableIcon
                 }
             }
         }

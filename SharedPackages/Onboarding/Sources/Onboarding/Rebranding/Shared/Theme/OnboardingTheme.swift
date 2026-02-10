@@ -27,6 +27,8 @@ public struct OnboardingTheme: Equatable {
     public let colorPalette: ColorPalette
     /// Layout and visual metrics for the onboarding bubble container.
     public let bubbleMetrics: BubbleMetrics
+    /// Content insets for bubbles in the linear onboarding flow.
+    public let linearBubbleMetrics: LinearBubbleMetrics
     /// Layout metrics for positioning and sizing the dismiss button.
     public let dismissButtonMetrics: DismissButtonMetrics
     /// Layout metrics for the contextual onboarding flow.
@@ -62,6 +64,7 @@ public struct OnboardingTheme: Equatable {
         typography: Typography,
         colorPalette: ColorPalette,
         bubbleMetrics: BubbleMetrics,
+        linearBubbleMetrics: LinearBubbleMetrics,
         dismissButtonMetrics: DismissButtonMetrics,
         contextualOnboardingMetrics: ContextualOnboardingMetrics,
         linearOnboardingMetrics: LinearOnboardingMetrics,
@@ -74,6 +77,7 @@ public struct OnboardingTheme: Equatable {
         self.typography = typography
         self.colorPalette = colorPalette
         self.bubbleMetrics = bubbleMetrics
+        self.linearBubbleMetrics = linearBubbleMetrics
         self.dismissButtonMetrics = dismissButtonMetrics
         self.contextualOnboardingMetrics = contextualOnboardingMetrics
         self.linearOnboardingMetrics = linearOnboardingMetrics
@@ -89,6 +93,7 @@ public struct OnboardingTheme: Equatable {
         typography: Typography,
         colorPalette: ColorPalette,
         bubbleMetrics: BubbleMetrics,
+        linearBubbleMetrics: LinearBubbleMetrics,
         dismissButtonMetrics: DismissButtonMetrics,
         contextualOnboardingMetrics: ContextualOnboardingMetrics,
         linearOnboardingMetrics: LinearOnboardingMetrics,
@@ -101,6 +106,7 @@ public struct OnboardingTheme: Equatable {
             typography: typography,
             colorPalette: colorPalette,
             bubbleMetrics: bubbleMetrics,
+            linearBubbleMetrics: linearBubbleMetrics,
             dismissButtonMetrics: dismissButtonMetrics,
             contextualOnboardingMetrics: contextualOnboardingMetrics,
             linearOnboardingMetrics: linearOnboardingMetrics,

@@ -35,4 +35,10 @@ extension OnboardingIntroViewModel.Copy {
         browserComparisonTitle: UserText.Onboarding.BrowsersComparison.title
     )
 
+    static let rebranded = OnboardingIntroViewModel.Copy(
+        introTitle: UserText.RebrandedOnboarding.Intro.title,
+        introMessage: UserText.RebrandedOnboarding.Intro.message,
+        browserComparisonTitle: UserText.RebrandedOnboarding.BrowsersComparison.title
+    )
+
 }

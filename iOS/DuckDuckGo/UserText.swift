@@ -2163,6 +2163,25 @@ public struct UserText {
         }
     }
 
+    // MARK: - Rebranded Onboarding
+
+    public enum RebrandedOnboarding {
+
+        public enum Intro {
+            public static let title = NSLocalizedString("rebranded.onboarding.intro.title", value: "Hi There!", comment: "The title of the rebranded onboarding intro dialog popup")
+            public static let message = NSLocalizedString("rebranded.onboarding.intro.message", value: "Ready for a faster browser that keeps you protected?", comment: "The subtitle message of the rebranded onboarding intro dialog popup")
+            public static let continueCTA = NSLocalizedString("rebranded.onboarding.intro.cta", value: "Let's do it!", comment: "Button to continue the rebranded onboarding process")
+            public static let skipCTA = NSLocalizedString("rebranded.onboarding.intro.cta.skip", value: "I've been here before", comment: "Button to skip the rebranded onboarding process")
+        }
+
+        public enum BrowsersComparison {
+            public static let title = NSLocalizedString("rebranded.onboarding.browsers.title", value: "Protections activated!", comment: "The title of the rebranded onboarding privacy protections comparison dialog")
+            public static let cta = NSLocalizedString("rebranded.onboarding.browsers.cta", value: "Choose Your Browser", comment: "Button to change the default browser in rebranded onboarding")
+        }
+
+        public static let skip = NSLocalizedString("rebranded.onboarding.skip", value: "Skip", comment: "Button to skip a step in the rebranded onboarding process")
+    }
+
     // MARK :- Data Import
 
     public static let dataImportPasswordsTitle = NSLocalizedString("data.import.passwords.title", value: "Import Passwords to DuckDuckGo", comment: "Title for screen to import passwords")

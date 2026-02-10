@@ -34,6 +34,7 @@ extension OnboardingRebranding.OnboardingView {
             let outerSpacing: CGFloat
             let textSpacing: CGFloat
             let contentSpacing: CGFloat
+            let actionsSpacing: CGFloat
         }
 
         private let metrics: Metrics
@@ -71,7 +72,7 @@ extension OnboardingRebranding.OnboardingView {
                         content
                     }
 
-                    actions
+                    actions.padding(.top, metrics.actionsSpacing)
                 }
             }
         }
@@ -141,7 +142,7 @@ extension OnboardingRebranding {
                     case .browsersComparisonDialog:
                         browsersComparisonView
                             .frame(width: geometry.size.width, alignment: .center)
-                            .offset(y: geometry.size.height * 0.1)
+                            .padding(.top, OnboardingTheme.rebranding2026.linearOnboardingMetrics.minTopMargin + BrowsersComparisonContentMetrics.additionalTopMargin)
                     default:
                         DaxDialogView(
                             logoPosition: .top,
@@ -172,7 +173,7 @@ extension OnboardingRebranding {
                             totalSteps: 0
                         )
                         .frame(width: geometry.size.width, alignment: .center)
-                        .offset(y: geometry.size.height * OnboardingTheme.rebranding2026.linearOnboardingMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
+                        .padding(.top, OnboardingTheme.rebranding2026.linearOnboardingMetrics.minTopMargin)
                         .onAppear {
                             model.introState.showDaxDialogBox = true
                         }
