@@ -24,6 +24,7 @@ import Core
 import os.log
 import PrivacyConfig
 import Foundation
+import Subscription
 import WebKit
 
 /// Mockable interface to AIChatUserScript
@@ -32,6 +33,7 @@ protocol AIChatUserScriptProviding: AnyObject {
     var webView: WKWebView? { get set }
     func setPayloadHandler(_ payloadHandler: any AIChatConsumableDataHandling)
     func setPageContextProvider(_ provider: ((PageContextRequestReason) -> AIChatPageContextData?)?)
+    func setContextualModePixelHandler(_ pixelHandler: AIChatContextualModePixelFiring)
     func setDisplayMode(_ displayMode: AIChatDisplayMode)
     func submitPrompt(_ prompt: String, pageContext: AIChatPageContextData?)
     func submitStartChatAction()
@@ -112,6 +114,7 @@ final class AIChatContentHandler: AIChatContentHandling {
     private let featureDiscovery: FeatureDiscovery
     private let featureFlagger: FeatureFlagger
     private let productSurfaceTelemetry: ProductSurfaceTelemetry
+    private let freeTrialConversionService: FreeTrialConversionInstrumentationService
     private lazy var statisticsLoader: StatisticsLoader = .shared
 
     private var userScript: AIChatUserScriptProviding?
@@ -128,6 +131,7 @@ final class AIChatContentHandler: AIChatContentHandling {
          featureDiscovery: FeatureDiscovery,
          featureFlagger: FeatureFlagger,
          productSurfaceTelemetry: ProductSurfaceTelemetry,
+         freeTrialConversionService: FreeTrialConversionInstrumentationService = AppDependencyProvider.shared.freeTrialConversionService,
          getPageContext: ((PageContextRequestReason) -> AIChatPageContextData?)? = nil) {
         self.aiChatSettings = aiChatSettings
         self.payloadHandler = payloadHandler
@@ -135,6 +139,7 @@ final class AIChatContentHandler: AIChatContentHandling {
         self.featureDiscovery = featureDiscovery
         self.featureFlagger = featureFlagger
         self.productSurfaceTelemetry = productSurfaceTelemetry
+        self.freeTrialConversionService = freeTrialConversionService
         self.getPageContext = getPageContext
     }
 
@@ -243,6 +248,10 @@ extension AIChatContentHandler: AIChatUserScriptDelegate {
             || metric.metricName == .userDidSubmitFirstPrompt {
             NotificationCenter.default.post(name: .aiChatUserDidSubmitPrompt, object: nil)
             delegate?.aiChatContentHandlerDidReceivePromptSubmission(self)
+
+            if let tier = metric.modelTier, case .plus = tier {
+                freeTrialConversionService.markDuckAIActivated()
+            }
 
             if featureFlagger.isFeatureOn(.aiChatAtb) {
                 DispatchQueue.main.async {

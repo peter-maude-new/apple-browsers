@@ -54,6 +54,7 @@ extension FeatureFlag: FeatureFlagCategorization {
                 .aiChatOmnibarToggle,
                 .aiChatOmnibarCluster,
                 .aiChatSuggestions,
+                .aiChatOmnibarTools,
                 .aiChatOmnibarOnboarding,
                 .standaloneMigration:
             return .duckAI
@@ -83,7 +84,6 @@ extension FeatureFlag: FeatureFlagCategorization {
         case .paidAIChat,
                 .supportsAlternateStripePaymentFlow,
                 .blackFridayCampaign,
-                .tierMessagingEnabled,
                 .allowProTierPurchase:
             return .subscription
         case .popupBlocking,

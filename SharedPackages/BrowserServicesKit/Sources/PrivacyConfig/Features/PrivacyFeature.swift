@@ -65,6 +65,7 @@ public enum PrivacyFeature: String {
     case forceOldAppDelegate
     case htmlHistoryPage
     case tabManager
+    case tabSwitcherTrackerCount
     case webViewStateRestoration
     case experimentalTheming
     case setAsDefaultAndAddToDock
@@ -144,10 +145,6 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212206087745586?focus=true
     case tabClosingEventRecreation
 
-    /// Feature Flag for the Tab Spinner
-    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866479296718
-    case tabProgressIndicator
-
     /// Feature flag for Themes
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1211866720557742
     case themes
@@ -171,6 +168,18 @@ public enum MacOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Memory Pressure Reporter
     /// https://app.asana.com/1/137249556945/project/1201048563534612/task/1212762049862427?focus=true
     case memoryPressureReporting
+
+    /// Memory Usage Reporting
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1212762049862432?focus=true
+    case memoryUsageReporting
+
+    /// Failsafe flag to bring back keys sorting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037849588149
+    case crashCollectionDisableKeysSorting
+
+    /// Failsafe flag for disabling call stack tree depth limiting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764817
+    case crashCollectionLimitCallStackTreeDepth
 }
 
 public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
@@ -214,6 +223,17 @@ public enum iOSBrowserConfigSubfeature: String, PrivacySubfeature {
     /// Whether the wide event POST endpoint is enabled
     /// https://app.asana.com/1/137249556945/project/1199333091098016/task/1212738953909168?focus=true
     case wideEventPostEndpoint
+
+    /// Failsafe flag to bring back keys sorting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037849588149
+    case crashCollectionDisableKeysSorting
+
+    /// Failsafe flag for disabling call stack tree depth limiting in crash collector
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213037858764805
+    case crashCollectionLimitCallStackTreeDepth
+
+    /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1212835969125260
+    case browsingMenuSheetEnabledByDefault
 }
 
 public enum TabManagerSubfeature: String, PrivacySubfeature {
@@ -268,6 +288,7 @@ public enum DBPSubfeature: String, Equatable, PrivacySubfeature {
     case foregroundRunningWhenDashboardOpen
     case clickActionDelayReductionOptimization
     case pirRollout
+    case goToMarket
 }
 
 public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
@@ -332,8 +353,8 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
     /// Enables the omnibar cluster for AI Chat
     case omnibarCluster
 
-    /// Enables showing chat suggestions in the AI Chat omnibar
-    case suggestions
+    /// Enables the omnibar tools (customize, search toggle, image upload) for AI Chat
+    case omnibarTools
 
     /// Controls showing the Hide AI section in Settings -> AI Features
     case showHideAiGeneratedImages
@@ -349,6 +370,9 @@ public enum AIChatSubfeature: String, Equatable, PrivacySubfeature {
 
     /// Controls whether automatic page context attachment defaults to enabled
     case autoAttachContextByDefault
+
+    /// Signals that the iPad app should display duck.ai chats in a tab instead of a sheet
+    case iPadDuckaiOnTab
 
     /// Controls deletion of Synced chats
     case supportsSyncChatsDeletion
@@ -446,8 +470,8 @@ public enum PrivacyProSubfeature: String, Equatable, PrivacySubfeature {
     case winBackOffer
     case vpnMenuItem
     case blackFridayCampaign
-    case tierMessagingEnabled
     case allowProTierPurchase
+    case freeTrialConversionWideEvent
 }
 
 public enum DuckPlayerSubfeature: String, PrivacySubfeature {

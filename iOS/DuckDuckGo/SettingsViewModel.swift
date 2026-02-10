@@ -68,6 +68,17 @@ final class SettingsViewModel: ObservableObject {
     let userScriptsDependencies: DefaultScriptSourceProvider.Dependencies
     var browsingMenuSheetCapability: BrowsingMenuSheetCapable
     private let onboardingSearchExperienceSettingsResolver: OnboardingSearchExperienceSettingsResolver
+    
+    private lazy var newBadgeVisibilityManager: NewBadgeVisibilityManaging = {
+        NewBadgeVisibilityManager(
+            keyValueStore: keyValueStore,
+            configProvider: DefaultNewBadgeConfigProvider(
+                featureFlagger: featureFlagger,
+                privacyConfigurationManager: privacyConfigurationManager
+            ),
+            currentAppVersionProvider: { AppVersion.shared.versionNumber }
+        )
+    }()
 
     // What's New Dependencies
     private let whatsNewCoordinator: ModalPromptProvider & OnDemandModalPromptProvider
@@ -142,6 +153,10 @@ final class SettingsViewModel: ObservableObject {
 
     var isPIREnabled: Bool {
         featureFlagger.isFeatureOn(.personalInformationRemoval)
+    }
+
+    var meetsLocaleRequirement: Bool {
+        runPrerequisitesDelegate?.meetsLocaleRequirement ?? false
     }
 
     var dbpMeetsProfileRunPrequisite: Bool {
@@ -307,6 +322,8 @@ final class SettingsViewModel: ObservableObject {
             set: {
                 self.state.showTrackersBlockedAnimation = $0
                 self.appSettings.showTrackersBlockedAnimation = $0
+                Pixel.fire(pixel: .settingsTrackerCountInAddressBarToggled,
+                          withAdditionalParameters: [PixelParameters.enabled: String($0)])
             }
         )
     }
@@ -979,6 +996,23 @@ extension SettingsViewModel {
         urlOpener.open(URL.emailProtectionSupportLink)
     }
 
+    func shouldShowNewBadge(for feature: NewBadgeFeature) -> Bool {
+        guard isFeatureAvailableForNewBadge(feature) else { return false }
+        return newBadgeVisibilityManager.shouldShowBadge(for: feature)
+    }
+
+    func storeNewBadgeFirstImpressionDateIfNeeded(for feature: NewBadgeFeature) {
+        guard isFeatureAvailableForNewBadge(feature) else { return }
+        newBadgeVisibilityManager.storeFirstImpressionDateIfNeeded(for: feature)
+    }
+
+    private func isFeatureAvailableForNewBadge(_ feature: NewBadgeFeature) -> Bool {
+        switch feature {
+        case .personalInformationRemoval:
+            return isPIREnabled && meetsLocaleRequirement && dataBrokerProtectionViewControllerProvider != nil
+        }
+    }
+
     func openOtherPlatforms() {
         urlOpener.open(URL.otherDevices)
     }
@@ -1445,11 +1479,25 @@ extension SettingsViewModel {
         )
     }
 
+    var isChatSuggestionsEnabled: Binding<Bool> {
+        Binding<Bool>(
+            get: { self.aiChatSettings.isChatSuggestionsEnabled },
+            set: { newValue in
+                withAnimation {
+                    self.objectWillChange.send()
+                    self.aiChatSettings.enableChatSuggestions(enable: newValue)
+                }
+            }
+        )
+    }
+
     var showTrackerCountInTabSwitcherBinding: Binding<Bool> {
         Binding<Bool>(
             get: { self.tabSwitcherSettings.showTrackerCountInTabSwitcher },
             set: { newValue in
                 self.tabSwitcherSettings.showTrackerCountInTabSwitcher = newValue
+                Pixel.fire(pixel: .settingsTrackerCountInTabSwitcherToggled,
+                          withAdditionalParameters: [PixelParameters.enabled: String(newValue)])
             }
         )
     }

@@ -29,12 +29,23 @@ import os.log
 import AIChat
 import Combine
 import PrivacyConfig
+import WebExtensions
 
 protocol TabManaging {
     var count: Int { get }
     @MainActor func prepareAllTabsExceptCurrentForDataClearing()
     @MainActor func prepareCurrentTabForDataClearing()
     func removeAll()
+    @MainActor func viewModelForCurrentTab() -> TabViewModel?
+    @MainActor func prepareTab(_ tab: Tab)
+    @MainActor func isCurrentTab(_ tab: Tab) -> Bool
+    @MainActor func closeTab(_ tab: Tab,
+                             shouldCreateEmptyTabAtSamePosition: Bool,
+                             clearTabHistory: Bool)
+    func controller(for tab: Tab) -> TabViewController?
+    /// Closes the tab and navigates to homepage reusing an existing homepage or creating a new one
+    @MainActor func closeTabAndNavigateToHomepage(_ tab: Tab, clearTabHistory: Bool)
+
 }
 
 class TabManager: TabManaging {
@@ -72,6 +83,7 @@ class TabManager: TabManaging {
     private let sharedSecureVault: (any AutofillSecureVault)?
     private let privacyStats: PrivacyStatsProviding
     private let voiceSearchHelper: VoiceSearchHelperProtocol
+    private var webExtensionManager: WebExtensionManaging?
 
     weak var delegate: TabDelegate?
     weak var aiChatContentDelegate: AIChatContentHandlingDelegate?
@@ -144,6 +156,10 @@ class TabManager: TabManaging {
         registerForNotifications()
     }
 
+    func setWebExtensionManager(_ manager: WebExtensionManaging?) {
+        self.webExtensionManager = manager
+    }
+
     @MainActor
     private func buildController(forTab tab: Tab, inheritedAttribution: AdClickAttributionLogic.State?, interactionState: Data?) -> TabViewController {
         let url = tab.link?.url
@@ -155,7 +171,11 @@ class TabManager: TabManaging {
                                  url: URL?,
                                  inheritedAttribution: AdClickAttributionLogic.State?,
                                  interactionState: Data?) -> TabViewController {
-        let configuration =  WKWebViewConfiguration.persistent()
+        let configuration = WKWebViewConfiguration.persistent()
+
+        if #available(iOS 18.4, *), let webExtensionManager = webExtensionManager {
+            configuration.webExtensionController = webExtensionManager.controller
+        }
 
         let specialErrorPageNavigationHandler = SpecialErrorPageNavigationHandler(
             maliciousSiteProtectionNavigationHandler: MaliciousSiteProtectionNavigationHandler(
@@ -219,6 +239,21 @@ class TabManager: TabManaging {
     
     func controller(for tab: Tab) -> TabViewController? {
         return tabControllerCache.first { $0.tabModel === tab }
+    }
+    
+    @MainActor
+    func viewModel(for tab: Tab) -> TabViewModel {
+        if let controller = controller(for: tab) {
+            return controller.viewModel
+        } else {
+            return TabViewModel(tab: tab, historyManager: historyManager)
+        }
+    }
+
+    @MainActor
+    func viewModelForCurrentTab() -> TabViewModel? {
+        guard let tab = model.currentTab else { return nil }
+        return viewModel(for: tab)
     }
 
     var isEmpty: Bool {
@@ -369,37 +404,29 @@ class TabManager: TabManaging {
     ///  Tab Switcher's UICollectionView 'delete items' function doesn't complain about mis-matching
     ///   number of items.
     func bulkRemoveTabs(_ indexPaths: [IndexPath]) {
-        indexPaths.forEach {
-            let tab = model.get(tabAt: $0.row)
-            previewsSource.removePreview(forTab: tab)
-            if let controller = controller(for: tab) {
-                removeFromCache(controller)
-            }
-            interactionStateSource?.removeStateForTab(tab)
-        }
+        let tabs = indexPaths.map { model.get(tabAt: $0.row) }
         model.remove(indexPaths)
+        clean(tabs: tabs, clearTabHistory: true)
         save()
     }
 
-    func remove(at index: Int) {
+    func remove(at index: Int, clearTabHistory: Bool = true) {
         let tab = model.get(tabAt: index)
-        previewsSource.removePreview(forTab: tab)
         model.remove(tab: tab)
-        if let controller = controller(for: tab) {
-            removeFromCache(controller)
-        }
-        interactionStateSource?.removeStateForTab(tab)
+        clean(tabs: [tab], clearTabHistory: clearTabHistory)
         save()
     }
 
-    func replaceTab(at index: Int, withNewTab newTab: Tab) {
+    func replaceTab(at index: Int, withNewTab newTab: Tab, clearTabHistory: Bool = true) {
         // Removing a Tab automatically inserts a new one if tabs are empty. Hence add a new one only if needed
         if model.tabs.count == 1 {
             // Since we're not re-inserting we should use the proper removal to ensure
             //  things are cleaned up properly.
-            remove(at: index)
+            remove(at: index, clearTabHistory: clearTabHistory)
         } else {
+            let oldTab = model.get(tabAt: index)
             model.remove(at: index)
+            clean(tabs: [oldTab], clearTabHistory: clearTabHistory)
             model.insert(tab: newTab, at: index)
         }
         save()
@@ -413,12 +440,14 @@ class TabManager: TabManaging {
     }
 
     func removeAll() {
+        let tabIDs = model.tabs.map { $0.uid }
         previewsSource.removeAllPreviews()
         model.clearAll()
         for controller in tabControllerCache {
             removeFromCache(controller)
         }
         interactionStateSource?.removeAll(excluding: [])
+        removeTabHistory(for: tabIDs)
         save()
     }
 
@@ -448,6 +477,32 @@ class TabManager: TabManaging {
     @MainActor
     func prepareCurrentTabForDataClearing() {
         current()?.prepareForDataClearing()
+    }
+    
+    @MainActor
+    func prepareTab(_ tab: Tab) {
+        controller(for: tab)?.prepareForDataClearing()
+    }
+    
+    @MainActor
+    func isCurrentTab(_ tab: Tab) -> Bool {
+        model.currentTab === tab
+    }
+    
+    @MainActor
+    func closeTab(_ tab: Tab, shouldCreateEmptyTabAtSamePosition: Bool, clearTabHistory: Bool) {
+        let behavior: TabClosingBehavior = shouldCreateEmptyTabAtSamePosition ? .createEmptyTabAtSamePosition : .onlyClose
+        delegate?.tabDidRequestClose(tab,
+                                     behavior: behavior,
+                                     clearTabHistory: clearTabHistory)
+    }
+
+    @MainActor
+    func closeTabAndNavigateToHomepage(_ tab: Tab, clearTabHistory: Bool) {
+        // Close the tab and create or reuse an empty tab
+        delegate?.tabDidRequestClose(tab,
+                                     behavior: .createOrReuseEmptyTab,
+                                     clearTabHistory: clearTabHistory)
     }
 
     func cleanupTabsFaviconCache() {
@@ -480,6 +535,29 @@ class TabManager: TabManaging {
             }
 
             self.tabsCacheNeedsCleanup = false
+        }
+    }
+
+    // MARK: - Tab Cleanup
+    
+    private func clean(tabs: [Tab], clearTabHistory: Bool) {
+        let tabIDs = tabs.map { $0.uid }
+        tabs.forEach { tab in
+            previewsSource.removePreview(forTab: tab)
+            if let controller = controller(for: tab) {
+                removeFromCache(controller)
+            }
+            interactionStateSource?.removeStateForTab(tab)
+        }
+        if clearTabHistory {
+            removeTabHistory(for: tabIDs)
+        }
+    }
+
+    private func removeTabHistory(for tabIDs: [String]) {
+        guard !tabIDs.isEmpty else { return }
+        Task {
+            await historyManager.removeTabHistory(for: tabIDs)
         }
     }
 }

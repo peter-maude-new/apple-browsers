@@ -78,7 +78,8 @@ final class MockWideEventData: WideEventData {
         pixelName: "mock-wide-event",
         featureName: "mock-wide-event",
         mobileMetaType: "ios-test-mock-wide-event",
-        desktopMetaType: "macos-test-mock-wide-event"
+        desktopMetaType: "macos-test-mock-wide-event",
+        version: "1.0.0"
     )
 
     enum FailingStep: String, Codable {
@@ -300,7 +301,8 @@ final class WideEventTests: XCTestCase {
                 pixelName: "non_serializable",
                 featureName: "non_serializable",
                 mobileMetaType: "ios-test-non-serializable",
-                desktopMetaType: "macos-test-non-serializable"
+                desktopMetaType: "macos-test-non-serializable",
+                version: "1.0.0"
             )
             let closure: () -> Void = { }
             var contextData: WideEventContextData = WideEventContextData()
@@ -528,7 +530,7 @@ final class WideEventTests: XCTestCase {
         XCTAssert(capturedPixels.count >= 1 && capturedPixels.count <= 2)
         let params = capturedPixels[0].parameters
         XCTAssertEqual(params["feature.status"], "SUCCESS")
-        XCTAssertEqual(params["feature.status_reason"], "test_success_reason")
+        XCTAssertEqual(params["feature.data.ext.status_reason"], "test_success_reason")
     }
 
     func testFlowRestartWithSameContextID() throws {
@@ -987,6 +989,6 @@ final class DefaultWideEventSendingTests: XCTestCase {
         XCTAssertEqual(parameters["feature.data.ext.test_identifier"], "test-id")
         XCTAssertEqual(parameters["feature.data.ext.test_eligible"], "true")
         XCTAssertEqual(parameters["feature.status"], "SUCCESS")
-        XCTAssertEqual(parameters["feature.status_reason"], "test_reason")
+        XCTAssertEqual(parameters["feature.data.ext.status_reason"], "test_reason")
     }
 }

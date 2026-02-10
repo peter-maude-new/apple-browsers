@@ -70,6 +70,7 @@ final class FireCoordinator {
     private let pixelFiring: PixelFiring?
     private let aiChatSyncCleaner: (() -> AIChatSyncCleaning?)?
     private let visualizeFireAnimationDecider: OverridableVisualizeFireSettingsDecider
+    let dataClearingPixelsReporter: DataClearingPixelsReporter
 
     init(tld: TLD,
          featureFlagger: FeatureFlagger,
@@ -99,6 +100,7 @@ final class FireCoordinator {
         }
         self.pixelFiring = pixelFiring
         self.aiChatSyncCleaner = aiChatSyncCleaner
+        self.dataClearingPixelsReporter = .init(pixelFiring: self.pixelFiring)
         self.visualizeFireAnimationDecider = OverridableVisualizeFireSettingsDecider(internalDecider: visualizeFireAnimationDecider)
 
         self.fireDialogViewFactory = fireDialogViewFactory ?? { config in
@@ -135,13 +137,13 @@ final class FireCoordinator {
         burningWindow.makeKeyAndOrderFront(nil)
         let mainViewController = lastKeyMainWindowController.mainViewController
 
-        // Present dialog gated by feature flag; fallback to legacy popover
-        // Special popover variant for Fire window
-        if !mainViewController.isBurner, featureFlagger.isFeatureOn(.fireDialog) {
+        // Use Fire dialog for regular windows, popover for Fire windows
+        if !mainViewController.isBurner {
             Task { @MainActor in
                 _=await self.presentFireDialog(mode: .fireButton, in: burningWindow)
             }
         } else {
+            // Fire windows continue to use the legacy popover
             showFirePopover(relativeTo: mainViewController.tabBarViewController.fireButton,
                             tabCollectionViewModel: mainViewController.tabCollectionViewModel)
         }
@@ -153,10 +155,12 @@ final class FireCoordinator {
             return
         }
 
-        guard !(firePopover?.isShown ?? false) else {
+        // Close any existing popover before creating a new one
+        if firePopover?.isShown ?? false {
             firePopover?.close()
             return
         }
+
         firePopover = FirePopover(fireViewModel: fireViewModel, tabCollectionViewModel: tabCollectionViewModel)
         firePopover?.show(positionedBelow: positioningView.bounds.insetBy(dx: 0, dy: 3), in: positioningView)
     }
@@ -235,7 +239,7 @@ extension FireCoordinator {
             let presenter = self.fireDialogViewFactory(
                 FireDialogViewConfig(
                     viewModel: vm,
-                    showIndividualSitesLink: [.fireButton, .mainMenuAll].contains(mode) && featureFlagger.isFeatureOn(.fireDialogIndividualSitesLink),
+                    showIndividualSitesLink: [.fireButton, .mainMenuAll].contains(mode),
                     onConfirm: { response in
                         resumeOnce(returning: response)
                     }
@@ -278,7 +282,9 @@ extension FireCoordinator {
     }
 
     @MainActor
-    func handleDialogResult(_ result: FireDialogResult, tabCollectionViewModel: TabCollectionViewModel?, isAllHistorySelected: Bool) async {
+    func handleDialogResult(_ result: FireDialogResult, tabCollectionViewModel: TabCollectionViewModel?, isAllHistorySelected: Bool, from startTime: Double = CACurrentMediaTime()) async {
+        dataClearingPixelsReporter.fireRetriggerPixelIfNeeded()
+
         if result.includeChatHistory {
             pixelFiring?.fire(AIChatPixel.aiChatDeleteHistoryRequested, frequency: .dailyAndCount)
         }
@@ -286,7 +292,6 @@ extension FireCoordinator {
         if result.clearingOption == .allData /* not Current Tab or Window */,
            result.includeHistory, !isAllHistorySelected,
            let visits = result.selectedVisits, !visits.isEmpty {
-
             await fireViewModel.fire.burnVisits(visits,
                                                 except: fireViewModel.fire.fireproofDomains,
                                                 isToday: result.isToday,
@@ -294,6 +299,7 @@ extension FireCoordinator {
                                                 clearSiteData: result.includeCookiesAndSiteData,
                                                 clearChatHistory: result.includeChatHistory,
                                                 urlToOpenIfWindowsAreClosed: nil)
+            dataClearingPixelsReporter.fireCompletionPixel(from: startTime, dialogResult: result, path: .burnVisits, autoClear: false)
             return
         }
         pixelFiring?.fire(GeneralPixel.fireButtonFirstBurn, frequency: .legacyDailyNoSuffix)
@@ -313,6 +319,7 @@ extension FireCoordinator {
                                                 includingHistory: result.includeHistory,
                                                 includeCookiesAndSiteData: result.includeCookiesAndSiteData,
                                                 includeChatHistory: result.includeChatHistory)
+            dataClearingPixelsReporter.fireCompletionPixel(from: startTime, dialogResult: result, path: .burnEntity, autoClear: false)
 
         case .currentWindow:
             pixelFiring?.fire(GeneralPixel.fireButton(option: .window))
@@ -327,6 +334,7 @@ extension FireCoordinator {
                                                 includingHistory: result.includeHistory,
                                                 includeCookiesAndSiteData: result.includeCookiesAndSiteData,
                                                 includeChatHistory: result.includeChatHistory)
+            dataClearingPixelsReporter.fireCompletionPixel(from: startTime, dialogResult: result, path: .burnEntity, autoClear: false)
 
         case .allData:
             pixelFiring?.fire(GeneralPixel.fireButton(option: .allSites))
@@ -336,6 +344,7 @@ extension FireCoordinator {
                                                  opening: .newtab,
                                                  includeCookiesAndSiteData: result.includeCookiesAndSiteData,
                                                  includeChatHistory: result.includeChatHistory)
+                dataClearingPixelsReporter.fireCompletionPixel(from: startTime, dialogResult: result, path: .burnAll, autoClear: false)
             } else {
                 let entity = Fire.BurningEntity.allWindows(mainWindowControllers: windowControllersManager.mainWindowControllers,
                                                            selectedDomains: result.selectedCookieDomains ?? [],
@@ -345,6 +354,7 @@ extension FireCoordinator {
                                                     includingHistory: result.includeHistory,
                                                     includeCookiesAndSiteData: result.includeCookiesAndSiteData,
                                                     includeChatHistory: result.includeChatHistory)
+                dataClearingPixelsReporter.fireCompletionPixel(from: startTime, dialogResult: result, path: .burnEntity, autoClear: false)
             }
         }
         if result.includeHistory,
