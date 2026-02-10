@@ -2748,6 +2748,21 @@ extension MainViewController: OmniBarDelegate {
         performCancel()
     }
 
+    func onDashboardTabSelected(url: URL) {
+        performCancel()
+        if let index = tabManager.model.tabs.firstIndex(where: { $0.link?.url == url }) {
+            select(tabAt: index)
+        }
+    }
+
+    func currentOpenTabs() -> [Core.Link] {
+        return tabManager.model.tabs.compactMap { $0.link }
+    }
+
+    func fetchTrackersBlockedCount() async -> Int64 {
+        return await privacyStats.fetchPrivacyStatsTotalCount()
+    }
+
     func onCustomizableButtonPressed() {
         guard mobileCustomization.state.isEnabled else {
             shareCurrentURLFromAddressBar()

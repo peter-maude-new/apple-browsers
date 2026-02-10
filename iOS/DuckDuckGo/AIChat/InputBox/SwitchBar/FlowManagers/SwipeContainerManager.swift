@@ -81,11 +81,11 @@ final class SwipeContainerManager: NSObject {
         manager.installInContainerView(chatPageContainer, parentViewController: containerViewController)
     }
 
-    /// Installs a dashboard hosting controller in the chat page container
+    /// Installs a dashboard hosting controller in the search page container
     /// - Parameter hostingController: The UIHostingController to install
     @MainActor
     func installDashboard(hostingController: UIViewController) {
-        let container = chatPageContainer
+        let container = searchPageContainer
         let parent = containerViewController
 
         parent.addChild(hostingController)

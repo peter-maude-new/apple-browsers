@@ -26,6 +26,13 @@ struct AIChatDashboardView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                if let title = viewModel.previousPageTitle {
+                    PreviousPageSection(
+                        title: title,
+                        onTapped: viewModel.previousPageTapped
+                    )
+                }
+
                 if !viewModel.recentChats.isEmpty {
                     RecentChatsSection(
                         chats: viewModel.recentChats,
@@ -38,11 +45,15 @@ struct AIChatDashboardView: View {
                     onBookmarksTapped: viewModel.bookmarksTapped
                 )
 
-                if let title = viewModel.previousPageTitle {
-                    PreviousPageSection(
-                        title: title,
-                        onTapped: viewModel.previousPageTapped
+                if !viewModel.openTabs.isEmpty {
+                    OpenTabsSection(
+                        tabs: viewModel.openTabs,
+                        onTabSelected: viewModel.tabSelected
                     )
+                }
+
+                if viewModel.trackersBlockedCount > 0 {
+                    TrackersBlockedSection(count: viewModel.trackersBlockedCount)
                 }
             }
             .padding(.horizontal, 16)

@@ -1,5 +1,5 @@
 //
-//  RecentChatsSection.swift
+//  OpenTabsSection.swift
 //  DuckDuckGo
 //
 //  Copyright © 2026 DuckDuckGo. All rights reserved.
@@ -17,18 +17,18 @@
 //  limitations under the License.
 //
 
-import AIChat
+import Core
 import DesignResourcesKit
 import DesignResourcesKitIcons
 import SwiftUI
 
-struct RecentChatsSection: View {
-    let chats: [AIChatSuggestion]
-    let onChatSelected: (AIChatSuggestion) -> Void
+struct OpenTabsSection: View {
+    let tabs: [Core.Link]
+    let onTabSelected: (Core.Link) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.titleSpacing) {
-            Text(UserText.dashboardRecentChatsTitle)
+            Text(UserText.dashboardOpenTabsTitle)
                 .font(.footnote)
                 .fontWeight(.semibold)
                 .foregroundColor(Color(designSystemColor: .textSecondary))
@@ -36,19 +36,18 @@ struct RecentChatsSection: View {
                 .padding(.leading, 4)
 
             DashboardCardView {
-                ForEach(Array(chats.enumerated()), id: \.element.id) { index, chat in
+                ForEach(Array(tabs.enumerated()), id: \.offset) { index, tab in
                     Button {
-                        onChatSelected(chat)
+                        onTabSelected(tab)
                     } label: {
                         HStack(spacing: Constants.iconTextSpacing) {
-                            let icon = chat.isPinned ? DesignSystemImages.Glyphs.Size24.pin : DesignSystemImages.Glyphs.Size24.chat
-                            Image(uiImage: icon)
+                            Image(uiImage: DesignSystemImages.Glyphs.Size24.globe)
                                 .renderingMode(.template)
                                 .resizable()
                                 .frame(width: Constants.iconSize, height: Constants.iconSize)
                                 .foregroundColor(Color(designSystemColor: .icons))
 
-                            Text(chat.title)
+                            Text(tab.displayTitle)
                                 .font(.body)
                                 .foregroundColor(Color(designSystemColor: .textPrimary))
                                 .lineLimit(1)
@@ -60,7 +59,7 @@ struct RecentChatsSection: View {
                         .frame(height: Constants.cellHeight)
                     }
 
-                    if index < chats.count - 1 {
+                    if index < tabs.count - 1 {
                         Divider()
                             .padding(.leading, Constants.horizontalInset + Constants.iconSize + Constants.iconTextSpacing)
                     }

@@ -181,6 +181,15 @@
 /* Title for the Favorites button on the AI Chat dashboard */
 "aichat.dashboard.favorites" = "Favorites";
 
+/* Section title for currently open tabs on the AI Chat dashboard */
+"aichat.dashboard.open.tabs" = "Open Tabs";
+
+/* Section title for recent duck.ai chats on the AI Chat dashboard */
+"aichat.dashboard.recent.chats" = "Recent Chats";
+
+/* Label showing the number of trackers blocked on the AI Chat dashboard. %lld is the count. */
+"aichat.dashboard.trackers.blocked" = "%lld trackers blocked";
+
 /* No comment provided by engineer. */
 "alert.message.bookmarkAll" = "Existing bookmarks will not be duplicated.";
 

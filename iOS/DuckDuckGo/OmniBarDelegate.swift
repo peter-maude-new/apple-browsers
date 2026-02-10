@@ -108,6 +108,10 @@ protocol OmniBarDelegate: AnyObject {
     func onDashboardBookmarksRequested()
     func onDashboardFavoritesRequested()
     func onDashboardPreviousPageRequested()
+    func onDashboardTabSelected(url: URL)
+
+    func currentOpenTabs() -> [Core.Link]
+    func fetchTrackersBlockedCount() async -> Int64
 
     // MARK: - Experimental Address Bar (pixels only)
     func onExperimentalAddressBarTapped()
@@ -189,6 +193,17 @@ extension OmniBarDelegate {
     }
 
     func onDashboardPreviousPageRequested() {
+    }
+
+    func onDashboardTabSelected(url: URL) {
+    }
+
+    func currentOpenTabs() -> [Core.Link] {
+        return []
+    }
+
+    func fetchTrackersBlockedCount() async -> Int64 {
+        return 0
     }
 
     // Default no-op implementations for experimental address bar pixel hooks

@@ -43,6 +43,7 @@ protocol OmniBarEditingStateViewControllerDelegate: AnyObject {
     func onBookmarksRequested()
     func onFavoritesRequested()
     func onPreviousPageRequested()
+    func onTabSelected(url: URL)
 }
 
 /// Main coordinator for the OmniBar editing state, managing multiple specialized components
@@ -54,6 +55,8 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
 
     var suggestionTrayDependencies: SuggestionTrayDependencies?
     var previousPageLink: Core.Link?
+    var openTabs: [Core.Link] = []
+    var fetchTrackersBlockedCount: (() async -> Int64)?
 
     weak var delegate: OmniBarEditingStateViewControllerDelegate?
     var automaticallySelectsTextOnAppear = false
@@ -155,10 +158,13 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if dashboardHostingController == nil && featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
-            installDashboard()
-        } else if aiChatHistoryManager == nil && featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
-            installChatHistoryList()
+        if featureFlagger.isFeatureOn(.aiChatSuggestions) && aiChatSettings.isChatSuggestionsEnabled {
+            if dashboardHostingController == nil {
+                installDashboard()
+            }
+            if aiChatHistoryManager == nil {
+                installChatHistoryList()
+            }
         }
 
         switchBarVC.focusTextField()
@@ -340,6 +346,7 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         let viewModel = AIChatDashboardViewModel(
             previousPageTitle: previousPageLink?.displayTitle,
             previousPageURL: previousPageLink?.url,
+            openTabs: openTabs,
             aiChatSettings: aiChatSettings
         )
         viewModel.delegate = self
@@ -361,13 +368,22 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         // Initial fetch
         fetchDashboardSuggestions(query: nil, suggestionsReader: suggestionsReader)
 
-        // Subscribe to text changes for filtering
+        // Fetch trackers blocked count
+        if let fetchTrackersBlockedCount {
+            Task { [weak viewModel] in
+                let count = await fetchTrackersBlockedCount()
+                viewModel?.trackersBlockedCount = count
+            }
+        }
+
+        // Hide dashboard when user types, show when empty
         switchBarHandler.currentTextPublisher
-            .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] text in
-                guard let self, let reader = self.dashboardSuggestionsReader else { return }
-                let query = text.isEmpty ? nil : text
-                self.fetchDashboardSuggestions(query: query, suggestionsReader: reader)
+                guard let self else { return }
+                let hasText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                self.dashboardHostingController?.view.isHidden = hasText
+                self.updateDaxVisibility()
             }
             .store(in: &cancellables)
     }
@@ -595,7 +611,8 @@ final class OmniBarEditingStateViewController: UIViewController, OmniBarEditingS
         let isHorizontallyCompactLayoutEnabled = requiresHorizontallyCompactLayout(for: view.bounds.size)
         let isShowingChatHistory = aiChatHistoryManager != nil || dashboardHostingController != nil
 
-        let isHomeDaxVisible = !shouldDisplaySuggestionTray && !shouldDisplayFavoritesOverlay && !isHorizontallyCompactLayoutEnabled
+        let isDashboardVisible = dashboardHostingController != nil && dashboardHostingController?.view.isHidden == false
+        let isHomeDaxVisible = !shouldDisplaySuggestionTray && !shouldDisplayFavoritesOverlay && !isHorizontallyCompactLayoutEnabled && !isDashboardVisible
 
         let isAIDaxVisible: Bool
         if switchBarHandler.isUsingFadeOutAnimation {
@@ -756,6 +773,10 @@ extension OmniBarEditingStateViewController: AIChatDashboardViewModelDelegate {
 
     func dashboardDidRequestPreviousPage() {
         delegate?.onPreviousPageRequested()
+    }
+
+    func dashboardDidSelectTab(url: URL) {
+        delegate?.onTabSelected(url: url)
     }
 }
 

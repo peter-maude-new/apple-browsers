@@ -2342,4 +2342,11 @@ public struct UserText {
     static let dashboardFavoritesTitle = NSLocalizedString("aichat.dashboard.favorites", value: "Favorites", comment: "Title for the Favorites button on the AI Chat dashboard")
     static let dashboardBookmarksTitle = NSLocalizedString("aichat.dashboard.bookmarks", value: "Bookmarks", comment: "Title for the Bookmarks button on the AI Chat dashboard")
     static let dashboardBackToPrefix = NSLocalizedString("aichat.dashboard.back.to", value: "Back to", comment: "Prefix label for the 'Back to [page title]' button on the AI Chat dashboard")
+    static let dashboardRecentChatsTitle = NSLocalizedString("aichat.dashboard.recent.chats", value: "Recent Chats", comment: "Section title for recent duck.ai chats on the AI Chat dashboard")
+    static let dashboardOpenTabsTitle = NSLocalizedString("aichat.dashboard.open.tabs", value: "Open Tabs", comment: "Section title for currently open tabs on the AI Chat dashboard")
+
+    static func dashboardTrackersBlocked(count: Int64) -> String {
+        let format = NSLocalizedString("aichat.dashboard.trackers.blocked", value: "%lld trackers blocked", comment: "Label showing the number of trackers blocked on the AI Chat dashboard. %lld is the count.")
+        return String(format: format, count)
+    }
 }

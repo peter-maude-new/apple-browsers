@@ -19,6 +19,7 @@
 
 import AIChat
 import Combine
+import Core
 import Foundation
 
 @MainActor
@@ -27,6 +28,7 @@ protocol AIChatDashboardViewModelDelegate: AnyObject {
     func dashboardDidRequestFavorites()
     func dashboardDidRequestBookmarks()
     func dashboardDidRequestPreviousPage()
+    func dashboardDidSelectTab(url: URL)
 }
 
 @MainActor
@@ -35,6 +37,8 @@ final class AIChatDashboardViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var recentChats: [AIChatSuggestion] = []
+    @Published var openTabs: [Core.Link] = []
+    @Published var trackersBlockedCount: Int64 = 0
 
     // MARK: - Properties
 
@@ -48,9 +52,11 @@ final class AIChatDashboardViewModel: ObservableObject {
 
     init(previousPageTitle: String?,
          previousPageURL: URL?,
+         openTabs: [Core.Link] = [],
          aiChatSettings: AIChatSettingsProvider = AIChatSettings()) {
         self.previousPageTitle = previousPageTitle
         self.previousPageURL = previousPageURL
+        self.openTabs = openTabs
         self.aiChatSettings = aiChatSettings
     }
 
@@ -71,5 +77,9 @@ final class AIChatDashboardViewModel: ObservableObject {
 
     func previousPageTapped() {
         delegate?.dashboardDidRequestPreviousPage()
+    }
+
+    func tabSelected(_ tab: Core.Link) {
+        delegate?.dashboardDidSelectTab(url: tab.url)
     }
 }

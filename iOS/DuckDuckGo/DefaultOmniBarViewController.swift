@@ -194,6 +194,10 @@ final class DefaultOmniBarViewController: OmniBarViewController {
         let editingStateViewController = OmniBarEditingStateViewController(switchBarHandler: switchBarHandler)
         editingStateViewController.delegate = self
         editingStateViewController.previousPageLink = omniDelegate?.currentTabLink()
+        editingStateViewController.openTabs = omniDelegate?.currentOpenTabs() ?? []
+        editingStateViewController.fetchTrackersBlockedCount = { [weak self] in
+            await self?.omniDelegate?.fetchTrackersBlockedCount() ?? 0
+        }
 
         editingStateViewController.modalPresentationStyle = .custom
         editingStateViewController.transitioningDelegate = self
@@ -309,6 +313,12 @@ extension DefaultOmniBarViewController: OmniBarEditingStateViewControllerDelegat
     func onPreviousPageRequested() {
         editingStateViewController?.dismissAnimated { [weak self] in
             self?.omniDelegate?.onDashboardPreviousPageRequested()
+        }
+    }
+
+    func onTabSelected(url: URL) {
+        editingStateViewController?.dismissAnimated { [weak self] in
+            self?.omniDelegate?.onDashboardTabSelected(url: url)
         }
     }
 }
