@@ -59,14 +59,15 @@ extension OnboardingRebranding.OnboardingView {
                 if showSkipOnboarding {
                     skipOnboardingView
                 } else {
-                    VStack(spacing: 0) {
-                        Spacer()
-                            .frame(height: topMargin(for: geometry.size.height))
-
-                        bubbleContent
-
-                        Spacer()
+                    ZStack(alignment: .top) {
+                        VStack(spacing: 0) {
+                            bubbleContent
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
+                    .padding(.top, topMargin(for: geometry.size.height))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .onAppear {
                         guard !showCTA.wrappedValue else { return }
                         withAnimation {
@@ -123,6 +124,7 @@ extension OnboardingRebranding.OnboardingView {
                 )
             }
             .frame(maxWidth: onboardingTheme.linearOnboardingMetrics.bubbleMaxWidth)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
 
         private func topMargin(for height: CGFloat) -> CGFloat {
