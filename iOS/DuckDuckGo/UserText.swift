@@ -2177,6 +2177,11 @@ public struct UserText {
         public enum BrowsersComparison {
             public static let title = NSLocalizedString("rebranded.onboarding.browsers.title", value: "Protections activated!", comment: "The title of the rebranded onboarding privacy protections comparison dialog")
             public static let cta = NSLocalizedString("rebranded.onboarding.browsers.cta", value: "Choose Your Browser", comment: "Button to change the default browser in rebranded onboarding")
+            public static let privateSearch = NSLocalizedString("rebranded.onboarding.browsers.feature.privateSearch", value: "Search privately by default", comment: "Comparison table feature: private search")
+            public static let blockTrackers = NSLocalizedString("rebranded.onboarding.browsers.feature.blockTrackers", value: "Block 3rd-party trackers", comment: "Comparison table feature: block trackers")
+            public static let blockCookies = NSLocalizedString("rebranded.onboarding.browsers.feature.blockCookies", value: "Block cookie requests & pop-ups", comment: "Comparison table feature: block cookies")
+            public static let blockAds = NSLocalizedString("rebranded.onboarding.browsers.feature.blockAds", value: "Block targeted ads", comment: "Comparison table feature: block ads")
+            public static let eraseData = NSLocalizedString("rebranded.onboarding.browsers.feature.eraseData", value: "Erase browsing data swiftly", comment: "Comparison table feature: erase data")
         }
 
         public static let skip = NSLocalizedString("rebranded.onboarding.skip", value: "Skip", comment: "Button to skip a step in the rebranded onboarding process")
