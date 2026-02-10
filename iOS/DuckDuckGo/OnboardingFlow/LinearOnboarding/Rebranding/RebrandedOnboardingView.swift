@@ -134,6 +134,10 @@ extension OnboardingRebranding {
                     case .startOnboardingDialog(let shouldShowSkipOnboardingButton):
                         introView(shouldShowSkipOnboardingButton: shouldShowSkipOnboardingButton)
                             .frame(width: geometry.size.width, alignment: .center)
+                    case .browsersComparisonDialog:
+                        browsersComparisonView
+                            .frame(width: geometry.size.width, alignment: .center)
+                            .offset(y: geometry.size.height * 0.1)
                     default:
                         DaxDialogView(
                             logoPosition: .top,
@@ -145,7 +149,7 @@ extension OnboardingRebranding {
                             content: {
                                 switch state.type {
                                 case .browsersComparisonDialog:
-                                    browsersComparisonView
+                                    EmptyView()
                                 case .addToDockPromoDialog:
                                     addToDockPromoView
                                 case .chooseAppIconDialog:
@@ -159,7 +163,10 @@ extension OnboardingRebranding {
                                 }
                             }
                         )
-                        .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
+                        .onboardingProgressIndicator(
+                            currentStep: state.step.currentStep,
+                            totalSteps: 0
+                        )
                         .frame(width: geometry.size.width, alignment: .center)
                         .offset(y: geometry.size.height * OnboardingTheme.rebranding2026.linearOnboardingMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
                         .onAppear {
@@ -222,7 +229,6 @@ extension OnboardingRebranding {
                 setAsDefaultBrowserAction: model.setDefaultBrowserAction,
                 cancelAction: model.cancelSetDefaultBrowserAction
             )
-            .onboardingDaxDialogStyle()
         }
 
         private var addToDockPromoView: some View {
