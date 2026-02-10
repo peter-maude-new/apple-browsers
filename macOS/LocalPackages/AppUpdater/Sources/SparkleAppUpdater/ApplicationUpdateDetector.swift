@@ -121,12 +121,10 @@ public final class ApplicationUpdateDetector {
         return build.isEmpty ? nil : build
     }
 
-#if DEBUG
     public static func resetState() {
         // Clear shared instance to ensure fresh state for tests
         // Each call to isApplicationUpdated creates a new instance, so this ensures
         // tests start with a clean slate
         sharedInstance = nil
     }
-#endif
 }
