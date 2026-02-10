@@ -54,30 +54,39 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing) {
-                AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
-                    withAnimation {
-                        showContent.wrappedValue = true
+            OnboardingBubbleView.withStepProgressIndicator(
+                tailPosition: .bottom(offset: 0.5, direction: .leading),
+                currentStep: 1,
+                totalSteps: 5
+            ) {
+                VStack(spacing: 20) {
+                    Text(title)
+                        .foregroundColor(onboardingTheme.colorPalette.textPrimary)
+                        .font(onboardingTheme.typography.title)
+                        .multilineTextAlignment(.center)
+                        .onAppear {
+                            withAnimation(.easeIn(duration: 0.3).delay(0.3)) {
+                                showContent.wrappedValue = true
+                            }
+                        }
+
+                    VStack(spacing: 20) {
+                        RebrandedBrowsersComparisonTable()
+
+                        VStack(spacing: 8) {
+                            Button(action: setAsDefaultBrowserAction) {
+                                Text(UserText.Onboarding.BrowsersComparison.cta)
+                            }
+                            .buttonStyle(onboardingTheme.primaryButtonStyle.style)
+
+                            Button(action: cancelAction) {
+                                Text(UserText.onboardingSkip)
+                            }
+                            .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
+                        }
                     }
+                    .visibility(showContent.wrappedValue ? .visible : .invisible)
                 }
-                .foregroundColor(.primary)
-                .font(BrowsersComparisonContentMetrics.titleFont)
-
-
-                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
-                    BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.privacyFeatures)
-
-                    RebrandedOnboardingView.OnboardingActions(
-                        viewModel: .init(
-                            primaryButtonTitle: UserText.Onboarding.BrowsersComparison.cta,
-                            secondaryButtonTitle: UserText.onboardingSkip
-                        ),
-                        primaryAction: setAsDefaultBrowserAction,
-                        secondaryAction: cancelAction
-                    )
-
-                }
-                .visibility(showContent.wrappedValue ? .visible : .invisible)
             }
         }
 
