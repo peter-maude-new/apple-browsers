@@ -82,6 +82,37 @@ public extension OnboardingTheme {
             self.secondaryButtonBackgroundColor = secondaryButtonBackgroundColor
             self.secondaryButtonTextColor = secondaryButtonTextColor
         }
+
+        /// Backward-compatible initializer for themes that do not define dedicated secondary button colors.
+        public init(
+            background: Color,
+            bubbleBorder: Color,
+            bubbleBackground: Color,
+            bubbleShadow: Color,
+            textPrimary: Color,
+            textSecondary: Color,
+            optionsListBorderColor: Color,
+            optionsListIconColor: Color,
+            optionsListTextColor: Color,
+            primaryButtonBackgroundColor: Color,
+            primaryButtonTextColor: Color
+        ) {
+            self.init(
+                background: background,
+                bubbleBorder: bubbleBorder,
+                bubbleBackground: bubbleBackground,
+                bubbleShadow: bubbleShadow,
+                textPrimary: textPrimary,
+                textSecondary: textSecondary,
+                optionsListBorderColor: optionsListBorderColor,
+                optionsListIconColor: optionsListIconColor,
+                optionsListTextColor: optionsListTextColor,
+                primaryButtonBackgroundColor: primaryButtonBackgroundColor,
+                primaryButtonTextColor: primaryButtonTextColor,
+                secondaryButtonBackgroundColor: primaryButtonBackgroundColor,
+                secondaryButtonTextColor: primaryButtonTextColor
+            )
+        }
     }
 
 }

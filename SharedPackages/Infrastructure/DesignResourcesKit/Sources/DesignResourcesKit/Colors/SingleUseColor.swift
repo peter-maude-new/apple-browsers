@@ -60,8 +60,6 @@ public extension SingleUseColor {
 
         case buttonsSecondaryDefault
         case buttonsSecondaryText
-
-        case onboardingBackground
     }
 
 }
