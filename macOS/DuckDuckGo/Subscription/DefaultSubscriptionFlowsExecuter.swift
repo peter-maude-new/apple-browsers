@@ -105,7 +105,7 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
                 wideEvent.updateFlow(wideData)
                 wideEvent.completeFlow(wideData, status: .failure, onComplete: { _, _ in })
             }
-            return PurchaseUpdate(type: "cancelled")
+            return PurchaseUpdate(type: "canceled")
         }
 
         // 5: Update UI to indicate that the tier change is completing
