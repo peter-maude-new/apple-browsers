@@ -215,7 +215,7 @@ enum Preferences {
 
                     let subscriptionRestoreEmailSettingsWideEventData = SubscriptionRestoreWideEventData(
                         restorePlatform: .emailAddress,
-                        contextData: WideEventContextData(name: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
+                        funnelName: SubscriptionRestoreFunnelOrigin.appSettings.rawValue
                     )
                     showTab(.subscription(url))
 
@@ -229,7 +229,7 @@ enum Preferences {
                                                                                    storePurchaseManager: subscriptionManager.storePurchaseManager())
                             let subscriptionRestoreAppleSettingsWideEventData = SubscriptionRestoreWideEventData(
                                 restorePlatform: .appleAccount,
-                                contextData: WideEventContextData(name: SubscriptionRestoreFunnelOrigin.appSettings.rawValue)
+                                funnelName: SubscriptionRestoreFunnelOrigin.appSettings.rawValue
                             )
                             let subscriptionAppStoreRestorer = DefaultSubscriptionAppStoreRestorerV2(subscriptionManager: subscriptionManager,
                                                                                                      appStoreRestoreFlow: appStoreRestoreFlow,
