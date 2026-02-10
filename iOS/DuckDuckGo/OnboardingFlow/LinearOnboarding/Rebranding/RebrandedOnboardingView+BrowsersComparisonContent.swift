@@ -22,7 +22,7 @@ import DuckUI
 import Onboarding
 
 private enum BrowsersComparisonContentMetrics {
-    static let titleFont = Font.system(size: 20, weight: .bold)
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {
@@ -31,23 +31,17 @@ extension OnboardingRebranding.OnboardingView {
         @Environment(\.onboardingTheme) private var onboardingTheme
 
         private let title: String
-        private var animateText: Binding<Bool>
-        private var showContent: Binding<Bool>
         private let setAsDefaultBrowserAction: () -> Void
         private let cancelAction: () -> Void
         private var isSkipped: Binding<Bool>
 
         init(
-            title: String,
-            animateText: Binding<Bool> = .constant(true),
-            showContent: Binding<Bool> = .constant(false),
+            title: String, 
             isSkipped: Binding<Bool>,
             setAsDefaultBrowserAction: @escaping () -> Void,
             cancelAction: @escaping () -> Void
         ) {
             self.title = title
-            self.animateText = animateText
-            self.showContent = showContent
             self.isSkipped = isSkipped
             self.setAsDefaultBrowserAction = setAsDefaultBrowserAction
             self.cancelAction = cancelAction
@@ -55,25 +49,20 @@ extension OnboardingRebranding.OnboardingView {
 
         var body: some View {
             OnboardingBubbleView.withStepProgressIndicator(
-                tailPosition: .bottom(offset: 0.5, direction: .leading),
+                tailPosition: .bottom(offset: onboardingTheme.linearOnboardingMetrics.bubbleTailOffset, direction: .leading),
                 currentStep: 1,
                 totalSteps: 5
             ) {
-                VStack(spacing: 20) {
+                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                     Text(title)
                         .foregroundColor(onboardingTheme.colorPalette.textPrimary)
                         .font(onboardingTheme.typography.title)
                         .multilineTextAlignment(.center)
-                        .onAppear {
-                            withAnimation(.easeIn(duration: 0.3).delay(0.3)) {
-                                showContent.wrappedValue = true
-                            }
-                        }
 
-                    VStack(spacing: 20) {
+                    VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                         RebrandedBrowsersComparisonTable()
 
-                        VStack(spacing: 8) {
+                        VStack(spacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing) {
                             Button(action: setAsDefaultBrowserAction) {
                                 Text(UserText.Onboarding.BrowsersComparison.cta)
                             }
@@ -85,9 +74,9 @@ extension OnboardingRebranding.OnboardingView {
                             .buttonStyle(onboardingTheme.secondaryButtonStyle.style)
                         }
                     }
-                    .visibility(showContent.wrappedValue ? .visible : .invisible)
                 }
             }
+            .frame(maxWidth: onboardingTheme.linearOnboardingMetrics.bubbleMaxWidth)
         }
 
     }

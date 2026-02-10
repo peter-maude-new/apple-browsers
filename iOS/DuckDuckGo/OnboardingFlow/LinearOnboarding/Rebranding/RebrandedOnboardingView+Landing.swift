@@ -25,6 +25,7 @@ private enum LandingViewMetrics {
     static let topPadding: CGFloat = 96
     static let welcomeBottomPadding: CGFloat = 20
     static let horizontalPadding: CGFloat = 40
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {

@@ -25,6 +25,7 @@ private enum SkipOnboardingContentMetrics {
     static let titleFont = Font.system(size: 20, weight: .bold)
     static let messageFont = Font.system(size: 16)
     static let buttonMaxHeight: CGFloat = 50.0
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {

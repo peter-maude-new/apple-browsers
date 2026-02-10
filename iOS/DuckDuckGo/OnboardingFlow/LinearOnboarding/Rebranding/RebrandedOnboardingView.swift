@@ -229,8 +229,6 @@ extension OnboardingRebranding {
         private var browsersComparisonView: some View {
             BrowsersComparisonContent(
                 title: model.copy.browserComparisonTitle,
-                animateText: $model.browserComparisonState.animateComparisonText,
-                showContent: $model.browserComparisonState.showComparisonButton,
                 isSkipped: $model.isSkipped,
                 setAsDefaultBrowserAction: model.setDefaultBrowserAction,
                 cancelAction: model.cancelSetDefaultBrowserAction

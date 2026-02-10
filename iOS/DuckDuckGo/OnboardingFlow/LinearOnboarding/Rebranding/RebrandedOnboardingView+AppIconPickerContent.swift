@@ -24,6 +24,7 @@ import Onboarding
 private enum AppIconPickerContentMetrics {
     static let titleFont = Font.system(size: 20, weight: .semibold)
     static let messageFont = Font.system(size: 16)
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {

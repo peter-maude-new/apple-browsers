@@ -76,4 +76,5 @@ extension OnboardingRebranding.OnboardingView {
 private enum SearchExperienceContentMetrics {
     static let titleFont = Font.system(size: 20, weight: .semibold)
     static let messageFont = Font.system(size: 16)
+    static let additionalTopMargin: CGFloat = 0
 }

@@ -21,6 +21,10 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
+private enum IntroDialogContentMetrics {
+    static let additionalTopMargin: CGFloat = 40
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct IntroDialogContent: View {
@@ -68,6 +72,7 @@ extension OnboardingRebranding.OnboardingView {
                     }
                     .padding(.top, topMargin(for: geometry.size.height))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, IntroDialogContentMetrics.additionalTopMargin)
                     .onAppear {
                         guard !showCTA.wrappedValue else { return }
                         withAnimation {

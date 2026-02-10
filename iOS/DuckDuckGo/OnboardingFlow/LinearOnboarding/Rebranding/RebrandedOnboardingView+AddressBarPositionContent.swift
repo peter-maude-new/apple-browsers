@@ -23,6 +23,7 @@ import Onboarding
 
 private enum AddressBarPositionContentMetrics {
     static let titleFont = Font.system(size: 20, weight: .semibold)
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {

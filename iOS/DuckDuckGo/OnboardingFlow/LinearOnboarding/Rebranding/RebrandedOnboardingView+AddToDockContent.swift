@@ -24,6 +24,7 @@ import UIKit
 
 private enum AddToDockContentMetrics {
     static let messageFont = Font.system(size: 16)
+    static let additionalTopMargin: CGFloat = 0
 }
 
 extension OnboardingRebranding.OnboardingView {
