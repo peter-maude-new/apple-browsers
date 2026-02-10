@@ -30,6 +30,7 @@ public extension OnboardingTheme {
             lhs.contentOuterSpacing == rhs.contentOuterSpacing &&
             lhs.contentInnerSpacing == rhs.contentInnerSpacing &&
             lhs.buttonSpacing == rhs.buttonSpacing &&
+            lhs.bubbleMaxWidth == rhs.bubbleMaxWidth &&
             lhs.bubbleTailOffset == rhs.bubbleTailOffset &&
             lhs.topMarginRatio == rhs.topMarginRatio &&
             lhs.minTopMargin == rhs.minTopMargin &&
@@ -46,6 +47,8 @@ public extension OnboardingTheme {
         public let contentInnerSpacing: CGFloat
         /// Spacing between vertically stacked buttons.
         public let buttonSpacing: CGFloat
+        /// Maximum width for linear onboarding bubbles.
+        public let bubbleMaxWidth: CGFloat
         /// Horizontal offset for the bubble tail position (0.0–1.0).
         public let bubbleTailOffset: CGFloat
         /// Ratio used to compute the top margin from the available height.
@@ -73,6 +76,7 @@ public extension OnboardingTheme {
             contentOuterSpacing: CGFloat,
             contentInnerSpacing: CGFloat,
             buttonSpacing: CGFloat,
+            bubbleMaxWidth: CGFloat,
             bubbleTailOffset: CGFloat,
             topMarginRatio: CGFloat,
             minTopMargin: CGFloat,
@@ -86,6 +90,7 @@ public extension OnboardingTheme {
             self.contentOuterSpacing = contentOuterSpacing
             self.contentInnerSpacing = contentInnerSpacing
             self.buttonSpacing = buttonSpacing
+            self.bubbleMaxWidth = bubbleMaxWidth
             self.bubbleTailOffset = bubbleTailOffset
             self.topMarginRatio = topMarginRatio
             self.minTopMargin = minTopMargin
@@ -101,6 +106,7 @@ public extension OnboardingTheme {
             contentOuterSpacing: CGFloat,
             contentInnerSpacing: CGFloat,
             buttonSpacing: CGFloat,
+            bubbleMaxWidth: CGFloat,
             bubbleTailOffset: CGFloat,
             topMarginRatio: CGFloat,
             minTopMargin: CGFloat,
@@ -113,6 +119,7 @@ public extension OnboardingTheme {
             self.contentOuterSpacing = contentOuterSpacing
             self.contentInnerSpacing = contentInnerSpacing
             self.buttonSpacing = buttonSpacing
+            self.bubbleMaxWidth = bubbleMaxWidth
             self.bubbleTailOffset = bubbleTailOffset
             self.topMarginRatio = topMarginRatio
             self.minTopMargin = minTopMargin

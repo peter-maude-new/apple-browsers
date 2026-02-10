@@ -22,6 +22,10 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
+private enum OnboardingViewMetrics {
+    static let landingScreenDuration = 2.0
+}
+
 extension OnboardingRebranding.OnboardingView {
 
     struct LinearDialogContentContainer<Title: View, Actions: View>: View {
@@ -183,7 +187,9 @@ extension OnboardingRebranding {
                 .ignoresSafeArea(edges: .bottom)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
-                    model.onAppear()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + OnboardingViewMetrics.landingScreenDuration) {
+                        model.onAppear()
+                    }
                 }
         }
 

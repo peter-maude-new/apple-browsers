@@ -122,6 +122,7 @@ extension OnboardingRebranding.OnboardingView {
                     }
                 )
             }
+            .frame(maxWidth: onboardingTheme.linearOnboardingMetrics.bubbleMaxWidth)
         }
 
         private func topMargin(for height: CGFloat) -> CGFloat {
