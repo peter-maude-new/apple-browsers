@@ -324,6 +324,9 @@ public enum FeatureFlag: String {
 
     /// https://app.asana.com/1/137249556945/project/1211834678943996/task/1213001736131250?focus=true
     case webExtensions
+
+    /// https://app.asana.com/1/137249556945/project/72649045549333/task/1208707884599795?focus=true
+    case autofillOnboardingExperiment
 }
 
 extension FeatureFlag: FeatureFlagDescribing {
@@ -363,6 +366,8 @@ extension FeatureFlag: FeatureFlagDescribing {
         switch self {
         case .uiTestExperiment:
             UITestExperimentCohort.self
+        case .autofillOnboardingExperiment:
+            AutofillOnboardingExperimentCohort.self
         default:
             nil
         }
@@ -372,6 +377,13 @@ extension FeatureFlag: FeatureFlagDescribing {
     public enum UITestExperimentCohort: String, FeatureFlagCohortDescribing {
         case control
         case treatment
+    }
+
+    public enum AutofillOnboardingExperimentCohort: String, FeatureFlagCohortDescribing {
+        case control
+        case variant1
+        case variant2
+        case variant3
     }
 
     public static var localOverrideStoreName: String = "com.duckduckgo.app.featureFlag.localOverrides"
@@ -440,7 +452,8 @@ extension FeatureFlag: FeatureFlagDescribing {
              .freeTrialConversionWideEvent,
              .uiTestExperiment,
              .onboardingRebranding,
-             .webExtensions:
+             .webExtensions,
+             .autofillOnboardingExperiment:
             return true
         case .showSettingsCompleteSetupSection:
             if #available(iOS 18.2, *) {
@@ -684,6 +697,8 @@ extension FeatureFlag: FeatureFlagDescribing {
             return .disabled
         case .webExtensions:
             return .internalOnly()
+        case .autofillOnboardingExperiment:
+            return .remoteReleasable(.subfeature(AutofillSubfeature.onboardingExperiment))
         }
     }
 }
