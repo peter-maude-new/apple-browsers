@@ -603,7 +603,7 @@ struct SubscriptionSettingsViewV2: View {
             Section {
                 // Row 1: Icon + Description
                 HStack(alignment: .top, spacing: 12) {
-                    Image(uiImage: DesignSystemImages.Color.Size24.exclamation)
+                    Image(uiImage: DesignSystemImages.Color.Size24.info)
                         .resizable()
                         .frame(width: 24, height: 24)
                     Text(details)
