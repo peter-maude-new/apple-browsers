@@ -89,7 +89,10 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var bubbleContent: some View {
-            OnboardingBubbleView(tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading)) {
+            OnboardingBubbleView(
+                tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading),
+                contentInsets: RebrandedOnboardingViewMetrics.bubbleContentInsetsLinear
+            ) {
                 LinearDialogContentContainer(
                     metrics: .init(
                         outerSpacing: IntroDialogContentMetrics.sectionSpacing,

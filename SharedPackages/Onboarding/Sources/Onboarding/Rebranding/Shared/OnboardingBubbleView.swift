@@ -23,13 +23,16 @@ public struct OnboardingBubbleView<Content: View>: View {
     @Environment(\.onboardingTheme) private var onboardingTheme
 
     private let tailPosition: TailPosition?
+    private let contentInsets: EdgeInsets?
     private let content: () -> Content
 
     public init(
         tailPosition: TailPosition?,
+        contentInsets: EdgeInsets? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.tailPosition = tailPosition
+        self.contentInsets = contentInsets
         self.content = content
     }
 
@@ -48,7 +51,7 @@ public struct OnboardingBubbleView<Content: View>: View {
             fillColor: onboardingTheme.colorPalette.bubbleBackground,
             borderColor: onboardingTheme.colorPalette.bubbleBorder,
             borderWidth: onboardingTheme.bubbleMetrics.borderWidth,
-            contentPadding: onboardingTheme.bubbleMetrics.contentInsets,
+            contentPadding: contentInsets ?? onboardingTheme.bubbleMetrics.contentInsets,
             content: content
         )
         .applyOnboardingShadow()
