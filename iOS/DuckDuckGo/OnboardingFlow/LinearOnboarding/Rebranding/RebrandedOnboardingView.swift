@@ -25,7 +25,7 @@ import MetricBuilder
 enum RebrandedOnboardingViewMetrics {
     // Shared Content Layout
     static let contentOuterSpacing: CGFloat = 16.0
-    static let contentInnerSpacing: CGFloat = 24
+    static let contentInnerSpacing: CGFloat = 20
 
     // Layout
     static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)

@@ -22,7 +22,6 @@ import DuckUI
 import Onboarding
 
 private enum SkipOnboardingContentMetrics {
-    static let outerSpacing: CGFloat = 24.0
     static let titleFont = Font.system(size: 20, weight: .bold)
     static let messageFont = Font.system(size: 16)
     static let buttonMaxHeight: CGFloat = 50.0
@@ -61,8 +60,8 @@ extension OnboardingRebranding.OnboardingView {
         var body: some View {
             LinearDialogContentContainer(
                 metrics: .init(
-                    outerSpacing: SkipOnboardingContentMetrics.outerSpacing,
-                    textSpacing: SkipOnboardingContentMetrics.outerSpacing,
+                    outerSpacing: RebrandedOnboardingViewMetrics.contentOuterSpacing,
+                    textSpacing: RebrandedOnboardingViewMetrics.contentOuterSpacing,
                     contentSpacing: 0
                 ),
                 message: AnyView(

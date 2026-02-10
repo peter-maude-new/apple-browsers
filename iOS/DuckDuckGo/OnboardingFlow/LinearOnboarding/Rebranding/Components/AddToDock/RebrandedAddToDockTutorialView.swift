@@ -54,7 +54,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: 24.0) {
+            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
                 AnimatableTypingText(title, startAnimating: $animateTitle, skipAnimation: isSkipped) {
                     withAnimation {
                         animateMessage = true

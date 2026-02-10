@@ -25,9 +25,9 @@ private enum IntroDialogContentMetrics {
     static let topMarginRatio: CGFloat = 0.18
     static let minTopMargin: CGFloat = 96
     static let maxTopMargin: CGFloat = 140
-    static let horizontalPadding: CGFloat = 12
+    static let horizontalPadding: CGFloat = 16
     static let bubbleTailOffset: CGFloat = 0.2
-    static let sectionSpacing: CGFloat = 20
+    static let sectionSpacing: CGFloat = RebrandedOnboardingViewMetrics.contentInnerSpacing
     static let buttonSpacing: CGFloat = 12
 }
 

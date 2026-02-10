@@ -40,14 +40,14 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: 16.0) {
+            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.Onboarding.SearchExperience.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     showContent = true
                 }
                 .foregroundColor(.primary)
                 .font(SearchExperienceContentMetrics.titleFont)
 
-                VStack(spacing: 24.0) {
+                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
                     RebrandedOnboardingView.OnboardingSearchExperiencePicker(viewModel: viewModel)
 
                     Text(AttributedString(UserText.Onboarding.SearchExperience.footerAttributed()))
