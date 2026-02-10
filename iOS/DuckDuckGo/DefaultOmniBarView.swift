@@ -252,7 +252,7 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     private let trailingButtonsContainer = UIStackView()
 
     private let searchAreaView = DefaultOmniBarSearchView()
-    private let searchAreaContainerView = CompositeShadowView.defaultShadowView()
+    private let searchAreaContainerView = UIView() // CompositeShadowView.defaultShadowView()
 
     /// Spans to available width of the omni bar and allows the input field to center horizontally
     private let searchAreaAlignmentView = UIView()
@@ -419,7 +419,7 @@ final class DefaultOmniBarView: UIView, OmniBarView {
         setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-        backgroundColor = UIColor(designSystemColor: .background)
+        backgroundColor = .clear // UIColor(designSystemColor: .background)
 
         searchAreaAlignmentView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         searchAreaAlignmentView.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -507,11 +507,11 @@ final class DefaultOmniBarView: UIView, OmniBarView {
     }
 
     private func updateShadows() {
-        if isActiveState {
-            searchAreaContainerView.applyActiveShadow()
-        } else {
-            searchAreaContainerView.applyDefaultShadow()
-        }
+//        if isActiveState {
+//            searchAreaContainerView.applyActiveShadow()
+//        } else {
+//            searchAreaContainerView.applyDefaultShadow()
+//        }
     }
 
     private func setUpAccessibility() {

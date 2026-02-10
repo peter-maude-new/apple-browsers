@@ -173,7 +173,11 @@ extension MainViewFactory {
     private func createToolbar() {
         coordinator.toolbar = HitTestingToolbar()
         coordinator.toolbar.isTranslucent = false
+
         superview.addSubview(coordinator.toolbar)
+
+        coordinator.toolbar.blur(style: .systemChromeMaterial)
+
         coordinator.toolbarHandler = ToolbarHandler(toolbar: coordinator.toolbar)
         coordinator.updateToolbarWithState(.newTab)
     }
@@ -287,10 +291,11 @@ extension MainViewFactory {
     private func constrainToolbar() {
         let toolbar = coordinator.toolbar!
         coordinator.constraints.toolbarBottom = toolbar.constrainView(superview.safeAreaLayoutGuide, by: .bottom)
+        coordinator.constraints.toolbarHeight = toolbar.constrainAttribute(.height, to: 49)
         NSLayoutConstraint.activate([
             toolbar.constrainView(superview, by: .width),
             toolbar.constrainView(superview, by: .centerX),
-            toolbar.constrainAttribute(.height, to: 49),
+            coordinator.constraints.toolbarHeight,
             coordinator.constraints.toolbarBottom,
         ])
     }

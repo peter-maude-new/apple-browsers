@@ -809,6 +809,7 @@ class TabViewController: UIViewController {
         webView.allowsBackForwardNavigationGestures = true
 
         webView.preventFlashOnLoad(featureFlagger: featureFlagger)
+        webView.scrollView.clipsToBounds = false
 
         addObservers()
 

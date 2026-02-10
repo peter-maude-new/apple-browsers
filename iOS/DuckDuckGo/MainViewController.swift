@@ -507,10 +507,22 @@ class MainViewController: UIViewController {
         applyCustomizationState()
 
         mobileCustomization.delegate = self
+
+        viewCoordinator.navigationBarContainer.blur(style: .systemChromeMaterial)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+//        viewCoordinator.constraints.toolbarHeight.constant = 49
+//            + self.view.safeAreaInsets.bottom
+//
+//        viewCoordinator.toolbar.updateConstraints()
+
 
         productSurfaceTelemetry.dailyActiveUser()
         productSurfaceTelemetry.iPadUsed(isPad: isPad)
@@ -4017,7 +4029,7 @@ extension MainViewController {
 
         view.backgroundColor = theme.mainViewBackgroundColor
 
-        viewCoordinator.navigationBarContainer.backgroundColor = theme.barBackgroundColor
+        // viewCoordinator.navigationBarContainer.backgroundColor = theme.barBackgroundColor
         viewCoordinator.navigationBarContainer.tintColor = theme.barTintColor
 
         viewCoordinator.toolbar.barTintColor = theme.barBackgroundColor
