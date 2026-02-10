@@ -445,8 +445,9 @@ final class AIChatOmnibarContainerViewController: NSViewController {
 
     @objc private func modelPickerButtonClicked() {
         let menu = buildModelPickerMenu()
-        // Position menu below the button with a small gap (y=0 is bottom in AppKit)
-        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -5), in: modelPickerButton)
+        // Align menu's trailing edge with button's trailing edge, with a small gap below
+        let x = modelPickerButton.bounds.width - menu.size.width
+        menu.popUp(positioning: nil, at: NSPoint(x: x, y: -5), in: modelPickerButton)
     }
 
     private var selectedModelId: String = AIChatModelProvider.defaultModel.id
