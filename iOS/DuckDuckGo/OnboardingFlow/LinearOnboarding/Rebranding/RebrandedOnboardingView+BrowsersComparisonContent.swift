@@ -28,6 +28,7 @@ private enum BrowsersComparisonContentMetrics {
 extension OnboardingRebranding.OnboardingView {
 
     struct BrowsersComparisonContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         private let title: String
         private var animateText: Binding<Bool>
@@ -53,7 +54,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
+            VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing) {
                 AnimatableTypingText(title, startAnimating: animateText, skipAnimation: isSkipped) {
                     withAnimation {
                         showContent.wrappedValue = true
@@ -63,7 +64,7 @@ extension OnboardingRebranding.OnboardingView {
                 .font(BrowsersComparisonContentMetrics.titleFont)
 
 
-                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
+                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                     BrowsersComparisonChart(privacyFeatures: BrowsersComparisonModel.privacyFeatures)
 
                     RebrandedOnboardingView.OnboardingActions(

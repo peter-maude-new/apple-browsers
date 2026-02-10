@@ -62,6 +62,7 @@ public extension OnboardingTheme {
             colorPalette: colorPalette,
             bubbleMetrics: BubbleMetrics(
                 contentInsets: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
+                linearContentInsets: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
                 cornerRadius: bubbleCornerRadius,
                 borderWidth: borderWidth,
                 shadowRadius: 6.0,
@@ -85,6 +86,19 @@ public extension OnboardingTheme {
                         )
                     )
                 )
+            ),
+            linearOnboardingMetrics: LinearOnboardingMetrics(
+                contentOuterSpacing: 16.0,
+                contentInnerSpacing: 20,
+                buttonSpacing: 12,
+                bubbleTailOffset: 0.2,
+                topMarginRatio: 0.18,
+                minTopMargin: 96,
+                maxTopMargin: 140,
+                progressBarTrailingPadding: 16.0,
+                progressBarTopPadding: 12.0,
+                rebrandingBadgeLeadingPadding: 12.0,
+                rebrandingBadgeTopPadding: 12.0
             ),
             linearTitleTextAlignment: .center,
             linearBodyTextAlignment: .center,

@@ -22,20 +22,6 @@ import Onboarding
 import DuckUI
 import MetricBuilder
 
-enum RebrandedOnboardingViewMetrics {
-    // Shared Content Layout
-    static let contentOuterSpacing: CGFloat = 16.0
-    static let contentInnerSpacing: CGFloat = 20
-    static let bubbleContentInsetsLinear = EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20)
-
-    // Layout
-    static let dialogVerticalOffsetPercentage = MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
-    static let progressBarTrailingPadding: CGFloat = 16.0
-    static let progressBarTopPadding: CGFloat = 12.0
-    static let rebrandingBadgeLeadingPadding: CGFloat = 12.0
-    static let rebrandingBadgeTopPadding: CGFloat = 12.0
-}
-
 extension OnboardingRebranding.OnboardingView {
 
     struct LinearDialogContentContainer<Title: View, Actions: View>: View {
@@ -135,8 +121,8 @@ extension OnboardingRebranding {
             }
             .overlay(alignment: .topLeading) {
                 RebrandingBadge()
-                    .padding(.leading, RebrandedOnboardingViewMetrics.rebrandingBadgeLeadingPadding)
-                    .padding(.top, RebrandedOnboardingViewMetrics.rebrandingBadgeTopPadding)
+                    .padding(.leading, OnboardingTheme.rebranding2026.linearOnboardingMetrics.rebrandingBadgeLeadingPadding)
+                    .padding(.top, OnboardingTheme.rebranding2026.linearOnboardingMetrics.rebrandingBadgeTopPadding)
             }
             .applyOnboardingTheme(.rebranding2026, stepProgressTheme: .rebranding2026)
         }
@@ -175,7 +161,7 @@ extension OnboardingRebranding {
                         )
                         .onboardingProgressIndicator(currentStep: state.step.currentStep, totalSteps: state.step.totalSteps)
                         .frame(width: geometry.size.width, alignment: .center)
-                        .offset(y: geometry.size.height * RebrandedOnboardingViewMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
+                        .offset(y: geometry.size.height * OnboardingTheme.rebranding2026.linearOnboardingMetrics.dialogVerticalOffsetPercentage.build(v: verticalSizeClass, h: horizontalSizeClass))
                         .onAppear {
                             model.introState.showDaxDialogBox = true
                         }
@@ -308,18 +294,30 @@ private struct RebrandingBadge: View {
     }
 }
 
+private struct OnboardingProgressIndicatorModifier: ViewModifier {
+    @Environment(\.onboardingTheme) private var onboardingTheme
+
+    let currentStep: Int
+    let totalSteps: Int
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .topTrailing) {
+                RebrandedOnboardingView.OnboardingProgressIndicator(
+                    stepInfo: .init(currentStep: currentStep, totalSteps: totalSteps)
+                )
+                .padding(.trailing, onboardingTheme.linearOnboardingMetrics.progressBarTrailingPadding)
+                .padding(.top, onboardingTheme.linearOnboardingMetrics.progressBarTopPadding)
+                .transition(.identity)
+                .visibility(totalSteps == 0 ? .invisible : .visible)
+            }
+    }
+}
+
 private extension View {
 
     func onboardingProgressIndicator(currentStep: Int, totalSteps: Int) -> some View {
-        overlay(alignment: .topTrailing) {
-            RebrandedOnboardingView.OnboardingProgressIndicator(
-                stepInfo: .init(currentStep: currentStep, totalSteps: totalSteps)
-            )
-            .padding(.trailing, RebrandedOnboardingViewMetrics.progressBarTrailingPadding)
-            .padding(.top, RebrandedOnboardingViewMetrics.progressBarTopPadding)
-            .transition(.identity)
-            .visibility(totalSteps == 0 ? .invisible : .visible)
-        }
+        modifier(OnboardingProgressIndicatorModifier(currentStep: currentStep, totalSteps: totalSteps))
     }
 
 }

@@ -49,6 +49,7 @@ public extension OnboardingTheme {
         )
         let bubbleMetrics = BubbleMetrics(
             contentInsets: bubbleContentInsets,
+            linearContentInsets: linearBubbleContentInsets,
             cornerRadius: bubbleCornerRadius,
             borderWidth: borderWidth,
             shadowRadius: 6.0,
@@ -65,6 +66,21 @@ public extension OnboardingTheme {
             borderInset: 0.5,
             iconSize: CGSize(width: 16, height: 16),
             itemMaxHeight: 40
+        )
+
+        let linearOnboardingMetrics = LinearOnboardingMetrics(
+            contentOuterSpacing: 16.0,
+            contentInnerSpacing: 20,
+            buttonSpacing: 12,
+            bubbleTailOffset: 0.2,
+            topMarginRatio: 0.18,
+            minTopMargin: 96,
+            maxTopMargin: 140,
+            progressBarTrailingPadding: 16.0,
+            progressBarTopPadding: 12.0,
+            rebrandingBadgeLeadingPadding: 12.0,
+            rebrandingBadgeTopPadding: 12.0,
+            dialogVerticalOffsetPercentage: MetricBuilder<CGFloat>(default: 0.1).iPhoneSmallScreen(0.01)
         )
 
         return OnboardingTheme(
@@ -90,6 +106,7 @@ public extension OnboardingTheme {
                     )
                 )
             ),
+            linearOnboardingMetrics: linearOnboardingMetrics,
             linearTitleTextAlignment: .center,
             linearBodyTextAlignment: .center,
             primaryButtonStyle: OnboardingButtonStyle(
@@ -121,9 +138,14 @@ public extension OnboardingTheme {
         )
     }()
 
+    private static let linearBubbleContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
+        iPhone: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
+        iPad: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+    ).build()
+
     private static let bubbleContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(
         iPhone: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20),
-        iPad: EdgeInsets(top: 24, leading: 40, bottom: 24, trailing: 40)
+        iPad: EdgeInsets(top: 32, leading: 20, bottom: 20, trailing: 20)
     ).build()
 
     private static let contextualTitleBodyContentInsets: EdgeInsets = MetricBuilder<EdgeInsets>(

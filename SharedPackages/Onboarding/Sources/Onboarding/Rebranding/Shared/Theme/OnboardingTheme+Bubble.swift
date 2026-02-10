@@ -24,6 +24,8 @@ public extension OnboardingTheme {
     struct BubbleMetrics: Equatable {
         /// Internal content padding for the bubble.
         public let contentInsets: EdgeInsets
+        /// Content padding used for bubbles in the linear onboarding flow.
+        public let linearContentInsets: EdgeInsets
         /// Bubble corner radius.
         public let cornerRadius: CGFloat
         /// Bubble border width.
@@ -36,12 +38,14 @@ public extension OnboardingTheme {
         /// Creates bubble metrics for onboarding layouts.
         public init(
             contentInsets: EdgeInsets,
+            linearContentInsets: EdgeInsets,
             cornerRadius: CGFloat,
             borderWidth: CGFloat,
             shadowRadius: CGFloat,
             shadowPosition: CGPoint
         ) {
             self.contentInsets = contentInsets
+            self.linearContentInsets = linearContentInsets
             self.cornerRadius = cornerRadius
             self.borderWidth = borderWidth
             self.shadowRadius = shadowRadius

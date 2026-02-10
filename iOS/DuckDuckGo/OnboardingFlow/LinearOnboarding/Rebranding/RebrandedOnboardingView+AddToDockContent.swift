@@ -29,6 +29,7 @@ private enum AddToDockContentMetrics {
 extension OnboardingRebranding.OnboardingView {
 
     struct AddToDockPromoContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         @State private var showAddToDockTutorial = false
         @State private var animateTitle = true
@@ -66,7 +67,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private var promoContent: some View {
-            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
+            VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.AddToDockOnboarding.Promo.title, startAnimating: $animateTitle, skipAnimation: isSkipped) {
                     withAnimation {
                         animateMessage = true
@@ -83,7 +84,7 @@ extension OnboardingRebranding.OnboardingView {
                 .foregroundColor(.primary)
                 .font(AddToDockContentMetrics.messageFont)
 
-                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
+                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                     addToDockPromoView
                     customActionView
                 }

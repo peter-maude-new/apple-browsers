@@ -34,6 +34,8 @@ extension OnboardingRebranding.OnboardingView {
 
         typealias Copy = UserText.Onboarding.Skip
 
+        @Environment(\.onboardingTheme) private var onboardingTheme
+
         private var animateTitle: Binding<Bool>
         private var animateMessage: Binding<Bool>
         private var showCTA: Binding<Bool>
@@ -60,8 +62,8 @@ extension OnboardingRebranding.OnboardingView {
         var body: some View {
             LinearDialogContentContainer(
                 metrics: .init(
-                    outerSpacing: RebrandedOnboardingViewMetrics.contentOuterSpacing,
-                    textSpacing: RebrandedOnboardingViewMetrics.contentOuterSpacing,
+                    outerSpacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing,
+                    textSpacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing,
                     contentSpacing: 0
                 ),
                 message: AnyView(

@@ -29,6 +29,7 @@ private enum AppIconPickerContentMetrics {
 extension OnboardingRebranding.OnboardingView {
 
     struct AppIconPickerContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         private var animateTitle: Binding<Bool>
         private var animateMessage: Binding<Bool>
@@ -51,7 +52,7 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
+            VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.Onboarding.AppIconSelection.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     animateMessage.wrappedValue = true
                 }
@@ -66,7 +67,7 @@ extension OnboardingRebranding.OnboardingView {
                 .foregroundColor(.primary)
                 .font(AppIconPickerContentMetrics.messageFont)
 
-                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
+                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                     RebrandedOnboardingView.AppIconPicker()
 
                     Button(action: action) {

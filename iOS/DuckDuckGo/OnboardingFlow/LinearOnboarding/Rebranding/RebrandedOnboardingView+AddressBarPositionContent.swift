@@ -28,6 +28,7 @@ private enum AddressBarPositionContentMetrics {
 extension OnboardingRebranding.OnboardingView {
 
     struct AddressBarPositionContent: View {
+        @Environment(\.onboardingTheme) private var onboardingTheme
 
         private var animateTitle: Binding<Bool>
         private var showContent: Binding<Bool>
@@ -47,14 +48,14 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         var body: some View {
-            VStack(spacing: RebrandedOnboardingViewMetrics.contentOuterSpacing) {
+            VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentOuterSpacing) {
                 AnimatableTypingText(UserText.Onboarding.AddressBarPosition.title, startAnimating: animateTitle, skipAnimation: isSkipped) {
                     showContent.wrappedValue = true
                 }
                 .foregroundColor(.primary)
                 .font(AddressBarPositionContentMetrics.titleFont)
 
-                VStack(spacing: RebrandedOnboardingViewMetrics.contentInnerSpacing) {
+                VStack(spacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing) {
                     RebrandedOnboardingView.OnboardingAddressBarPositionPicker()
 
                     Button(action: action) {

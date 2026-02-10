@@ -21,16 +21,6 @@ import SwiftUI
 import DuckUI
 import Onboarding
 
-private enum IntroDialogContentMetrics {
-    static let topMarginRatio: CGFloat = 0.18
-    static let minTopMargin: CGFloat = 96
-    static let maxTopMargin: CGFloat = 140
-    static let horizontalPadding: CGFloat = 16
-    static let bubbleTailOffset: CGFloat = 0.2
-    static let sectionSpacing: CGFloat = RebrandedOnboardingViewMetrics.contentInnerSpacing
-    static let buttonSpacing: CGFloat = 12
-}
-
 extension OnboardingRebranding.OnboardingView {
 
     struct IntroDialogContent: View {
@@ -74,7 +64,6 @@ extension OnboardingRebranding.OnboardingView {
                             .frame(height: topMargin(for: geometry.size.height))
 
                         bubbleContent
-                            .padding(.horizontal, IntroDialogContentMetrics.horizontalPadding)
 
                         Spacer()
                     }
@@ -90,14 +79,14 @@ extension OnboardingRebranding.OnboardingView {
 
         private var bubbleContent: some View {
             OnboardingBubbleView(
-                tailPosition: .bottom(offset: IntroDialogContentMetrics.bubbleTailOffset, direction: .leading),
-                contentInsets: RebrandedOnboardingViewMetrics.bubbleContentInsetsLinear
+                tailPosition: .bottom(offset: onboardingTheme.linearOnboardingMetrics.bubbleTailOffset, direction: .leading),
+                contentInsets: onboardingTheme.bubbleMetrics.linearContentInsets
             ) {
                 LinearDialogContentContainer(
                     metrics: .init(
-                        outerSpacing: IntroDialogContentMetrics.sectionSpacing,
-                        textSpacing: IntroDialogContentMetrics.sectionSpacing,
-                        contentSpacing: IntroDialogContentMetrics.buttonSpacing
+                        outerSpacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing,
+                        textSpacing: onboardingTheme.linearOnboardingMetrics.contentInnerSpacing,
+                        contentSpacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing
                     ),
                     message: AnyView(
                         Text(message)
@@ -112,7 +101,7 @@ extension OnboardingRebranding.OnboardingView {
                             .multilineTextAlignment(.center)
                     },
                     actions: {
-                        VStack(spacing: IntroDialogContentMetrics.buttonSpacing) {
+                        VStack(spacing: onboardingTheme.linearOnboardingMetrics.buttonSpacing) {
                             Button(action: continueAction) {
                                 Text(UserText.Onboarding.Intro.continueCTA)
                             }
@@ -136,8 +125,8 @@ extension OnboardingRebranding.OnboardingView {
         }
 
         private func topMargin(for height: CGFloat) -> CGFloat {
-            let scaled = height * IntroDialogContentMetrics.topMarginRatio
-            return min(max(scaled, IntroDialogContentMetrics.minTopMargin), IntroDialogContentMetrics.maxTopMargin)
+            let scaled = height * onboardingTheme.linearOnboardingMetrics.topMarginRatio
+            return min(max(scaled, onboardingTheme.linearOnboardingMetrics.minTopMargin), onboardingTheme.linearOnboardingMetrics.maxTopMargin)
         }
 
     }

@@ -31,6 +31,8 @@ public struct OnboardingTheme: Equatable {
     public let dismissButtonMetrics: DismissButtonMetrics
     /// Layout metrics for the contextual onboarding flow.
     public let contextualOnboardingMetrics: ContextualOnboardingMetrics
+    /// Layout metrics for the linear onboarding flow.
+    public let linearOnboardingMetrics: LinearOnboardingMetrics
     /// Text alignment for linear flow titles.
     public let linearTitleTextAlignment: TextAlignment
     /// Text alignment for linear flow body copy.
@@ -62,6 +64,7 @@ public struct OnboardingTheme: Equatable {
         bubbleMetrics: BubbleMetrics,
         dismissButtonMetrics: DismissButtonMetrics,
         contextualOnboardingMetrics: ContextualOnboardingMetrics,
+        linearOnboardingMetrics: LinearOnboardingMetrics,
         linearTitleTextAlignment: TextAlignment,
         linearBodyTextAlignment: TextAlignment,
         primaryButtonStyle: OnboardingButtonStyle,
@@ -73,6 +76,7 @@ public struct OnboardingTheme: Equatable {
         self.bubbleMetrics = bubbleMetrics
         self.dismissButtonMetrics = dismissButtonMetrics
         self.contextualOnboardingMetrics = contextualOnboardingMetrics
+        self.linearOnboardingMetrics = linearOnboardingMetrics
         self.linearTitleTextAlignment = linearTitleTextAlignment
         self.linearBodyTextAlignment = linearBodyTextAlignment
         self.primaryButtonStyle = primaryButtonStyle
@@ -87,6 +91,7 @@ public struct OnboardingTheme: Equatable {
         bubbleMetrics: BubbleMetrics,
         dismissButtonMetrics: DismissButtonMetrics,
         contextualOnboardingMetrics: ContextualOnboardingMetrics,
+        linearOnboardingMetrics: LinearOnboardingMetrics,
         linearTitleTextAlignment: TextAlignment,
         linearBodyTextAlignment: TextAlignment,
         primaryButtonStyle: OnboardingButtonStyle,
@@ -98,6 +103,7 @@ public struct OnboardingTheme: Equatable {
             bubbleMetrics: bubbleMetrics,
             dismissButtonMetrics: dismissButtonMetrics,
             contextualOnboardingMetrics: contextualOnboardingMetrics,
+            linearOnboardingMetrics: linearOnboardingMetrics,
             linearTitleTextAlignment: linearTitleTextAlignment,
             linearBodyTextAlignment: linearBodyTextAlignment,
             primaryButtonStyle: primaryButtonStyle,
