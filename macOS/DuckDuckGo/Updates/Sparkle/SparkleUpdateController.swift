@@ -145,8 +145,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     var mustShowUpdateIndicators: Bool { hasPendingUpdate }
     let clearsNotificationDotOnMenuOpen = true
 
-    private let keyValueStore: ThrowingKeyValueStoring
-    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     private var updateValidityStartDate: Date? {
         get { try? settings.updateValidityStartDate }
@@ -273,27 +272,26 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     init(internalUserDecider: InternalUserDecider,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
          updateCheckState: UpdateCheckState = UpdateCheckState(),
-         keyValueStore: ThrowingKeyValueStoring = NSApp.delegateTyped.keyValueStore,
+         keyValueStore: ThrowingKeyValueStoring = UserDefaults.standard,
          updateWideEvent: SparkleUpdateWideEvent? = nil) {
 
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
         self.internalUserDecider = internalUserDecider
         self.updateCheckState = updateCheckState
-        self.keyValueStore = keyValueStore
+        self.settings = keyValueStore.throwingKeyedStoring()
 
         // Capture the current value before initializing updateWideEvent
-        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-        let currentAutomaticUpdatesEnabled = (try? settings.automaticUpdates) ?? true
+        let currentAutomaticUpdatesEnabled = (try? self.settings.automaticUpdates) ?? true
 
-        self.applicationUpdateDetector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
-        self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
+        self.applicationUpdateDetector = ApplicationUpdateDetector(settings: self.settings)
+        self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: self.settings)
 
         self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(
             wideEventManager: NSApp.delegateTyped.wideEvent,
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled,
-            settings: settings
+            settings: self.settings
         )
         super.init()
 
@@ -519,7 +517,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
                                           areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled,
                                           useLegacyAutoRestartLogic: useLegacyAutoRestartLogic,
-                                          keyValueStore: keyValueStore)
+                                          settings: settings)
         }
 
         guard let userDriver,

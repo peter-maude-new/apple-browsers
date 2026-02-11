@@ -31,8 +31,8 @@ final class ApplicationUpdateDetector {
     private var updateStatus: AppUpdateStatus = .noChange
     private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
-    init(keyValueStore: ThrowingKeyValueStoring) {
-        self.settings = keyValueStore.throwingKeyedStoring()
+    init(settings: any ThrowingKeyedStoring<UpdateControllerSettings>) {
+        self.settings = settings
     }
 
     private var previousAppVersion: String? {

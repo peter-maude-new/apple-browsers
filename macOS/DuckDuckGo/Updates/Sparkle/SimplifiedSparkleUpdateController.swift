@@ -135,8 +135,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
     private(set) var mustShowUpdateIndicators = false
     let clearsNotificationDotOnMenuOpen = false
 
-    private let keyValueStore: ThrowingKeyValueStoring
-    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     private var pendingUpdateInfo: SparkleUpdateController.PendingUpdateInfo? {
         get {
@@ -265,7 +264,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
 
     init(internalUserDecider: InternalUserDecider,
          featureFlagger: FeatureFlagger = NSApp.delegateTyped.featureFlagger,
-         keyValueStore: ThrowingKeyValueStoring = NSApp.delegateTyped.keyValueStore,
+         keyValueStore: ThrowingKeyValueStoring = UserDefaults.standard,
          buildType: ApplicationBuildType = StandardApplicationBuildType(),
          updateWideEvent: SparkleUpdateWideEvent? = nil) {
 
@@ -273,20 +272,19 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         self.featureFlagger = featureFlagger
         self.buildType = buildType
         self.internalUserDecider = internalUserDecider
-        self.keyValueStore = keyValueStore
+        self.settings = keyValueStore.throwingKeyedStoring()
 
         // Capture the current value before initializing updateWideEvent
-        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-        let currentAutomaticUpdatesEnabled = (try? settings.automaticUpdates) ?? true
+        let currentAutomaticUpdatesEnabled = (try? self.settings.automaticUpdates) ?? true
 
-        self.applicationUpdateDetector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
-        self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
+        self.applicationUpdateDetector = ApplicationUpdateDetector(settings: self.settings)
+        self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: self.settings)
 
         self.updateWideEvent = updateWideEvent ?? SparkleUpdateWideEvent(
             wideEventManager: NSApp.delegateTyped.wideEvent,
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled,
-            settings: settings
+            settings: self.settings
         )
 
         // Compute effective auto-download state before super.init() using static method
@@ -299,7 +297,7 @@ final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateController
         self.userDriver = SimplifiedUpdateUserDriver(
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: shouldAutoDownload,
-            keyValueStore: keyValueStore,
+            settings: self.settings,
             onProgressChange: progressState.handleProgressChange
         )
         super.init()
