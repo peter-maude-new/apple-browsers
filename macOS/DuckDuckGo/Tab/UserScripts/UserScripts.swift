@@ -34,7 +34,6 @@ final class UserScripts: UserScriptsProvider {
 
     let pageObserverScript = PageObserverUserScript()
     let contextMenuScript = ContextMenuUserScript()
-    let printingUserScript = PrintingUserScript()
     let hoverUserScript = HoverUserScript()
     let debugScript = DebugUserScript()
     let subscriptionPagesUserScript = SubscriptionPagesUserScript()
@@ -250,7 +249,6 @@ final class UserScripts: UserScriptsProvider {
         surrogatesScript,
         contentBlockerRulesScript,
         pageObserverScript,
-        printingUserScript,
         hoverUserScript,
         contentScopeUserScript,
         contentScopeUserScriptIsolated,
