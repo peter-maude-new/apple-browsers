@@ -183,7 +183,7 @@ final class DataClearingPixelsReporterTests: XCTestCase {
         currentTime += 1.5 // 1.5 seconds = 1500ms
 
         // When
-        sut.fireDurationPixel(DataClearingPixels.burnWebCacheDuration, from: startTime)
+        sut.fireDurationPixel(DataClearingPixels.burnWebCacheDuration, startTime: startTime)
 
         // Then
         XCTAssertEqual(mockPixelFiring.actualFireCalls.count, 1)
@@ -203,7 +203,7 @@ final class DataClearingPixelsReporterTests: XCTestCase {
         currentTime += 2 // 2 seconds = 2000ms
 
         // When
-        sut.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime, entity: "history")
+        sut.fireDurationPixel(DataClearingPixels.burnHistoryDuration, startTime: startTime, entity: "history")
 
         // Then
         XCTAssertEqual(mockPixelFiring.actualFireCalls.count, 1)

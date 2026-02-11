@@ -72,7 +72,7 @@ internal class WebCacheManager {
 
         await self.removeResourceLoadStatisticsDatabase()
 
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnWebCacheDuration, from: startTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnWebCacheDuration, startTime: startTime)
     }
 
     private func clearFileCache() async {

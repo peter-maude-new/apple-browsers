@@ -112,7 +112,7 @@ final class AutoClearHandler: ApplicationTerminationDecider {
         }
         let startTime = CACurrentMediaTime()
         await fireViewModel.fire.burnAll(isBurnOnExit: true, includeChatHistory: dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
-        Self.fireCompletionPixel(from: startTime, isAutoClearAIChatHistoryEnabled: dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
+        Self.fireCompletionPixel(startTime, isAutoClearAIChatHistoryEnabled: dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
         appTerminationHandledCorrectly = true
     }
 
@@ -171,7 +171,7 @@ final class AutoClearHandler: ApplicationTerminationDecider {
         let startTime = CACurrentMediaTime()
         fireViewModel.fire.burnAll(includeChatHistory: dataClearingPreferences.isAutoClearAIChatHistoryEnabled) { [weak self] in
             guard let self else { return }
-            Self.fireCompletionPixel(from: startTime, isAutoClearAIChatHistoryEnabled: self.dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
+            Self.fireCompletionPixel(startTime, isAutoClearAIChatHistoryEnabled: self.dataClearingPreferences.isAutoClearAIChatHistoryEnabled)
         }
         return true
     }
@@ -181,7 +181,7 @@ final class AutoClearHandler: ApplicationTerminationDecider {
 // MARK: - Instrumentation
 
 extension AutoClearHandler {
-    private static func fireCompletionPixel(from startTime: CFTimeInterval, isAutoClearAIChatHistoryEnabled: Bool) {
+    private static func fireCompletionPixel(_ startTime: CFTimeInterval, isAutoClearAIChatHistoryEnabled: Bool) {
         PixelKit.fire(
             DataClearingPixels.fireCompletion(
                 duration: Int((CACurrentMediaTime() - startTime) * 1000),

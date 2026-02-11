@@ -55,10 +55,11 @@ final class DataClearingPixelsReporter {
     }
 
     @MainActor
-    func fireRetriggerPixelIfNeeded() {
+    func fireRetriggerPixelIfNeeded(request: FireRequest) {
+        guard request.trigger == .manualFire else { return }
         let now = timeProvider()
         if let lastFireTime, (now - lastFireTime) <= retriggerWindow {
-            pixelFiring?.fire(DataClearingPixels.retriggerIn20s, frequency: .standard)
+            pixelFiring?.fire(DataClearingPixels.retriggerIn20s, frequency: .dailyAndStandard)
         }
         lastFireTime = now
     }
@@ -70,7 +71,7 @@ final class DataClearingPixelsReporter {
     // MARK: - Per-Action Quality Metrics
 
     func fireDurationPixel(_ durationPixel: @escaping (Int) -> DataClearingPixels,
-                           from startTime: CFTimeInterval) {
+                           startTime: CFTimeInterval) {
         pixelFiring?.fire(
             durationPixel(elapsedMilliseconds(since: startTime, to: timeProvider())),
             frequency: .standard
@@ -78,7 +79,7 @@ final class DataClearingPixelsReporter {
     }
     
     func fireDurationPixel(_ durationPixel: @escaping (Int, String) -> DataClearingPixels,
-                           from startTime: CFTimeInterval,
+                           startTime: CFTimeInterval,
                            scope: String) {
         pixelFiring?.fire(
             durationPixel(elapsedMilliseconds(since: startTime, to: timeProvider()), scope),
@@ -97,7 +98,7 @@ final class DataClearingPixelsReporter {
     }
 
     func fireErrorPixel(_ errorPixel: DataClearingPixels) {
-        pixelFiring?.fire(errorPixel, frequency: .dailyAndCount)
+        pixelFiring?.fire(errorPixel, frequency: .dailyAndStandard)
     }
 }
 

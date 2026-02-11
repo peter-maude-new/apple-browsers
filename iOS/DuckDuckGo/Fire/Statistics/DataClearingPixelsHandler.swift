@@ -45,7 +45,7 @@ struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
         dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
     }
     
-    func fireDurationPixel(from startTime: CFTimeInterval, scope: String) {
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime, scope: scope)
+    func fireDurationPixel(_ startTime: CFTimeInterval, scope: String) {
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, startTime: startTime, scope: scope)
     }
 }

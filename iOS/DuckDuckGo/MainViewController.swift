@@ -3962,9 +3962,9 @@ extension MainViewController {
 extension MainViewController: FireExecutorDelegate {
     
     func willStartBurning(fireRequest: FireRequest) {
-        showBurningOverlay()
         switch fireRequest.trigger {
         case .manualFire:
+            showBurningOverlay()
             return
         case .autoClearOnLaunch:
             autoClearInProgress = true
@@ -4060,7 +4060,9 @@ extension MainViewController {
     
     private func showBurningOverlay() {
         guard let window = view.window else { return }
-        
+
+        hideBurningOverlay()
+
         let overlay = UIView(frame: window.bounds)
         overlay.backgroundColor = .clear
         

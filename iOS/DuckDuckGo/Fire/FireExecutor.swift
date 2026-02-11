@@ -198,7 +198,7 @@ class FireExecutor: FireExecuting {
     func burn(request: FireRequest,
               applicationState: DataStoreWarmup.ApplicationState) async {
         assert(delegate != nil, "Delegate should not be nil. This leads to unexpected behavior.")
-        dataClearingPixelsReporter.fireRetriggerPixelIfNeeded()
+        dataClearingPixelsReporter.fireRetriggerPixelIfNeeded(request: request)
         let startTime = CACurrentMediaTime()
         
         // Ensure all requested options are prepared
@@ -312,7 +312,7 @@ class FireExecutor: FireExecuting {
             let startTime = CACurrentMediaTime()
             tabManager.prepareCurrentTabForDataClearing()
             tabManager.removeAll()
-            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, startTime: startTime, scope: scope.description)
             dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: scope.description)) {
                 tabManager.count > 1
             }
@@ -333,7 +333,7 @@ class FireExecutor: FireExecuting {
             // didFinishBurning(fireRequest:) manually clears data after burn is complete
             // Close the tab and append a new empty tab, reusing existing one if exists
             tabManager.closeTabAndNavigateToHomepage(viewModel.tab, clearTabHistory: false)
-            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, from: startTime, scope: scope.description)
+            dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnTabsDuration, startTime: startTime, scope: scope.description)
             dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnTabsHasResidue(scope: scope.description)) {
                 tabManager.controller(for: viewModel.tab) != nil
             }
@@ -374,7 +374,7 @@ class FireExecutor: FireExecuting {
     private func burnAllData() async {
         let startTime = CACurrentMediaTime()
         URLSession.shared.configuration.urlCache?.removeAllCachedResponses()
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: startTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, startTime: startTime)
         dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnURLCacheHasResidue) {
             let cache = URLSession.shared.configuration.urlCache
             return (cache?.currentDiskUsage ?? 0) > 0 || (cache?.currentMemoryUsage ?? 0) > 0
@@ -488,7 +488,7 @@ class FireExecutor: FireExecuting {
         case .all:
             await burnAllAIHistory(trigger: request.trigger)
         }
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnAIChatHistoryDuration, from: startTime, scope: request.scope.description)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnAIChatHistoryDuration, startTime: startTime, scope: request.scope.description)
     }
     
     private func burnAllAIHistory(trigger: FireRequest.Trigger) async {

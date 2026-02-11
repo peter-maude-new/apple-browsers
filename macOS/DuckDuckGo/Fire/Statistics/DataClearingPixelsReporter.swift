@@ -42,13 +42,13 @@ final class DataClearingPixelsReporter {
 
     // MARK: - Overall Flow Measurement
 
-    func fireCompletionPixel(from startTime: CFTimeInterval,
+    func fireCompletionPixel(_ startTime: CFTimeInterval,
                              dialogResult: FireDialogResult,
                              path: BurnPath,
                              autoClear: Bool) {
         pixelFiring?.fire(
             DataClearingPixels.fireCompletion(
-                duration: prepareDuration(from: startTime, to: timeProvider()),
+                duration: elapsedMilliseconds(since: startTime, to: timeProvider()),
                 option: prepare(dialogResult.clearingOption),
                 domains: prepare(dialogResult),
                 path: path.rawValue,
@@ -70,18 +70,18 @@ final class DataClearingPixelsReporter {
     // MARK: - Per-Action Quality Metrics
 
     func fireDurationPixel(_ durationPixel: @escaping (Int) -> DataClearingPixels,
-                           from startTime: CFTimeInterval) {
+                           startTime: CFTimeInterval) {
         pixelFiring?.fire(
-            durationPixel(prepareDuration(from: startTime, to: timeProvider())),
+            durationPixel(elapsedMilliseconds(since: startTime, to: timeProvider())),
             frequency: .standard
         )
     }
 
     func fireDurationPixel(_ durationPixel: @escaping (String, Int) -> DataClearingPixels,
-                           from startTime: CFTimeInterval,
+                           startTime: CFTimeInterval,
                            entity: String) {
         pixelFiring?.fire(
-            durationPixel(entity, prepareDuration(from: startTime, to: timeProvider())),
+            durationPixel(entity, elapsedMilliseconds(since: startTime, to: timeProvider())),
             frequency: .standard
         )
     }
@@ -105,7 +105,7 @@ final class DataClearingPixelsReporter {
 
 private extension DataClearingPixelsReporter {
 
-    private func prepareDuration(from startTime: CFTimeInterval, to endTime: CFTimeInterval) -> Int {
+    private func elapsedMilliseconds(since startTime: CFTimeInterval, to endTime: CFTimeInterval) -> Int {
         Int((endTime - startTime) * 1000)
     }
 

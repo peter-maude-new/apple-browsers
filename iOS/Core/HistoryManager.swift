@@ -98,7 +98,7 @@ public class HistoryManager: HistoryManaging {
                 continuation.resume()
             }
         }
-        burnHistoryPixelsHandler?.fireDurationPixel(from: startTime, scope: HistoryClearingScope.all.rawValue)
+        burnHistoryPixelsHandler?.fireDurationPixel(startTime, scope: HistoryClearingScope.all.rawValue)
     }
 
     @MainActor
@@ -160,7 +160,7 @@ public class HistoryManager: HistoryManaging {
         do {
             let startTime = CACurrentMediaTime()
             try await dbCoordinator.burnVisits(for: tabID)
-            burnHistoryPixelsHandler?.fireDurationPixel(from: startTime, scope: HistoryClearingScope.tab.rawValue)
+            burnHistoryPixelsHandler?.fireDurationPixel(startTime, scope: HistoryClearingScope.tab.rawValue)
         } catch {
             burnHistoryPixelsHandler?.fireErrorPixel(error)
             Logger.history.error("Failed to remove global history for tab: \(error.localizedDescription)")

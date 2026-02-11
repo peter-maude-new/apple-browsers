@@ -30,9 +30,9 @@ struct DataClearingPixelsBurnHistoryHandler: DataClearingPixelsHandling {
         dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
     }
 
-    func fireDurationPixel(from startTime: CFTimeInterval) {
+    func fireDurationPixel(_ startTime: CFTimeInterval) {
         // BurnVisits is one step inside burnHistory
         // Firing burnVisits pixel instead of burnHistory pixel to get a more granular measurement
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnVisitsDuration, from: startTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnVisitsDuration, startTime: startTime)
     }
 }

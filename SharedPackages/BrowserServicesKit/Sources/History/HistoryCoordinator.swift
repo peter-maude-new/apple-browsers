@@ -416,7 +416,7 @@ final public class HistoryCoordinator: HistoryCoordinating {
                 await MainActor.run {
                     self.removeEntries(entriesToRemove, completionHandler: completionHandler)
                 }
-                dataClearingPixelsHandler?.fireDurationPixel(from: startTime)
+                dataClearingPixelsHandler?.fireDurationPixel(startTime)
             } catch {
                 assertionFailure("Removal failed")
                 dataClearingPixelsHandler?.fireErrorPixel(error)
