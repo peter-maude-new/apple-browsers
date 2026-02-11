@@ -50,41 +50,26 @@ public struct AIChatModel {
         self.tier = tier
     }
 
+    private var sfSymbolName: String {
+        switch provider {
+        case .openAI: return "brain.head.profile"
+        case .meta: return "hare"
+        case .anthropic: return "sparkles"
+        case .mistral: return "wind"
+        }
+    }
+
     /// Returns a platform-appropriate icon for use in menu items.
     /// Uses SF Symbols as placeholders until real provider icons are available.
     #if os(macOS)
     public var menuIcon: NSImage? {
-        let symbolName: String
-        switch provider {
-        case .openAI:
-            symbolName = "brain.head.profile"
-        case .meta:
-            symbolName = "hare"
-        case .anthropic:
-            symbolName = "sparkles"
-        case .mistral:
-            symbolName = "wind"
-        }
-
-        let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: displayName)
+        let image = NSImage(systemSymbolName: sfSymbolName, accessibilityDescription: displayName)
         image?.isTemplate = true
         return image
     }
     #elseif os(iOS)
     public var menuIcon: UIImage? {
-        let symbolName: String
-        switch provider {
-        case .openAI:
-            symbolName = "brain.head.profile"
-        case .meta:
-            symbolName = "hare"
-        case .anthropic:
-            symbolName = "sparkles"
-        case .mistral:
-            symbolName = "wind"
-        }
-
-        return UIImage(systemName: symbolName)
+        UIImage(systemName: sfSymbolName)
     }
     #endif
 }
