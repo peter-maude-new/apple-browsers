@@ -73,7 +73,6 @@ final class MainWindowController: NSWindowController {
 
         setupWindow(window)
         setupToolbar()
-        subscribeToTrafficLightsAlpha()
         subscribeToBurningData()
         subscribeToResolutionChange()
         subscribeToFullScreenToolbarChanges()
@@ -130,10 +129,19 @@ final class MainWindowController: NSWindowController {
 
     private func setupWindow(_ window: NSWindow) {
         window.delegate = self
+        startOnboardingIfNeeded()
+    }
 
-        if shouldShowOnboarding {
-            mainViewController.tabCollectionViewModel.selectedTabViewModel?.tab.startOnboarding()
+    private func startOnboardingIfNeeded() {
+        guard shouldShowOnboarding, let selectedTab = mainViewController.tabCollectionViewModel.selectedTabViewModel?.tab else {
+            return
         }
+
+        // During Onboarding, several UI elements get disabled. In order to prevent flickering, we'll disable them right after kicking off Onboarding.
+        // Locking up UI via `OnboardingUserScript.setInit` has a noticeable delay, where elements may flash.
+        //
+        selectedTab.startOnboarding()
+        userInteraction(prevented: true)
     }
 
     private func subscribeToResolutionChange() {
@@ -189,23 +197,6 @@ final class MainWindowController: NSWindowController {
         window?.toolbar?.showsBaselineSeparator = true
         window?.toolbarStyle = .unifiedCompact
         moveTabBarView(toTitlebarView: true)
-    }
-
-    private var trafficLightsAlphaCancellable: AnyCancellable?
-    private func subscribeToTrafficLightsAlpha() {
-        let tabBarViewController = mainViewController.tabBarViewController
-
-        // slide tabs to the left in full screen
-        trafficLightsAlphaCancellable = window?.standardWindowButton(.closeButton)?
-            .publisher(for: \.alphaValue)
-            .map { alphaValue in
-                if #available(macOS 26, *) {
-                    return TabBarViewController.HorizontalSpace.pinnedTabsScrollViewPaddingMacOS26.rawValue * alphaValue
-                } else {
-                    return TabBarViewController.HorizontalSpace.pinnedTabsScrollViewPadding.rawValue * alphaValue
-                }
-            }
-            .assign(to: \.constant, onWeaklyHeld: tabBarViewController.pinnedTabsViewLeadingConstraint)
     }
 
     private var burningDataCancellable: AnyCancellable?

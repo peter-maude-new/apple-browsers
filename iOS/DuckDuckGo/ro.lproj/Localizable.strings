@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Trimis cu mesajul tău către Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Conținutul paginii";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai poate acum să răspundă la întrebări despre pagina pe care o vizualizezi.\n\nConținutul paginii este inclus doar atunci când îl atașezi. Poți schimba oricând acest lucru din Setări.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Funcțiile AI ale DuckDuckGo sunt private și opționale. Datele tale nu sunt folosite pentru a antrena AI.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Atașează conținutul paginii";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Rezumă această pagină";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Șterge toate";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Șterge acest chat";
+"scoped.fire.confirmation.delete.this.chat.description" = "„Șterge tot” nu va șterge istoricul chaturilor tale Duck.ai.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Șterge această filă";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "„Șterge această filă” va șterge acest chat Duck.ai și toate datele de pe site-urile vizitate în această filă.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Aceasta va anula descărcările în desfășurare.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Filele noi pe care le creezi pot fi, de asemenea, șterse individual.";
+"scoped.fire.confirmation.new.tabs.info" = "Filele noi pe care le-ai creat pot fi, de asemenea, șterse individual.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Ștergerea datelor de pe site te poate deconecta de la conturi.";

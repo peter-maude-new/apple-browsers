@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Enviado con tu mensaje a Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Contenido de la página";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai ahora puede ayudarte a responder preguntas sobre la página que estás viendo.\n\nEl contenido de la página solo se incluye cuando lo adjuntas. Puedes cambiar esto en cualquier momento en Ajustes.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Las funciones de IA de DuckDuckGo son privadas y opcionales. Tus datos no se utilizan para entrenar a la IA.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Adjuntar contenido de la página";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Resumir esta página";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Eliminar todo";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Borrar este chat";
+"scoped.fire.confirmation.delete.this.chat.description" = "«Eliminar todo» no borrará tu historial de chat de Duck.ai.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Eliminar esta pestaña";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "«Eliminar esta pestaña» borra este chat de Duck.ai y todos los datos de los sitios visitados en esta pestaña.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Esta acción cancelará las descargas en curso.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Las nuevas pestañas que crees también pueden eliminarse individualmente.";
+"scoped.fire.confirmation.new.tabs.info" = "Las nuevas pestañas que has creado también pueden eliminarse individualmente.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Eliminar datos del sitio puede hacer que cierres sesión en tus cuentas.";

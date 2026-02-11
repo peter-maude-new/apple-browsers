@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Poslano z vašim sporočilom Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Vsebina strani";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Duck.ai vam zdaj lahko pomaga odgovoriti na vprašanja o strani, ki si jo ogledujete.\n\nVsebina strani je vključena le, če jo priložite. To lahko kadar koli spremenite v nastavitvah.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Funkcije umetne inteligence DuckDuckGo so zasebne in neobvezne. Vaši podatki se ne uporabljajo za usposabljanje umetne inteligence.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Priloži vsebino strani";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Povzemi to stran";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Izbriši vse";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Izbriši ta klepet";
+"scoped.fire.confirmation.delete.this.chat.description" = "»Izbriši vse« ne bo izbrisalo vaše zgodovine klepetov na Duck.ai.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Izbriši ta zavihek";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "»Izbriši ta zavihek« počisti ta klepet Duck.ai in vse podatke o spletnih mestih, obiskanih na tem zavihku.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "S tem boste preklicali prenose v teku.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Nove zavihke, ki jih ustvarite, lahko tudi posamično izbrišete.";
+"scoped.fire.confirmation.new.tabs.info" = "Nove zavihke, ki ste jih ustvarili, lahko tudi posamično izbrišete.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "Brisanje podatkov o spletnem mestu vas lahko odjavi iz računov.";

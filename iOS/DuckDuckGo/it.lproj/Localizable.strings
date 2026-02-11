@@ -1426,9 +1426,6 @@
 /* Info text shown below the context chip explaining that content will be sent with the message */
 "duckai.context.chip.info" = "Inviato con il tuo messaggio a Duck.ai";
 
-/* Subtitle shown on the context chip indicating page content is attached */
-"duckai.context.chip.subtitle" = "Contenuto della pagina";
-
 /* Body text for the Duck.ai contextual onboarding screen explaining the feature */
 "duckai.contextual.onboarding.body" = "Da oggi, Duck.ai può aiutarti a rispondere alle domande sulla pagina che stai visualizzando.\n\nLe informazioni contenute nella pagina vengono incluse solo quando vengono allegate. Puoi modificare questa opzione in qualsiasi momento in Impostazioni.";
 
@@ -1443,6 +1440,9 @@
 
 /* AI features settings explanation */
 "duckai.preferences.text.markdown" = "Le funzionalità AI di DuckDuckGo sono private e opzionali. I tuoi dati non vengono usati per addestrare l'IA.";
+
+/* Title for the attach page content quick action chip in Duck.ai contextual sheet */
+"duckai.quick.action.attach" = "Allega il contenuto della pagina";
 
 /* Title for the summarize quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.summarize" = "Riassumi questa pagina";
@@ -2942,16 +2942,16 @@
 "scoped.fire.confirmation.delete.all.button" = "Elimina tutto";
 
 /* Button to delete only the current tab in scoped fire confirmation dialog */
+"scoped.fire.confirmation.delete.this.chat.button" = "Elimina questa chat";
+"scoped.fire.confirmation.delete.this.chat.description" = "\"Elimina tutto\" non elimina la cronologia chat di Duck.ai.";
 "scoped.fire.confirmation.delete.this.tab.button" = "Elimina questa scheda";
 
-/* Description explaining what Delete This Tab action does, including clearing Duck.ai chat and site data */
-"scoped.fire.confirmation.delete.this.tab.description" = "\"Elimina questa scheda\" cancella questa chat di Duck.ai e tutti i dati dei siti visitati in questa scheda.";
 
 /* Warning message that deleting will cancel any active downloads */
 "scoped.fire.confirmation.downloads.warning" = "Questa operazione annullerà i download in corso.";
 
 /* Informational message explaining that new tabs can also be deleted individually */
-"scoped.fire.confirmation.new.tabs.info" = "Anche le nuove schede create possono essere eliminate singolarmente.";
+"scoped.fire.confirmation.new.tabs.info" = "Le nuove schede create si possono anche eliminare singolarmente.";
 
 /* Warning message explaining that deleting site data may sign users out of accounts */
 "scoped.fire.confirmation.sign.out.warning" = "L'eliminazione dei dati del sito può comportare la disconnessione dagli account.";
