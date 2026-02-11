@@ -63,7 +63,7 @@ Always maintain a `failing_step` field that records the last step attempted befo
 - The current step/stage of the flow (as `failing_step`)
 - Latency measurements for user-blocking operations (network calls, processing steps)
 - Configuration choices that affect the flow path (e.g., which payment platform, which import source)
-- Error information when a step fails (domain, code, description, underlying errors)
+- Error information when a step fails (domain, code, description, underlying errors) -- only include error fields when the journey can end with a `failure` status
 - Feature-relevant boolean flags (e.g., free trial eligible, onboarding completed)
 - Entry point context when multiple paths lead to the same flow
 
@@ -72,6 +72,7 @@ Always maintain a `failing_step` field that records the last step attempted befo
 - High-cardinality string values that create unbounded parameter spaces (free-form user input, URLs, file paths)
 - Data that duplicates what's already in the base event (app version, platform)
 - Flow state that isn't useful for post-hoc debugging or alerting (e.g., retry counters, temporary buffer sizes) -- only capture state that helps explain outcomes, like `failing_step` for failed flows
+- Redundant fields that can be derived from each other -- each field should provide independent information. If one field's value can be inferred from another, keep only the one that's more directly useful for debugging or alerting
 - Granular timing data - use bucketed latency values instead (see Latency Measurement below)
 
 ### Latency Measurement
@@ -104,3 +105,4 @@ For flows that may never complete (e.g., waiting for backend activation), define
 4. **Include enough to debug failures**: A failed wide event should contain everything needed to understand _why_ it failed -- error details, failing step, and relevant configuration
 5. **Handle stale flows**: Implement a completion decision for flows that may survive app restarts -- check on app launch whether the flow should be completed with a timeout or delayed-success status
 6. **Keep parameters flat**: Use dot-notation keys (e.g., `feature.data.ext.purchase_platform`) -- these are automatically converted to nested JSON for the POST endpoint
+7. **Only model production behavior**: Design events around the user experience available in production builds. Ignore debug menus, internal tester flags, feature flags gated to employees, and other non-production code paths -- these should not influence event status, flow steps, or data fields
