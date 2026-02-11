@@ -84,7 +84,7 @@ enum UseSubscriptionError: Error {
 }
 
 public enum SubscriptionTransactionStatus: String {
-    case idle, purchasing, restoring, polling
+    case idle, purchasing, restoring, polling, changingPlan, planChangePolling
 }
 
 // https://app.asana.com/0/1205842942115003/1209254337758531/f
@@ -607,7 +607,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             return nil
         case .stripe:
             setTransactionError(nil)
-            setTransactionStatus(.purchasing)
+            setTransactionStatus(.changingPlan)
 
             let fromPlan = currentSubscription?.productId ?? ""
             let changeType = SubscriptionPlanChangeWideEventData.ChangeType.parse(string: subscriptionSelection.change)
@@ -711,8 +711,9 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             Logger.subscription.log("[TierChange] Stripe \(changeType, privacy: .public) completed successfully")
         }
 
-        setTransactionStatus(.idle)
         setTransactionError(nil)
+        let isPlanChange = (planChangeWideEventData != nil)
+        setTransactionStatus(isPlanChange ? .planChangePolling : .polling)
 
         subscriptionManager.clearSubscriptionCache()
         _ = try? await subscriptionManager.getTokenContainer(policy: .localForceRefresh)
@@ -725,6 +726,7 @@ final class DefaultSubscriptionPagesUseSubscriptionFeature: SubscriptionPagesUse
             planChangeWideEventData = nil
         }
 
+        setTransactionStatus(.idle)
         return [String: String]()
     }
 

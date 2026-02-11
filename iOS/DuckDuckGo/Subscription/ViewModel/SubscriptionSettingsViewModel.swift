@@ -27,6 +27,12 @@ import PrivacyConfig
 import Networking
 import Persistence
 
+/// Status for the cancel-downgrade overlay
+enum CancelDowngradeOverlayStatus {
+    case planChangeInProgress
+    case completingPlanChange
+}
+
 final class SubscriptionSettingsViewModel: ObservableObject {
 
     private let subscriptionManager: SubscriptionManager
@@ -53,7 +59,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         var subscriptionInfo: DuckDuckGoSubscription?
         var isLoadingSubscriptionInfo: Bool = false
         var cancelPendingDowngradeDetails: String?
-        var isCancelDowngradeInProgress: Bool = false
+        var cancelDowngradeTransactionStatus: CancelDowngradeOverlayStatus?
         var cancelDowngradeError: SubscriptionPurchaseError?
 
         // Used to display stripe WebUI
@@ -313,8 +319,8 @@ final class SubscriptionSettingsViewModel: ObservableObject {
 
         switch platform {
         case .apple:
-            guard !state.isCancelDowngradeInProgress else { return }
-            state.isCancelDowngradeInProgress = true
+            guard state.cancelDowngradeTransactionStatus == nil else { return }
+            state.cancelDowngradeTransactionStatus = .planChangeInProgress
             state.cancelDowngradeError = nil
             cancelDowngradeError = nil
             Pixel.fire(pixel: .subscriptionCancelPendingDowngradeClick)
@@ -331,7 +337,7 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     @MainActor
     private func runCancelHandler() async {
         guard let productId = state.subscriptionInfo?.productId else {
-            state.isCancelDowngradeInProgress = false
+            state.cancelDowngradeTransactionStatus = nil
             return
         }
         let setError: (AppStorePurchaseFlowError?) -> Void = { [weak self] in self?.setCancelDowngradeError($0) }
@@ -347,8 +353,13 @@ final class SubscriptionSettingsViewModel: ObservableObject {
     /// Called by the cancel-downgrade performer callbacks when transaction status changes (e.g. .idle when done).
     @MainActor
     func setCancelDowngradeStatus(_ status: SubscriptionTransactionStatus) {
-        if status == .idle {
-            state.isCancelDowngradeInProgress = false
+        switch status {
+        case .changingPlan:
+            state.cancelDowngradeTransactionStatus = .planChangeInProgress
+        case .planChangePolling:
+            state.cancelDowngradeTransactionStatus = .completingPlanChange
+        default:
+            state.cancelDowngradeTransactionStatus = nil
         }
     }
 

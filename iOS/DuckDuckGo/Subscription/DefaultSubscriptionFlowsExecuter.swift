@@ -67,7 +67,7 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
                                   setTransactionError: ((AppStorePurchaseFlowError?) -> Void)? = nil,
                                   pushPurchaseUpdate: ((PurchaseUpdate) async -> Void)? = nil) async {
         setTransactionError?(nil)
-        setTransactionStatus?(.purchasing)
+        setTransactionStatus?(.changingPlan)
 
         // Get current subscription info for wide event tracking
         let currentSubscription = try? await subscriptionManager.getSubscription(cachePolicy: .cacheFirst)
@@ -114,7 +114,7 @@ public final class DefaultSubscriptionFlowsExecuter: SubscriptionFlowsExecuting 
             return
         }
 
-        setTransactionStatus?(.polling)
+        setTransactionStatus?(.planChangePolling)
 
         guard transactionJWS.isEmpty == false else {
             Logger.subscription.fault("[TierChange] Purchase transaction JWS is empty")

@@ -546,8 +546,9 @@ struct SubscriptionSettingsViewV2: View {
 
         // Cancel downgrade in progress overlay
         .overlay {
-            if viewModel.state.isCancelDowngradeInProgress {
-                PurchaseInProgressView(status: UserText.subscriptionPurchasingTitle)
+            if let status = viewModel.state.cancelDowngradeTransactionStatus {
+                let message = cancelDowngradeOverlayMessage(for: status)
+                PurchaseInProgressView(status: message)
             }
         }
 
@@ -622,6 +623,15 @@ struct SubscriptionSettingsViewV2: View {
                                    action: { viewModel.cancelPendingDowngrade() },
                                    isButton: true)
             }
+        }
+    }
+
+    private func cancelDowngradeOverlayMessage(for status: CancelDowngradeOverlayStatus) -> String {
+        switch status {
+        case .planChangeInProgress:
+            return UserText.subscriptionPlanChangeInProgressTitle
+        case .completingPlanChange:
+            return UserText.subscriptionCompletePlanChangeTitle
         }
     }
 }

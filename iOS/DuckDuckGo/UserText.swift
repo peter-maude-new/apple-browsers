@@ -1600,6 +1600,8 @@ public struct UserText {
     static let subscriptionPurchasingTitle = NSLocalizedString("subscription.progress.view.purchasing.subscription", value: "Purchase in progress...", comment: "Progress view title when starting the purchase")
     static let subscriptionRestoringTitle = NSLocalizedString("subscription.progress.view.restoring.subscription", value: "Restoring subscription...", comment: "Progress view title when restoring past subscription purchase")
     static let subscriptionCompletingPurchaseTitle = NSLocalizedString("subscription.progress.view.completing.purchase", value: "Completing purchase...", comment: "Progress view title when completing the purchase")
+    static let subscriptionPlanChangeInProgressTitle = NSLocalizedString("subscription.progress.view.plan.change.in.progress", value: "Plan change in progress…", comment: "Progress view title when starting a plan change (upgrade, downgrade, or cancel downgrade)")
+    static let subscriptionCompletePlanChangeTitle = NSLocalizedString("subscription.progress.view.complete.plan.change", value: "Completing plan change…", comment: "Progress view title when completing a plan change with the backend")
 
     // Subscription Settings
     public static var subscriptionTitle = NSLocalizedString("subscription.settings.title", value: "DuckDuckGo Subscription", comment: "Navigation bar Title for subscriptions")
