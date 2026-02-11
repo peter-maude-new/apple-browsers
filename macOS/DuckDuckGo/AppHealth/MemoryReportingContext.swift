@@ -16,7 +16,6 @@
 //  limitations under the License.
 //
 
-import DDGSync
 import Foundation
 
 /// A snapshot of context collected at the moment of firing a memory usage pixel.
@@ -58,37 +57,33 @@ struct MemoryReportingContext {
     ///
     /// - Parameters:
     ///   - memoryUsageMonitor: Provides current memory usage via `getCurrentMemoryUsage()`
-    ///   - windowControllersManager: Provides window and tab counts. Pass `nil` if unavailable;
+    ///   - windowContext: Closure that provides window and tab counts. Pass `nil` if unavailable;
     ///     window and tab counts will be sent as `"unknown"`.
-    ///   - syncService: Provides sync state. Pass `nil` if unavailable;
+    ///   - isSyncEnabled: Closue that provides sync state. Pass `nil` if unavailable;
     ///     sync status will be sent as `"unknown"`.
     @MainActor
     static func collect(
         memoryUsageMonitor: MemoryUsageMonitoring,
-        windowControllersManager: WindowControllersManagerProtocol?,
-        syncService: DDGSyncing?
+        windowContext: @escaping WindowContext,
+        isSyncEnabled: () -> Bool?
     ) -> MemoryReportingContext {
         let report = memoryUsageMonitor.getCurrentMemoryUsage()
         let browserMemoryMB = MemoryReportingBuckets.bucketMemoryMB(report.physFootprintMB)
 
-        let windows: Int? = windowControllersManager.map { manager in
-            MemoryReportingBuckets.bucketWindowCount(manager.mainWindowControllers.count)
+        let windows: Int? = windowContext().windows.map { totalWindows in
+            MemoryReportingBuckets.bucketWindowCount(totalWindows)
         }
 
-        let tabs: Int? = windowControllersManager.map { manager in
-            let totalTabs = manager.allTabCollectionViewModels
-                .reduce(0) { $0 + $1.allTabsCount }
+        let tabs: Int? = windowContext().tabs.map { totalTabs in
             return MemoryReportingBuckets.bucketTabCount(totalTabs)
         }
-
-        let syncEnabled: Bool? = syncService.map { $0.authState == .active }
 
         return MemoryReportingContext(
             browserMemoryMB: browserMemoryMB,
             windows: windows,
             tabs: tabs,
             architecture: MemoryReportingBuckets.currentArchitecture,
-            syncEnabled: syncEnabled
+            syncEnabled: isSyncEnabled()
         )
     }
 }

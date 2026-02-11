@@ -1063,8 +1063,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             memoryUsageMonitor: memoryUsageMonitor,
             featureFlagger: featureFlagger,
             pixelFiring: PixelKit.shared,
-            windowControllersManager: windowControllersManager,
-            syncServiceProvider: { [weak self] in self?.syncService },
+            windowContext: {
+                let windows: Int? = windowControllersManager.mainWindowControllers.count
+                let tabs: Int? = windowControllersManager.allTabCollectionViewModels.reduce(0) { $0 + $1.allTabsCount }
+
+                return (tabs, windows)
+            },
+            isSyncEnabled: { [weak self] in self?.syncService?.authState == .active },
             logger: .memory
         )
 

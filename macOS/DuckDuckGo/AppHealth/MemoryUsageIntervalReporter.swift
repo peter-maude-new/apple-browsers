@@ -17,11 +17,12 @@
 //
 
 import Combine
-import DDGSync
 import Foundation
 import os.log
 import PixelKit
 import PrivacyConfig
+
+typealias WindowContext = () -> (tabs: Int?, windows: Int?)
 
 /// Reports memory usage at startup and scheduled intervals (1h, 2h, 4h, 8h, 24h).
 ///
@@ -42,8 +43,8 @@ final class MemoryUsageIntervalReporter {
     private let memoryUsageMonitor: MemoryUsageMonitoring
     private let featureFlagger: FeatureFlagger
     private let pixelFiring: PixelFiring?
-    private let windowControllersManager: WindowControllersManagerProtocol?
-    private let syncServiceProvider: () -> DDGSyncing?
+    private let windowContext: WindowContext
+    private let isSyncEnabled: () -> Bool?
     private let logger: Logger?
     private let checkInterval: TimeInterval
 
@@ -69,25 +70,24 @@ final class MemoryUsageIntervalReporter {
     ///   - memoryUsageMonitor: Provides memory usage readings via `getCurrentMemoryUsage()`.
     ///   - featureFlagger: Feature flag provider to check if reporting is enabled.
     ///   - pixelFiring: The pixel firing service for sending analytics.
-    ///   - windowControllersManager: Provides window and tab counts. Pass `nil` if unavailable.
-    ///   - syncServiceProvider: Closure that provides the sync service. Uses a closure because
-    ///     `DDGSyncing` may not be initialized yet when this reporter is created.
+    ///   - windowContext: Closure that provides information about opened tabs and windows
+    ///   - isSyncEnabled: Closure that provides a boolean if Sync is enabled.
     ///   - checkInterval: The interval between checks. Defaults to 60 seconds.
     ///   - logger: Optional logger for debugging.
     init(
         memoryUsageMonitor: MemoryUsageMonitoring,
         featureFlagger: FeatureFlagger,
         pixelFiring: PixelFiring?,
-        windowControllersManager: WindowControllersManagerProtocol?,
-        syncServiceProvider: @escaping () -> DDGSyncing?,
+        windowContext: @escaping WindowContext,
+        isSyncEnabled: @escaping () -> Bool?,
         checkInterval: TimeInterval = MemoryUsageIntervalReporter.defaultCheckInterval,
         logger: Logger? = nil
     ) {
         self.memoryUsageMonitor = memoryUsageMonitor
         self.featureFlagger = featureFlagger
         self.pixelFiring = pixelFiring
-        self.windowControllersManager = windowControllersManager
-        self.syncServiceProvider = syncServiceProvider
+        self.windowContext = windowContext
+        self.isSyncEnabled = isSyncEnabled
         self.checkInterval = checkInterval
         self.logger = logger
         subscribeToFeatureFlagUpdates()
@@ -179,11 +179,11 @@ final class MemoryUsageIntervalReporter {
             guard shouldFire else { continue }
 
             // Collect context on MainActor and fire
-            let context = await MainActor.run { [memoryUsageMonitor, windowControllersManager, syncServiceProvider] in
+            let context = await MainActor.run { [memoryUsageMonitor, windowContext, isSyncEnabled] in
                 MemoryReportingContext.collect(
                     memoryUsageMonitor: memoryUsageMonitor,
-                    windowControllersManager: windowControllersManager,
-                    syncService: syncServiceProvider()
+                    windowContext: windowContext,
+                    isSyncEnabled: isSyncEnabled
                 )
             }
 
@@ -235,11 +235,11 @@ extension MemoryUsageIntervalReporter {
     /// checks, deduplication, and feature-flag checks. This is intentional to allow
     /// developers to validate pixel content without enabling the flag or waiting for intervals.
     func fireTriggerNow(_ trigger: MemoryUsageIntervalPixel.Trigger) async {
-        let context = await MainActor.run { [memoryUsageMonitor, windowControllersManager, syncServiceProvider] in
+        let context = await MainActor.run { [memoryUsageMonitor, windowContext, isSyncEnabled] in
             MemoryReportingContext.collect(
                 memoryUsageMonitor: memoryUsageMonitor,
-                windowControllersManager: windowControllersManager,
-                syncService: syncServiceProvider()
+                windowContext: windowContext,
+                isSyncEnabled: isSyncEnabled
             )
         }
 
