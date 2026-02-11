@@ -659,7 +659,7 @@ extension AppDelegate {
     }
 
     @objc func clearSimulatedMemory(_ sender: Any?) {
-        NSApp.delegateTyped.memoryUsageMonitor.clearSimulatedMemoryReport()
+        memoryUsageMonitor.clearSimulatedMemoryReport()
         Logger.memory.info("Cleared simulated memory report, reverting to real system memory")
 
         let alert = NSAlert()
@@ -670,7 +670,7 @@ extension AppDelegate {
     }
 
     @objc func startMemoryReporterImmediately(_ sender: Any?) {
-        NSApp.delegateTyped.memoryUsageThresholdReporter.startMonitoringImmediately()
+        memoryUsageThresholdReporter.startMonitoringImmediately()
         Logger.memory.info("Memory usage threshold reporter started immediately (skipped 5-minute delay)")
 
         let alert = NSAlert()
@@ -681,8 +681,6 @@ extension AppDelegate {
     }
 
     @objc func fireIntervalPixelNow(_ sender: Any?) {
-        let reporter = NSApp.delegateTyped.memoryUsageIntervalReporter
-
         let alert = NSAlert()
         alert.messageText = "Fire Interval Pixel"
         alert.informativeText = "Select a trigger to fire. The reporter will collect current context and fire the m_mac_memory_usage pixel."
@@ -704,7 +702,7 @@ extension AppDelegate {
         let trigger = MemoryUsageIntervalPixel.Trigger.allCases[selectedIndex]
 
         Task {
-            await reporter?.fireTriggerNow(trigger)
+            await memoryUsageIntervalReporter?.fireTriggerNow(trigger)
             Logger.memory.info("Interval pixel fired for trigger: \(trigger.rawValue, privacy: .public)")
         }
     }
