@@ -300,8 +300,6 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
         case .regularSize:
 
             newItems = [
-                .additionalFixedSpaceItem(),
-
                 tabSwitcherStyleButton,
 
                 .flexibleSpace(),
@@ -319,9 +317,6 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
                 .flexibleSpace(),
 
                 editButton,
-
-                .additionalFixedSpaceItem()
-
             ].compactMap { $0 }
 
             isBottomBarHidden = false
@@ -423,17 +418,5 @@ class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
             ]
 
         }
-    }
-}
-
-private extension UIBarButtonItem {
-    static func additionalFixedSpaceItem() -> UIBarButtonItem {
-        let space: CGFloat
-        if #available(iOS 26, *) {
-            space = 10
-        } else {
-            space = 14
-        }
-        return .fixedSpace(space)
     }
 }

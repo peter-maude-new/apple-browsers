@@ -137,7 +137,6 @@ final class ToolbarHandler: ToolbarStateHandling {
 
     private func createPageLoadedButtons() -> [UIBarButtonItem] {
         return [
-            .additionalFixedSpaceItem(),
             backButton,
             .flexibleSpace(),
             forwardButton,
@@ -147,13 +146,11 @@ final class ToolbarHandler: ToolbarStateHandling {
             tabSwitcherButton,
             .flexibleSpace(),
             browserMenuButton,
-            .additionalFixedSpaceItem()
         ].compactMap { $0 }
     }
 
     private func createNewTabButtons() -> [UIBarButtonItem] {
         return [
-            .additionalFixedSpaceItem(),
             bookmarkButton,
             .flexibleSpace(),
             passwordsButton,
@@ -163,15 +160,6 @@ final class ToolbarHandler: ToolbarStateHandling {
             tabSwitcherButton,
             .flexibleSpace(),
             browserMenuButton,
-            .additionalFixedSpaceItem()
         ].compactMap { $0 }
-    }
-}
-
-private extension UIBarButtonItem {
-    private static let additionalHorizontalSpace = 14.0
-
-    static func additionalFixedSpaceItem() -> UIBarButtonItem {
-        .fixedSpace(additionalHorizontalSpace)
     }
 }
