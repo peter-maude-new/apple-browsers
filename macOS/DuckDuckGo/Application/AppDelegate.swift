@@ -1067,7 +1067,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 tabs: windowControllersManager.allTabCollectionViewModels.reduce(0) { $0 + $1.allTabsCount },
                 windows: windowControllersManager.mainWindowControllers.count
             ),
-            // Strong capture of self is intentional — AppDelegate lives for the entire app lifecycle.
             isSyncEnabled: { [weak self] in
                 guard let syncService = self?.syncService else { return nil }
 
