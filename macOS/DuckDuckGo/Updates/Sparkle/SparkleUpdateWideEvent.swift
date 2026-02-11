@@ -18,11 +18,10 @@
 
 import Common
 import Foundation
+import os.log
 import Persistence
 import PixelKit
-import Persistence
 import PrivacyConfig
-import os.log
 
 /// Orchestrates Wide Event tracking for Sparkle update cycles.
 ///
