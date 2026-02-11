@@ -224,10 +224,12 @@ extension MemoryUsageIntervalReporter {
         await checkAndFireIntervals()
     }
 
+#if DEBUG
     /// Clears fired triggers, allowing all triggers to fire again.
     func resetFiredTriggers() {
         lock.withLock { firedTriggers.removeAll() }
     }
+#endif
 
     /// For debug menu: fires a specific trigger immediately, bypassing elapsed-time
     /// checks, deduplication, and feature-flag checks. This is intentional to allow
