@@ -45,7 +45,7 @@ public protocol ScriptRequestValidator {
 /// Related: https://app.asana.com/1/137249556945/project/1205842942115003/task/1212924237876347?focus=true
 public struct DefaultScriptRequestValidator: ScriptRequestValidator {
 
-    private var subscriptionManager: any SubscriptionManager
+    private let subscriptionManager: any SubscriptionManager
 
     /// Set of all valid subscription URL paths that are authorized to request tokens.
     /// Paths are dynamically retrieved from `SubscriptionURL.allSubscriptionPaths()`.

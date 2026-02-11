@@ -39,11 +39,12 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
     var mockWideEvent: WideEventMock!
     var mockInternalUserDecider: MockInternalUserDecider!
     var mockTierEventReporter: MockSubscriptionTierEventReporter!
+    var mockRequestValidator: ScriptRequestValidatorMock!
 
     @MainActor
     override func setUp() {
         super.setUp()
-        
+
         mockSubscriptionManager = SubscriptionManagerMock()
         mockStripePurchaseFlow = StripePurchaseFlowMock(prepareSubscriptionPurchaseResult: .success((purchaseUpdate: .completed, accountCreationDuration: nil)))
         mockSubscriptionFeatureAvailability = SubscriptionFeatureAvailabilityMock(isSubscriptionPurchaseAllowed: true)
@@ -51,6 +52,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockWideEvent = WideEventMock()
         mockInternalUserDecider = MockInternalUserDecider(isInternalUser: true)
         mockTierEventReporter = MockSubscriptionTierEventReporter()
+        mockRequestValidator = ScriptRequestValidatorMock()
 
         sut = DefaultSubscriptionPagesUseSubscriptionFeature(
             subscriptionManager: mockSubscriptionManager,
@@ -62,9 +64,10 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
             tierEventReporter: mockTierEventReporter,
-            pendingTransactionHandler: MockPendingTransactionHandler())
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator)
     }
-    
+
     override func tearDown() {
         sut = nil
         mockSubscriptionManager = nil
@@ -73,6 +76,7 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
         mockNotificationCenter = nil
         mockWideEvent = nil
         mockTierEventReporter = nil
+        mockRequestValidator = nil
         super.tearDown()
     }
     
