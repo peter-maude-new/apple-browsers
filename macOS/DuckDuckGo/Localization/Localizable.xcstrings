@@ -95246,6 +95246,18 @@
         }
       }
     },
+    "subscription.progress.view.completing.plan.change" : {
+      "comment" : "Progress view title when completing a plan change with the backend",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Completing plan change…"
+          }
+        }
+      }
+    },
     "subscription.progress.view.completing.purchase" : {
       "comment" : "Progress view title when completing the purchase",
       "extractionState" : "extracted_with_value",
@@ -95302,6 +95314,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Завершение покупки..."
+          }
+        }
+      }
+    },
+    "subscription.progress.view.plan.change.in.progress" : {
+      "comment" : "Progress view title when starting a plan change (upgrade, downgrade, or cancel downgrade)",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Plan change in progress…"
           }
         }
       }

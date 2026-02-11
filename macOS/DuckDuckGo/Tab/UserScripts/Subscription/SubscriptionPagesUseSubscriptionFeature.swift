@@ -619,7 +619,8 @@ final class SubscriptionPagesUseSubscriptionFeature: Subfeature {
         var accountActivationDuration = WideEvent.MeasuredInterval.startingNow()
         purchaseWideEventData?.activateAccountDuration = accountActivationDuration
 
-        await uiHandler.presentProgressViewController(withTitle: UserText.completingPurchaseTitle)
+        let completingTitle = planChangeWideEventData != nil ? UserText.completePlanChangeTitle : UserText.completingPurchaseTitle
+        await uiHandler.presentProgressViewController(withTitle: completingTitle)
         await stripePurchaseFlow.completeSubscriptionPurchase()
         await uiHandler.dismissProgressViewController()
 
