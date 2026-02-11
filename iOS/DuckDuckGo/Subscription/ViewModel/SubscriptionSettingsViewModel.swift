@@ -206,14 +206,6 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         return dateFormatter
     }()
 
-    /// Day and month only for the cancel-pending-downgrade banner, in locale-appropriate order (e.g. "2 February" or "February 2").
-    private var bannerDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "d MMMM", options: 0, locale: formatter.locale) ?? "d MMMM"
-        return formatter
-    }()
-
     func onFirstAppear() {
         Task {
             // Load initial state from the cache
@@ -415,10 +407,9 @@ final class SubscriptionSettingsViewModel: ObservableObject {
         // Check for pending plan first (downgrade scheduled)
         if let pendingPlan = subscription.firstPendingPlan {
             let effectiveDate = dateFormatter.string(from: pendingPlan.effectiveAt)
-            let effectiveDateForBanner = bannerDateFormatter.string(from: pendingPlan.effectiveAt)
             let tierName = pendingPlan.tier.rawValue.capitalized
             state.subscriptionDetails = UserText.pendingDowngradeInfo(tierName: tierName, billingPeriod: pendingPlan.billingPeriod, effectiveDate: effectiveDate)
-            state.cancelPendingDowngradeDetails = UserText.cancelPendingDowngradeBannerInfo(tierName: tierName, effectiveDate: effectiveDateForBanner)
+            state.cancelPendingDowngradeDetails = UserText.cancelPendingDowngradeBannerInfo(tierName: tierName, effectiveDate: effectiveDate)
             return
         }
 

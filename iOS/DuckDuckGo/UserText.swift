@@ -1715,7 +1715,8 @@ public struct UserText {
         let localized = NSLocalizedString("subscription.cancel.pending.downgrade.banner.caption",
                                          value: "Your plan will downgrade to %@ on %@.",
                                          comment: "Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).'")
-        return String(format: localized, tierName, effectiveDate)
+        let nonBreakingDate = effectiveDate.replacingOccurrences(of: " ", with: "\u{00A0}")
+        return String(format: localized, tierName, nonBreakingDate)
     }
 
     static let cancelDowngradeButton = NSLocalizedString("subscription.cancel.downgrade.button",
