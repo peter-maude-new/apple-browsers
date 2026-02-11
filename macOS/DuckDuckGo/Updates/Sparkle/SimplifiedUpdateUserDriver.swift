@@ -20,6 +20,7 @@ import AppKit
 import Foundation
 import Persistence
 import os.log
+import Persistence
 import PixelKit
 import PrivacyConfig
 import Sparkle

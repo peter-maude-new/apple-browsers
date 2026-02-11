@@ -117,4 +117,5 @@ public final class ApplicationUpdateDetector {
         let build = AppVersion().buildNumber
         return build.isEmpty ? nil : build
     }
+
 }

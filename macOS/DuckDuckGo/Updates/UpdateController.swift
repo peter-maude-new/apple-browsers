@@ -378,12 +378,12 @@ public protocol UpdateController: UpdateControllerObjC {
 
 extension UpdateController {
 
-    private var shouldShowUpdateNotification: Bool {
-        Date().timeIntervalSince(lastUpdateNotificationShownDate) > .days(7)
+    private var isUpdateNotificationAllowed: Bool {
+        OnboardingActionsManager.isOnboardingFinished && Date().timeIntervalSince(lastUpdateNotificationShownDate) > .days(7)
     }
 
     public func showUpdateNotificationIfNeeded() {
-        guard let latestUpdate, hasPendingUpdate, shouldShowUpdateNotification else { return }
+        guard let latestUpdate, hasPendingUpdate, isUpdateNotificationAllowed else { return }
 
         notificationPresenter.showUpdateNotification(for: latestUpdate.type, areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled)
 

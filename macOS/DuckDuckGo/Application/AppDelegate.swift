@@ -1368,6 +1368,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         SyncDiagnosisHelper(syncService: syncService).diagnoseAccountStatus()
     }
 
+    @MainActor
     private func initializeUpdateController() {
         guard AppVersion.runType != .uiTests else { return }
 
@@ -1376,16 +1377,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let notificationPresenter = UpdateNotificationPresenter(pixelFiring: PixelKit.shared)
 
         let updateControllerFactory = UpdateControllerFactory(featureFlagger: featureFlagger)
+        let updateController: any UpdateController
         switch updateControllerFactory.factoryMethod {
         case .appStore(let makeController):
             assert(buildType.isAppStoreBuild)
             updateController = makeController(internalUserDecider, featureFlagger, eventMapping, notificationPresenter)
         case .sparkle(let makeController):
             assert(buildType.isSparkleBuild)
-            updateController = makeController(internalUserDecider, featureFlagger, eventMapping, notificationPresenter, keyValueStore, buildType, wideEvent)
+            updateController = makeController(internalUserDecider, featureFlagger, eventMapping, notificationPresenter, UserDefaults.standard, buildType, wideEvent)
         case .none:
             assertionFailure("Failed to instantiate update controller")
+            return
         }
+        self.updateController = updateController
+        stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

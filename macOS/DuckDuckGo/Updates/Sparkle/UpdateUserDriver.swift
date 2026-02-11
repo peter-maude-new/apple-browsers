@@ -22,6 +22,7 @@ import Foundation
 import os.log
 import Persistence
 import PixelKit
+import Persistence
 import PrivacyConfig
 import Sparkle
 

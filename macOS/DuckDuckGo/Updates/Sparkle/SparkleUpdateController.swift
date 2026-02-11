@@ -75,7 +75,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     let notificationPresenter: any UpdateNotificationPresenting
     let willRelaunchAppPublisher: AnyPublisher<Void, Never>
-    private let updateCompletionValidator: SparkleUpdateCompletionValidator
 
     // Struct used to cache data until the updater finishes checking for updates
     struct UpdateCheckResult {
@@ -116,6 +115,15 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         let releaseNotesSubscription: [String]
         let isCritical: Bool
 
+        init(version: String, build: String, date: Date, releaseNotes: [String], releaseNotesSubscription: [String], isCritical: Bool) {
+            self.version = version
+            self.build = build
+            self.date = date
+            self.releaseNotes = releaseNotes
+            self.releaseNotesSubscription = releaseNotesSubscription
+            self.isCritical = isCritical
+        }
+
         init(from item: SUAppcastItem) {
             self.version = item.displayVersionString
             self.build = item.versionString
@@ -124,16 +132,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             self.releaseNotes = notes
             self.releaseNotesSubscription = notesSubscription
             self.isCritical = item.isCriticalUpdate
-        }
-
-        // Memberwise initializer for testing
-        init(version: String, build: String, date: Date, releaseNotes: [String], releaseNotesSubscription: [String], isCritical: Bool) {
-            self.version = version
-            self.build = build
-            self.date = date
-            self.releaseNotes = releaseNotes
-            self.releaseNotesSubscription = releaseNotesSubscription
-            self.isCritical = isCritical
         }
     }
 
@@ -164,6 +162,8 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     public var mustShowUpdateIndicators: Bool { hasPendingUpdate }
     public let clearsNotificationDotOnMenuOpen = true
 
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
+
     var updateValidityStartDate: Date? {
         get { try? settings.updateValidityStartDate }
         set { try? settings.set(newValue, for: \.updateValidityStartDate) }
@@ -180,8 +180,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
     }
 
-    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
-
     private var pendingUpdateInfo: PendingUpdateInfo? {
         get {
             try? settings.pendingUpdateInfo
@@ -193,10 +191,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     var lastUpdateCheckDate: Date? { updater?.lastUpdateCheckDate }
     var lastUpdateNotificationShownDate: Date = .distantPast
-
-    private var shouldShowUpdateNotification: Bool {
-        Date().timeIntervalSince(lastUpdateNotificationShownDate) > .days(7)
-    }
 
     var areAutomaticUpdatesEnabled: Bool {
         get {
@@ -275,6 +269,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     // MARK: - Update Detection
 
     private let applicationUpdateDetector: ApplicationUpdateDetector
+    private let updateCompletionValidator: SparkleUpdateCompletionValidator
 
     // MARK: - Feature Flags support
 

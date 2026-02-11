@@ -72,7 +72,6 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
 
     public let notificationPresenter: any UpdateNotificationPresenting
     public let willRelaunchAppPublisher: AnyPublisher<Void, Never>
-    private let updateCompletionValidator: SparkleUpdateCompletionValidator
 
     // Struct used to cache data until the updater finishes checking for updates
     struct UpdateCheckResult {
@@ -161,10 +160,6 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
         }
     }
 
-    private var shouldShowUpdateNotification: Bool {
-        Date().timeIntervalSince(lastUpdateNotificationShownDate) > .days(7)
-    }
-
     public var areAutomaticUpdatesEnabled: Bool {
         get {
             (try? settings.automaticUpdates) ?? true
@@ -228,6 +223,10 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
     // MARK: - WideEvent Tracking
 
     public let updateWideEvent: SparkleUpdateWideEvent
+
+    // MARK: - Update Detection
+
+    private let updateCompletionValidator: SparkleUpdateCompletionValidator
 
     // MARK: - Feature Flags support
 

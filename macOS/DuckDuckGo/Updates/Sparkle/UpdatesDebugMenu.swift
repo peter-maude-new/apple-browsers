@@ -67,12 +67,8 @@ final class UpdatesDebugMenu: NSMenu {
     // MARK: - Menu State Update
 
     private var updateValidityStartDate: Date? {
-        get {
-            try? settings.updateValidityStartDate
-        }
-        set {
-            try? settings.set(newValue, for: \.updateValidityStartDate)
-        }
+        get { try? settings.updateValidityStartDate }
+        set { try? settings.set(newValue, for: \.updateValidityStartDate) }
     }
 
     @objc func expireCurrentUpdate() {
@@ -80,12 +76,8 @@ final class UpdatesDebugMenu: NSMenu {
     }
 
     private var pendingUpdateSince: Date {
-        get {
-            (try? settings.pendingUpdateSince) ?? .distantPast
-        }
-        set {
-            try? settings.set(newValue, for: \.pendingUpdateSince)
-        }
+        get { (try? settings.pendingUpdateSince) ?? .distantPast }
+        set { try? settings.set(newValue, for: \.pendingUpdateSince) }
     }
 
     @objc func resetLastUpdateCheck() {
@@ -113,12 +105,8 @@ final class UpdatesDebugMenu: NSMenu {
     // MARK: - Custom Feed URL
 
     private var customFeedURL: String? {
-        get {
-            try? settings.debugSparkleCustomFeedURL
-        }
-        set {
-            try? settings.set(newValue, for: \.debugSparkleCustomFeedURL)
-        }
+        get { try? settings.debugSparkleCustomFeedURL }
+        set { try? settings.set(newValue, for: \.debugSparkleCustomFeedURL) }
     }
 
     private var sparkleUpdateController: (any SparkleCustomFeedURLProviding)? {

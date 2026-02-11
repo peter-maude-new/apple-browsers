@@ -19,6 +19,8 @@
 import BrowserServicesKit
 import Persistence
 import PersistenceTestingUtils
+import Persistence
+import PersistenceTestingUtils
 import XCTest
 
 @testable import DuckDuckGo_Privacy_Browser
