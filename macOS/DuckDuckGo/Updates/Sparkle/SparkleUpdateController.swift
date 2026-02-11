@@ -31,18 +31,19 @@ import os.log
 /// Factory extension that provides the Sparkle updater implementation.
 ///
 /// This extension is compiled into the SparkleAppUpdater package and provides
-/// the Sparkle-specific UpdateController type to the factory pattern.
-/// 
-/// See UpdateControllerFactory.swift for more details.
-extension UpdateControllerFactory: UpdateControllerFactoryTypeGetter {
-    /// Returns the appropriate Sparkle UpdateController type based on feature flags.
-    /// - If `updatesSimplifiedFlow` is enabled, returns `SimplifiedSparkleUpdateController`
-    /// - Otherwise, returns `SparkleUpdateController`
-    public static func getUpdateControllerType(featureFlagger: FeatureFlagger) -> any UpdateController.Type {
+/// the Sparkle-specific `UpdateControllerFactoryMethodType.sparkle` factory method.
+///
+/// See `UpdateControllerFactory` in `UpdateController.swift` for details on
+/// how `factoryMethod` is consumed.
+extension UpdateControllerFactory: UpdateControllerFactoryMethodGetter {
+    /// Returns the Sparkle constructor closure used by `UpdateControllerFactory.factoryMethod`.
+    /// - If `updatesSimplifiedFlow` is enabled, returns `.sparkle(SimplifiedSparkleUpdateController.init)`
+    /// - Otherwise, returns `.sparkle(SparkleUpdateController.init)`
+    public static func getFactoryMethod(featureFlagger: FeatureFlagger) -> UpdateControllerFactoryMethodType {
         if featureFlagger.isFeatureOn(.updatesSimplifiedFlow) {
-            return SimplifiedSparkleUpdateController.self
+            return .sparkle(SimplifiedSparkleUpdateController.init)
         } else {
-            return SparkleUpdateController.self
+            return .sparkle(SparkleUpdateController.init)
         }
     }
 }
@@ -170,11 +171,11 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     private var customFeedURL: String? {
         get {
-            guard let buildType, buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
+            guard buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
             return try? settings.debugSparkleCustomFeedURL
         }
         set {
-            guard let buildType, buildType.isDebugBuild || buildType.isReviewBuild else { return }
+            guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
             try? settings.set(newValue, for: \.debugSparkleCustomFeedURL)
         }
     }
@@ -266,7 +267,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     private let updateCheckState: UpdateCheckState
 
     // MARK: - Build Type
-    private let buildType: ApplicationBuildType?
+    private let buildType: ApplicationBuildType
 
     // MARK: - WideEvent Tracking
     private let updateWideEvent: SparkleUpdateWideEvent
@@ -291,18 +292,13 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
 
     /// Protocol-required initializer (the only initializer).
     /// Creates `SparkleUpdateWideEvent` internally from `wideEvent` parameter.
-    required init(internalUserDecider: InternalUserDecider,
-                  featureFlagger: FeatureFlagger,
-                  eventMapping: EventMapping<UpdateControllerEvent>?,
-                  notificationPresenter: any UpdateNotificationPresenting,
-                  keyValueStore: any Persistence.ThrowingKeyValueStoring,
-                  buildType: ApplicationBuildType?,
-                  wideEvent: WideEventManaging?) {
-        // Sparkle builds require these parameters
-        guard let wideEvent else {
-            fatalError("SparkleUpdateController requires wideEvent")
-        }
-
+    public init(internalUserDecider: InternalUserDecider,
+                featureFlagger: FeatureFlagger,
+                eventMapping: EventMapping<UpdateControllerEvent>?,
+                notificationPresenter: any UpdateNotificationPresenting,
+                keyValueStore: any Persistence.ThrowingKeyValueStoring,
+                buildType: ApplicationBuildType,
+                wideEvent: WideEventManaging) {
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
         self.eventMapping = eventMapping
@@ -648,12 +644,12 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
     // MARK: - Debug: Custom Feed URL
 
     func setCustomFeedURL(_ urlString: String) {
-        guard let buildType, buildType.isDebugBuild || buildType.isReviewBuild else { return }
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
         customFeedURL = urlString
     }
 
     func resetFeedURLToDefault() {
-        guard let buildType, buildType.isDebugBuild || buildType.isReviewBuild else { return }
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return }
         customFeedURL = nil
     }
 }
@@ -663,7 +659,7 @@ extension SparkleUpdateController: SparkleCustomFeedURLProviding {}
 extension SparkleUpdateController: SPUUpdaterDelegate {
 
     func feedURLString(for updater: SPUUpdater) -> String? {
-        guard let buildType, buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
+        guard buildType.isDebugBuild || buildType.isReviewBuild else { return nil }
         return customFeedURL
     }
 

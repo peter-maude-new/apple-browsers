@@ -1082,26 +1082,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                              sessionRestorePromptCoordinator: sessionRestorePromptCoordinator,
                                                              pixelFiring: PixelKit.shared)
 
-        if AppVersion.runType != .uiTests {
-            let updateControllerFactory = UpdateControllerFactory(featureFlagger: featureFlagger)
-
-            // Instantiate AppStore or Sparkle update controller based on build configuration
-            if let updateControllerType = updateControllerFactory.updateControllerType {
-                let updateController = updateControllerType.init(
-                    internalUserDecider: internalUserDecider,
-                    featureFlagger: featureFlagger,
-                    eventMapping: UpdateControllerMappings.eventMapping(pixelFiring: PixelKit.shared),
-                    notificationPresenter: UpdateNotificationPresenter(pixelFiring: PixelKit.shared),
-                    keyValueStore: UserDefaults.standard,
-                    buildType: StandardApplicationBuildType(),
-                    wideEvent: wideEvent
-                )
-                self.updateController = updateController
-                stateRestorationManager.subscribeToAutomaticAppRelaunching(using: updateController.willRelaunchAppPublisher)
-            } else {
-                assertionFailure("Failed to get update controller type")
-            }
-        }
+        initializeUpdateController()
 
         appIconChanger = AppIconChanger(internalUserDecider: internalUserDecider, appearancePreferences: appearancePreferences)
 
@@ -1385,6 +1366,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         syncService.initializeIfNeeded()
         syncService.scheduler.notifyAppLifecycleEvent()
         SyncDiagnosisHelper(syncService: syncService).diagnoseAccountStatus()
+    }
+
+    private func initializeUpdateController() {
+        guard AppVersion.runType != .uiTests else { return }
+
+        let buildType = StandardApplicationBuildType()
+        let eventMapping = UpdateControllerMappings.eventMapping(pixelFiring: PixelKit.shared)
+        let notificationPresenter = UpdateNotificationPresenter(pixelFiring: PixelKit.shared)
+
+        let updateControllerFactory = UpdateControllerFactory(featureFlagger: featureFlagger)
+        switch updateControllerFactory.factoryMethod {
+        case .appStore(let makeController):
+            assert(buildType.isAppStoreBuild)
+            updateController = makeController(internalUserDecider, featureFlagger, eventMapping, notificationPresenter)
+        case .sparkle(let makeController):
+            assert(buildType.isSparkleBuild)
+            updateController = makeController(internalUserDecider, featureFlagger, eventMapping, notificationPresenter, keyValueStore, buildType, wideEvent)
+        case .none:
+            assertionFailure("Failed to instantiate update controller")
+        }
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

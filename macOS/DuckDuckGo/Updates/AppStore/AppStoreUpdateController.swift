@@ -31,13 +31,14 @@ import Subscription
 /// Factory extension that provides the App Store updater implementation.
 ///
 /// This extension is compiled into the AppStoreAppUpdater package and provides
-/// the App Store-specific UpdateController type to the factory pattern.
-/// 
-/// See UpdateControllerFactory.swift for more details.
-extension UpdateControllerFactory: UpdateControllerFactoryTypeGetter {
-    /// Returns `AppStoreUpdateController` as the concrete implementation for App Store builds.
-    public static func getUpdateControllerType(featureFlagger: FeatureFlagger) -> any UpdateController.Type {
-        AppStoreUpdateController.self
+/// the App Store-specific `UpdateControllerFactoryMethodType.appStore` factory method.
+///
+/// See `UpdateControllerFactory` in `UpdateController.swift` for details on
+/// how `factoryMethod` is consumed.
+extension UpdateControllerFactory: UpdateControllerFactoryMethodGetter {
+    /// Returns the App Store constructor closure used by `UpdateControllerFactory.factoryMethod`.
+    public static func getFactoryMethod(featureFlagger _: FeatureFlagger) -> UpdateControllerFactoryMethodType {
+        .appStore(AppStoreUpdateController.init)
     }
 }
 
@@ -81,13 +82,10 @@ extension UpdateControllerFactory: UpdateControllerFactoryTypeGetter {
     // MARK: - Initialization
 
     /// Protocol-conforming initializer for production use.
-    public required init(internalUserDecider: InternalUserDecider,
-                         featureFlagger: FeatureFlagger,
-                         eventMapping: EventMapping<UpdateControllerEvent>?,
-                         notificationPresenter: any UpdateNotificationPresenting,
-                         keyValueStore: any Persistence.ThrowingKeyValueStoring,
-                         buildType: ApplicationBuildType?,
-                         wideEvent: WideEventManaging?) {
+    public init(internalUserDecider: InternalUserDecider,
+                featureFlagger: FeatureFlagger,
+                eventMapping: EventMapping<UpdateControllerEvent>?,
+                notificationPresenter: any UpdateNotificationPresenting) {
         self.updateCheckState = UpdateCheckState()
         self.updaterChecker = AppStoreUpdaterAvailabilityChecker()
         self.notificationPresenter = notificationPresenter
@@ -120,8 +118,7 @@ extension UpdateControllerFactory: UpdateControllerFactoryTypeGetter {
                 internalUserDecider: InternalUserDecider? = nil,
                 featureFlagger: FeatureFlagger? = nil,
                 eventMapping: EventMapping<UpdateControllerEvent>? = nil,
-                notificationPresenter: any UpdateNotificationPresenting,
-                keyValueStore: (any Persistence.ThrowingKeyValueStoring)? = nil) {
+                notificationPresenter: any UpdateNotificationPresenting) {
         self.updateCheckState = UpdateCheckState()
         self.updaterChecker = AppStoreUpdaterAvailabilityChecker()
         self.notificationPresenter = notificationPresenter

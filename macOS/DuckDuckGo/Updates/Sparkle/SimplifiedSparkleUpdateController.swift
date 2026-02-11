@@ -262,17 +262,13 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
 
     // MARK: - Public
 
-    required public init(internalUserDecider: InternalUserDecider,
-                         featureFlagger: FeatureFlagger,
-                         eventMapping: EventMapping<UpdateControllerEvent>?,
-                         notificationPresenter: UpdateNotificationPresenting,
-                         keyValueStore: ThrowingKeyValueStoring,
-                         buildType: ApplicationBuildType?,
-                         wideEvent: WideEventManaging?) {
-        // Sparkle builds require these parameters
-        guard let buildType, let wideEvent else {
-            fatalError("SimplifiedSparkleUpdateController requires buildType and wideEvent")
-        }
+    public init(internalUserDecider: InternalUserDecider,
+                featureFlagger: FeatureFlagger,
+                eventMapping: EventMapping<UpdateControllerEvent>?,
+                notificationPresenter: UpdateNotificationPresenting,
+                keyValueStore: ThrowingKeyValueStoring,
+                buildType: ApplicationBuildType,
+                wideEvent: WideEventManaging) {
 
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
