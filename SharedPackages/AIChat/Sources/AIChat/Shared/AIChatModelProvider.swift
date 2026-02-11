@@ -16,31 +16,44 @@
 //  limitations under the License.
 //
 
+#if os(macOS)
 import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 
 /// Represents an AI model available in the model picker.
-struct AIChatModel {
-    let id: String
-    let displayName: String
-    let shortDisplayName: String
-    let provider: ModelProvider
-    let tier: ModelTier
+public struct AIChatModel {
+    public let id: String
+    public let displayName: String
+    public let shortDisplayName: String
+    public let provider: ModelProvider
+    public let tier: ModelTier
 
-    enum ModelProvider {
+    public enum ModelProvider {
         case openAI
         case meta
         case anthropic
         case mistral
     }
 
-    enum ModelTier {
+    public enum ModelTier {
         case free
         case premium
     }
 
-    /// Returns an icon for use in menu items.
+    public init(id: String, displayName: String, shortDisplayName: String, provider: ModelProvider, tier: ModelTier) {
+        self.id = id
+        self.displayName = displayName
+        self.shortDisplayName = shortDisplayName
+        self.provider = provider
+        self.tier = tier
+    }
+
+    /// Returns a platform-appropriate icon for use in menu items.
     /// Uses SF Symbols as placeholders until real provider icons are available.
-    var menuIcon: NSImage? {
+    #if os(macOS)
+    public var menuIcon: NSImage? {
         let symbolName: String
         switch provider {
         case .openAI:
@@ -57,15 +70,32 @@ struct AIChatModel {
         image?.isTemplate = true
         return image
     }
+    #elseif os(iOS)
+    public var menuIcon: UIImage? {
+        let symbolName: String
+        switch provider {
+        case .openAI:
+            symbolName = "brain.head.profile"
+        case .meta:
+            symbolName = "hare"
+        case .anthropic:
+            symbolName = "sparkles"
+        case .mistral:
+            symbolName = "wind"
+        }
+
+        return UIImage(systemName: symbolName)
+    }
+    #endif
 }
 
 /// Provides mock model data for the AI model picker.
 /// This will be replaced with data from the JS bridge once available.
-enum AIChatModelProvider {
+public enum AIChatModelProvider {
 
-    static let defaultModel = freeModels[0]
+    public static let defaultModel = freeModels[0]
 
-    static let freeModels: [AIChatModel] = [
+    public static let freeModels: [AIChatModel] = [
         AIChatModel(id: "gpt-4o-mini", displayName: "GPT-4o mini", shortDisplayName: "4o-mini", provider: .openAI, tier: .free),
         AIChatModel(id: "gpt-5-mini", displayName: "GPT-5 mini", shortDisplayName: "5-mini", provider: .openAI, tier: .free),
         AIChatModel(id: "gpt-oss-120b", displayName: "GPT-OSS 120B", shortDisplayName: "OSS-120B", provider: .openAI, tier: .free),
@@ -74,7 +104,7 @@ enum AIChatModelProvider {
         AIChatModel(id: "mistral-small-3", displayName: "Mistral Small 3", shortDisplayName: "Small-3", provider: .mistral, tier: .free),
     ]
 
-    static let premiumModels: [AIChatModel] = [
+    public static let premiumModels: [AIChatModel] = [
         AIChatModel(id: "gpt-4o", displayName: "GPT-4o", shortDisplayName: "4o", provider: .openAI, tier: .premium),
         AIChatModel(id: "gpt-5-1", displayName: "GPT-5.1", shortDisplayName: "5.1", provider: .openAI, tier: .premium),
         AIChatModel(id: "claude-sonnet-4-5", displayName: "Claude Sonnet 4.5", shortDisplayName: "Sonnet-4.5", provider: .anthropic, tier: .premium),

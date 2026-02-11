@@ -106,8 +106,6 @@
 		1D4B03DA2CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B03D82CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift */; };
 		1D5072062F3A41AE005BE196 /* AIChatModelPickerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5072052F3A41AE005BE196 /* AIChatModelPickerButton.swift */; };
 		1D5072072F3A41AE005BE196 /* AIChatModelPickerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5072052F3A41AE005BE196 /* AIChatModelPickerButton.swift */; };
-		1D5072092F3A42C3005BE196 /* AIChatModelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5072082F3A42C3005BE196 /* AIChatModelProvider.swift */; };
-		1D50720A2F3A42C3005BE196 /* AIChatModelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5072082F3A42C3005BE196 /* AIChatModelProvider.swift */; };
 		1D532BB42ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D532BB32ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift */; };
 		1D532BB52ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D532BB32ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift */; };
 		1D532BC92EDA1DF800D219FA /* SystemPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D532BC82EDA1DF200D219FA /* SystemPermissionManager.swift */; };
@@ -4511,7 +4509,6 @@
 		1D4B03D52CA4431C00224E99 /* BookmarkUrlExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkUrlExtension.swift; sourceTree = "<group>"; };
 		1D4B03D82CA55DDF00224E99 /* BookmarkUrlExtensionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarkUrlExtensionTests.swift; sourceTree = "<group>"; };
 		1D5072052F3A41AE005BE196 /* AIChatModelPickerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatModelPickerButton.swift; sourceTree = "<group>"; };
-		1D5072082F3A42C3005BE196 /* AIChatModelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatModelProvider.swift; sourceTree = "<group>"; };
 		1D532BB32ED8D3D300D219FA /* PermissionAuthorizationSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionAuthorizationSwiftUIView.swift; sourceTree = "<group>"; };
 		1D532BC82EDA1DF200D219FA /* SystemPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemPermissionManager.swift; sourceTree = "<group>"; };
 		1D532BDD2EDC3E3F00D219FA /* PermissionCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionCenterView.swift; sourceTree = "<group>"; };
@@ -7286,7 +7283,6 @@
 				CC5415622F29238F0084A139 /* AIChatMenuConfigurationMock.swift */,
 				CC19E9EC2E82CFBB0043F931 /* AIChatHistoryCleaner.swift */,
 				1D5C233F2F16CE000055046E /* PassthroughView.swift */,
-				1D5072082F3A42C3005BE196 /* AIChatModelProvider.swift */,
 				1D5072052F3A41AE005BE196 /* AIChatModelPickerButton.swift */,
 				1D94E7982F333CA1008315A2 /* AIChatOmnibarToolButton.swift */,
 			);
@@ -14088,7 +14084,6 @@
 				37EE56182D5F197300D53C7C /* NavigationBarBadgeAnimator.swift in Sources */,
 				37EE56192D5F197300D53C7C /* AddressBarButton.swift in Sources */,
 				37EE561A2D5F197300D53C7C /* AddressBarButtonsViewController.swift in Sources */,
-				1D50720A2F3A42C3005BE196 /* AIChatModelProvider.swift in Sources */,
 				37EE561B2D5F197300D53C7C /* AddressBarTextEditor.swift in Sources */,
 				EE1886562EB8D7C600A46272 /* NewImportSummaryViewModel.swift in Sources */,
 				37EE561C2D5F197300D53C7C /* AddressBarTextField.swift in Sources */,
@@ -17393,7 +17388,6 @@
 				AA72D5FE25FFF94E00C77619 /* NSMenuItemExtension.swift in Sources */,
 				EDDDAC2E2E8AC42B0033A783 /* WatchdogEventMapper.swift in Sources */,
 				4BA1A6C2258B0A1300F6F690 /* ContiguousBytesExtension.swift in Sources */,
-				1D5072092F3A42C3005BE196 /* AIChatModelProvider.swift in Sources */,
 				B6A22B622B1E29D000ECD2BA /* DataImportSummaryViewModel.swift in Sources */,
 				1E15F6942DF08E920061395E /* AIChatSidebarPresenter.swift in Sources */,
 				9F514F912B7D88AD001832A9 /* AddEditBookmarkFolderDialogView.swift in Sources */,
