@@ -3616,6 +3616,12 @@
 /* Subscription Removal confirmation message */
 "subscription.cancel.message" = "Tvoje předplatné bylo z tohohle zařízení odstraněno.";
 
+/* Button to cancel a pending downgrade of the subscription */
+"subscription.cancel.downgrade.button" = "Zrušit snížení tarifu";
+
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.cancel.pending.downgrade.banner.caption" = "Tvůj tarif se %2$@ změní na %1$@.";
+
 /* Change plan or cancel title */
 "subscription.change.plan" = "Aktualizace nebo zrušení tarifu";
 
