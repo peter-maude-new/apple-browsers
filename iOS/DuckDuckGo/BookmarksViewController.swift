@@ -67,7 +67,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate {
         button.setImage(DesignSystemImages.Glyphs.Size24.folderAdd, for: .normal)
         button.addTarget(self, action: #selector(onAddFolderPressed), for: .touchUpInside)
         button.accessibilityLabel = UserText.addFolderScreenTitle
-        button.tintColor = UIColor(designSystemColor: .textPrimary)
+        button.tintColor = UIColor(designSystemColor: .icons)
         return button
     }()
 
@@ -76,7 +76,7 @@ class BookmarksViewController: UIViewController, UITableViewDelegate {
         let button = UIButton(type: .system)
         button.setImage(DesignSystemImages.Glyphs.Size24.moreApple, for: .normal)
         button.showsMenuAsPrimaryAction = true
-        button.tintColor = UIColor(designSystemColor: .textPrimary)
+        button.tintColor = UIColor(designSystemColor: .icons)
         return button
     }()
 
@@ -1027,6 +1027,8 @@ extension BookmarksViewController {
         navigationController?.view.backgroundColor = tableView.backgroundColor
 
         tableView.reloadData()
+
+        doneButton.tintColor = UIColor(designSystemColor: .accent)
     }
 }
 
