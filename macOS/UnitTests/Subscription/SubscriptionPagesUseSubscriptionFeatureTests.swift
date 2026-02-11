@@ -544,7 +544,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
         stripeSut.with(broker: broker)
 
@@ -605,7 +606,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             dataBrokerProtectionFreemiumPixelHandler: mockPixelHandler,
             aiChatURL: URL.duckDuckGo,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
         stripeSut.with(broker: broker)
 
