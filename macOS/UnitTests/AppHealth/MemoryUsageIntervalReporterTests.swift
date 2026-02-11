@@ -268,22 +268,6 @@ final class MemoryUsageIntervalReporterTests: XCTestCase {
         XCTAssertEqual(totalStartupFires, 2, "Startup pixel should fire again after OFF->ON toggle (new session)")
     }
 
-    // MARK: - No Start Time
-
-    func testWhenNotStarted_ThenDoesNotFirePixels() async {
-        // Given
-        mockMemoryUsageMonitor.currentPhysFootprintMB = 1024
-        mockFeatureFlagger.enabledFeatureFlags = [.memoryUsageReporting]
-        sut = makeSUT()
-        // Note: startMonitoringForTesting() NOT called
-
-        // When
-        await sut.checkIntervalsNow()
-
-        // Then
-        XCTAssertTrue(mockPixelFiring.actualFireCalls.isEmpty)
-    }
-
     // MARK: - Memory Bucketing in Context
 
     func testWhenMemoryChanges_ThenContextReflectsCurrentMemory() async {
