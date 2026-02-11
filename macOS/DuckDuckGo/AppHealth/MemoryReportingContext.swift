@@ -18,6 +18,12 @@
 
 import Foundation
 
+/// A snapshot of current windows and tabs in use
+struct WindowContext {
+    let tabs: Int
+    let windows: Int
+}
+
 /// A snapshot of context collected at the moment of firing a memory usage pixel.
 ///
 /// All values are pre-bucketed using `MemoryReportingBuckets` to match the pixel parameter
@@ -57,35 +63,27 @@ struct MemoryReportingContext {
     ///
     /// - Parameters:
     ///   - memoryUsageMonitor: Provides current memory usage via `getCurrentMemoryUsage()`
-    ///   - windowContext: Closure that provides window and tab counts. Pass `nil` if unavailable;
+    ///   - windowContext: Snapshot of current window and tab counts. Pass `nil` if unavailable;
     ///     window and tab counts will be sent as `"unknown"`.
-    ///   - isSyncEnabled: Closue that provides sync state. Pass `nil` if unavailable;
+    ///   - isSyncEnabled: Whether sync is currently enabled. Pass `nil` if unavailable;
     ///     sync status will be sent as `"unknown"`.
     @MainActor
     static func collect(
         memoryUsageMonitor: MemoryUsageMonitoring,
-        windowContext: @escaping WindowContext,
-        isSyncEnabled: () -> Bool?
+        windowContext: WindowContext?,
+        isSyncEnabled: Bool?
     ) -> MemoryReportingContext {
         let report = memoryUsageMonitor.getCurrentMemoryUsage()
         let browserMemoryMB = MemoryReportingBuckets.bucketMemoryMB(report.physFootprintMB)
-
-        let (tabsContext, windowContext) = windowContext()
-
-        let windows: Int? = windowContext.map { totalWindows in
-            MemoryReportingBuckets.bucketWindowCount(totalWindows)
-        }
-
-        let tabs: Int? = tabsContext.map { totalTabs in
-            return MemoryReportingBuckets.bucketTabCount(totalTabs)
-        }
+        let windows = windowContext.map(\.windows).map(MemoryReportingBuckets.bucketWindowCount)
+        let tabs = windowContext.map(\.tabs).map(MemoryReportingBuckets.bucketTabCount)
 
         return MemoryReportingContext(
             browserMemoryMB: browserMemoryMB,
             windows: windows,
             tabs: tabs,
             architecture: MemoryReportingBuckets.currentArchitecture,
-            syncEnabled: isSyncEnabled()
+            syncEnabled: isSyncEnabled
         )
     }
 }

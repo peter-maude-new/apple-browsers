@@ -1063,17 +1063,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             memoryUsageMonitor: memoryUsageMonitor,
             featureFlagger: featureFlagger,
             pixelFiring: PixelKit.shared,
-            windowContext: {
-                let windows: Int? = windowControllersManager.mainWindowControllers.count
-                let tabs: Int? = windowControllersManager.allTabCollectionViewModels.reduce(0) { $0 + $1.allTabsCount }
-
-                return (tabs, windows)
-            },
+            windowContext: WindowContext(
+                tabs: windowControllersManager.allTabCollectionViewModels.reduce(0) { $0 + $1.allTabsCount },
+                windows: windowControllersManager.mainWindowControllers.count
+            ),
+            // Strong capture of self is intentional — AppDelegate lives for the entire app lifecycle.
             isSyncEnabled: { [weak self] in
                 guard let syncService = self?.syncService else { return nil }
 
                 return syncService.authState == .active
-            },
+            }(),
             logger: .memory
         )
 

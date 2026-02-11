@@ -22,8 +22,6 @@ import os.log
 import PixelKit
 import PrivacyConfig
 
-typealias WindowContext = () -> (tabs: Int?, windows: Int?)
-
 /// Reports memory usage at startup and scheduled intervals (1h, 2h, 4h, 8h, 24h).
 ///
 /// Each trigger fires at most once per monitoring session. A session starts when the
@@ -43,7 +41,7 @@ final class MemoryUsageIntervalReporter {
     private let memoryUsageMonitor: MemoryUsageMonitoring
     private let featureFlagger: FeatureFlagger
     private let pixelFiring: PixelFiring?
-    private let windowContext: WindowContext
+    private let windowContext: () -> WindowContext?
     private let isSyncEnabled: () -> Bool?
     private let logger: Logger?
     private let checkInterval: TimeInterval
@@ -78,8 +76,8 @@ final class MemoryUsageIntervalReporter {
         memoryUsageMonitor: MemoryUsageMonitoring,
         featureFlagger: FeatureFlagger,
         pixelFiring: PixelFiring?,
-        windowContext: @escaping WindowContext,
-        isSyncEnabled: @escaping () -> Bool?,
+        windowContext: @autoclosure @escaping () -> WindowContext?,
+        isSyncEnabled: @autoclosure @escaping () -> Bool?,
         checkInterval: TimeInterval = MemoryUsageIntervalReporter.defaultCheckInterval,
         logger: Logger? = nil
     ) {
@@ -182,8 +180,8 @@ final class MemoryUsageIntervalReporter {
             let context = await MainActor.run { [memoryUsageMonitor, windowContext, isSyncEnabled] in
                 MemoryReportingContext.collect(
                     memoryUsageMonitor: memoryUsageMonitor,
-                    windowContext: windowContext,
-                    isSyncEnabled: isSyncEnabled
+                    windowContext: windowContext(),
+                    isSyncEnabled: isSyncEnabled()
                 )
             }
 
@@ -238,8 +236,8 @@ extension MemoryUsageIntervalReporter {
         let context = await MainActor.run { [memoryUsageMonitor, windowContext, isSyncEnabled] in
             MemoryReportingContext.collect(
                 memoryUsageMonitor: memoryUsageMonitor,
-                windowContext: windowContext,
-                isSyncEnabled: isSyncEnabled
+                windowContext: windowContext(),
+                isSyncEnabled: isSyncEnabled()
             )
         }
 
