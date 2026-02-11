@@ -78,39 +78,17 @@ protocol TabSwitcherBarsStateHandling {
 /// This is what we hope will be the new version long term.
 class DefaultTabSwitcherBarsStateHandler: TabSwitcherBarsStateHandling {
 
-    private func createBarButtonItem(title: String, image: UIImage?,
-                                     action: UIAction? = nil) -> UIBarButtonItem {
-        let button = BrowserChromeButton(.primary)
-        if let image = image {
-            button.setImage(image)
-        }
-        button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
-
-        if let action = action {
-            button.addAction(action, for: .touchUpInside)
-        }
-
-        let barItem = UIBarButtonItem(customView: button)
-        if #available(iOS 26.0, *) {
-            barItem.sharesBackground = false
-            barItem.hidesSharedBackground = true
-        }
-        barItem.title = title
-
-        return barItem
-    }
-
-    lazy var plusButton = createBarButtonItem(title: UserText.keyCommandNewTab, image: DesignSystemImages.Glyphs.Size24.add)
-    lazy var fireButton = createBarButtonItem(title: "Close all tabs and clear data", image: DesignSystemImages.Glyphs.Size24.fireSolid)
-    lazy var doneButton = createBarButtonItem(title: UserText.navigationTitleDone, image: nil)
-    lazy var closeTabsButton = createBarButtonItem(title: "", image: nil)
-    lazy var menuButton = createBarButtonItem(title: "More Menu", image: DesignSystemImages.Glyphs.Size24.moreApple)
-    lazy var addAllBookmarksButton = createBarButtonItem(title: UserText.bookmarkAllTabs, image: DesignSystemImages.Glyphs.Size24.bookmarkNew)
-    lazy var tabSwitcherStyleButton = createBarButtonItem(title: "", image: nil)
-    lazy var editButton = createBarButtonItem(title: UserText.actionGenericEdit, image: DesignSystemImages.Glyphs.Size24.menuDotsVertical)
-    lazy var selectAllButton = createBarButtonItem(title: UserText.selectAllTabs, image: nil)
-    lazy var deselectAllButton = createBarButtonItem(title: UserText.deselectAllTabs, image: nil)
-    lazy var duckChatButton = createBarButtonItem(title: UserText.duckAiFeatureName, image: DesignSystemImages.Glyphs.Size24.aiChat)
+    lazy var plusButton = BrowserChromeButton.createBarButtonItem(title: UserText.keyCommandNewTab, image: DesignSystemImages.Glyphs.Size24.add)
+    lazy var fireButton = BrowserChromeButton.createBarButtonItem(title: "Close all tabs and clear data", image: DesignSystemImages.Glyphs.Size24.fireSolid)
+    lazy var doneButton = BrowserChromeButton.createBarButtonItem(title: UserText.navigationTitleDone, image: nil)
+    lazy var closeTabsButton = BrowserChromeButton.createBarButtonItem(title: "", image: nil)
+    lazy var menuButton = BrowserChromeButton.createBarButtonItem(title: "More Menu", image: DesignSystemImages.Glyphs.Size24.moreApple)
+    lazy var addAllBookmarksButton = BrowserChromeButton.createBarButtonItem(title: UserText.bookmarkAllTabs, image: DesignSystemImages.Glyphs.Size24.bookmarkNew)
+    lazy var tabSwitcherStyleButton = BrowserChromeButton.createBarButtonItem(title: "", image: nil)
+    lazy var editButton = BrowserChromeButton.createBarButtonItem(title: UserText.actionGenericEdit, image: DesignSystemImages.Glyphs.Size24.menuDotsVertical)
+    lazy var selectAllButton = BrowserChromeButton.createBarButtonItem(title: UserText.selectAllTabs, image: nil)
+    lazy var deselectAllButton = BrowserChromeButton.createBarButtonItem(title: UserText.deselectAllTabs, image: nil)
+    lazy var duckChatButton = BrowserChromeButton.createBarButtonItem(title: UserText.duckAiFeatureName, image: DesignSystemImages.Glyphs.Size24.aiChat)
 
     private(set) var bottomBarItems = [UIBarButtonItem]()
     private(set) var isBottomBarHidden = false

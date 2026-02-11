@@ -60,33 +60,33 @@ final class ToolbarHandler: ToolbarStateHandling {
     private let themeManager: ThemeManaging
 
     lazy var backButton = {
-        return createBarButtonItem(title: UserText.keyCommandBrowserBack, image: DesignSystemImages.Glyphs.Size24.arrowLeft)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.keyCommandBrowserBack, image: DesignSystemImages.Glyphs.Size24.arrowLeft)
     }()
 
     lazy var fireBarButtonItem = {
-       let buttonItem = createBarButtonItem(title: UserText.actionForgetAll, image: DesignSystemImages.Glyphs.Size24.fireSolid)
+        let buttonItem = BrowserChromeButton.createBarButtonItem(title: UserText.actionForgetAll, image: DesignSystemImages.Glyphs.Size24.fireSolid)
         buttonItem.accessibilityIdentifier = "Browser.Toolbar.Button.Fire"
         return buttonItem
     }()
 
     lazy var forwardButton = {
-        return createBarButtonItem(title: UserText.keyCommandBrowserForward, image: DesignSystemImages.Glyphs.Size24.arrowRight)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.keyCommandBrowserForward, image: DesignSystemImages.Glyphs.Size24.arrowRight)
     }()
 
     lazy var tabSwitcherButton = {
-        return createBarButtonItem(title: UserText.tabSwitcherAccessibilityLabel, image: DesignSystemImages.Glyphs.Size24.tabNew)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.tabSwitcherAccessibilityLabel, image: DesignSystemImages.Glyphs.Size24.tabNew)
     }()
 
     lazy var bookmarkButton = {
-        return createBarButtonItem(title: UserText.actionOpenBookmarks, image: DesignSystemImages.Glyphs.Size24.bookmarks)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.actionOpenBookmarks, image: DesignSystemImages.Glyphs.Size24.bookmarks)
     }()
 
     lazy var passwordsButton = {
-        return createBarButtonItem(title: UserText.actionOpenPasswords, image: DesignSystemImages.Glyphs.Size24.key)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.actionOpenPasswords, image: DesignSystemImages.Glyphs.Size24.key)
     }()
 
     lazy var browserMenuButton = {
-        return createBarButtonItem(title: UserText.menuButtonHint, image: DesignSystemImages.Glyphs.Size24.menuHamburger)
+        return BrowserChromeButton.createBarButtonItem(title: UserText.menuButtonHint, image: DesignSystemImages.Glyphs.Size24.menuHamburger)
     }()
 
     private var state: ToolbarContentState?
@@ -133,23 +133,6 @@ final class ToolbarHandler: ToolbarStateHandling {
 
         backButton.isEnabled = currentTab?.canGoBack ?? false
         forwardButton.isEnabled = currentTab?.canGoForward ?? false
-    }
-
-    private func createBarButtonItem(title: String, image: UIImage) -> UIBarButtonItem {
-        let button = BrowserChromeButton(.primary)
-        button.setImage(image)
-        button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
-
-        let barItem = UIBarButtonItem(customView: button)
-        if #available(iOS 26.0, *) {
-            barItem.sharesBackground = false
-            barItem.hidesSharedBackground = true
-        } else {
-            // Fallback on earlier versions
-        }
-        barItem.title = title
-
-        return barItem
     }
 
     private func createPageLoadedButtons() -> [UIBarButtonItem] {

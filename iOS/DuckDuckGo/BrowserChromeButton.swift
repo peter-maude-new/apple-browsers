@@ -42,14 +42,14 @@ class BrowserChromeButton: UIButton {
         self.type = type
         super.init(frame: .zero)
 
-        applyConfiguration()
+        applyConfiguration(animated: false)
     }
     
     required init?(coder: NSCoder) {
         self.type = .primary
         super.init(coder: coder)
 
-        applyConfiguration()
+        applyConfiguration(animated: false)
     }
 
     func addBorder(borderFrame: CGRect = CGRect(x: 0, y: 0, width: 80, height: 40)) {
@@ -213,4 +213,25 @@ private extension UIButton.Configuration {
 
         return config
     }
+}
+
+extension BrowserChromeButton {
+
+    static func createBarButtonItem(title: String, image: UIImage?) -> UIBarButtonItem {
+        let button = BrowserChromeButton(.primary)
+        if let image = image {
+            button.setImage(image)
+        }
+        button.frame = CGRect(x: 0, y: 0, width: 34, height: 44)
+
+        let barItem = UIBarButtonItem(customView: button)
+        if #available(iOS 26.0, *) {
+            barItem.sharesBackground = false
+            barItem.hidesSharedBackground = true
+        }
+        barItem.title = title
+
+        return barItem
+    }
+
 }
