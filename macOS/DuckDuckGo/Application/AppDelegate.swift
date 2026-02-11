@@ -1069,7 +1069,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
                 return (tabs, windows)
             },
-            isSyncEnabled: { [weak self] in self?.syncService?.authState == .active },
+            isSyncEnabled: { [weak self] in
+                guard let syncService = self?.syncService else { return nil }
+
+                return syncService.authState == .active
+            },
             logger: .memory
         )
 

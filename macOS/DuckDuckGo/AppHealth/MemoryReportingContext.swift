@@ -70,11 +70,13 @@ struct MemoryReportingContext {
         let report = memoryUsageMonitor.getCurrentMemoryUsage()
         let browserMemoryMB = MemoryReportingBuckets.bucketMemoryMB(report.physFootprintMB)
 
-        let windows: Int? = windowContext().windows.map { totalWindows in
+        let (tabsContext, windowContext) = windowContext()
+
+        let windows: Int? = windowContext.map { totalWindows in
             MemoryReportingBuckets.bucketWindowCount(totalWindows)
         }
 
-        let tabs: Int? = windowContext().tabs.map { totalTabs in
+        let tabs: Int? = tabsContext.map { totalTabs in
             return MemoryReportingBuckets.bucketTabCount(totalTabs)
         }
 
