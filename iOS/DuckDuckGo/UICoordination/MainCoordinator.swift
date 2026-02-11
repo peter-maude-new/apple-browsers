@@ -261,8 +261,8 @@ final class MainCoordinator {
                                    isRecentlyVisitedSitesEnabledByUser: provider.appSettings.recentlyVisitedSites,
                                    openTabIDsProvider: { tabsModel.tabs.map { $0.uid } },
                                    tld: provider.storageCache.tld,
-                                   burnTabsPixelsHandling: DataClearingBurnTabsPixelsHandler(),
-                                   burnHistoryPixelsHandling: DataClearingBurnHistoryPixelsHandler()) {
+                                   burnTabsPixelsHandler: DataClearingBurnTabsPixelsHandler(),
+                                   burnHistoryPixelsHandler: DataClearingBurnHistoryPixelsHandler()) {
         case .failure(let error):
             throw TerminationError.historyDatabase(error)
         case .success(let historyManager):

@@ -379,7 +379,7 @@ extension SuggestionJsonScenarioTests {
         
         var history: [History.HistoryEntry]?
         var allHistoryVisits: [History.Visit]?
-        var dataClearingPixelsHandling: (any DataClearingPixelsHandling)?
+        var dataClearingPixelsHandler: (any DataClearingPixelsHandling)?
 
         @Published var historyDictionary: [URL: History.HistoryEntry]?
         var historyDictionaryPublisher: Published<[URL: History.HistoryEntry]?>.Publisher {

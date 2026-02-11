@@ -61,7 +61,7 @@ final class DataClearingPixelsReporter {
     @MainActor
     func fireRetriggerPixelIfNeeded() {
         let now = timeProvider()
-        if let lastFire = lastFireTime, (now - lastFire) <= retriggerWindow {
+        if let lastFireTime, (now - lastFireTime) <= retriggerWindow {
             pixelFiring?.fire(DataClearingPixels.retriggerIn20s, frequency: .dailyAndStandard)
         }
         lastFireTime = now

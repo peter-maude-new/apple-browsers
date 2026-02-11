@@ -372,9 +372,9 @@ class FireExecutor: FireExecuting {
     
     @MainActor
     private func burnAllData() async {
-        let urlSessionClearStartTime = CACurrentMediaTime()
+        let startTime = CACurrentMediaTime()
         URLSession.shared.configuration.urlCache?.removeAllCachedResponses()
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: urlSessionClearStartTime)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnURLCacheDuration, from: startTime)
         dataClearingPixelsReporter.fireResiduePixelIfNeeded(DataClearingPixels.burnURLCacheHasResidue) {
             let cache = URLSession.shared.configuration.urlCache
             return (cache?.currentDiskUsage ?? 0) > 0 || (cache?.currentMemoryUsage ?? 0) > 0
@@ -396,9 +396,7 @@ class FireExecutor: FireExecuting {
         }
 
         self.forgetTextZoom()
-        let clearHistoryStartTime = CACurrentMediaTime()
         await historyManager.removeAllHistory()
-        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: clearHistoryStartTime, scope: FireRequest.Scope.all.description)
         await privacyStats?.clearPrivacyStats()
     }
     

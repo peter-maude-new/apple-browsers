@@ -275,7 +275,7 @@ class MainViewController: UIViewController {
         self.webExtensionManager = manager
     }
     
-    // A transparent bunring overlay appplied during firing
+    // A transparent burning overlay applied during firing
     // Used for detecting user actions before firing completes
     private var burningOverlayView: UIView?
 

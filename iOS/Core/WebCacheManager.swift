@@ -55,18 +55,19 @@ public protocol WebsiteDataManaging {
 }
 
 public struct WebCacheClearingReporter {
-    public var onResidue: (String, String?) -> Void
+    public typealias ClearingStepRawValue = String
+    public typealias ScopeRawValue = String
+    
+    public var onResidue: (ClearingStepRawValue, ScopeRawValue?) -> Void
 
-    public init(
-        onResidue: @escaping (String, String?) -> Void
-    ) {
+    public init(onResidue: @escaping (ClearingStepRawValue, ScopeRawValue?) -> Void) {
         self.onResidue = onResidue
     }
 }
 
 private enum ClearingStep: String {
     case clearDataForSafelyRemovableDataTypes = "clear_data_for_safely_removable_data_types"
-    case clearFireproofableDataForNonFireproofDomains = "clear_fireproofable_data_for_non_fireproof_domains"
+    case clearFireproofableDataForNonFireproofedDomains = "clear_fireproofable_data_for_non_fireproofed_domains"
     case clearCookiesForNonFireproofedDomains = "clear_cookies_for_non_fireproofed_domains"
     case removeObservationsData = "remove_observations_data"
 }
@@ -261,7 +262,7 @@ extension WebCacheManager {
         let startTime = CACurrentMediaTime()
 
         await clearDataForSafelyRemovableDataTypes(fromStore: dataStore, scope: scope)
-        await clearFireproofableDataForNonFireproofDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
+        await clearFireproofableDataForNonFireproofedDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
         await clearCookiesForNonFireproofedDomains(fromStore: dataStore, usingFireproofing: fireproofing, scope: scope)
         await observationsCleaner.removeObservationsData()
 
@@ -274,9 +275,17 @@ extension WebCacheManager {
                                                       scope: Scope) async {
         switch scope {
         case .all:
+            let recordsBeforeRemoval = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
+            let domainsBeforeRemoval = Set(recordsBeforeRemoval.map { $0.displayName })
+            
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, modifiedSince: Date.distantPast)
+            
             Task {
-                if await !dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes).isEmpty {
+                let recordsAfterRemoval = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
+                let domainsAfterRemoval = Set(recordsAfterRemoval.map { $0.displayName })
+                let residueDomains = domainsBeforeRemoval.intersection(domainsAfterRemoval)
+                
+                if !residueDomains.isEmpty {
                     clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue, scope.description)
                 }
             }
@@ -285,11 +294,15 @@ extension WebCacheManager {
             let removableRecords = allRecords.filter { record in
                 dataRecords(record.displayName)
             }
+            let domainsToRemove = Set(removableRecords.map { $0.displayName })
+            
             await dataStore.removeData(ofTypes: Self.safelyRemovableWebsiteDataTypes, for: removableRecords)
             
             Task {
                 let remainingRecords = await dataStore.dataRecords(ofTypes: Self.safelyRemovableWebsiteDataTypes)
-                if remainingRecords.contains(where: { record in dataRecords(record.displayName) }) {
+                let domainsAfterRemoval = Set(remainingRecords.map { $0.displayName })
+                let residueDomains = domainsToRemove.intersection(domainsAfterRemoval)
+                if !residueDomains.isEmpty {
                     clearingReporter?.onResidue(ClearingStep.clearDataForSafelyRemovableDataTypes.rawValue, scope.description)
                 }
             }
@@ -297,7 +310,7 @@ extension WebCacheManager {
     }
 
     @MainActor
-    private func clearFireproofableDataForNonFireproofDomains(fromStore dataStore: some DDGWebsiteDataStore,
+    private func clearFireproofableDataForNonFireproofedDomains(fromStore dataStore: some DDGWebsiteDataStore,
                                                               usingFireproofing fireproofing: Fireproofing,
                                                               scope: Scope) async {
         let allRecords = await dataStore.dataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes())
@@ -316,7 +329,7 @@ extension WebCacheManager {
                 return !fireproofed && scope.dataRecordsEvaluator(record.displayName)
             }
             if hasResidue {
-                clearingReporter?.onResidue(ClearingStep.clearFireproofableDataForNonFireproofDomains.rawValue, nil)
+                clearingReporter?.onResidue(ClearingStep.clearFireproofableDataForNonFireproofedDomains.rawValue, nil)
             }
         }
     }

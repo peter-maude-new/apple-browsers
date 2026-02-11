@@ -22,30 +22,30 @@ import History
 
 struct DataClearingBurnTabsPixelsHandler: DataClearingPixelsHandling {
     
-    let dataClearingPixelsResporter: DataClearingPixelsReporter
+    let dataClearingPixelsReporter: DataClearingPixelsReporter
     
     init(dataClearingPixelsReporter: DataClearingPixelsReporter = .init()) {
-        self.dataClearingPixelsResporter = dataClearingPixelsReporter
+        self.dataClearingPixelsReporter = dataClearingPixelsReporter
     }
     
     func fireErrorPixel(_ error: Error) {
-        dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
+        dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnTabsError(error))
     }
 }
 
 struct DataClearingBurnHistoryPixelsHandler: DataClearingPixelsHandling {
     
-    let dataClearingPixelsResporter: DataClearingPixelsReporter
+    let dataClearingPixelsReporter: DataClearingPixelsReporter
     
     init(dataClearingPixelsReporter: DataClearingPixelsReporter = .init()) {
-        self.dataClearingPixelsResporter = dataClearingPixelsReporter
+        self.dataClearingPixelsReporter = dataClearingPixelsReporter
     }
     
     func fireErrorPixel(_ error: Error) {
-        dataClearingPixelsResporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
+        dataClearingPixelsReporter.fireErrorPixel(DataClearingPixels.burnHistoryError(error))
     }
     
     func fireDurationPixel(from startTime: CFTimeInterval, scope: String) {
-        dataClearingPixelsResporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime, scope: scope)
+        dataClearingPixelsReporter.fireDurationPixel(DataClearingPixels.burnHistoryDuration, from: startTime, scope: scope)
     }
 }

@@ -142,7 +142,7 @@ public final class HistoryCoordinatingMock: HistoryCoordinating, HistoryDataSour
         return historySuggestionsStub
     }
 
-    public var dataClearingPixelsHandling: (any DataClearingPixelsHandling)?
+    public var dataClearingPixelsHandler: (any DataClearingPixelsHandling)?
 
     @MainActor
     public func delete(_ visits: [History.Visit]) async {

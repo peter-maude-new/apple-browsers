@@ -312,7 +312,7 @@ final class Fire: FireProtocol {
                                                                                  featureDiscovery: DefaultFeatureDiscovery(),
                                                                                  privacyConfig: NSApp.delegateTyped.privacyFeatures.contentBlocking.privacyConfigurationManager)
         self.dataClearingPixelsReporter = dataClearingPixelsReporter
-        self.historyCoordinating.dataClearingPixelsHandling = DataClearingPixelsBurnHistoryHandler(dataClearingPixelsReporter)
+        self.historyCoordinating.dataClearingPixelsHandler = DataClearingPixelsBurnHistoryHandler(dataClearingPixelsReporter)
     }
 
     @MainActor

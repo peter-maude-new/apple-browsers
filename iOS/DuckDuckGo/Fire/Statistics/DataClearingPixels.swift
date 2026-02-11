@@ -112,8 +112,8 @@ extension DataClearingPixels: PixelKitEvent {
             return ["duration": String(duration)]
             
         case .burnTabsDuration(let duration, let scope),
-                .burnHistoryDuration(let duration, let scope),
-                .burnAIChatHistoryDuration(let duration, let scope):
+             .burnHistoryDuration(let duration, let scope),
+             .burnAIChatHistoryDuration(let duration, let scope):
             return ["duration": String(duration), "scope": scope]
 
         case .burnWebsiteDataHasResidue(let step, let scope):
@@ -127,7 +127,7 @@ extension DataClearingPixels: PixelKitEvent {
             return ["scope": scope]
             
         case .retriggerIn20s, .userActionBeforeCompletion,
-              .burnURLCacheHasResidue,
+             .burnURLCacheHasResidue,
              .burnTabsError, .burnHistoryError, .burnWebsiteDataError, .burnAIChatHistoryError:
             return nil
         }
