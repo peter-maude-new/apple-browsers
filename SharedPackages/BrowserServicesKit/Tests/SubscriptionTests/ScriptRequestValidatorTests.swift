@@ -212,6 +212,18 @@ final class ScriptRequestValidatorTests: XCTestCase {
         XCTAssertTrue(result, "Plans path should be allowed")
     }
 
+    func testCanPageRequestToken_PlansPathWithTierQueryParameter_ReturnsTrue() async throws {
+        // Given - upgradeToTier uses the same path as plans, just with a tier query parameter
+        let url = URL(string: "https://duckduckgo.com/subscriptions/plans?tier=pro")!
+        let message = createMockMessage(url: url, isMainFrame: true, securityOriginHost: validHost)
+
+        // When
+        let result = await validator.canPageRequestToken(message)
+
+        // Then
+        XCTAssertTrue(result, "Plans path with tier query parameter should be allowed (query params are ignored in path validation)")
+    }
+
     func testCanPageRequestToken_IdentityTheftRestorationPath_ReturnsTrue() async throws {
         // Given
         let url = URL(string: "https://duckduckgo.com/identity-theft-restoration")!
