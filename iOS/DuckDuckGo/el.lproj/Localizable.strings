@@ -3616,6 +3616,12 @@
 /* Subscription Removal confirmation message */
 "subscription.cancel.message" = "Η συνδρομή σας έχει αφαιρεθεί από αυτήν τη συσκευή.";
 
+/* Button to cancel a pending downgrade of the subscription */
+"subscription.cancel.downgrade.button" = "Ακύρωση υποβάθμισης";
+
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.cancel.pending.downgrade.banner.caption" = "Το πρόγραμμά σας θα υποβαθμιστεί σε %1$@ στις %2$@.";
+
 /* Change plan or cancel title */
 "subscription.change.plan" = "Ενημέρωση προγράμματος ή ακύρωση";
 

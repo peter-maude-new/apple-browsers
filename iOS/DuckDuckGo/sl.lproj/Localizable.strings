@@ -3616,6 +3616,12 @@
 /* Subscription Removal confirmation message */
 "subscription.cancel.message" = "Vaša naročnina je bila odstranjena iz te naprave.";
 
+/* Button to cancel a pending downgrade of the subscription */
+"subscription.cancel.downgrade.button" = "Prekliči znižanje";
+
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.cancel.pending.downgrade.banner.caption" = "Vaša naročnina se bo znižala na %1$@ dne %2$@.";
+
 /* Change plan or cancel title */
 "subscription.change.plan" = "Posodobitev paketa ali preklic";
 

@@ -3616,6 +3616,12 @@
 /* Subscription Removal confirmation message */
 "subscription.cancel.message" = "Ditt abonnemang har tagits bort från den här enheten.";
 
+/* Button to cancel a pending downgrade of the subscription */
+"subscription.cancel.downgrade.button" = "Avbryt nedgradering";
+
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.cancel.pending.downgrade.banner.caption" = "Din plan kommer att nedgraderas till %1$@ den %2$@.";
+
 /* Change plan or cancel title */
 "subscription.change.plan" = "Uppdatera abonnemang eller avbryt";
 

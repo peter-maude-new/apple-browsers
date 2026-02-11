@@ -3616,6 +3616,12 @@
 /* Subscription Removal confirmation message */
 "subscription.cancel.message" = "A tua subscrição foi removida deste dispositivo.";
 
+/* Button to cancel a pending downgrade of the subscription */
+"subscription.cancel.downgrade.button" = "Cancelar downgrade";
+
+/* Pending downgrade info for monthly plan. Parameters are tier name and effective date. This reads as 'Your plan will downgrade to Plus on (date).' */
+"subscription.cancel.pending.downgrade.banner.caption" = "Será feito o downgrade do teu plano para %1$@ a %2$@.";
+
 /* Change plan or cancel title */
 "subscription.change.plan" = "Atualizar Plano ou Cancelar";
 
