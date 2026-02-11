@@ -179,8 +179,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         }
     }
 
-    private let keyValueStore: ThrowingKeyValueStoring
-    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     private var pendingUpdateInfo: PendingUpdateInfo? {
         get {
@@ -303,7 +302,6 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         guard let wideEvent else {
             fatalError("SparkleUpdateController requires wideEvent")
         }
-        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
 
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
@@ -311,10 +309,10 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
         self.notificationPresenter = notificationPresenter
         self.internalUserDecider = internalUserDecider
         self.updateCheckState = UpdateCheckState()
-        self.keyValueStore = keyValueStore
+        self.settings = keyValueStore.throwingKeyedStoring()
         self.buildType = buildType
         self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
-        self.applicationUpdateDetector = ApplicationUpdateDetector(keyValueStore: keyValueStore)
+        self.applicationUpdateDetector = ApplicationUpdateDetector(settings: settings)
 
         // Capture the current value before initializing updateWideEvent
         let currentAutomaticUpdatesEnabled = (try? settings.automaticUpdates) ?? true
@@ -322,7 +320,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             wideEventManager: wideEvent,
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled,
-            settings: settings
+            settings: self.settings
         )
 
         super.init()
@@ -550,7 +548,7 @@ final class SparkleUpdateController: NSObject, SparkleUpdateControllerProtocol {
             userDriver = UpdateUserDriver(internalUserDecider: internalUserDecider,
                                           areAutomaticUpdatesEnabled: areAutomaticUpdatesEnabled,
                                           useLegacyAutoRestartLogic: useLegacyAutoRestartLogic,
-                                          keyValueStore: keyValueStore)
+                                          settings: settings)
         }
 
         guard let userDriver,

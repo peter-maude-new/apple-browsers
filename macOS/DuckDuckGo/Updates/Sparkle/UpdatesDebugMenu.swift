@@ -25,11 +25,10 @@ import Persistence
 import PixelKit
 
 final class UpdatesDebugMenu: NSMenu {
-    private let keyValueStore: ThrowingKeyValueStoring
-    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     init(keyValueStore: ThrowingKeyValueStoring) {
-        self.keyValueStore = keyValueStore
+        self.settings = keyValueStore.throwingKeyedStoring()
         super.init(title: "")
 
         buildItems {

@@ -136,8 +136,7 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
     public var mustShowUpdateIndicators: Bool = false
     public let clearsNotificationDotOnMenuOpen = false
 
-    private let keyValueStore: ThrowingKeyValueStoring
-    private lazy var settings: any ThrowingKeyedStoring<UpdateControllerSettings> = keyValueStore.throwingKeyedStoring()
+    private let settings: any ThrowingKeyedStoring<UpdateControllerSettings>
 
     private var pendingUpdateInfo: SparkleUpdateController.PendingUpdateInfo? {
         get {
@@ -275,15 +274,13 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
             fatalError("SimplifiedSparkleUpdateController requires buildType and wideEvent")
         }
 
-        let settings = keyValueStore.throwingKeyedStoring() as any ThrowingKeyedStoring<UpdateControllerSettings>
-
         willRelaunchAppPublisher = willRelaunchAppSubject.eraseToAnyPublisher()
         self.featureFlagger = featureFlagger
         self.buildType = buildType
         self.internalUserDecider = internalUserDecider
-        self.keyValueStore = keyValueStore
         self.notificationPresenter = notificationPresenter
         self.eventMapping = eventMapping
+        self.settings = keyValueStore.throwingKeyedStoring()
         self.updateCompletionValidator = SparkleUpdateCompletionValidator(settings: settings)
 
         // Capture the current value before initializing updateWideEvent
@@ -292,7 +289,7 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
             wideEventManager: wideEvent,
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: currentAutomaticUpdatesEnabled,
-            settings: settings
+            settings: self.settings
         )
 
         // Compute effective auto-download state before super.init() using static method
@@ -305,7 +302,7 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
         self.userDriver = SimplifiedUpdateUserDriver(
             internalUserDecider: internalUserDecider,
             areAutomaticUpdatesEnabled: shouldAutoDownload,
-            keyValueStore: keyValueStore,
+            settings: self.settings,
             onProgressChange: progressState.handleProgressChange
         )
         super.init()
@@ -340,7 +337,7 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
 
     private func validateUpdateExpectations() {
         // Validate expectations from previous update attempt if any
-        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated(keyValueStore: keyValueStore)
+        let updateStatus = ApplicationUpdateDetector(settings: settings).isApplicationUpdated()
 
         let appVersion = AppVersion()
         updateCompletionValidator.validateExpectations(
@@ -371,7 +368,7 @@ public final class SimplifiedSparkleUpdateController: NSObject, SparkleUpdateCon
     }
 
     private func checkNewApplicationVersion() {
-        let updateStatus = ApplicationUpdateDetector.isApplicationUpdated(keyValueStore: keyValueStore)
+        let updateStatus = ApplicationUpdateDetector(settings: settings).isApplicationUpdated()
 
         switch updateStatus {
         case .noChange: break

@@ -60,12 +60,12 @@ public final class SimplifiedUpdateUserDriver: NSObject, SPUUserDriver {
 
     public init(internalUserDecider: InternalUserDecider,
                 areAutomaticUpdatesEnabled: Bool,
-                keyValueStore: ThrowingKeyValueStoring,
+                settings: (any ThrowingKeyedStoring<UpdateControllerSettings>),
                 onProgressChange: @escaping (UpdateCycleProgress, (() -> Void)?) -> Void) {
 
         self.internalUserDecider = internalUserDecider
         self.areAutomaticUpdatesEnabled = areAutomaticUpdatesEnabled
-        self.settings = keyValueStore.throwingKeyedStoring()
+        self.settings = settings
         self.onProgressChange = onProgressChange
     }
 

@@ -277,7 +277,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     lazy var vpnUpsellVisibilityManager: VPNUpsellVisibilityManager = {
         return VPNUpsellVisibilityManager(
-            isFirstLaunch: false,
             isNewUser: AppDelegate.isNewUser,
             subscriptionManager: subscriptionManager,
             defaultBrowserProvider: SystemDefaultBrowserProvider(),
@@ -1163,7 +1162,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         setupWebExtensions()
 
-        vpnUpsellVisibilityManager.setup(isFirstLaunch: isFirstLaunch)
+        vpnUpsellVisibilityManager.setup(isFirstLaunch: isFirstLaunch, isOnboardingFinished: OnboardingActionsManager.isOnboardingFinished)
 
         AtbAndVariantCleanup.cleanup()
         DefaultVariantManager().assignVariantIfNeeded { _ in
