@@ -122,6 +122,44 @@ final class ScriptRequestValidatorTests: XCTestCase {
         XCTAssertFalse(result, "Requests from wrong host should be rejected")
     }
 
+    // MARK: - Scheme Validation Tests
+
+    func testCanPageRequestToken_HTTPScheme_ReturnsFalse() async throws {
+        // Given
+        let url = URL(string: "http://duckduckgo.com/subscriptions/welcome")!
+        let message = createMockMessage(url: url, isMainFrame: true, securityOriginHost: validHost)
+
+        // When
+        let result = await validator.canPageRequestToken(message)
+
+        // Then
+        XCTAssertFalse(result, "HTTP requests should be rejected to prevent token exposure over insecure connections")
+    }
+
+    func testCanPageRequestToken_HTTPSScheme_ReturnsTrue() async throws {
+        // Given
+        let url = URL(string: "https://duckduckgo.com/subscriptions/welcome")!
+        let message = createMockMessage(url: url, isMainFrame: true, securityOriginHost: validHost)
+
+        // When
+        let result = await validator.canPageRequestToken(message)
+
+        // Then
+        XCTAssertTrue(result, "HTTPS requests should be allowed")
+    }
+
+    func testCanPageRequestToken_CustomScheme_ReturnsFalse() async throws {
+        // Given
+        let url = URL(string: "ddg://duckduckgo.com/subscriptions/welcome")!
+        let message = createMockMessage(url: url, isMainFrame: true, securityOriginHost: validHost)
+
+        // When
+        let result = await validator.canPageRequestToken(message)
+
+        // Then
+        XCTAssertFalse(result, "Custom URL schemes should be rejected")
+    }
+
     // MARK: - Path Validation Tests
 
     func testCanPageRequestToken_InvalidPath_ReturnsFalse() async throws {

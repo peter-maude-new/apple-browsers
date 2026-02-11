@@ -63,10 +63,11 @@ public struct DefaultScriptRequestValidator: ScriptRequestValidator {
     /// This method performs the following security checks in order:
     /// 1. Verifies the request comes from the main frame (not an iframe)
     /// 2. Extracts and validates the requesting page's URL and host
-    /// 3. Normalizes the URL path by filtering out empty and "/" components
-    /// 4. Checks if the path matches a known valid subscription path
-    /// 5. Verifies the host matches the expected subscription domain
-    /// 6. Confirms the security origin matches the host (prevents XSS)
+    /// 3. Verifies the URL uses HTTPS scheme (rejects HTTP and other protocols)
+    /// 4. Normalizes the URL path by filtering out empty and "/" components
+    /// 5. Checks if the path matches a known valid subscription path
+    /// 6. Verifies the host matches the expected subscription domain
+    /// 7. Confirms the security origin matches the host (prevents XSS)
     ///
     /// - Parameter message: The script message containing the token request
     /// - Returns: `true` if all security checks pass and the request is authorized, `false` otherwise
@@ -81,6 +82,9 @@ public struct DefaultScriptRequestValidator: ScriptRequestValidator {
         // Extract URL and host from the web view
         guard let webViewURL = message.webView?.url,
               let host = webViewURL.host else { return false }
+
+        // Verify the URL uses HTTPS to prevent token exposure over insecure connections
+        guard webViewURL.scheme == "https" else { return false }
 
         // Normalise the path by filtering out empty and "/" components, then joining
         var path = webViewURL.pathComponents.filter { !$0.isEmpty && $0 != "/" }.joined(separator: "/")

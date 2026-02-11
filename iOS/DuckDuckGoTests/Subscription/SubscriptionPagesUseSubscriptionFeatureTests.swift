@@ -465,7 +465,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "yearly"], original: message)
@@ -509,7 +510,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
@@ -541,7 +543,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionSelected(params: ["id": "monthly"], original: message)
@@ -568,7 +571,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -599,7 +603,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -629,7 +634,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -660,7 +666,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         let params: [String: Any] = ["id": "yearly-pro", "change": "upgrade"]
@@ -688,7 +695,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         // Invalid params - missing "id"
@@ -719,7 +727,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         let params: [String: Any] = ["id": "monthly-plus", "change": "downgrade"]
@@ -754,7 +763,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: mockPendingTransactionHandler
+            pendingTransactionHandler: mockPendingTransactionHandler,
+            requestValidator: mockRequestValidator
         )
         
         let originURL = URL(string: "https://duckduckgo.com/subscriptions")!
@@ -805,7 +815,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.pro.monthly.renews.us", "change": "upgrade"], original: message)
@@ -861,7 +872,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.pro.monthly.renews.us", "change": "upgrade"], original: message)
@@ -908,7 +920,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         _ = await sut.subscriptionChangeSelected(params: ["id": "ddg.privacy.plus.yearly.renews.us", "change": "downgrade"], original: message)
@@ -959,7 +972,8 @@ final class SubscriptionPagesUseSubscriptionFeatureTests: XCTestCase {
             subscriptionDataReporter: nil,
             internalUserDecider: mockInternalUserDecider,
             wideEvent: mockWideEvent,
-            pendingTransactionHandler: MockPendingTransactionHandler()
+            pendingTransactionHandler: MockPendingTransactionHandler(),
+            requestValidator: mockRequestValidator
         )
 
         // No "change" parameter provided
