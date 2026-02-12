@@ -6,6 +6,7 @@ import DesignResourcesKitIcons
 @MainActor
 protocol RipulAgentSheetViewControllerDelegate: AnyObject {
     func ripulAgentSheetViewControllerDidRequestDismiss(_ viewController: RipulAgentSheetViewController)
+    func ripulAgentSheetViewControllerDidRequestRestore(_ viewController: RipulAgentSheetViewController)
     func ripulAgentSheetViewController(_ viewController: RipulAgentSheetViewController, didRequestToLoad url: URL)
 }
 
@@ -21,12 +22,12 @@ final class RipulAgentSheetViewController: UIViewController {
     weak var delegate: RipulAgentSheetViewControllerDelegate?
 
     private let agentURL: URL
+
+    /// The page's WKWebView — used to execute DOM methods natively.
     weak var pageWebView: WKWebView?
 
-    // MARK: - Native Bridge State
-
-    /// Tracks whether we registered the ripulPageResponse handler on the page's userContentController.
-    private var isPageHandlerRegistered = false
+    /// Whether the bridge has been successfully initialized on the page.
+    private var bridgeInitialized = false
 
     // MARK: - UI
 
@@ -111,40 +112,51 @@ final class RipulAgentSheetViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupUI()
         configureSheetPresentation()
-        registerPageResponseHandler()
         loadingIndicator.startAnimating()
         webView.load(URLRequest(url: agentURL))
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // Re-register the page handler each time the sheet is presented,
-        // since viewDidDisappear removes it and the pageWebView may have changed.
-        if !isPageHandlerRegistered {
-            registerPageResponseHandler()
+    /// Initializes the agent framework on the page WKWebView (on demand).
+    /// Called lazily when the first dom:request arrives. Retries with short
+    /// delays because embed.js (122KB WKUserScript) may still be executing
+    /// when the first request comes in.
+    private func ensureFrameworkOnPage() async -> Bool {
+        if bridgeInitialized { return true }
+
+        guard let pageWV = pageWebView,
+              let initJS = RipulAgentUserScript.buildInitJS() else {
+            NSLog("[RipulBridge] Init skipped — no pageWebView or initJS")
+            return false
         }
-    }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        removePageResponseHandler()
-    }
+        // Retry with increasing delays to give embed.js (122KB WKUserScript)
+        // time to finish parsing and define the AgentFramework global.
+        for attempt in 0..<5 {
+            do {
+                let value = try await pageWV.callAsyncJavaScript(
+                    initJS, arguments: [:], in: nil, contentWorld: .page
+                )
+                if let result = value as? [String: Any] {
+                    let bridgeExists = result["bridgeExists"] as? Bool ?? false
+                    if bridgeExists {
+                        bridgeInitialized = true
+                        return true
+                    }
 
-    // MARK: - Native Bridge Setup
-
-    /// Registers the ripulPageResponse handler on the page's WKWebView so we receive
-    /// HostMCPBridge responses routed through the MessageChannel relay.
-    private func registerPageResponseHandler() {
-        guard let pageUCC = pageWebView?.configuration.userContentController else { return }
-        pageUCC.add(self, contentWorld: .page, name: "ripulPageResponse")
-        isPageHandlerRegistered = true
-    }
-
-    /// Removes the ripulPageResponse handler from the page's WKWebView.
-    private func removePageResponseHandler() {
-        guard isPageHandlerRegistered, let pageUCC = pageWebView?.configuration.userContentController else { return }
-        pageUCC.removeScriptMessageHandler(forName: "ripulPageResponse", contentWorld: .page)
-        isPageHandlerRegistered = false
+                    let error = result["error"] as? String
+                    if error == "AgentFramework not defined" && attempt < 4 {
+                        let delayMs = 100 * (1 << attempt)
+                        try await Task.sleep(nanoseconds: UInt64(delayMs) * 1_000_000)
+                        continue
+                    }
+                    NSLog("[RipulBridge] Init failed: \(error ?? "unknown")")
+                }
+            } catch {
+                NSLog("[RipulBridge] Init error: \(error.localizedDescription)")
+            }
+            break
+        }
+        return false
     }
 
     // MARK: - Sheet Configuration
@@ -223,11 +235,220 @@ final class RipulAgentSheetViewController: UIViewController {
             .replacingOccurrences(of: "\r", with: "\\r")
     }
 
+    // MARK: - Native DOM Dispatch
+
+    /// The DOM dispatcher JS, loaded once from bundle. Runs as a callAsyncJavaScript
+    /// function body — receives `method` and `args` as named parameters.
+    /// callAsyncJavaScript bypasses CSP, so executeCode/evaluate work on strict sites.
+    private static let domDispatcherJS: String = {
+        guard let js = loadBundleJS("RipulDomDispatcher") else {
+            NSLog("[RipulBridge] ERROR: Could not load RipulDomDispatcher.js from bundle")
+            return "throw new Error('DOM dispatcher not available');"
+        }
+        return js
+    }()
+
+    /// Dispatches any dom:request to the page's WKWebView using callAsyncJavaScript.
+    /// The dispatcher JS implements all IDomAdapter methods (querySelector, click,
+    /// getInteractiveElements, executeCode, pickElement, etc.) in one place.
+    private func dispatchDomRequest(method: String, args: [Any], requestId: String) {
+        guard let pageWV = pageWebView else {
+            NSLog("[RipulBridge:dom] ERROR: No page webview (requestId: \(requestId), method: \(method))")
+            sendDomResponse(requestId: requestId, success: false, error: "No page webview available")
+            return
+        }
+
+        Task { [weak self] in
+            guard let self = self else { return }
+
+            // Lazy init: ensure bridge is created on the page before dispatching.
+            if !self.bridgeInitialized {
+                _ = await self.ensureFrameworkOnPage()
+            }
+
+            do {
+                let value = try await pageWV.callAsyncJavaScript(
+                    Self.domDispatcherJS,
+                    arguments: ["method": method, "args": args],
+                    in: nil,
+                    contentWorld: .page
+                )
+                let jsonSafe = Self.makeJSONSerializable(value)
+
+                // Check for soft errors returned by the dispatcher (instead of throwing)
+                if let dict = jsonSafe as? [String: Any], dict["__dispatchError"] as? Bool == true {
+                    let msg = dict["message"] as? String ?? "Unknown dispatch error"
+                    NSLog("[RipulBridge:dom] Error (\(method)): \(msg)")
+                    self.sendDomResponse(requestId: requestId, success: false, error: msg)
+                    return
+                }
+
+                self.sendDomResponse(requestId: requestId, success: true, data: jsonSafe)
+            } catch {
+                NSLog("[RipulBridge:dom] Error (\(method)): \(error.localizedDescription)")
+                self.sendDomResponse(requestId: requestId, success: false, error: error.localizedDescription)
+            }
+        }
+    }
+
+    /// Dispatches an elementPicker:start by injecting a native picker overlay on the page.
+    /// The picker is interactive (touch/mouse) and can't go through the generic proxy since
+    /// it's not an IDomAdapter method — it's a separate HostMCPBridge protocol message.
+    private func dispatchElementPicker(requestId: String, options: [String: Any]?) {
+        guard let pageWV = pageWebView else {
+            sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
+            return
+        }
+
+        NSLog("[RipulBridge:elementPicker] Dispatching (requestId: \(requestId))")
+
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let value = try await pageWV.callAsyncJavaScript(
+                    Self.elementPickerJS, arguments: [:], in: nil, contentWorld: .page
+                )
+                if let result = value as? [String: Any],
+                   let cancelled = result["cancelled"] as? Bool, cancelled {
+                    self.sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
+                } else if let result = value as? [String: Any] {
+                    NSLog("[RipulBridge:elementPicker] Success — selector: \(result["selector"] ?? "(none)")")
+                    self.sendBridgeMessage(type: "agent-framework:elementPicker:result", extra: [
+                        "requestId": requestId,
+                        "result": result,
+                    ])
+                } else {
+                    self.sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
+                }
+            } catch {
+                NSLog("[RipulBridge:elementPicker] Error: \(error.localizedDescription)")
+                self.sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
+            }
+        }
+    }
+
+    /// Compact element picker JS — creates a touch/mouse overlay on the page.
+    /// Returns a Promise that resolves with { selector, html } or { cancelled: true }.
+    private static let elementPickerJS: String = {
+        guard let js = loadBundleJS("RipulElementPicker") else {
+            return "return { cancelled: true };"
+        }
+        return js
+    }()
+
+    // MARK: - executeCode CSP Bypass
+
+    /// Runs executeCode via callAsyncJavaScript (treats code as function body, bypasses CSP).
+    /// Only used for executeCode — all other DOM methods go through the generic proxy.
+    private func executeCodeNatively(code: String, requestId: String) {
+        guard let pageWV = pageWebView else {
+            sendDomResponse(requestId: requestId, success: false, error: "No page webview available")
+            return
+        }
+
+        // Embed the code directly into the callAsyncJavaScript body.
+        // callAsyncJavaScript treats its string as a function body and bypasses CSP,
+        // but new Function() / eval() INSIDE that body are still blocked by CSP.
+        // By making the code part of the body itself, it all runs under the CSP bypass.
+        let wrappedCode = """
+        var __logs = [];
+        var __origLog = console.log, __origWarn = console.warn, __origErr = console.error;
+        console.log = function() { __logs.push(Array.from(arguments).join(' ')); __origLog.apply(console, arguments); };
+        console.warn = function() { __logs.push('[warn] ' + Array.from(arguments).join(' ')); __origWarn.apply(console, arguments); };
+        console.error = function() { __logs.push('[error] ' + Array.from(arguments).join(' ')); __origErr.apply(console, arguments); };
+        try {
+            var __r = (function() { \(code) })();
+            if (__r && typeof __r.then === 'function') __r = await __r;
+            return { returnValue: __r === undefined ? null : __r, logs: __logs, error: null };
+        } catch(e) {
+            return { returnValue: null, logs: __logs, error: e.message || String(e) };
+        } finally {
+            console.log = __origLog; console.warn = __origWarn; console.error = __origErr;
+        }
+        """
+
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let value = try await pageWV.callAsyncJavaScript(
+                    wrappedCode, arguments: [:], in: nil, contentWorld: .page
+                )
+                self.sendDomResponse(requestId: requestId, success: true, data: Self.makeJSONSerializable(value))
+            } catch {
+                let errorResult: [String: Any] = ["returnValue": NSNull(), "logs": [String](), "error": error.localizedDescription]
+                self.sendDomResponse(requestId: requestId, success: true, data: errorResult)
+            }
+        }
+    }
+
+    // MARK: - Response Helpers
+
+    /// Coerces a value from callAsyncJavaScript into something JSONSerialization can handle.
+    private static func makeJSONSerializable(_ value: Any?) -> Any {
+        guard let value = value else { return NSNull() }
+        if value is NSNull || value is NSNumber || value is NSString { return value }
+        if let array = value as? [Any] { return array.map { makeJSONSerializable($0) } }
+        if let dict = value as? [String: Any] { return dict.mapValues { makeJSONSerializable($0) } }
+        return String(describing: value)
+    }
+
+    /// Sends an agent-framework:dom:response back to the sheet's FrameMCPBridge.
+    private func sendDomResponse(requestId: String, success: Bool, data: Any? = nil, error: String? = nil) {
+        var response: [String: Any] = [
+            "type": "agent-framework:dom:response",
+            "version": "1.0.0",
+            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+            "requestId": requestId,
+            "success": success,
+        ]
+        if let data = data { response["data"] = data }
+        if let error = error { response["error"] = error }
+
+        guard JSONSerialization.isValidJSONObject(response) else {
+            NSLog("[RipulBridge] Response not valid JSON (requestId: \(requestId))")
+            let fallback: [String: Any] = [
+                "type": "agent-framework:dom:response",
+                "version": "1.0.0",
+                "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+                "requestId": requestId,
+                "success": false,
+                "error": "Result could not be serialized to JSON",
+            ]
+            sendToSheet(fallback)
+            return
+        }
+
+        sendToSheet(response)
+    }
+
+    /// Sends a generic bridge message back to the sheet's FrameMCPBridge.
+    private func sendBridgeMessage(type: String, extra: [String: Any] = [:]) {
+        var msg: [String: Any] = [
+            "type": type,
+            "version": "1.0.0",
+            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+        ]
+        for (k, v) in extra { msg[k] = v }
+        sendToSheet(msg)
+    }
+
+    /// Serializes a dictionary to JSON and delivers it to the sheet's __ripulReceiveFromNative.
+    private func sendToSheet(_ message: [String: Any]) {
+        guard let data = try? JSONSerialization.data(withJSONObject: message),
+              let json = String(data: data, encoding: .utf8) else {
+            NSLog("[RipulBridge] Failed to serialize message to sheet")
+            return
+        }
+        let escaped = jsEscape(json)
+        webView.evaluateJavaScript("window.__ripulReceiveFromNative('\(escaped)')") { _, error in
+            if let error = error {
+                NSLog("[RipulBridge] Error delivering to sheet: \(error.localizedDescription)")
+            }
+        }
+    }
+
     // MARK: - Remove form-filling accessory view
 
-    /// Dynamically subclasses WKContentView so its inputAccessoryView returns nil,
-    /// preventing the form-fill / autofill suggestions bar from appearing.
-    /// Only affects this webView instance.
     private func removeInputAccessoryView() {
         guard let contentView = webView.scrollView.subviews.first(where: {
             String(describing: type(of: $0)).hasPrefix("WKContent")
@@ -241,7 +462,6 @@ final class RipulAgentSheetViewController: UIViewController {
             subclass = objc_allocateClassPair(baseClass, subclassName, 0)
             guard let subclass = subclass else { return }
 
-            // Override inputAccessoryView to return nil
             let selector = #selector(getter: UIResponder.inputAccessoryView)
             guard let method = class_getInstanceMethod(UIView.self, selector) else { return }
             let nilIMP = imp_implementationWithBlock({ (_: AnyObject) -> AnyObject? in nil }
@@ -254,36 +474,74 @@ final class RipulAgentSheetViewController: UIViewController {
     }
 }
 
-// MARK: - WKScriptMessageHandler (Native Bridge Relay)
+// MARK: - WKScriptMessageHandler (Native Bridge)
 
 extension RipulAgentSheetViewController: WKScriptMessageHandler {
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        guard let body = message.body as? String else { return }
+        guard message.name == "ripulBridge",
+              let body = message.body as? String else { return }
 
-        switch message.name {
-        case "ripulBridge":
-            // Sheet -> Page: FrameMCPBridge sent a message, relay it to HostMCPBridge on the page.
-            let escaped = jsEscape(body)
-            pageWebView?.evaluateJavaScript("window.__ripulRelayToHost('\(escaped)')") { _, error in
-                if let error = error {
-                    print("[RipulBridge] Error relaying to page: \(error.localizedDescription)")
-                }
-            }
-
-        case "ripulPageResponse":
-            // Page -> Sheet: HostMCPBridge responded, relay it back to FrameMCPBridge in the sheet.
-            let escaped = jsEscape(body)
-            webView.evaluateJavaScript("window.__ripulReceiveFromNative('\(escaped)')") { _, error in
-                if let error = error {
-                    print("[RipulBridge] Error relaying to sheet: \(error.localizedDescription)")
-                }
-            }
-
-        default:
-            break
+        guard let data = body.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            NSLog("[RipulBridge] Failed to parse message JSON")
+            return
         }
+
+        let type = json["type"] as? String ?? "(no type)"
+        let method = json["method"] as? String
+
+        if type == "agent-framework:handshake" {
+            sendBridgeMessage(type: "agent-framework:handshake:ack", extra: [
+                "capabilities": [
+                    "mcp": true,
+                    "dom": true,
+                    "storage": false,
+                    "elementPicker": true,
+                ],
+                "hostOrigin": "native",
+            ])
+            return
+        }
+
+        // Widget control: close/minimize and restore
+        if type == "agent-framework:widget:minimize" {
+            delegate?.ripulAgentSheetViewControllerDidRequestDismiss(self)
+            return
+        }
+        if type == "agent-framework:widget:restore" {
+            delegate?.ripulAgentSheetViewControllerDidRequestRestore(self)
+            return
+        }
+
+        // Element picker: dispatch natively on the page
+        if type == "agent-framework:elementPicker:start",
+           let requestId = json["requestId"] as? String {
+            let options = json["options"] as? [String: Any]
+            dispatchElementPicker(requestId: requestId, options: options)
+            return
+        }
+
+        // DOM requests: most go through the generic proxy (HostMCPBridge on the page).
+        // executeCode is intercepted here and run via callAsyncJavaScript to bypass CSP.
+        if type == "agent-framework:dom:request",
+           let method = method,
+           let requestId = json["requestId"] as? String {
+            let args = json["args"] as? [Any] ?? []
+
+            // executeCode needs CSP bypass — callAsyncJavaScript treats code as a
+            // function body, bypassing script-src restrictions.
+            if method == "executeCode", args.count > 1, let code = args[1] as? String {
+                executeCodeNatively(code: code, requestId: requestId)
+                return
+            }
+
+            dispatchDomRequest(method: method, args: args, requestId: requestId)
+            return
+        }
+
+        // Anything else: silently ignore (host:info, theme:ready, mcp:discover, etc.)
     }
 }
 
@@ -297,13 +555,11 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
         injectViewportOverrides()
     }
 
-    /// Replaces the page's viewport meta to disable auto-zoom and account for safe area.
     private func injectViewportOverrides() {
         let bottomInset = Int(view.safeAreaInsets.bottom)
 
         let js = """
         (function() {
-            // Replace existing viewport meta to prevent auto-zoom on input focus
             var meta = document.querySelector('meta[name="viewport"]');
             if (!meta) {
                 meta = document.createElement('meta');
@@ -313,7 +569,6 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
             meta.setAttribute('content',
                 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
 
-            // Prevent any script from changing it back
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(m) {
                     if (m.type === 'attributes' && m.attributeName === 'content') {
@@ -327,7 +582,6 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
             });
             observer.observe(meta, { attributes: true });
 
-            // Disable autocomplete/autofill on all form elements
             function disableAutofill() {
                 document.querySelectorAll('input, textarea, select, form').forEach(function(el) {
                     el.setAttribute('autocomplete', 'off');
@@ -337,12 +591,9 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
                 });
             }
             disableAutofill();
-
-            // Watch for dynamically added form elements (React renders)
             new MutationObserver(function() { disableAutofill(); })
                 .observe(document.body, { childList: true, subtree: true });
 
-            // Bottom safe area padding
             var inset = \(bottomInset);
             if (inset > 0) {
                 document.body.style.paddingBottom = inset + 'px';
@@ -363,12 +614,10 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         guard let url = navigationAction.request.url else { return .allow }
 
-        // Allow navigation within the agent app
         if url.host == URL(string: RipulAgentUserScript.iframeOrigin)?.host {
             return .allow
         }
 
-        // Open external links in the browser
         if navigationAction.navigationType == .linkActivated {
             delegate?.ripulAgentSheetViewController(self, didRequestToLoad: url)
             return .cancel
@@ -382,6 +631,6 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
 
 extension RipulAgentSheetViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        removePageResponseHandler()
+        // Sheet dismissed by drag gesture — nothing to clean up.
     }
 }

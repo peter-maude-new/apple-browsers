@@ -781,6 +781,7 @@ class MainViewController: UIViewController {
         // First open: validate site key and create the sheet
         Task {
             let validation = await RipulAgentUserScript.validateSiteKeyAsync()
+
             guard let url = RipulAgentUserScript.buildAgentPanelURL(
                 sessionToken: validation.token,
                 siteKeyConfig: validation.config
@@ -4683,6 +4684,13 @@ extension MainViewController: RipulAgentSheetViewControllerDelegate {
 
     func ripulAgentSheetViewControllerDidRequestDismiss(_ viewController: RipulAgentSheetViewController) {
         viewController.dismiss(animated: true)
+    }
+
+    func ripulAgentSheetViewControllerDidRequestRestore(_ viewController: RipulAgentSheetViewController) {
+        // Re-present the sheet if it's not already visible (e.g. after pickElement)
+        guard presentedViewController == nil else { return }
+        viewController.pageWebView = self.currentTab?.webView
+        self.present(viewController, animated: true)
     }
 
     func ripulAgentSheetViewController(_ viewController: RipulAgentSheetViewController, didRequestToLoad url: URL) {
