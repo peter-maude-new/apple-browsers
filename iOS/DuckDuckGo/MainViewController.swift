@@ -761,35 +761,36 @@ class MainViewController: UIViewController {
         segueToDataBrokerProtection()
     }
 
-    private func toggleRipulAgentOverlay() {
-        let js = """
-        (function() {
-            var api = window.__ripulAgentAPI;
-            if (!api || !api.toggle) return;
+    private var ripulAgentSheet: RipulAgentSheetViewController?
 
-            if (api.isVisible && api.isVisible()) {
-                // Closing — restore original viewport
-                api.toggle();
-                if (window.__ripulOrigViewport !== undefined) {
-                    var m = document.querySelector('meta[name="viewport"]');
-                    if (m) m.setAttribute('content', window.__ripulOrigViewport);
-                    delete window.__ripulOrigViewport;
-                }
-            } else {
-                // Opening — save viewport and disable auto-zoom
-                var m = document.querySelector('meta[name="viewport"]');
-                if (m) {
-                    window.__ripulOrigViewport = m.getAttribute('content') || '';
-                    var c = window.__ripulOrigViewport;
-                    if (!c.includes('maximum-scale')) {
-                        m.setAttribute('content', c + ', maximum-scale=1');
-                    }
-                }
-                api.toggle();
-            }
-        })();
-        """
-        currentTab?.webView.evaluateJavaScript(js)
+    private func presentRipulAgentSheet() {
+        // If sheet is already presented, dismiss it (toggle behavior)
+        if let presented = presentedViewController as? RipulAgentSheetViewController {
+            presented.dismiss(animated: true)
+            return
+        }
+
+        // Re-present the existing sheet if we have one, updating the page webview
+        // in case the user switched tabs.
+        if let existing = ripulAgentSheet {
+            existing.pageWebView = self.currentTab?.webView
+            self.present(existing, animated: true)
+            return
+        }
+
+        // First open: validate site key and create the sheet
+        Task {
+            let validation = await RipulAgentUserScript.validateSiteKeyAsync()
+            guard let url = RipulAgentUserScript.buildAgentPanelURL(
+                sessionToken: validation.token,
+                siteKeyConfig: validation.config
+            ) else { return }
+
+            let sheet = RipulAgentSheetViewController(agentURL: url, pageWebView: self.currentTab?.webView)
+            sheet.delegate = self
+            self.ripulAgentSheet = sheet
+            self.present(sheet, animated: true)
+        }
     }
 
     private func registerForKeyboardNotifications() {
@@ -4579,7 +4580,7 @@ extension MainViewController {
             self.segueToDownloads()
 
         case .ripulAgent:
-            self.toggleRipulAgentOverlay()
+            self.presentRipulAgentSheet()
 
         default:
             assertionFailure("Unexpected case \(button)")
@@ -4674,5 +4675,20 @@ extension MainViewController {
         }
     }
 
+}
+
+// MARK: - RipulAgentSheetViewControllerDelegate
+
+extension MainViewController: RipulAgentSheetViewControllerDelegate {
+
+    func ripulAgentSheetViewControllerDidRequestDismiss(_ viewController: RipulAgentSheetViewController) {
+        viewController.dismiss(animated: true)
+    }
+
+    func ripulAgentSheetViewController(_ viewController: RipulAgentSheetViewController, didRequestToLoad url: URL) {
+        viewController.dismiss(animated: true) {
+            self.loadUrlInNewTab(url, inheritedAttribution: nil)
+        }
+    }
 }
 

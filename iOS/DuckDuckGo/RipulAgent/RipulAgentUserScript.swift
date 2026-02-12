@@ -107,6 +107,8 @@ public class RipulAgentUserScript: NSObject, UserScript {
         let tokenLiteral = validation.token.map { "'\($0)'" } ?? "null"
         let configLiteral = validation.config ?? "{}"
 
+        let relayJS = (try? Self.loadJS("RipulPageRelay", from: Bundle.main)) ?? ""
+
         return """
         window.__ripulNativeToken = \(tokenLiteral);
         window.__ripulNativeConfig = \(configLiteral);
@@ -119,6 +121,7 @@ public class RipulAgentUserScript: NSObject, UserScript {
                     theme: 'dark',
                     startOpen: false,
                     showLauncher: false,
+                    enableDOM: true,
                     siteKey: '\(Self.siteKey)',
                     iframeUrl: '\(Self.iframeUrl)'
                 });
@@ -129,7 +132,7 @@ public class RipulAgentUserScript: NSObject, UserScript {
                 }
             }
         })();
-        """
+        """ + relayJS
     }()
 
     public var injectionTime: WKUserScriptInjectionTime = .atDocumentEnd

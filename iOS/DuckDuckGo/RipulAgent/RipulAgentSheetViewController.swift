@@ -21,6 +21,12 @@ final class RipulAgentSheetViewController: UIViewController {
     weak var delegate: RipulAgentSheetViewControllerDelegate?
 
     private let agentURL: URL
+    weak var pageWebView: WKWebView?
+
+    // MARK: - Native Bridge State
+
+    /// Tracks whether we registered the ripulPageResponse handler on the page's userContentController.
+    private var isPageHandlerRegistered = false
 
     // MARK: - UI
 
@@ -60,6 +66,17 @@ final class RipulAgentSheetViewController: UIViewController {
         let config = WKWebViewConfiguration()
         config.allowsInlineMediaPlayback = true
         config.websiteDataStore = .nonPersistent()
+
+        // Inject the native bridge script at document start so it's available
+        // before the agent app's FrameMCPBridge initializes.
+        if let bridgeJS = Self.loadBundleJS("RipulNativeBridgeScript") {
+            let script = WKUserScript(source: bridgeJS, injectionTime: .atDocumentStart, forMainFrameOnly: true)
+            config.userContentController.addUserScript(script)
+        }
+
+        // Register the sheet-side message handler for FrameMCPBridge -> native relay
+        config.userContentController.add(self, name: "ripulBridge")
+
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.isOpaque = false
         wv.backgroundColor = .systemBackground
@@ -78,8 +95,9 @@ final class RipulAgentSheetViewController: UIViewController {
 
     // MARK: - Init
 
-    init(agentURL: URL) {
+    init(agentURL: URL, pageWebView: WKWebView? = nil) {
         self.agentURL = agentURL
+        self.pageWebView = pageWebView
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .pageSheet
     }
@@ -93,8 +111,40 @@ final class RipulAgentSheetViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupUI()
         configureSheetPresentation()
+        registerPageResponseHandler()
         loadingIndicator.startAnimating()
         webView.load(URLRequest(url: agentURL))
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Re-register the page handler each time the sheet is presented,
+        // since viewDidDisappear removes it and the pageWebView may have changed.
+        if !isPageHandlerRegistered {
+            registerPageResponseHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        removePageResponseHandler()
+    }
+
+    // MARK: - Native Bridge Setup
+
+    /// Registers the ripulPageResponse handler on the page's WKWebView so we receive
+    /// HostMCPBridge responses routed through the MessageChannel relay.
+    private func registerPageResponseHandler() {
+        guard let pageUCC = pageWebView?.configuration.userContentController else { return }
+        pageUCC.add(self, contentWorld: .page, name: "ripulPageResponse")
+        isPageHandlerRegistered = true
+    }
+
+    /// Removes the ripulPageResponse handler from the page's WKWebView.
+    private func removePageResponseHandler() {
+        guard isPageHandlerRegistered, let pageUCC = pageWebView?.configuration.userContentController else { return }
+        pageUCC.removeScriptMessageHandler(forName: "ripulPageResponse", contentWorld: .page)
+        isPageHandlerRegistered = false
     }
 
     // MARK: - Sheet Configuration
@@ -156,6 +206,23 @@ final class RipulAgentSheetViewController: UIViewController {
         delegate?.ripulAgentSheetViewControllerDidRequestDismiss(self)
     }
 
+    // MARK: - Helpers
+
+    /// Loads a JS file from the main bundle by resource name.
+    private static func loadBundleJS(_ name: String) -> String? {
+        guard let path = Bundle.main.path(forResource: name, ofType: "js") else { return nil }
+        return try? String(contentsOfFile: path)
+    }
+
+    /// Escapes a string for safe embedding inside a JS single-quoted string literal.
+    private func jsEscape(_ string: String) -> String {
+        return string
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "'", with: "\\'")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\r", with: "\\r")
+    }
+
     // MARK: - Remove form-filling accessory view
 
     /// Dynamically subclasses WKContentView so its inputAccessoryView returns nil,
@@ -184,6 +251,39 @@ final class RipulAgentSheetViewController: UIViewController {
         }
 
         object_setClass(contentView, subclass!)
+    }
+}
+
+// MARK: - WKScriptMessageHandler (Native Bridge Relay)
+
+extension RipulAgentSheetViewController: WKScriptMessageHandler {
+
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard let body = message.body as? String else { return }
+
+        switch message.name {
+        case "ripulBridge":
+            // Sheet -> Page: FrameMCPBridge sent a message, relay it to HostMCPBridge on the page.
+            let escaped = jsEscape(body)
+            pageWebView?.evaluateJavaScript("window.__ripulRelayToHost('\(escaped)')") { _, error in
+                if let error = error {
+                    print("[RipulBridge] Error relaying to page: \(error.localizedDescription)")
+                }
+            }
+
+        case "ripulPageResponse":
+            // Page -> Sheet: HostMCPBridge responded, relay it back to FrameMCPBridge in the sheet.
+            let escaped = jsEscape(body)
+            webView.evaluateJavaScript("window.__ripulReceiveFromNative('\(escaped)')") { _, error in
+                if let error = error {
+                    print("[RipulBridge] Error relaying to sheet: \(error.localizedDescription)")
+                }
+            }
+
+        default:
+            break
+        }
     }
 }
 
@@ -282,6 +382,6 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
 
 extension RipulAgentSheetViewController: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        // Sheet was dismissed by drag gesture
+        removePageResponseHandler()
     }
 }
