@@ -112,17 +112,13 @@ public class RipulAgentUserScript: NSObject, UserScript {
         window.__ripulNativeConfig = \(configLiteral);
         """ + embedJS + """
         ;(function() {
-            // Hide the floating launcher — native toolbar button replaces it
-            var s = document.createElement('style');
-            s.textContent = '.agent-framework-launcher { display: none !important; }';
-            document.head.appendChild(s);
-
             if (typeof AgentFramework !== 'undefined' && AgentFramework.initAgentFramework) {
                 var result = AgentFramework.initAgentFramework({
                     mode: 'floating',
                     position: 'bottom-right',
                     theme: 'dark',
                     startOpen: false,
+                    showLauncher: false,
                     siteKey: '\(Self.siteKey)',
                     iframeUrl: '\(Self.iframeUrl)'
                 });
