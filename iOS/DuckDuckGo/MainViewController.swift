@@ -761,6 +761,37 @@ class MainViewController: UIViewController {
         segueToDataBrokerProtection()
     }
 
+    private func toggleRipulAgentOverlay() {
+        let js = """
+        (function() {
+            var api = window.__ripulAgentAPI;
+            if (!api || !api.toggle) return;
+
+            if (api.isVisible && api.isVisible()) {
+                // Closing — restore original viewport
+                api.toggle();
+                if (window.__ripulOrigViewport !== undefined) {
+                    var m = document.querySelector('meta[name="viewport"]');
+                    if (m) m.setAttribute('content', window.__ripulOrigViewport);
+                    delete window.__ripulOrigViewport;
+                }
+            } else {
+                // Opening — save viewport and disable auto-zoom
+                var m = document.querySelector('meta[name="viewport"]');
+                if (m) {
+                    window.__ripulOrigViewport = m.getAttribute('content') || '';
+                    var c = window.__ripulOrigViewport;
+                    if (!c.includes('maximum-scale')) {
+                        m.setAttribute('content', c + ', maximum-scale=1');
+                    }
+                }
+                api.toggle();
+            }
+        })();
+        """
+        currentTab?.webView.evaluateJavaScript(js)
+    }
+
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(keyboardWillChangeFrame),
@@ -4508,8 +4539,8 @@ extension MainViewController {
     }
 
     @objc private func performCustomizationActionForToolbar() {
-        // On NTP the default is fire button
-        if isNewTabPageVisible {
+        // On NTP the default is fire button, unless overridden
+        if isNewTabPageVisible && mobileCustomization.state.currentToolbarButton != .ripulAgent {
             self.onFirePressed()
             return
         }
@@ -4546,6 +4577,9 @@ extension MainViewController {
 
         case .downloads:
             self.segueToDownloads()
+
+        case .ripulAgent:
+            self.toggleRipulAgentOverlay()
 
         default:
             assertionFailure("Unexpected case \(button)")
@@ -4641,3 +4675,4 @@ extension MainViewController {
     }
 
 }
+

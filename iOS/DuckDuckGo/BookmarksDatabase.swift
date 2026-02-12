@@ -33,11 +33,7 @@ public class BookmarksDatabase {
     private init() { }
     
     public static var defaultDBLocation: URL = {
-        guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.bookmarksGroupID) else {
-            Logger.bookmarks.fault("BookmarksDatabase.make - OUT, failed to get location \(Constants.bookmarksGroupID, privacy: .public)")
-            fatalError("Failed to get location")
-        }
-        return url
+        return FileManager.default.containerURLFallback(forSecurityApplicationGroupIdentifier: Constants.bookmarksGroupID)
     }()
 
     public static var defaultDBFileURL: URL = {

@@ -79,6 +79,8 @@ class MobileCustomization {
                 DesignSystemImages.Glyphs.Size24.key
             case .downloads:
                 DesignSystemImages.Glyphs.Size24.downloads
+            case .ripulAgent:
+                DesignSystemImages.Glyphs.Size24.aiChat
             }
         }
 
@@ -108,6 +110,8 @@ class MobileCustomization {
                 DesignSystemImages.Glyphs.Size16.keyLogin
             case .downloads:
                 DesignSystemImages.Glyphs.Size16.downloads
+            case .ripulAgent:
+                DesignSystemImages.Glyphs.Size16.aiChat
             }
         }
 
@@ -128,10 +132,11 @@ class MobileCustomization {
         // Shared
         case fire
         case vpn
+        case ripulAgent
     }
 
     static let addressBarDefault: Button = .share
-    static let toolbarDefault: Button = .fire
+    static let toolbarDefault: Button = .ripulAgent
 
     static let addressBarButtons: [Button] = [
             .share,
@@ -152,6 +157,7 @@ class MobileCustomization {
             .share,
             .vpn,
             .downloads,
+            .ripulAgent,
         ]
 
     var state: State {

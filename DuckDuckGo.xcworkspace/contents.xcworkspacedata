@@ -39,7 +39,4 @@
    <FileRef
       location = "group:iOS/DuckDuckGo-iOS.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:macOS/DuckDuckGo-macOS.xcodeproj">
-   </FileRef>
 </Workspace>

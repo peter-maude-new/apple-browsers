@@ -67,6 +67,8 @@ extension MobileCustomizationView {
             UserText.actionOpenPasswords
         case .downloads:
             UserText.downloadsScreenTitle
+        case .ripulAgent:
+            "Ripul Agent"
         }
     }
 

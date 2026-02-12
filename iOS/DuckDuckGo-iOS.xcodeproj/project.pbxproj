@@ -2187,6 +2187,9 @@
 		F4F7F10B25813FE200045D62 /* 02_Water_swirl_really_small.json in Resources */ = {isa = PBXBuildFile; fileRef = F4F7F10825813FE200045D62 /* 02_Water_swirl_really_small.json */; };
 		F4F7F10C25813FE200045D62 /* 03_Airstream_divided_by_four.json in Resources */ = {isa = PBXBuildFile; fileRef = F4F7F10925813FE200045D62 /* 03_Airstream_divided_by_four.json */; };
 		FA58D524242AADCE97992F46 /* RebrandedOnboardingView+SkipOnboardingContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970C8DE9831CD77A979A1354 /* RebrandedOnboardingView+SkipOnboardingContent.swift */; };
+		RA00010A2F3B000100000003 /* RipulAgentUserScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000001 /* RipulAgentUserScript.swift */; };
+		RA00010A2F3B000100000006 /* RipulAgentSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */; };
+		RA00010A2F3B000100000004 /* embed.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000002 /* embed.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4700,6 +4703,9 @@
 		F4F7F10725813FE200045D62 /* 01_Fire_really_small.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 01_Fire_really_small.json; sourceTree = "<group>"; };
 		F4F7F10825813FE200045D62 /* 02_Water_swirl_really_small.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 02_Water_swirl_really_small.json; sourceTree = "<group>"; };
 		F4F7F10925813FE200045D62 /* 03_Airstream_divided_by_four.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 03_Airstream_divided_by_four.json; sourceTree = "<group>"; };
+		RA00010A2F3B000100000001 /* RipulAgentUserScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RipulAgentUserScript.swift; sourceTree = "<group>"; };
+		RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RipulAgentSheetViewController.swift; sourceTree = "<group>"; };
+		RA00010A2F3B000100000002 /* embed.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = embed.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6715,6 +6721,7 @@
 				F1DF09502B039E6E008CC908 /* PrivacyDashboard */,
 				02ECEC602A965074009F0654 /* PrivacyInfo.xcprivacy */,
 				C1B7B51D28941F160098FD6A /* RemoteMessaging */,
+				RA00010A2F3B000100000005 /* RipulAgent */,
 				F1AB2B401E3F75A000868554 /* Settings */,
 				0A6CC0EE23904D5400E4F627 /* Settings.bundle */,
 				7B4F87E82D0738D20010B18F /* Siri */,
@@ -10377,6 +10384,16 @@
 			name = HomeMessages;
 			sourceTree = "<group>";
 		};
+		RA00010A2F3B000100000005 /* RipulAgent */ = {
+			isa = PBXGroup;
+			children = (
+				RA00010A2F3B000100000001 /* RipulAgentUserScript.swift */,
+				RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */,
+				RA00010A2F3B000100000002 /* embed.js */,
+			);
+			path = RipulAgent;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -11057,6 +11074,7 @@
 				85C2970A247EB7AA0063A335 /* Text.xcassets in Resources */,
 				98788E9A2521DA1E00D55218 /* Localizable.stringsdict in Resources */,
 				CB9B873E278C93C2001F4906 /* HomeMessage.xcassets in Resources */,
+				RA00010A2F3B000100000004 /* embed.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -11222,7 +11240,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script copies GRDB.framework to the bundle and signs it\n# It's required because GRDB is not an explicit app dependency\n# and as such it can't be selected in \"Copy Frameworks\" build phase.\n\ngrdb_source_dir=\"${BUILT_PRODUCTS_DIR}/GRDB.framework\"\ngrdb_install_dir=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework\"\n\n# Remove any existing files in the destination\nrm -rf \"${grdb_install_dir}\"\nmkdir -p \"${grdb_install_dir}\"\n\n# Copy the framework and the Info.plist\ncp -f \"${grdb_source_dir}/GRDB\" \"${grdb_source_dir}/Info.plist\" \"${grdb_install_dir}\"\n\n# Sign the framework directory contents\n/usr/bin/codesign \\\n    --force \\\n    --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \\\n    --timestamp\\=none \\\n    --preserve-metadata\\=identifier,entitlements,flags \\\n    --generate-entitlement-der \"${grdb_install_dir}\"\n";
+			shellScript = "# This script copies GRDB.framework to the bundle and signs it\n# It's required because GRDB is not an explicit app dependency\n# and as such it can't be selected in \"Copy Frameworks\" build phase.\n\ngrdb_source_dir=\"${BUILT_PRODUCTS_DIR}/GRDB.framework\"\ngrdb_install_dir=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework\"\n\n# Remove any existing files in the destination\nrm -rf \"${grdb_install_dir}\"\nmkdir -p \"${grdb_install_dir}\"\n\n# Copy the framework and the Info.plist\ncp -f \"${grdb_source_dir}/GRDB\" \"${grdb_source_dir}/Info.plist\" \"${grdb_install_dir}\"\n\n# Sign the framework directory contents (skip if no identity)\nif [ -n \"${EXPANDED_CODE_SIGN_IDENTITY}\" ] && [ \"${EXPANDED_CODE_SIGN_IDENTITY}\" != \"-\" ]; then\n/usr/bin/codesign \\\n    --force \\\n    --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \\\n    --timestamp\\=none \\\n    --preserve-metadata\\=identifier,entitlements,flags \\\n    --generate-entitlement-der \"${grdb_install_dir}\"\nfi\n";
 		};
 		4B2E756D2DF784B20055FC53 /* iOS 18.4+ simulator WebKit workaround */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -12344,6 +12362,8 @@
 				DA9073A7F6F11BD081C2FA27 /* RebrandedOnboardingSearchExperiencePicker.swift in Sources */,
 				6B21953CD0711A7C8BFE33FF /* RebrandedBrowsersComparisonModel.swift in Sources */,
 				658D421935EEA38A5620DADF /* RebrandedBrowsersComparisonTable.swift in Sources */,
+				RA00010A2F3B000100000003 /* RipulAgentUserScript.swift in Sources */,
+				RA00010A2F3B000100000006 /* RipulAgentSheetViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

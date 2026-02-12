@@ -60,6 +60,7 @@ final class UserScripts: UserScriptsProvider {
     private(set) var fullScreenVideoScript = FullScreenVideoUserScript()
     private(set) var printingSubfeature = PrintingSubfeature()
     private(set) var debugScript = DebugUserScript()
+    private(set) var ripulAgentScript = RipulAgentUserScript()
 
     init(with sourceProvider: ScriptSourceProviding,
          appSettings: AppSettings = AppDependencyProvider.shared.appSettings,
@@ -136,7 +137,8 @@ final class UserScripts: UserScriptsProvider {
         autofillUserScript,
         loginFormDetectionScript,
         contentScopeUserScript,
-        contentScopeUserScriptIsolated
+        contentScopeUserScriptIsolated,
+        ripulAgentScript
     ].compactMap({ $0 })
     
     // Initialize DuckPlayer scripts

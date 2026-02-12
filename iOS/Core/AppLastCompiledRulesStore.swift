@@ -41,7 +41,7 @@ struct LastCompiledRulesStorage: Storage {
         static let filename = "LastCompiledRules"
         static let path = FileManager
             .default
-            .containerURL(forSecurityApplicationGroupIdentifier: ContentBlockerStoreConstants.groupName)!
+            .containerURLFallback(forSecurityApplicationGroupIdentifier: ContentBlockerStoreConstants.groupName)
             .appendingPathComponent(filename)
     }
 

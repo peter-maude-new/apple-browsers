@@ -106,7 +106,7 @@ public class LegacyBookmarksCoreDataStorage {
     }
 
     public static var defaultStoreURL: URL {
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: BookmarksDatabase.Constants.bookmarksGroupID)!
+        let containerURL = FileManager.default.containerURLFallback(forSecurityApplicationGroupIdentifier: BookmarksDatabase.Constants.bookmarksGroupID)
         return containerURL.appendingPathComponent("\(Constants.databaseName).sqlite")
     }
 

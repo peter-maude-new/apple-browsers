@@ -43,6 +43,21 @@ public struct Global {
 /// Allows Bundle.for() calls to be made without comprising encapsulation
 public class CoreModule { }
 
+extension FileManager {
+    /// Returns the app group container URL, falling back to the app's documents directory
+    /// when entitlements are not available (e.g. unsigned simulator builds).
+    public func containerURLFallback(forSecurityApplicationGroupIdentifier groupIdentifier: String) -> URL {
+        if let url = containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) {
+            return url
+        }
+        let fallback = urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("GroupContainerFallback")
+            .appendingPathComponent(groupIdentifier)
+        try? createDirectory(at: fallback, withIntermediateDirectories: true)
+        return fallback
+    }
+}
+
 extension Bundle {
 
     public static var core: Bundle {

@@ -34,7 +34,7 @@ public enum FaviconsCacheType: String {
         switch self {
         case .fireproof:
             let groupName = BookmarksDatabase.Constants.bookmarksGroupID
-            return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupName)
+            return FileManager.default.containerURLFallback(forSecurityApplicationGroupIdentifier: groupName)
 
         case .tabs:
             return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first

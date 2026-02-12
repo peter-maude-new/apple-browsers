@@ -43,7 +43,7 @@ public class Database {
             fatalError("No DB scheme found")
         }
 
-        let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Database.Constants.databaseGroupID)!
+        let url = FileManager.default.containerURLFallback(forSecurityApplicationGroupIdentifier: Database.Constants.databaseGroupID)
         return CoreDataDatabase(name: Constants.databaseName,
                                 containerLocation: url,
                                 model: managedObjectModel)

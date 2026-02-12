@@ -24,8 +24,8 @@ import os.log
 public final class PrivacyFeatures {
 
     private static var bloomFilterDataURL: URL {
-        let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: ContentBlockerStoreConstants.groupName)
-        return path!.appendingPathComponent("HttpsBloomFilter.bin")
+        let path = FileManager.default.containerURLFallback(forSecurityApplicationGroupIdentifier: ContentBlockerStoreConstants.groupName)
+        return path.appendingPathComponent("HttpsBloomFilter.bin")
     }
     private static var embeddedBloomFilterResources: EmbeddedBloomFilterResources {
         EmbeddedBloomFilterResources(bloomSpecification: Bundle.core.url(forResource: "httpsMobileV2BloomSpec", withExtension: "json")!,
