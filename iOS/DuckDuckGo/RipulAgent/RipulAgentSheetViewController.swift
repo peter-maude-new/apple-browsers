@@ -116,45 +116,39 @@ final class RipulAgentSheetViewController: UIViewController {
         webView.load(URLRequest(url: agentURL))
     }
 
-    /// Initializes the agent framework on the page WKWebView (on demand).
-    /// Called lazily when the first dom:request arrives. Retries with short
-    /// delays because embed.js (122KB WKUserScript) may still be executing
-    /// when the first request comes in.
+    /// Injects embed.js and initializes the agent framework on the page WKWebView.
+    /// Called lazily when the first dom:request arrives. Since embed.js is injected
+    /// on-demand (not via WKUserScript on every page), the timing is fully controlled
+    /// — no retry loop needed.
     private func ensureFrameworkOnPage() async -> Bool {
         if bridgeInitialized { return true }
 
         guard let pageWV = pageWebView,
+              let embedJS = RipulAgentUserScript.embedJS,
               let initJS = RipulAgentUserScript.buildInitJS() else {
-            NSLog("[RipulBridge] Init skipped — no pageWebView or initJS")
+            NSLog("[RipulBridge] Init skipped — missing pageWebView, embedJS, or initJS")
             return false
         }
 
-        // Retry with increasing delays to give embed.js (122KB WKUserScript)
-        // time to finish parsing and define the AgentFramework global.
-        for attempt in 0..<5 {
-            do {
-                let value = try await pageWV.callAsyncJavaScript(
-                    initJS, arguments: [:], in: nil, contentWorld: .page
-                )
-                if let result = value as? [String: Any] {
-                    let bridgeExists = result["bridgeExists"] as? Bool ?? false
-                    if bridgeExists {
-                        bridgeInitialized = true
-                        return true
-                    }
+        do {
+            // Step 1: Inject embed.js to define the AgentFramework global.
+            try await pageWV.callAsyncJavaScript(
+                embedJS, arguments: [:], in: nil, contentWorld: .page
+            )
 
-                    let error = result["error"] as? String
-                    if error == "AgentFramework not defined" && attempt < 4 {
-                        let delayMs = 100 * (1 << attempt)
-                        try await Task.sleep(nanoseconds: UInt64(delayMs) * 1_000_000)
-                        continue
-                    }
-                    NSLog("[RipulBridge] Init failed: \(error ?? "unknown")")
-                }
-            } catch {
-                NSLog("[RipulBridge] Init error: \(error.localizedDescription)")
+            // Step 2: Call AgentFramework.init() to create the bridge + DomAdapter.
+            let value = try await pageWV.callAsyncJavaScript(
+                initJS, arguments: [:], in: nil, contentWorld: .page
+            )
+            if let result = value as? [String: Any],
+               result["bridgeExists"] as? Bool == true {
+                bridgeInitialized = true
+                return true
             }
-            break
+            let error = (value as? [String: Any])?["error"] as? String
+            NSLog("[RipulBridge] Init failed: \(error ?? "unknown")")
+        } catch {
+            NSLog("[RipulBridge] Init error: \(error.localizedDescription)")
         }
         return false
     }
@@ -291,33 +285,49 @@ final class RipulAgentSheetViewController: UIViewController {
         }
     }
 
-    /// Dispatches an elementPicker:start by injecting a native picker overlay on the page.
-    /// The picker is interactive (touch/mouse) and can't go through the generic proxy since
-    /// it's not an IDomAdapter method — it's a separate HostMCPBridge protocol message.
+    /// Dispatches an elementPicker:start to the framework's HostMCPBridge on the page.
+    /// The bridge has the full-featured picker (highlight, tooltip, touch/mobile support).
+    /// The JS patches the bridge's sendMessage to intercept the response.
     private func dispatchElementPicker(requestId: String, options: [String: Any]?) {
         guard let pageWV = pageWebView else {
             sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
             return
         }
 
-        NSLog("[RipulBridge:elementPicker] Dispatching (requestId: \(requestId))")
-
         Task { [weak self] in
             guard let self = self else { return }
+
+            // Ensure the bridge is initialized on the page before picking.
+            if !self.bridgeInitialized {
+                _ = await self.ensureFrameworkOnPage()
+            }
+
             do {
                 let value = try await pageWV.callAsyncJavaScript(
-                    Self.elementPickerJS, arguments: [:], in: nil, contentWorld: .page
+                    Self.elementPickerJS,
+                    arguments: ["requestId": requestId, "options": options ?? [:] as [String: Any]],
+                    in: nil,
+                    contentWorld: .page
                 )
-                if let result = value as? [String: Any],
-                   let cancelled = result["cancelled"] as? Bool, cancelled {
+
+                guard let result = value as? [String: Any] else {
                     self.sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
-                } else if let result = value as? [String: Any] {
-                    NSLog("[RipulBridge:elementPicker] Success — selector: \(result["selector"] ?? "(none)")")
+                    return
+                }
+
+                // The JS returns the full bridge message (type + requestId + result/cancelled).
+                if let msgType = result["type"] as? String,
+                   msgType == "agent-framework:elementPicker:result",
+                   let pickerResult = result["result"] {
                     self.sendBridgeMessage(type: "agent-framework:elementPicker:result", extra: [
                         "requestId": requestId,
-                        "result": result,
+                        "result": Self.makeJSONSerializable(pickerResult),
                     ])
                 } else {
+                    let error = result["error"] as? String
+                    if let error = error {
+                        NSLog("[RipulBridge:elementPicker] Error: \(error)")
+                    }
                     self.sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
                 }
             } catch {
@@ -327,8 +337,9 @@ final class RipulAgentSheetViewController: UIViewController {
         }
     }
 
-    /// Compact element picker JS — creates a touch/mouse overlay on the page.
-    /// Returns a Promise that resolves with { selector, html } or { cancelled: true }.
+    /// Element picker JS — routes to the framework's HostMCPBridge handler.
+    /// Loaded once from bundle. Runs as a callAsyncJavaScript function body
+    /// with named parameters: requestId, options.
     private static let elementPickerJS: String = {
         guard let js = loadBundleJS("RipulElementPicker") else {
             return "return { cancelled: true };"

@@ -501,6 +501,8 @@ class MainViewController: UIViewController {
         registerForPageRefreshPatterns()
         registerForSyncFeatureFlagsUpdates()
 
+        preloadRipulAgentSheet()
+
         decorate()
 
         swipeTabsCoordinator?.refresh(tabsModel: tabManager.model, scrollToSelected: true)
@@ -763,6 +765,26 @@ class MainViewController: UIViewController {
 
     private var ripulAgentSheet: RipulAgentSheetViewController?
 
+    /// Pre-loads the agent sheet so it's ready instantly when the user taps the button.
+    /// Called once after the view loads; waits for validation to complete, then creates
+    /// the sheet and triggers its webview load in the background.
+    func preloadRipulAgentSheet() {
+        Task {
+            let validation = await RipulAgentUserScript.validateSiteKeyAsync()
+
+            guard let url = RipulAgentUserScript.buildAgentPanelURL(
+                sessionToken: validation.token,
+                siteKeyConfig: validation.config
+            ) else { return }
+
+            let sheet = RipulAgentSheetViewController(agentURL: url)
+            sheet.delegate = self
+            self.ripulAgentSheet = sheet
+            // Trigger viewDidLoad which starts loading the agent app webview.
+            _ = sheet.view
+        }
+    }
+
     private func presentRipulAgentSheet() {
         // If sheet is already presented, dismiss it (toggle behavior)
         if let presented = presentedViewController as? RipulAgentSheetViewController {
@@ -770,7 +792,7 @@ class MainViewController: UIViewController {
             return
         }
 
-        // Re-present the existing sheet if we have one, updating the page webview
+        // Present the pre-loaded sheet, updating the page webview reference
         // in case the user switched tabs.
         if let existing = ripulAgentSheet {
             existing.pageWebView = self.currentTab?.webView
@@ -778,7 +800,7 @@ class MainViewController: UIViewController {
             return
         }
 
-        // First open: validate site key and create the sheet
+        // Fallback if pre-load hasn't finished yet
         Task {
             let validation = await RipulAgentUserScript.validateSiteKeyAsync()
 

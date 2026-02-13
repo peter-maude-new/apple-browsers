@@ -169,18 +169,19 @@ public class RipulAgentUserScript: NSObject, UserScript {
         """
     }
 
+    // MARK: - Embed JS (on-demand)
+
+    /// embed.js content, loaded once from bundle. Injected on-demand into the
+    /// page WKWebView when the agent panel opens (not on every page load).
+    static let embedJS: String? = {
+        return try? loadJS("embed", from: Bundle.main)
+    }()
+
     // MARK: - UserScript
 
-    /// Injects only embed.js on every page — defines the AgentFramework global
-    /// but does NOT call initAgentFramework. Initialization happens on demand
-    /// via buildInitJS() when the agent panel is opened, at which point the
-    /// prefetched token is guaranteed to be available.
-    public lazy var source: String = {
-        guard let embedJS = try? Self.loadJS("embed", from: Bundle.main) else {
-            return ""
-        }
-        return embedJS
-    }()
+    /// Empty — embed.js is injected on-demand via ensureFrameworkOnPage(),
+    /// not as a WKUserScript on every page load.
+    public lazy var source: String = { "" }()
 
     public var injectionTime: WKUserScriptInjectionTime = .atDocumentEnd
 

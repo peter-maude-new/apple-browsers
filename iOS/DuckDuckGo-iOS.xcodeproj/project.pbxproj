@@ -2191,7 +2191,8 @@
 		RA00010A2F3B000100000006 /* RipulAgentSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */; };
 		RA00010A2F3B000100000004 /* embed.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000002 /* embed.js */; };
 		RA00010A2F3B000100000008 /* RipulNativeBridgeScript.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B000100000009 /* RipulNativeBridgeScript.js */; };
-		RA00010A2F3B00010000000A /* RipulPageRelay.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B00010000000B /* RipulPageRelay.js */; };
+		RA00010A2F3B00010000000C /* RipulDomDispatcher.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B00010000000D /* RipulDomDispatcher.js */; };
+		RA00010A2F3B00010000000E /* RipulElementPicker.js in Resources */ = {isa = PBXBuildFile; fileRef = RA00010A2F3B00010000000F /* RipulElementPicker.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4709,7 +4710,8 @@
 		RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RipulAgentSheetViewController.swift; sourceTree = "<group>"; };
 		RA00010A2F3B000100000002 /* embed.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = embed.js; sourceTree = "<group>"; };
 		RA00010A2F3B000100000009 /* RipulNativeBridgeScript.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = RipulNativeBridgeScript.js; sourceTree = "<group>"; };
-		RA00010A2F3B00010000000B /* RipulPageRelay.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = RipulPageRelay.js; sourceTree = "<group>"; };
+		RA00010A2F3B00010000000D /* RipulDomDispatcher.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = RipulDomDispatcher.js; sourceTree = "<group>"; };
+		RA00010A2F3B00010000000F /* RipulElementPicker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = RipulElementPicker.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -10395,7 +10397,8 @@
 				RA00010A2F3B000100000007 /* RipulAgentSheetViewController.swift */,
 				RA00010A2F3B000100000002 /* embed.js */,
 				RA00010A2F3B000100000009 /* RipulNativeBridgeScript.js */,
-				RA00010A2F3B00010000000B /* RipulPageRelay.js */,
+				RA00010A2F3B00010000000D /* RipulDomDispatcher.js */,
+				RA00010A2F3B00010000000F /* RipulElementPicker.js */,
 			);
 			path = RipulAgent;
 			sourceTree = "<group>";
@@ -11082,7 +11085,8 @@
 				CB9B873E278C93C2001F4906 /* HomeMessage.xcassets in Resources */,
 				RA00010A2F3B000100000004 /* embed.js in Resources */,
 				RA00010A2F3B000100000008 /* RipulNativeBridgeScript.js in Resources */,
-				RA00010A2F3B00010000000A /* RipulPageRelay.js in Resources */,
+				RA00010A2F3B00010000000C /* RipulDomDispatcher.js in Resources */,
+				RA00010A2F3B00010000000E /* RipulElementPicker.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

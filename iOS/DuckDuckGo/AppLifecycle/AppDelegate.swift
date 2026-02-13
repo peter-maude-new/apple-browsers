@@ -31,6 +31,10 @@ import UIKit
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let isTesting: Bool = ProcessInfo().arguments.contains("testing")
         appStateMachine.handle(.didFinishLaunching(isTesting: isTesting))
+
+        // Start Ripul site-key validation early on a background thread
+        RipulAgentUserScript.prefetchValidation()
+
         return true
     }
 

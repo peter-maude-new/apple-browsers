@@ -14,19 +14,19 @@
 //
 
 // The Apple Developer account's Team ID
-DEVELOPMENT_TEAM = HKE973VLUW
+DEVELOPMENT_TEAM = K9D8326N6M
 
 // The app bundle identifier
-APP_ID = com.duckduckgo.mobile.ios
+APP_ID = com.petermaude.ripulbrowser
 
 // A prefix for group ids. Must start with "group.".
-GROUP_ID_PREFIX = group.com.duckduckgo
+GROUP_ID_PREFIX = group.com.petermaude.ripulbrowser
 
-// The code signing style needs to be specified manually because the DDG team has multiple provisioning profiles that match the team and bundle identifier
-CODE_SIGN_STYLE = Manual
+// Use automatic signing for personal team
+CODE_SIGN_STYLE = Automatic
 
-// The manually specified provisioning profile
-PROVISIONING_PROFILE_SPECIFIER = Development - App
+// No manual provisioning profile needed with automatic signing
+PROVISIONING_PROFILE_SPECIFIER =
 
 // The keychain access group for subscriptions
-SUBSCRIPTION_APP_GROUP = com.duckduckgo.subscriptions
+SUBSCRIPTION_APP_GROUP = com.petermaude.ripulbrowser.subscriptions

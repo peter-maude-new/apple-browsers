@@ -1,103 +1,79 @@
 // RipulElementPicker.js
 // ---------------------
-// Function body executed via WKWebView.callAsyncJavaScript().
-// Creates an interactive element picker overlay on the page.
-// Returns a Promise that resolves with { selector, html } or { cancelled: true }.
+// Function body executed via WKWebView.callAsyncJavaScript() on the page.
+// Routes element picker requests to the framework's HostMCPBridge handler,
+// which has the full-featured picker (highlight, tooltip, touch support, etc.).
+//
+// Named parameters from callAsyncJavaScript: requestId (string), options (object)
 
-return new Promise(function(resolve) {
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483646;cursor:crosshair;';
+try {
+    var bridge = window.__agentFrameworkHostBridge;
+    if (!bridge) {
+        return { cancelled: true, error: 'Bridge not initialized' };
+    }
 
-    var highlight = document.createElement('div');
-    highlight.style.cssText = 'position:fixed;pointer-events:none;z-index:2147483647;border:2px solid #4CAF50;background:rgba(76,175,80,0.15);border-radius:3px;transition:all 0.05s ease;display:none;';
-    document.body.appendChild(highlight);
+    // Find handleElementPickerStart — TypeScript 'private' is compile-time only.
+    // It takes (event: MessageEvent, message: ElementPickerStartMessage).
+    var handler = bridge.handleElementPickerStart;
+    if (typeof handler !== 'function') {
+        var proto = Object.getPrototypeOf(bridge);
+        if (proto && typeof proto.handleElementPickerStart === 'function') {
+            handler = proto.handleElementPickerStart;
+        } else {
+            var methods = proto
+                ? Object.getOwnPropertyNames(proto).filter(function(k) { return typeof bridge[k] === 'function'; })
+                : [];
+            return { cancelled: true, error: 'handleElementPickerStart not found', availableMethods: methods.join(',') };
+        }
+    }
 
-    var tooltip = document.createElement('div');
-    tooltip.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;background:#333;color:#fff;padding:4px 8px;border-radius:4px;font:12px/1.4 -apple-system,sans-serif;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none;';
-    document.body.appendChild(tooltip);
+    // Find sendToFrame — the bridge uses this to post results back to the iframe.
+    // Signature: sendToFrame(target: Window, origin: string, message: object)
+    var origSendToFrame = bridge.sendToFrame;
+    if (typeof origSendToFrame !== 'function') {
+        var proto2 = Object.getPrototypeOf(bridge);
+        if (proto2 && typeof proto2.sendToFrame === 'function') {
+            origSendToFrame = proto2.sendToFrame.bind(bridge);
+        } else {
+            var methods2 = proto2
+                ? Object.getOwnPropertyNames(proto2).filter(function(k) { return typeof bridge[k] === 'function'; })
+                : [];
+            return { cancelled: true, error: 'sendToFrame not found', availableMethods: methods2.join(',') };
+        }
+    }
 
-    var cancelBtn = document.createElement('div');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.style.cssText = 'position:fixed;top:env(safe-area-inset-top,12px);right:12px;z-index:2147483647;background:#ff3b30;color:#fff;padding:8px 16px;border-radius:20px;font:600 14px/1.2 -apple-system,sans-serif;cursor:pointer;margin-top:12px;';
-    document.body.appendChild(cancelBtn);
+    return await new Promise(function(resolve) {
+        var timeout = setTimeout(function() {
+            bridge.sendToFrame = origSendToFrame;
+            resolve({ cancelled: true, timeout: true });
+        }, 120000);
 
-    var lastTarget = null;
-
-    function genSelector(el) {
-        if (el.id) return '#' + CSS.escape(el.id);
-        var path = [];
-        while (el && el !== document.body && el !== document.documentElement) {
-            var tag = el.tagName.toLowerCase();
-            var parent = el.parentElement;
-            if (parent) {
-                var siblings = Array.from(parent.children).filter(function(c) { return c.tagName === el.tagName; });
-                if (siblings.length > 1) tag += ':nth-of-type(' + (siblings.indexOf(el) + 1) + ')';
+        // Patch sendToFrame to capture the element picker response
+        bridge.sendToFrame = function(target, origin, msg) {
+            if (msg && msg.requestId === requestId &&
+                (msg.type === 'agent-framework:elementPicker:result' ||
+                 msg.type === 'agent-framework:elementPicker:cancelled')) {
+                clearTimeout(timeout);
+                bridge.sendToFrame = origSendToFrame;
+                resolve(msg);
+            } else {
+                origSendToFrame.call(bridge, target, origin, msg);
             }
-            path.unshift(tag);
-            el = parent;
-        }
-        return path.join(' > ');
-    }
+        };
 
-    function getElementUnder(x, y) {
-        overlay.style.pointerEvents = 'none';
-        var el = document.elementFromPoint(x, y);
-        overlay.style.pointerEvents = '';
-        return el;
-    }
-
-    function updateHighlight(el) {
-        if (!el || el === document.body || el === document.documentElement) {
-            highlight.style.display = 'none';
-            tooltip.style.display = 'none';
-            return;
-        }
-        var r = el.getBoundingClientRect();
-        highlight.style.left = r.left + 'px';
-        highlight.style.top = r.top + 'px';
-        highlight.style.width = r.width + 'px';
-        highlight.style.height = r.height + 'px';
-        highlight.style.display = 'block';
-        tooltip.textContent = el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ')[0] : '');
-        tooltip.style.left = Math.min(r.left, window.innerWidth - 310) + 'px';
-        tooltip.style.top = Math.max(0, r.top - 30) + 'px';
-        tooltip.style.display = 'block';
-    }
-
-    function cleanup() { overlay.remove(); highlight.remove(); tooltip.remove(); cancelBtn.remove(); }
-
-    function pick() {
-        var selector = genSelector(lastTarget);
-        var html = lastTarget.outerHTML;
-        if (html.length > 5000) html = html.substring(0, 5000) + '...';
-        cleanup();
-        resolve({ selector: selector, html: html });
-    }
-
-    overlay.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        var t = e.touches[0];
-        var el = getElementUnder(t.clientX, t.clientY);
-        if (el && el !== lastTarget) { lastTarget = el; updateHighlight(el); }
-    }, { passive: false });
-
-    overlay.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        if (lastTarget && lastTarget !== document.body) pick();
+        // Call the framework's handler with a synthetic event object.
+        // Only event.source and event.origin are used by the handler.
+        handler.call(bridge,
+            { source: window, origin: window.location.origin },
+            {
+                type: 'agent-framework:elementPicker:start',
+                version: '1.0.0',
+                timestamp: Date.now(),
+                requestId: requestId,
+                options: options || {}
+            }
+        );
     });
-
-    overlay.addEventListener('mousemove', function(e) {
-        var el = getElementUnder(e.clientX, e.clientY);
-        if (el && el !== lastTarget) { lastTarget = el; updateHighlight(el); }
-    });
-
-    overlay.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        if (lastTarget && lastTarget !== document.body) pick();
-    });
-
-    cancelBtn.addEventListener('click', function(e) { e.stopPropagation(); cleanup(); resolve({ cancelled: true }); });
-    cancelBtn.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); cleanup(); resolve({ cancelled: true }); });
-
-    document.body.appendChild(overlay);
-});
+} catch(e) {
+    return { cancelled: true, error: e.message || String(e) };
+}
