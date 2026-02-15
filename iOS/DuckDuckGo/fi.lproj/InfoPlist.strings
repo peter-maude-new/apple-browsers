@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Voit ladata valokuvia ja videoita";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Voit jakaa sijaintisi";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "Tätä tarvitaan ääniominaisuuksien käyttämiseen. DuckDuckGo ei koskaan tallenna puhettasi.";
+"NSMicrophoneUsageDescription" = "Tätä tarvitaan ääniominaisuuksien käyttämiseen. Ripul ei koskaan tallenna puhettasi.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Voit tallentaa kuvia laitteellesi";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "Tämä vaaditaan puhehaun käyttämiseen. DuckDuckGo ei koskaan tallenna puhettasi.";
+"NSSpeechRecognitionUsageDescription" = "Tämä vaaditaan puhehaun käyttämiseen. Ripul ei koskaan tallenna puhettasi.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Liitä leikepöydältä";

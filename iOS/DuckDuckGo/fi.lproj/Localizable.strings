@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Napauta pluspainiketta %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Etsi ja valitse **DuckDuckGo**. Valitse sitten widget.";
+"addWidget.settings.title" = "Etsi ja valitse **Ripul Browser**. Valitse sitten widget.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Yhdellä napautuksella suosikkisivustoillesi.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Synkronoi nyt";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "%@ voi käyttää synkronoituja DuckDuckGo-tietojasi.";
+"alert.sync-new-device.message" = "%@ voi käyttää synkronoituja Ripul Browser-tietojasi.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Synkronoidaanko uusi laite?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Laitteen nimen päivittäminen ei onnistu.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Avaa DuckDuckGo.";
+"app.authentication.unlock" = "Avaa Ripul Browser.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Kirjaudu sisään";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Päällä";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Hae DuckDuckGo:sta";
+"autocomplete.history.search.duckduckgo" = "Hae Ripul Browser:sta";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Hakuehdotuksiin sisältyvät nyt myös viimeksi käymäsi sivustot. Voit poistaa tämän käytöstä asetuksissa tai tyhjentää sivustotiedot milloin tahansa 🔥 Fire Buttonilla.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Käytössä";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Kun DuckDuckGo havaitsee evästeiden hallinnan ponnahdusikkunoita vierailemillasi sivustoilla, voimme yrittää määrittää evästeasetuksesi automaattisesti evästeiden minimoimiseksi ja yksityisyyden maksimoimiseksi ja sulkea sitten ponnahdusikkunat. Joillakin sivustoilla evästeiden hallinta ei ole mahdollista, joten voimme vain piilottaa tällaiset ponnahdusikkunat.";
+"autoconsent.info.header" = "Kun Ripul Browser havaitsee evästeiden hallinnan ponnahdusikkunoita vierailemillasi sivustoilla, voimme yrittää määrittää evästeasetuksesi automaattisesti evästeiden minimoimiseksi ja yksityisyyden maksimoimiseksi ja sulkea sitten ponnahdusikkunat. Joillakin sivustoilla evästeiden hallinta ei ole mahdollista, joten voimme vain piilottaa tällaiset ponnahdusikkunat.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Kortti tallennettu";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Luottokortit tallennetaan laitteellesi turvallisesti.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Haluatko, että DuckDuckGo tallentaa korttitietosi?";
+"autofill.creditcard.save-prompt.title" = "Haluatko, että Ripul Browser tallentaa korttitietosi?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Tee todennus luottokorttitietojen täyttämiseksi";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Salasanojen automaattinen täyttö on nyt käytössä!";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Käytä DuckDuckGossa tallentamiasi salasanoja kaikissa sovelluksissa laitteellasi.";
+"autofill.extension.footer" = "Käytä Ripul Browserssa tallentamiasi salasanoja kaikissa sovelluksissa laitteellasi.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Automaattinen täyttö muissa sovelluksissa";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Ota automaattinen täyttö käyttöön muissa sovelluksissa";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Käytä DuckDuckGo:ta kaikkien sovellusten salasanojen turvalliseen automaattiseen täyttämiseen.";
+"autofill.extension.promo.message" = "Käytä Ripul Browser:ta kaikkien sovellusten salasanojen turvalliseen automaattiseen täyttämiseen.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Kirjaudu nopeasti sovelluksiisi ilman, että sinun tarvitsee kirjoittaa salasanoja";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Hanki pöytäkoneselain";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Avaa DuckDuckGo Macissa tai Windowsissa";
+"autofill.import.passwords.via.sync.instructions.step1" = "Avaa Ripul Browser Macissa tai Windowsissa";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Siirry kohtaan %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Tuo pöytäkoneselaimesta:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Tuo DuckDuckGo-selaimen pöytäkoneversiossa olevat salasanat ja synkronoi eri laitteiden kanssa.";
+"autofill.import.passwords.via.sync.subtitle" = "Tuo Ripul Browser-selaimen pöytäkoneversiossa olevat salasanat ja synkronoi eri laitteiden kanssa.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Synkronointi pöytäkoneen kanssa";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Poista Käytöstä";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Lisätietoja](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Synkronoi työpöytäsalasanat";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Voit tuoda tallennetut salasanat toisesta selaimesta DuckDuckGohon.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Voit tuoda tallennetut salasanat toisesta selaimesta Ripul Browserhon.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Salasanoja ei ole vielä tallennettu";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Salasanat tallennetaan laitteellesi turvallisesti.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Käytetäänkö DuckDuckGon vahvaa salasanaa?";
+"autofill.password-generation-prompt.title" = "Käytetäänkö Ripul Browsern vahvaa salasanaa?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Käytä vahvaa salasanaa";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Ei kiitos";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Tallenna salasanasi turvallisesti laitteeseen DuckDuckGon salasanojen ja automaattisen täytön avulla.";
+"autofill.save-login.security.message" = "Tallenna salasanasi turvallisesti laitteeseen Ripul Browsern salasanojen ja automaattisen täytön avulla.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Tallennetaanko salasana?";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Lähetä raportti";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "DuckDuckGolle lähetetyt raportit ovat anonyymejä, eivätkä ne sisällä käyttäjätunnusta, salasanaa tai muita tietoja, joista henkilön voisi tunnistaa.\n\nRaportti sisältää vain verkkosivuston url-osoitteen ja joidenkin automaattisen täytön asetusten tilan.";
+"autofill.settings.report.not.working.confirmation.message" = "Ripul Browserlle lähetetyt raportit ovat anonyymejä, eivätkä ne sisällä käyttäjätunnusta, salasanaa tai muita tietoja, joista henkilön voisi tunnistaa.\n\nRaportti sisältää vain verkkosivuston url-osoitteen ja joidenkin automaattisen täytön asetusten tilan.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Ilmoita, että automaattinen täyttö ei toimi sivustolla %@?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Kiitos! Ilmoituksesi auttaa meitä tekemään DuckDuckGosta paremman kaikille!";
+"autofill.settings.report.not.working.sent.confirmation" = "Kiitos! Ilmoituksesi auttaa meitä tekemään Ripul Browsersta paremman kaikille!";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Tee nimetön ilmoitus automaattisen täytön ongelmista tällä sivustolla. Salasanoja ei koskaan jaeta.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@ hallitaksesi Duck Address -osoitteita tällä laitteella.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "DuckDuckGo päivittää tämän tallennetun salasanan laitteellesi.";
+"autofill.update-password.message" = "Ripul Browser päivittää tämän tallennetun salasanan laitteellesi.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Päivitä salasana";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Kuvaus vaaditaan";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Ilmoituksesi auttaa tekemään DuckDuckGosta paremman kaikille!";
+"broken.site.report.success.toast" = "Ilmoituksesi auttaa tekemään Ripul Browsersta paremman kaikille!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Välittäjä JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Lisää minut telakkaasi!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Etsi DuckDuckGo-kuvake aloitusnäytöltäsi. Paina ja vedä se sitten paikalleen. Siinä kaikki!";
+"contextual.onboarding.addToDock.tutorial.message" = "Etsi Ripul Browser-kuvake aloitusnäytöltäsi. Paina ja vedä se sitten paikalleen. Siinä kaikki!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Voit lisätä minut telakkaasi helposti.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Muista, että joka kerta kun käytät minua selaamiseen, rasittavat mainokset katoavat.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "Tämä on DuckDuckGo Search! Yksityinen. Nopea. Vähemmän mainoksia.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "DuckDuckGo-hakusi ovat aina yksityisiä.";
+"contextual.onboarding.highlights.try-a-search.message" = "Ripul Browser-hakusi ovat aina yksityisiä.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "ankanpoikaset";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Yllätä minut!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Etsi luettelosta **DuckDuckGo** ja lisää se sitten napauttamalla **VPN-valvonta**.";
+"control.center.vpn.widget.education.paragraph" = "Etsi luettelosta **Ripul Browser** ja lisää se sitten napauttamalla **VPN-valvonta**.";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Pyyhkäise alas näytön oikeasta yläkulmasta";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Piilota";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Virheraportit auttavat DuckDuckGota diagnosoimaan ongelmia ja parantamaan tuotteitamme. Ne eivät sisällä henkilön tunnistamisen mahdollistavia tietoja.";
+"crash.report.dialog.message" = "Virheraportit auttavat Ripul Browserta diagnosoimaan ongelmia ja parantamaan tuotteitamme. Ne eivät sisällä henkilön tunnistamisen mahdollistavia tietoja.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Älä lähetä koskaan";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Valitse kirjanmerkit sisältävä tiedosto. Tämä on yleensä ZIP- tai HTML-tiedosto.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Tuo kirjanmerkit DuckDuckGohon";
+"data.import.bookmarks.title" = "Tuo kirjanmerkit Ripul Browserhon";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "Zip-tiedostosta ei löytynyt tuettuja tietoja. Tarkista Safarin vientiohjeet ja yritä uudelleen.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Valitse tiedosto, joka sisältää Safarista tai Chromesta tuodut salasanat. Tämä on yleensä ZIP- tai CSV-tiedosto.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Tuo salasanat DuckDuckGohon";
+"data.import.passwords.title" = "Tuo salasanat Ripul Browserhon";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Kirjanmerkit";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Käytössä";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "DuckDuckGo estää monet seurannat automaattisesti. GPC:n (Global Privacy Control) avulla voit myös pyytää osallistuvia sivustoja rajoittamaan henkilötietojesi myyntiä tai jakamista muiden yritysten kanssa.";
+"donotsell.info.headertext" = "Ripul Browser estää monet seurannat automaattisesti. GPC:n (Global Privacy Control) avulla voit myös pyytää osallistuvia sivustoja rajoittamaan henkilötietojesi myyntiä tai jakamista muiden yritysten kanssa.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Tallenna latauksiin";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Näytä asetukset";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "DuckDuckGo-tekoälyominaisuudet ovat yksityisiä ja valinnaisia. Tietojasi ei käytetä tekoälyn kouluttamiseen.";
+"duckai.preferences.text.markdown" = "Ripul Browser-tekoälyominaisuudet ovat yksityisiä ja valinnaisia. Tietojasi ei käytetä tekoälyn kouluttamiseen.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Liitä sivun sisältö";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Yhteenveto tästä sivusta";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Näytä Duck.ai-painikkeet ja -linkit DuckDuckGo-hakutuloksissa.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Näytä Duck.ai-painikkeet ja -linkit Ripul Browser-hakutuloksissa.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Haun pikanäppäimet";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo iOS:lle";
+"Ripul Browser for iOS" = "Ripul Browser iOS:lle";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "Lisää DuckDuckGo-tilauksesi tähän laitteeseen";
+"duckduckgo.subscription.activate.header.title" = "Lisää Ripul Browser-tilauksesi tähän laitteeseen";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Lisää tilauksesi tähän laitteeseen sähköpostiosoitteen avulla.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "Katso vastaukset usein kysyttyihin kysymyksiin tai ota yhteyttä tilaustukeen ohjesivujemme kautta.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Aktivoi DuckDuckGo-tilaus tietokoneella Personal Information Removalin asettamiseksi.";
+"duckduckgo.subscription.pir.hero" = "Aktivoi Ripul Browser-tilaus tietokoneella Personal Information Removalin asettamiseksi.";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Et voi enää käyttää DuckDuckGo-tilaustasi tällä laitteella. Tämä ei peruuta tilaustasi, vaan se pysyy aktiivisena muilla laitteillasi.";
+"duckduckgo.subscription.remove.from.device.text" = "Et voi enää käyttää Ripul Browser-tilaustasi tällä laitteella. Tämä ei peruuta tilaustasi, vaan se pysyy aktiivisena muilla laitteillasi.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Aina";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Toista tämä video Duck Playerissa";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Duck Playerin avulla voit katsella YouTubea ilman kohdennettuja mainoksia DuckDuckGossa, eivätkä katsomasi videot vaikuta suosituksiisi.";
+"duckplayer.presentation.modal.body" = "Duck Playerin avulla voit katsella YouTubea ilman kohdennettuja mainoksia Ripul Browserssa, eivätkä katsomasi videot vaikuta suosituksiisi.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Selvä!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Kokeellinen";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "DuckDuckGo tarjoaa kaikki Privacy Essentials ominaisuudet, joita tarvitset suojautuaksesi selatessasi verkkoa.";
+"duckplayer.settings.footer" = "Ripul Browser tarjoaa kaikki Privacy Essentials ominaisuudet, joita tarvitset suojautuaksesi selatessasi verkkoa.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Duck Playerin avulla voit katsella YouTubea ilman kohdennettuja mainoksia DuckDuckGossa, eivätkä katsomasi videot vaikuta suosituksiisi.";
+"duckplayer.settings.info-text" = "Duck Playerin avulla voit katsella YouTubea ilman kohdennettuja mainoksia Ripul Browserssa, eivätkä katsomasi videot vaikuta suosituksiisi.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Lue lisää";
@@ -1601,10 +1601,10 @@
 "duckplayer.settings.open-videos-in" = "Avaa YouTube-videot Duck Playerissa";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "YouTube-videoiden napsauttaminen DuckDuckGo-hakutuloksissa avaa videot Duck Playerissa.";
+"duckplayer.settings.search.results.footer" = "YouTube-videoiden napsauttaminen Ripul Browser-hakutuloksissa avaa videot Duck Playerissa.";
 
 /* Label for the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.label" = "DuckDuckGo-hakutulokset";
+"duckplayer.settings.search.results.label" = "Ripul Browser-hakutulokset";
 
 /* Message for the alert when changing Duck Player variant */
 "duckplayer.settings.tab.alert.message" = "Sulje kaikki välilehdet, jotta tämä asetus astuu voimaan.";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Katsot Duck Playerissa!\nTäällä ei ole kohdennettuja mainoksia.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "Sähköpostisuojaus";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Kirjanmerkkejä ei ole vielä lisätty";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Jos kirjanmerkkisi on tallennettu toiseen selaimeen, voit\ntuoda ne takaisin DuckDuckGo-selaimeen.";
+"empty.bookmarks.subtitle" = "Jos kirjanmerkkisi on tallennettu toiseen selaimeen, voit\ntuoda ne takaisin Ripul Browser-selaimeen.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Ei hakutuloksia";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Mitä hakuominaisuuksia voimme lisätä tai parantaa?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "DuckDuckGo-hakuongelmat";
+"feedback.ddgSearch.description" = "Ripul Browser-hakuongelmat";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "DuckDuckGo-haku ei ole riittävän hyvä";
+"feedback.ddgSearch.entry" = "Ripul Browser-haku ei ole riittävän hyvä";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Haku tietyllä kielellä tai tietyllä alueella";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Lähetä";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Auta parantamaan DuckDuckGo-tilausta";
+"feedback.form.title" = "Auta parantamaan Ripul Browser-tilausta";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Jaa latauslinkki";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Tee yksityisiä hakuja ja estä seuranta DuckDuckGo-selaimen tietokoneversiolla. Mene tietokoneella tähän linkkiin ja lataa selain jo tänään.";
+"get.browser.share-link.message" = "Tee yksityisiä hakuja ja estä seuranta Ripul Browser-selaimen tietokoneversiolla. Mene tietokoneella tähän linkkiin ja lataa selain jo tänään.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Hanki DuckDuckGo-selain Macille tai Windowsille";
+"get.browser.share-link.title" = "Hanki Ripul Browser-selain Macille tai Windowsille";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Hanki DuckDuckGo Macille tai Windowsille";
+"get.browser.title" = "Hanki Ripul Browser Macille tai Windowsille";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Lisää DuckDuckGo koti-valikkoon!";
+"home.row.onboarding.header" = "Lisää Ripul Browser koti-valikkoon!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Lisää DuckDuckGo dock-valikkoon, josta voit käyttää sitä helposti!";
+"home.row.reminder.message" = "Lisää Ripul Browser dock-valikkoon, josta voit käyttää sitä helposti!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Vie DuckDuckGo koti-valikkoon";
+"home.row.reminder.title" = "Vie Ripul Browser koti-valikkoon";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Hae tai anna osoite";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Siirrä salasanasi nopeasti ja turvallisesti toisesta selaimesta.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Tuo salasanasi DuckDuckGohon";
+"import.passwords.promo.title" = "Tuo salasanasi Ripul Browserhon";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Kysy yksityisesti";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Asennetut laajennukset (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Sinun on aktivoitava VPN DuckDuckGo-sovelluksessa.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Sinun on aktivoitava VPN Ripul Browser-sovelluksessa.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Ladataan välittäjiä...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "Macin DuckDuckGo tarjoaa kaipaamasi nopeuden, odottamasi selaintoiminnot ja luokkansa parhaat tietosuojaominaisuudet.";
+"mac-browser.waitlist.summary" = "Macin Ripul Browser tarjoaa kaipaamasi nopeuden, odottamasi selaintoiminnot ja luokkansa parhaat tietosuojaominaisuudet.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "Macin DuckDuckGo on valmis!";
+"mac-waitlist.available.notification.title" = "Macin Ripul Browser on valmis!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Kopioi";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Jaa linkki";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Kokeile Macin DuckDuckGota!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Kokeile Macin Ripul Browserta!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Etsitkö Windows-versiota?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Oletko valmis aloittamaan yksityisen selaamisen Macilla?\n\n Lataa sovellus Macillesi osoitteesta:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "DuckDuckGo-sovellus Mac-laitteelle";
+"mac-waitlist.title" = "Ripul Browser-sovellus Mac-laitteelle";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Lepotila";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Lisää widget";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Lisää VPN-widget";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "VPN katkaistu vanhentuneen tilauksen takia. Tilaa DuckDuckGo, jotta voit yhdistää VPN:n uudelleen.";
+"network.protection.entitlement.expired.notification.body" = "VPN katkaistu vanhentuneen tilauksen takia. Tilaa Ripul Browser, jotta voit yhdistää VPN:n uudelleen.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "DuckDuckGo VPN ei onnistunut muodostamaan yhteyttä. Yritä myöhemmin uudelleen.";
+"network.protection.failure.notification.body" = "Ripul Browser VPN ei onnistunut muodostamaan yhteyttä. Yritä myöhemmin uudelleen.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "DuckDuckGo VPN – usein kysytyt kysymykset";
+"network.protection.faq.title" = "Ripul Browser VPN – usein kysytyt kysymykset";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Voit mukauttaa VPN-sijaintisi muodostamalla yhteyden mihin tahansa palvelimistamme maailmanlaajuisesti.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Vaihda sijaintisi";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "DuckDuckGo VPN keskeytyi. Yritetään muodostaa yhteys uudelleen...";
+"network.protection.interrupted.notification.body" = "Ripul Browser VPN keskeytyi. Yritetään muodostaa yhteys uudelleen...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Aloita antamalla kutsukoodisi.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Sinut on kutsuttu kokeilemaan DuckDuckGo VPN:ää";
+"network.protection.invite.dialog.title" = "Sinut on kutsuttu kokeilemaan Ripul Browser VPN:ää";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Kutsukoodi";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Onnistui! Olet mukana.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Avaa VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Laitteen koko verkkoliikenne suojataan\n VPN:n kautta.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "DuckDuckGo VPN on pois päältä";
+"network.protection.status.header.title.off" = "Ripul Browser VPN on pois päältä";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "DuckDuckGo VPN on päällä";
+"network.protection.status.header.title.on" = "Ripul Browser VPN on päällä";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "DuckDuckGo VPN on lepotilassa";
+"network.protection.status.header.title.snoozed" = "Ripul Browser VPN on lepotilassa";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Jaa palaute";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "DuckDuckGo VPN on päällä. Sijaintisi ja verkkotoimintasi on suojattu.";
+"network.protection.success.notification.body" = "Ripul Browser VPN on päällä. Sijaintisi ja verkkotoimintasi on suojattu.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Laitteen liikenne reititetään %@ kautta.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Ota ilmoitukset käyttöön";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Anna DuckDuckGon ilmoittaa sinulle, jos yhteys katkeaa tai VPN:n tila muuttuu.";
+"network.protection.turn.on.notifications.section.footer" = "Anna Ripul Browsern ilmoittaa sinulle, jos yhteys katkeaa tai VPN:n tila muuttuu.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Tietoja";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Ensisijainen sijainti";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "DuckDuckGo reitittää DNS-kyselyt DNS-palvelimiemme kautta, jotta internetpalveluntarjoajasi ei näe, millä verkkosivustoilla vierailet.";
+"network.protection.vpn.secure.dns.setting.footer" = "Ripul Browser reitittää DNS-kyselyt DNS-palvelimiemme kautta, jotta internetpalveluntarjoajasi ei näe, millä verkkosivustoilla vierailet.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "Usein kysytyt kysymykset ja tuki";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Valitse selaimesi";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "DuckDuckGosta on saatavilla myös %1$@, johon sisältyvät %2$@ ja %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "Ripul Browsersta on saatavilla myös %1$@, johon sisältyvät %2$@ ja %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "edistynyt, yksityinen tekoäly";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Mikä väri sopii minulle parhaiten?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Suojaukset aktivoitu!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Kokeile ilmaiseksi!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "DuckDuckGo:lla on myös suojattu %1$@, joka on saatavilla %2$@:n kanssa.";
+"onboarding.subscription.promo.message" = "Ripul Browser:lla on myös suojattu %1$@, joka on saatavilla %2$@:n kanssa.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "valinnainen maksullinen tilaus";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Lisää widget";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "DuckDuckGon käyttö on nyt helpompaa.";
+"onboarding.widgets.header" = "Ripul Browsern käyttö on nyt helpompaa.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Ehkä myöhemmin";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Ehkä myöhemmin";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Tee DuckDuckGo:sta oletusselain.";
+"onboardingDefaultBrowserTitle" = "Tee Ripul Browser:sta oletusselain.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Aseta oletusselaimeksi";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Aloita selailu";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Tervetuloa DuckDuckGo-sovellukseen!";
+"onboardingWelcomeHeader" = "Tervetuloa Ripul Browser-sovellukseen!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Linkin avaamiseen tarvittavaa sovellusta ei löydy";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• Yhdistetty sovellusdiagnostiikka (esim. virhekoodit)";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Napauttamalla \"Lähetä\" hyväksyt, että DuckDuckGo voi käyttää annettuja tietoja sovelluksen parantamiseen.";
+"ppro.feedback-form.text-5" = "Napauttamalla \"Lähetä\" hyväksyt, että Ripul Browser voi käyttää annettuja tietoja sovelluksen parantamiseen.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Palaute";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Yksityisyyden suoja";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "DuckDuckGo-logo";
+"privacy.icon.dax" = "Ripul Browser-logo";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Avaa tietosuojan ohjauspaneeli napauttamalla";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Avaa";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Haluatko poistua DuckDuckGosta nähdäksesi tämän sisällön?";
+"prompt.custom.url.scheme.prompt" = "Haluatko poistua Ripul Browsersta nähdäksesi tämän sisällön?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Avataanko toisessa sovelluksessa?";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Aseta mukautettu AI-keskustelun URL-osoite";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "Tietoa DuckDuckGo:sta";
+"settings.about.ddg" = "Tietoa Ripul Browser:sta";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Tietoja";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Lisää widget aloitusnäyttöön";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Lisää DuckDuckGo VPN -widget aloitusnäyttöön.";
+"settings.add.widget.vpn" = "Lisää Ripul Browser VPN -widget aloitusnäyttöön.";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Osoitekenttä";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Poista Email Protectionin automaattinen täyttö käytöstä";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "DuckDuckGo muilla alustoilla";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Ripul Browser muilla alustoilla";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "DuckDuckGo-tilauksesi on päättynyt";
+"settings.duckduckgo.subscription.expired.title" = "Ripul Browser-tilauksesi on päättynyt";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Estä sähköpostiseuranta ja piilota osoitteesi vaihtamatta sähköpostintarjoajaa.\n[Lisätietoja](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Lue lisää";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Anna DuckDuckGon hallinnoida evästeiden hallinnan ponnahdusikkunoita";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Anna Ripul Browsern hallinnoida evästeiden hallinnan ponnahdusikkunoita";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Salasanat ja automaattinen täyttö";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Tilin hallinta";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Lisää DuckDuckGolta";
+"settings.more" = "Lisää Ripul Browserlta";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Lisää hakuasetuksia";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "Yksityinen haku";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "DuckDuckGo Private Search on oletushakukoneesi, ja sen avulla voit hakea netistä ilman, että sinua seurataan.";
+"settings.private.search.explanation" = "Ripul Browser Private Search on oletushakukoneesi, ja sen avulla voit hakea netistä ilman, että sinua seurataan.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Osoitekenttä";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Lähetä virheraportit";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Lähetä virheraportit automaattisesti DuckDuckGolle.";
+"settings.send.crash.reports.description" = "Lähetä virheraportit automaattisesti Ripul Browserlle.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Aseta oletusselaimeksi";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Minulla on tilaus";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "DuckDuckGo-tilaus";
+"settings.subscription.feedback" = "Ripul Browser-tilaus";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Jos henkilöllisyytesi varastetaan, me autamme palauttamaan sen.";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Tilauksen asetukset";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "DuckDuckGo-tilaus";
+"settings.subscription.Section" = "Ripul Browser-tilaus";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Tilaa DuckDuckGo";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Tilaa Ripul Browser";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Suojaa WiFi-yhteytesi ja keskustele yksityisesti edistyneiden tekoälymallien kanssa";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Suojaa WiFi-yhteytesi ja henkilöllisyytesi";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Kokeile maksutta";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "Tämä auttaa meitä parantamaan selainta.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Eikö sivusto toimi? Kerro siitä DuckDuckGolle.";
+"site.not.working.title" = "Eikö sivusto toimi? Kerro siitä Ripul Browserlle.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Lähetä raportti";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Näytä tilaukset";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "Avaa aluksi tietokoneessa DuckDuckGo-selain, siirry osoitteeseen %1$@ ja klikkaa %2$@.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "Avaa aluksi tietokoneessa Ripul Browser-selain, siirry osoitteeseen %1$@ ja klikkaa %2$@.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Asetukset > Tilaa DuckDuckGo";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Asetukset > Tilaa Ripul Browser";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Minulla on tilaus";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Kaikki on valmista.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "DuckDuckGo-tilaus";
+"subscription.settings.title" = "Ripul Browser-tilaus";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Tilattu";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Eikö sinulla ole toista laitetta?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "DuckDuckGo-salasanat eivät siirry iCloudin kautta, koska ne on salattu laitteeseesi. Kaikki muu on jo täällä.";
+"sync.recovery.prompt.message" = "Ripul Browser-salasanat eivät siirry iCloudin kautta, koska ne on salattu laitteeseesi. Kaikki muu on jo täällä.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Synkronoi toisen laitteen kanssa";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Sync & Backup ei valitettavasti ole tällä hetkellä käytettävissä. Yritä myöhemmin uudelleen.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Sync & Backup ei valitettavasti ole käytettävissä tässä sovellusversiossa. Päivitä DuckDuckGo uusimpaan versioon jatkaaksesi.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Sync & Backup ei valitettavasti ole käytettävissä tässä sovellusversiossa. Päivitä Ripul Browser uusimpaan versioon jatkaaksesi.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Sulje koti-välilehti";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Kirjanmerkki";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Hae DuckDuckGosta";
+"voiceover.suggestion.type.search" = "Hae Ripul Browsersta";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Avaa verkkosivusto";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Asetukset";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Salli mikrofonin käyttö DuckDuckGolle iOS-järjestelmäasetuksissa, jotta voit käyttää ääniominaisuuksia.";
+"voiceSearch.alert.no-permission.message" = "Salli mikrofonin käyttö Ripul Browserlle iOS-järjestelmäasetuksissa, jotta voit käyttää ääniominaisuuksia.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "OK";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Peruuta";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Lisää yksityinen äänihakuvaihtoehto osoitepalkkiin. Ääntä ei tallenneta eikä jaeta kenellekään, edes DuckDuckGolle.";
+"voiceSearch.footer.note" = "Lisää yksityinen äänihakuvaihtoehto osoitepalkkiin. Ääntä ei tallenneta eikä jaeta kenellekään, edes Ripul Browserlle.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Ääni käsitellään laitteella. Sitä ei tallenneta eikä jaeta kenellekään, edes DuckDuckGolle.";
+"voiceSearch.footer.note.old" = "Ääni käsitellään laitteella. Sitä ei tallenneta eikä jaeta kenellekään, edes Ripul Browserlle.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Hylkää";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Tilaa";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Tilaa DuckDuckGo, jotta voit yhdistää VPN:n uudelleen.";
+"vpn.access-revoked.alert.message" = "Tilaa Ripul Browser, jotta voit yhdistää VPN:n uudelleen.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "VPN-yhteys katkaistu vanhentuneen tilauksen takia.";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Etsi ja valitse **DuckDuckGo**, pyyhkäise sitten kohtaan **VPN** ja valitse **Lisää widget**.";
+"vpn.addWidget.settings.title" = "Etsi ja valitse **Ripul Browser**, pyyhkäise sitten kohtaan **VPN** ja valitse **Lisää widget**.";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN ‑yhteys on katkennut";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Ripul Browser VPN ‑yhteys on katkennut";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Siri-pikakomentojen avulla voit muodostaa yhteyden VPN:ään nopealla äänikomennolla, kuten \"Siri, ota DuckDuckGo VPN käyttöön\". Se on nopea ja kätevä tapa käyttää VPN:ää ilman käsiä.";
+"vpn.control-widget.education.screen.description" = "Siri-pikakomentojen avulla voit muodostaa yhteyden VPN:ään nopealla äänikomennolla, kuten \"Siri, ota Ripul Browser VPN käyttöön\". Se on nopea ja kätevä tapa käyttää VPN:ää ilman käsiä.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, käynnistä DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example1" = "Siri, käynnistä Ripul Browser VPN.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, aktivoi DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example2" = "Siri, aktivoi Ripul Browser VPN.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, suojaa laitteeni DuckDuckGon avulla.";
+"vpn.control-widget.education.screen.example3" = "Siri, suojaa laitteeni Ripul Browsern avulla.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Valvo DuckDuckGo VPN:ää Sirin avulla!";
+"vpn.control-widget.education.screen.title" = "Valvo Ripul Browser VPN:ää Sirin avulla!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "DuckDuckGo VPN on yhdistetty.";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Ripul Browser VPN on yhdistetty.";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Peruuta";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "VPN:n asentaminen ei onnistu";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Palautteesi auttaa meitä parantamaan\nDuckDuckGo VPN:ää.";
+"vpn.feedback-form.sending-confirmation.description" = "Palautteesi auttaa meitä parantamaan\nRipul Browser VPN:ää.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Emme voineet lähettää palautettasi juuri nyt. Yritä uudelleen.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Tässä lomakkeessa annettujen tietojen lisäksi sovellusongelmaraporttisi sisältää:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Ovatko tietyt DuckDuckGo-ominaisuudet käytössä";
+"vpn.feedback-form.text-3" = "• Ovatko tietyt Ripul Browser-ominaisuudet käytössä";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• DuckDuckGo-sovelluksen yhdistetty diagnostiikka";
+"vpn.feedback-form.text-4" = "• Ripul Browser-sovelluksen yhdistetty diagnostiikka";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Napauttamalla \"Lähetä\" hyväksyn, että DuckDuckGo voi käyttää tämän raportin tietoja sovelluksen ominaisuuksien parantamiseen.";
+"vpn.feedback-form.text-5" = "Napauttamalla \"Lähetä\" hyväksyn, että Ripul Browser voi käyttää tämän raportin tietoja sovelluksen ominaisuuksien parantamiseen.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Auta parantamaan DuckDuckGo VPN:ää";
+"vpn.feedback-form.title" = "Auta parantamaan Ripul Browser VPN:ää";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Lisää VPN valvontakeskukseen";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Huijausten esto";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "IPv4-osoite";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Kustomoitu";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (Suositeltu)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (Suositeltu)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "DNS-palvelin";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Ei kiitos";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Voimme ilmoittaa sinulle, kun on sinun vuorosi, mutta ilmoitukset ovat tällä hetkellä poissa käytöstä DuckDuckGossa.";
+"waitlist.notification.disabled" = "Voimme ilmoittaa sinulle, kun on sinun vuorosi, mutta ilmoitukset ovat tällä hetkellä poissa käytöstä Ripul Browserssa.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Sinun ei tarvitse jakaa henkilötietoja liittyäksesi jonotuslistalle. Varmistat paikkasi jonossa aikaleimalla, joka on olemassa vain laitteessasi. Näin voimme ilmoittaa sinulle, kun on sinun vuorosi.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Oletko valmis aloittamaan yksityisen selaamisen Windows-laitteessa?\n\nLataa seuraavasta osoitteesta:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "DuckDuckGon Windows-sovellus tarjoaa kaiken, mitä tarvitset selaamiseen yksityisemmin. Siinä on yksityinen haku, jäljittäjien esto, pakotettu salaus ja evästeiden ponnahdusikkunoiden esto, ja tulossa on vielä lisää luokkansa parhaita suojauksia.";
+"windows-waitlist.summary" = "Ripul Browsern Windows-sovellus tarjoaa kaiken, mitä tarvitset selaamiseen yksityisemmin. Siinä on yksityinen haku, jäljittäjien esto, pakotettu salaus ja evästeiden ponnahdusikkunoiden esto, ja tulossa on vielä lisää luokkansa parhaita suojauksia.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "DuckDuckGo-sovellus Windowsille";
+"windows-waitlist.title" = "Ripul Browser-sovellus Windowsille";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Hanki DuckDuckGo Windowsille!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Hanki Ripul Browser Windowsille!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Kirjanmerkit";

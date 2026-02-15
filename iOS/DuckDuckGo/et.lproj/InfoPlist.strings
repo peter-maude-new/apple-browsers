@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Võimaldab üles laadida fotosid ja videoid";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Võimaldab oma asukohta jagada";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "See on vajalik häälfunktsioonide kasutamiseks. DuckDuckGo ei salvesta kunagi seda, mida te ütlete.";
+"NSMicrophoneUsageDescription" = "See on vajalik häälfunktsioonide kasutamiseks. Ripul ei salvesta kunagi seda, mida te ütlete.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Võimaldab salvestada pilte oma seadmesse";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "See on vajalik häälotsingu kasutamiseks. DuckDuckGo ei salvesta kunagi seda, mida sa ütled.";
+"NSSpeechRecognitionUsageDescription" = "See on vajalik häälotsingu kasutamiseks. Ripul ei salvesta kunagi seda, mida sa ütled.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Kleebi lõikelaualt";

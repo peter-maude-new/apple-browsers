@@ -38,8 +38,7 @@ extension TabViewController {
     }
 
     private var shouldShowAIChatInMenu: Bool {
-        let settings = AIChatSettings(privacyConfigurationManager: ContentBlocking.shared.privacyConfigurationManager)
-        return settings.isAIChatBrowsingMenuUserSettingsEnabled
+        return false
     }
 
     private var dataClearingCapability: DataClearingCapable {

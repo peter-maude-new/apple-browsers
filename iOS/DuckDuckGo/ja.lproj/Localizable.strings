@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "プラス%@ボタンをタップします。";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "検索して**DuckDuckGo**を選択します。次にウィジェットを選択します。";
+"addWidget.settings.title" = "検索して**Ripul Browser**を選択します。次にウィジェットを選択します。";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "お気に入りのサイトにワンタップでアクセスします。";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "今すぐ同期";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "「%@」は同期されたDuckDuckGoデータにアクセス可能になります。";
+"alert.sync-new-device.message" = "「%@」は同期されたRipul Browserデータにアクセス可能になります。";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "新しいデバイスを同期しますか？";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "デバイス名を更新できません。";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "DuckDuckGoのロックを解除します。";
+"app.authentication.unlock" = "Ripul Browserのロックを解除します。";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "サインイン";
@@ -344,7 +344,7 @@
 "autoclear.on" = "有効";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "DuckDuckGoで検索する";
+"autocomplete.history.search.duckduckgo" = "Ripul Browserで検索する";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "検索候補に最近訪問したサイトが含まれるようになりました。設定でオフにするか、いつでも🔥 Fire Buttonでクリアできます。";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "有効";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "DuckDuckGoが訪問したサイトでCookie同意ポップアップを検出すると、Cookieを最小限に抑え、プライバシーを最大限に高めるために自動的に設定し、ポップアップを閉じます。一部のサイトではCookie設定を管理するオプションが提供されていないため、このようなポップアップを非表示にすることしかできません。";
+"autoconsent.info.header" = "Ripul Browserが訪問したサイトでCookie同意ポップアップを検出すると、Cookieを最小限に抑え、プライバシーを最大限に高めるために自動的に設定し、ポップアップを閉じます。一部のサイトではCookie設定を管理するオプションが提供されていないため、このようなポップアップを非表示にすることしかできません。";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "カードが保存されました";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "クレジットカードはデバイスに安全に保存されます。";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "DuckDuckGoにカード情報を保存してもらいたいですか？";
+"autofill.creditcard.save-prompt.title" = "Ripul Browserにカード情報を保存してもらいたいですか？";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "クレジットカード情報を入力するには認証してください";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "パスワードの自動入力が有効になりました！";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "DuckDuckGoに保存されたパスワードを、デバイス内のすべてのアプリで自動入力できます。";
+"autofill.extension.footer" = "Ripul Browserに保存されたパスワードを、デバイス内のすべてのアプリで自動入力できます。";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "他のアプリで自動入力する";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "他のアプリで自動入力をオンにする";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "DuckDuckGoを使って、すべてのアプリでパスワードを安全に自動入力します。";
+"autofill.extension.promo.message" = "Ripul Browserを使って、すべてのアプリでパスワードを安全に自動入力します。";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "パスワードを入力せずに、アプリに素早くサインイン";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "デスクトップブラウザを入手";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "MacまたはWindowsでDuckDuckGoを開く";
+"autofill.import.passwords.via.sync.instructions.step1" = "MacまたはWindowsでRipul Browserを開く";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "%1$@ > %2$@ に移動";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "デスクトップブラウザからインポート：";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "デスクトップ版のDuckDuckGoブラウザでパスワードをインポートし、デバイス間で同期します。";
+"autofill.import.passwords.via.sync.subtitle" = "デスクトップ版のRipul Browserブラウザでパスワードをインポートし、デバイス間で同期します。";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "デスクトップと同期";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "無効";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[詳細はこちら](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "デスクトップパスワードを同期";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "別のブラウザから保存したパスワードをDuckDuckGoにインポートできます。";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "別のブラウザから保存したパスワードをRipul Browserにインポートできます。";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "パスワードはまだ保存されていません";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "パスワードはデバイスに安全に保存されます。";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "DuckDuckGoの強力なパスワードを使用しますか？";
+"autofill.password-generation-prompt.title" = "Ripul Browserの強力なパスワードを使用しますか？";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "強力なパスワードを使用";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "いいえ、結構です";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "DuckDuckGoパスワードと自動入力を使用して、パスワードをデバイスに安全に保存します。";
+"autofill.save-login.security.message" = "Ripul Browserパスワードと自動入力を使用して、パスワードをデバイスに安全に保存します。";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "パスワードを保存しますか？";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "レポートを送信";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "DuckDuckGoに送信されるレポートは匿名で、ユーザー名、パスワード、その他の個人を特定できる情報は含まれません。レポートには、ウェブサイトのURLと一部の自動入力設定のステータスのみが含まれます。";
+"autofill.settings.report.not.working.confirmation.message" = "Ripul Browserに送信されるレポートは匿名で、ユーザー名、パスワード、その他の個人を特定できる情報は含まれません。レポートには、ウェブサイトのURLと一部の自動入力設定のステータスのみが含まれます。";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "%@で自動入力が機能しないことを報告しますか？";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "ありがとうございます。ご報告は、DuckDuckGoを誰にとってもより良いものにするために役立ちます。";
+"autofill.settings.report.not.working.sent.confirmation" = "ありがとうございます。ご報告は、Ripul Browserを誰にとってもより良いものにするために役立ちます。";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "このサイトで自動入力が機能しないことを匿名で報告します。パスワードは共有されません。";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "このデバイスでDuck Addressを管理するには%@します。";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "DuckDuckGoはデバイスに保存されているこのパスワードを更新します。";
+"autofill.update-password.message" = "Ripul Browserはデバイスに保存されているこのパスワードを更新します。";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "パスワードを更新";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "説明が必要です";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "あなたのレポートは、DuckDuckGoを皆のためにより良くするのに役立ちます！";
+"broken.site.report.success.toast" = "あなたのレポートは、Ripul Browserを皆のためにより良くするのに役立ちます！";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "ブローカー JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Dockに追加してね！";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "ホーム画面でDuckDuckGoアイコンを見つけます。次に、それを押してドラッグして配置します。以上です！";
+"contextual.onboarding.addToDock.tutorial.message" = "ホーム画面でRipul Browserアイコンを見つけます。次に、それを押してドラッグして配置します。以上です！";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Dockへの追加は簡単です。";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "このブラウザで閲覧するたびに、不気味な広告は力を失います。";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "DuckDuckGo Searchは、プライバシー重視、スピーディ、広告が少ない検索です。";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "DuckDuckGoでの検索は常にプライベートです。";
+"contextual.onboarding.highlights.try-a-search.message" = "Ripul Browserでの検索は常にプライベートです。";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "アヒルの赤ちゃん";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "何が出るかな？";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "リストで**DuckDuckGo**を見つけて、**VPNコントロール**をタップして追加します";
+"control.center.vpn.widget.education.paragraph" = "リストで**Ripul Browser**を見つけて、**VPNコントロール**をタップして追加します";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "画面の右上隅から下にスワイプします";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "隠す";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "クラッシュレポートは、DuckDuckGoが問題を診断し、製品を改善するのに役立ちます。個人を特定できる情報は含まれていません。";
+"crash.report.dialog.message" = "クラッシュレポートは、Ripul Browserが問題を診断し、製品を改善するのに役立ちます。個人を特定できる情報は含まれていません。";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "送信しない";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "ブックマークを含むファイルを選択してください。これは通常、ZIPまたはHTMLファイルです。";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "ブックマークをDuckDuckGoにインポート";
+"data.import.bookmarks.title" = "ブックマークをRipul Browserにインポート";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "zipファイル内にサポートされているデータは見つかりませんでした。Safariのエクスポート手順を確認して、もう一度お試しください。";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "SafariまたはChromeからエクスポートされたパスワードを含むファイルを選択します。これは通常、ZIPまたはCSVファイルです。";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "DuckDuckGoにパスワードをインポート";
+"data.import.passwords.title" = "Ripul Browserにパスワードをインポート";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "ブックマーク";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "有効";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "DuckDuckGoは多くのトラッカーを自動的にブロックします。Global Privacy Control (GPC) を使用すると、参加ウェブサイトに個人データの販売または他社との共有を制限するよう依頼することもできます。";
+"donotsell.info.headertext" = "Ripul Browserは多くのトラッカーを自動的にブロックします。Global Privacy Control (GPC) を使用すると、参加ウェブサイトに個人データの販売または他社との共有を制限するよう依頼することもできます。";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "ダウンロードに保存";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "設定を表示";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "DuckDuckGoのAI機能はプライベートでオプションです。データはAIのトレーニングに使用されません。";
+"duckai.preferences.text.markdown" = "Ripul BrowserのAI機能はプライベートでオプションです。データはAIのトレーニングに使用されません。";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "ページの内容を添付";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "このページを要約";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "DuckDuckGoの検索結果にDuck.aiのボタンとリンクを表示する";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Ripul Browserの検索結果にDuck.aiのボタンとリンクを表示する";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "検索ショートカット";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "iOS用DuckDuckGo";
+"Ripul Browser for iOS" = "iOS用Ripul Browser";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "このデバイスにDuckDuckGoのサブスクリプションを追加";
+"duckduckgo.subscription.activate.header.title" = "このデバイスにRipul Browserのサブスクリプションを追加";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "このデバイスにサブスクリプションを追加するには、メールアドレスを使用してください。";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "よくある質問への回答を確認するか、ヘルプページからサブスクリプションサポートにお問い合わせください。";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "デスクトップでDuckDuckGoのサブスクリプションを有効にしてPersonal Information Removalを設定";
+"duckduckgo.subscription.pir.hero" = "デスクトップでRipul Browserのサブスクリプションを有効にしてPersonal Information Removalを設定";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "このデバイスではDuckDuckGoのサブスクリプションにアクセスできなくなります。これはサブスクリプションをキャンセルするものではなく、他のデバイスで引き続き有効です。";
+"duckduckgo.subscription.remove.from.device.text" = "このデバイスではRipul Browserのサブスクリプションにアクセスできなくなります。これはサブスクリプションをキャンセルするものではなく、他のデバイスで引き続き有効です。";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "常に";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "この動画をDuck Playerで再生";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Duck Playerを使用すると、DuckDuckGoでターゲット広告なしでYouTubeを視聴でき、視聴内容がおすすめに影響することはありません。";
+"duckplayer.presentation.modal.body" = "Duck Playerを使用すると、Ripul Browserでターゲット広告なしでYouTubeを視聴でき、視聴内容がおすすめに影響することはありません。";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "了解！";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "実験的";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "DuckDuckGoは、Webを閲覧する際に自分自身を保護するために必要なプライバシーの基本をすべて提供します。";
+"duckplayer.settings.footer" = "Ripul Browserは、Webを閲覧する際に自分自身を保護するために必要なプライバシーの基本をすべて提供します。";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Duck Playerを使用すると、DuckDuckGoでターゲット広告なしでYouTubeを視聴でき、視聴内容がおすすめに影響することはありません。";
+"duckplayer.settings.info-text" = "Duck Playerを使用すると、Ripul Browserでターゲット広告なしでYouTubeを視聴でき、視聴内容がおすすめに影響することはありません。";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "詳細情報";
@@ -1601,7 +1601,7 @@
 "duckplayer.settings.open-videos-in" = "Duck PlayerでYouTube動画を開く";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "DuckDuckGoの検索結果からYouTube動画をクリックすると、Duck Playerで開きます。";
+"duckplayer.settings.search.results.footer" = "Ripul Browserの検索結果からYouTube動画をクリックすると、Duck Playerで開きます。";
 
 /* Label for the search results toggle in Duck Player settings */
 "duckplayer.settings.search.results.label" = "DuckDuckGo Searchの結果";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Duck Playerで視聴中です！\nここにはターゲティング広告はありません。";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "メール保護";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "ブックマークはまだ追加されていません";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "ブックマークが別のブラウザに保存されている場合は、DuckDuckGoにインポートできます。";
+"empty.bookmarks.subtitle" = "ブックマークが別のブラウザに保存されている場合は、Ripul Browserにインポートできます。";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "一致するものが見つかりませんでした";
@@ -1871,7 +1871,7 @@
 "feedback.ddgSearch.description" = "DuckDuckGo Searchの問題";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "DuckDuckGoの検索が不十分";
+"feedback.ddgSearch.entry" = "Ripul Browserの検索が不十分";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "特定の言語または地域での検索";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "送信";
 
 /* Title of the feedback form */
-"feedback.form.title" = "DuckDuckGoサブスクリプションの改善を支援";
+"feedback.form.title" = "Ripul Browserサブスクリプションの改善を支援";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "ダウンロードリンクを共有する";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "DuckDuckGoデスクトップブラウザなら、検索時にプライバシーを保護し、トラッカーをブロックできます。お使いのパソコンでこちらのリンクにアクセスして今すぐダウンロードしましょう。";
+"get.browser.share-link.message" = "Ripul Browserデスクトップブラウザなら、検索時にプライバシーを保護し、トラッカーをブロックできます。お使いのパソコンでこちらのリンクにアクセスして今すぐダウンロードしましょう。";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "MacまたはWindows用のDuckDuckGoブラウザを入手";
+"get.browser.share-link.title" = "MacまたはWindows用のRipul Browserブラウザを入手";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "MacまたはWindows用DuckDuckGoを入手";
+"get.browser.title" = "MacまたはWindows用Ripul Browserを入手";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "DuckDuckGoをホーム画面に追加しましょう！";
+"home.row.onboarding.header" = "Ripul Browserをホーム画面に追加しましょう！";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "簡単にアクセスできるように、DuckDuckGoをドックに追加してください！";
+"home.row.reminder.message" = "簡単にアクセスできるように、Ripul Browserをドックに追加してください！";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "DuckDuckGoをホームに設定";
+"home.row.reminder.title" = "Ripul Browserをホームに設定";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "検索またはアドレスを入力";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "別のブラウザからパスワードを迅速かつ安全に転送します。";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "パスワードをDuckDuckGoにインポート";
+"import.passwords.promo.title" = "パスワードをRipul Browserにインポート";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "非公開で質問";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "インストール済み拡張機能（%@）";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "DuckDuckGoアプリからVPNを有効にする必要があります。";
+"intent.vpn.needs.to.be.enabled.from.app" = "Ripul BrowserアプリからVPNを有効にする必要があります。";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "ブローカーを読み込み中...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "DuckDuckGo for Macは、ユーザーが必要とする速度と期待するブラウザ機能を備え、クラス最高のプライバシーに不可欠な要素が満載です。";
+"mac-browser.waitlist.summary" = "Ripul Browser for Macは、ユーザーが必要とする速度と期待するブラウザ機能を備え、クラス最高のプライバシーに不可欠な要素が満載です。";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "DuckDuckGo for Macの準備が整いました！";
+"mac-waitlist.available.notification.title" = "Ripul Browser for Macの準備が整いました！";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "コピー";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "リンクを共有";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "DuckDuckGo for Macを入手しましょう！";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Ripul Browser for Macを入手しましょう！";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Windows版をお探しの場合は";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Macでプライベートブラウジングを始める準備はできましたか？\n\nダウンロードするには、MacでこのURLにアクセスしてください。\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo for Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser for Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "DuckDuckGo Macアプリ";
+"mac-waitlist.title" = "Ripul Browser Macアプリ";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,7 +2335,7 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "スヌーズ";
 
-/* Title for the DuckDuckGo VPN feature */
+/* Title for the Ripul Browser VPN feature */
 "netP.title" = "DUCKDUCKGO VPN";
 
 /* Button title for tooltip about adding VPN widget */
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "VPNウィジェットを追加する";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "サブスクリプションの有効期限が切れたため、VPNが切断されました。DuckDuckGoに登録してVPNを再接続します。";
+"network.protection.entitlement.expired.notification.body" = "サブスクリプションの有効期限が切れたため、VPNが切断されました。Ripul Browserに登録してVPNを再接続します。";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "DuckDuckGo VPNの接続に失敗しました。時間を置いてもう一度お試しください。";
+"network.protection.failure.notification.body" = "Ripul Browser VPNの接続に失敗しました。時間を置いてもう一度お試しください。";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "DuckDuckGo VPNに関するよくある質問";
+"network.protection.faq.title" = "Ripul Browser VPNに関するよくある質問";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "世界中のいずれかのサーバーに接続することで、VPNの場所をカスタマイズできます。";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "場所を変更";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "DuckDuckGo VPNが中断されました。現在再接続を試行しています...";
+"network.protection.interrupted.notification.body" = "Ripul Browser VPNが中断されました。現在再接続を試行しています...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "招待コードを入力して開始します。";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "DuckDuckGo VPNをお試しください";
+"network.protection.invite.dialog.title" = "Ripul Browser VPNをお試しください";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "招待コード";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "成功です！ログインしました。";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "VPNを開く";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "すべてのデバイスのインターネットトラフィックがVPNを通じて保護されます。";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "DuckDuckGo VPNがオフです";
+"network.protection.status.header.title.off" = "Ripul Browser VPNがオフです";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "DuckDuckGo VPNはオンです";
+"network.protection.status.header.title.on" = "Ripul Browser VPNはオンです";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "DuckDuckGo VPNはスヌーズされています";
+"network.protection.status.header.title.snoozed" = "Ripul Browser VPNはスヌーズされています";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "フィードバックを共有する";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "DuckDuckGo VPNはオンです。位置情報とオンラインアクティビティは保護されています。";
+"network.protection.success.notification.body" = "Ripul Browser VPNはオンです。位置情報とオンラインアクティビティは保護されています。";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "%@経由でデバイストラフィックをルーティングします。";
@@ -2477,10 +2477,10 @@
 "network.protection.turn.on.notifications.button.title" = "通知をオンにする";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "接続が切断されたり、VPNステータスが変更されたりした場合に、DuckDuckGoから通知を受けるようにします。";
+"network.protection.turn.on.notifications.section.footer" = "接続が切断されたり、VPNステータスが変更されたりした場合に、Ripul Browserから通知を受けるようにします。";
 
 /* Title of the About section in the VPN status screen */
-"network.protection.vpn.about" = "DuckDuckGoについて";
+"network.protection.vpn.about" = "Ripul Browserについて";
 
 /* Section header for the toggle for VPN notifications. */
 "network.protection.vpn.alerts.section.header" = "通知";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "優先ロケーション";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "DuckDuckGoは当社のDNSサーバーを介してDNSクエリをルーティングするため、インターネットプロバイダーはお客様がアクセスしたウェブサイトを見ることができません。";
+"network.protection.vpn.secure.dns.setting.footer" = "Ripul Browserは当社のDNSサーバーを介してDNSクエリをルーティングするため、インターネットプロバイダーはお客様がアクセスしたウェブサイトを見ることができません。";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "よくある質問とサポート";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "ブラウザを選択";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "DuckDuckGoには%1$@もあり、%2$@および%3$@で利用できます。";
+"onboarding.duckduckgo.subscription.promo.message" = "Ripul Browserには%1$@もあり、%2$@および%3$@で利用できます。";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "高度なプライベートAI";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "どの色が一番似合いますか？";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "保護が有効になりました！";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "無料でお試しください。";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "DuckDuckGoには、%2$@で利用できる安全な%1$@もあります。";
+"onboarding.subscription.promo.message" = "Ripul Browserには、%2$@で利用できる安全な%1$@もあります。";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "オプションの有料サブスクリプション";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "ウィジェットを追加";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "DuckDuckGoの使用がさらに簡単になりました。";
+"onboarding.widgets.header" = "Ripul Browserの使用がさらに簡単になりました。";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "たぶん、後で";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "たぶん、後で";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "DuckDuckGoをデフォルトのブラウザに設定";
+"onboardingDefaultBrowserTitle" = "Ripul Browserをデフォルトのブラウザに設定";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "デフォルトブラウザとして設定";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "ブラウジングを開始";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "DuckDuckGoへようこそ！";
+"onboardingWelcomeHeader" = "Ripul Browserへようこそ！";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "そのリンクを開くために必要なアプリが見つかりません";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• アプリの診断情報を集計（例：エラーコード）";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "「送信」をタップすると、DuckDuckGoが送信された情報をアプリの改善に使用することに同意したことになります。";
+"ppro.feedback-form.text-5" = "「送信」をタップすると、Ripul Browserが送信された情報をアプリの改善に使用することに同意したことになります。";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "フィードバック";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "プライバシー保護";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "DuckDuckGoのロゴ";
+"privacy.icon.dax" = "Ripul Browserのロゴ";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "タップしてPrivacy Dashboard画面を開く";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "開く";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "DuckDuckGoを離れてこのコンテンツを表示しますか？";
+"prompt.custom.url.scheme.prompt" = "Ripul Browserを離れてこのコンテンツを表示しますか？";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "別のアプリで開きますか？";
@@ -3062,10 +3062,10 @@
 "Set Custom AI Chat URL" = "カスタムAIチャットURLを設定する";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "DuckDuckGoとは？";
+"settings.about.ddg" = "Ripul Browserとは？";
 
-/* Settings section title for About DuckDuckGo */
-"settings.about.section" = "DuckDuckGoについて";
+/* Settings section title for About Ripul Browser */
+"settings.about.section" = "Ripul Browserについて";
 
 /* About page subscription sentence: rebranding + AI chat */
 "settings.about.subscription.sentence.rebranding.ai" = "さらに、ブラウザに統合された[DuckDuckGoサブスクリプション](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/)も提供しています。登録者は、オンラインアクティビティを保護する高速でシンプルな[VPN](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/privacy-pro/vpn/)、プライベートAIチャットサービスDuck.aiの高度なAIモデルへのアクセス、人物検索サイトから個人情報を見つけて削除するサービス、盗難の場合に個人情報を復元するサービスにより、さらにプライバシー保護を得られます。";
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "ホーム画面にウィジェットを追加";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "DuckDuckGo VPNウィジェットをホーム画面に追加";
+"settings.add.widget.vpn" = "Ripul Browser VPNウィジェットをホーム画面に追加";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "アドレスバー";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Email Protectionの自動入力を無効にする";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "他のプラットフォームでのDuckDuckGo";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "他のプラットフォームでのRipul Browser";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "DuckDuckGoサブスクリプションの有効期限が切れました";
+"settings.duckduckgo.subscription.expired.title" = "Ripul Browserサブスクリプションの有効期限が切れました";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "メールプロバイダを変更せずにメールトラッカーをブロックし、アドレスを非表示にします。[もっと詳しく](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "詳細情報";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "DuckDuckGoにCookieの同意ポップアップを管理させる";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Ripul BrowserにCookieの同意ポップアップを管理させる";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "パスワードと自動入力";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "アカウントを管理する";
 
 /* Settings title for the 'More' section */
-"settings.more" = "DuckDuckGoからのその他のご案内";
+"settings.more" = "Ripul Browserからのその他のご案内";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "その他の検索設定";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "Private Search";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "DuckDuckGo Private Searchがデフォルトの検索エンジンなので、追跡されることなくウェブを検索できます。";
+"settings.private.search.explanation" = "Ripul Browser Private Searchがデフォルトの検索エンジンなので、追跡されることなくウェブを検索できます。";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "アドレスバー";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "クラッシュレポートを送信";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "クラッシュレポートをDuckDuckGoに自動的に送信します。";
+"settings.send.crash.reports.description" = "クラッシュレポートをRipul Browserに自動的に送信します。";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "デフォルトブラウザとして設定";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "サブスクリプション登録済み";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "DuckDuckGoサブスクリプション";
+"settings.subscription.feedback" = "Ripul Browserサブスクリプション";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "個人情報が盗まれた場合、当社が修復をサポートします";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "サブスクリプション設定";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "DuckDuckGoサブスクリプション";
+"settings.subscription.Section" = "Ripul Browserサブスクリプション";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "DuckDuckGoに登録する";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Ripul Browserに登録する";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Wi-Fiを保護して高度なAIモデルでプライベートにチャット";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Wi-Fiを保護して個人情報を安全に";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "無料で試す";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "これはブラウザの改善に役立ちます。";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "サイトが機能していませんか？DuckDuckGoにお知らせください。";
+"site.not.working.title" = "サイトが機能していませんか？Ripul Browserにお知らせください。";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "レポートを送信";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "プランを表示";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "デスクトップ用のDuckDuckGoブラウザで、%1$@に移動し、%2$@をクリックして開始します。";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "デスクトップ用のRipul Browserブラウザで、%1$@に移動し、%2$@をクリックして開始します。";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "「設定」>「DuckDuckGoに登録する」";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "「設定」>「Ripul Browserに登録する」";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "サブスクリプション登録済み";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "これで準備は完了です。";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "DuckDuckGoサブスクリプション";
+"subscription.settings.title" = "Ripul Browserサブスクリプション";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "登録済み";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "別のデバイスをお持ちではありませんか？";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "DuckDuckGoのパスワードはデバイス上で暗号化されているため、iCloudでは転送されません。他のすべてはすでにここにあります。";
+"sync.recovery.prompt.message" = "Ripul Browserのパスワードはデバイス上で暗号化されているため、iCloudでは転送されません。他のすべてはすでにここにあります。";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "別のデバイスと同期";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "申し訳ありませんが、Sync & Backupは現在利用できません。時間を置いてもう一度お試しください。";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "申し訳ありませんが、Sync & Backupはこのアプリバージョンでは利用できなくなりました。続行するには、DuckDuckGoを最新バージョンに更新してください。";
+"sync.warning.data.syncing.disabled.upgrade.required" = "申し訳ありませんが、Sync & Backupはこのアプリバージョンでは利用できなくなりました。続行するには、Ripul Browserを最新バージョンに更新してください。";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "ホームタブを閉じる";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "ブックマーク";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "DuckDuckGoで検索";
+"voiceover.suggestion.type.search" = "Ripul Browserで検索";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "ウェブサイトを開く";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "設定";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "DuckDuckGoが音声機能を使用できるように、iOSシステム設定でマイクへのアクセスを許可してください。";
+"voiceSearch.alert.no-permission.message" = "Ripul Browserが音声機能を使用できるように、iOSシステム設定でマイクへのアクセスを許可してください。";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "OK";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "キャンセル";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "プライベート音声検索オプションをアドレスバーに追加します。音声は、DuckDuckGoを含む誰とも保存または共有されません。";
+"voiceSearch.footer.note" = "プライベート音声検索オプションをアドレスバーに追加します。音声は、Ripul Browserを含む誰とも保存または共有されません。";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "音声はデバイス上で処理されます。DuckDuckGoを含め、誰とも保存または共有されません。";
+"voiceSearch.footer.note.old" = "音声はデバイス上で処理されます。Ripul Browserを含め、誰とも保存または共有されません。";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "無視する";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "登録";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "DuckDuckGoに登録してVPNを再接続します。";
+"vpn.access-revoked.alert.message" = "Ripul Browserに登録してVPNを再接続します。";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "サブスクリプションの期限切れによりVPNが切断されました";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "**DuckDuckGo**を見つけて選択し、**VPN**までスワイプして**ウィジェットを追加**を選択します";
+"vpn.addWidget.settings.title" = "**Ripul Browser**を見つけて選択し、**VPN**までスワイプして**ウィジェットを追加**を選択します";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPNが切断されている";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Ripul Browser VPNが切断されている";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Siriショートカットを使用すると、「Siri、DuckDuckGo VPNをオンにして」などの簡単な音声コマンドでVPNに接続できます。VPNを手軽に高速で利用できる方法です。";
+"vpn.control-widget.education.screen.description" = "Siriショートカットを使用すると、「Siri、Ripul Browser VPNをオンにして」などの簡単な音声コマンドでVPNに接続できます。VPNを手軽に高速で利用できる方法です。";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri、DuckDuckGo VPNを起動して。";
+"vpn.control-widget.education.screen.example1" = "Siri、Ripul Browser VPNを起動して。";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri、DuckDuckGo VPNを有効にして。";
+"vpn.control-widget.education.screen.example2" = "Siri、Ripul Browser VPNを有効にして。";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri、DuckDuckGoで私のデバイスを保護して。";
+"vpn.control-widget.education.screen.example3" = "Siri、Ripul Browserで私のデバイスを保護して。";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "SiriでDuckDuckGo VPNを操作しましょう！";
+"vpn.control-widget.education.screen.title" = "SiriでRipul Browser VPNを操作しましょう！";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "DuckDuckGo VPNが接続されています";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Ripul Browser VPNが接続されています";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "キャンセル";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "VPNをインストールできない";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "皆様からのフィードバックはDuckDuckGo VPNの改善に役立ちます。";
+"vpn.feedback-form.sending-confirmation.description" = "皆様からのフィードバックはRipul Browser VPNの改善に役立ちます。";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "現在、フィードバックを送信できません。もう一度お試しください。";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "このフォームに入力された詳細に加えて、アプリの問題レポートには以下が含まれます：";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• 特定のDuckDuckGo機能が有効になっているかどうか";
+"vpn.feedback-form.text-3" = "• 特定のRipul Browser機能が有効になっているかどうか";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• DuckDuckGoアプリの診断情報を集計";
+"vpn.feedback-form.text-4" = "• Ripul Browserアプリの診断情報を集計";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "「送信」をタップすると、DuckDuckGoがこのレポートの情報をアプリの機能向上の目的で使用することに同意したことになります。";
+"vpn.feedback-form.text-5" = "「送信」をタップすると、Ripul Browserがこのレポートの情報をアプリの機能向上の目的で使用することに同意したことになります。";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "DuckDuckGo VPNの改善にご協力ください";
+"vpn.feedback-form.title" = "Ripul Browser VPNの改善にご協力ください";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "コントロールセンターにVPNを追加する";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "詐欺ブロッカー";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "IPv4アドレス";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "カスタム";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo（推奨）";
+"vpn.settings.dns.server.option.default" = "Ripul Browser（推奨）";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "DNSサーバー";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "いいえ、結構です";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "順番が来たら通知を受け取ることができますが、現在DuckDuckGoの通知は無効になっています。";
+"waitlist.notification.disabled" = "順番が来たら通知を受け取ることができますが、現在Ripul Browserの通知は無効になっています。";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "ウェイティングリストに参加するために個人情報を共有する必要はありません。デバイス上にのみ存在するタイムスタンプに従って場所を確保し、順番が来たときに通知できるようにします。";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Windows でプライベートにブラウジングを始める準備はできましたか？\n\nダウンロードするには、コンピューターでこのURLにアクセスしてください：\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "DuckDuckGo for Windowsには、プライベート検索、トラッカーブロック、強制暗号化、Cookieポップアップブロックなど、プライバシーを強化したブラウジングに必要な機能が備わっています。さらに、クラス最高の保護機能も今後追加される予定です。";
+"windows-waitlist.summary" = "Ripul Browser for Windowsには、プライベート検索、トラッカーブロック、強制暗号化、Cookieポップアップブロックなど、プライバシーを強化したブラウジングに必要な機能が備わっています。さらに、クラス最高の保護機能も今後追加される予定です。";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "DuckDuckGo Windowsアプリ";
+"windows-waitlist.title" = "Ripul Browser Windowsアプリ";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "DuckDuckGo for Windowsを入手！";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Ripul Browser for Windowsを入手！";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "ブックマーク";

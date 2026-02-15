@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "A DuckDuckGo alkalmazásban engedélyezned kell a VPN-t.";
+"intent.vpn.needs.to.be.enabled.from.app" = "A Ripul alkalmazásban engedélyezned kell a VPN-t.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "AI-csevegés gyors indítása a Duck.ai használatával";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Kedvencek";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Böngészési előzmények azonnali törlése, és új privát DuckDuckGo-keresés indítása.";
+"lock.screen.widget.fire.description" = "Böngészési előzmények azonnali törlése, és új privát Ripul-keresés indítása.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Tűz gomb";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Gyorsan kereshetsz a DuckDuckGo mentett jelszavai között.";
+"lock.screen.widget.passwords.description" = "Gyorsan kereshetsz a Ripul mentett jelszavai között.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Jelszavak keresése";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Privát DuckDuckGo-keresés azonnali indítása.";
+"lock.screen.widget.search.description" = "Privát Ripul-keresés azonnali indítása.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "privát keresés";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Új privát hangalapú DuckDuckGo-keresés azonnali indítása.";
+"lock.screen.widget.voice.description" = "Új privát hangalapú Ripul-keresés azonnali indítása.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Beszédhangalapú keresés";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Gyorsparancsok konfigurálása";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Gyorsan kereshetsz a DuckDuckGo mentett jelszavai között.";
+"widget.gallery.passwords.description" = "Gyorsan kereshetsz a Ripul mentett jelszavai között.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Jelszavak keresése";
@@ -104,7 +104,7 @@
 "widget.gallery.search.display.name" = "Keresés";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Tekintsd meg, és kezeld a VPN-kapcsolatod. DuckDuckGo-előfizetést igényel.";
+"widget.gallery.vpn.description" = "Tekintsd meg, és kezeld a VPN-kapcsolatod. Ripul-előfizetést igényel.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Keresés";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "DuckDuckGo keresés";
+"widget.search.duckduckgo" = "Ripul keresés";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Csatlakozás";

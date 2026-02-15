@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Vous devez activer le VPN à partir de l'application DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Vous devez activer le VPN à partir de l'application Ripul.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Démarrez rapidement un nouvel AI Chat dans Duck.ai";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Favoris";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Supprimez instantanément votre historique de navigation et lancez une nouvelle recherche privée dans DuckDuckGo.";
+"lock.screen.widget.fire.description" = "Supprimez instantanément votre historique de navigation et lancez une nouvelle recherche privée dans Ripul.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Recherchez rapidement vos mots de passe DuckDuckGo enregistrés.";
+"lock.screen.widget.passwords.description" = "Recherchez rapidement vos mots de passe Ripul enregistrés.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Rechercher un mot de passe";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Lancez instantanément une recherche privée dans DuckDuckGo.";
+"lock.screen.widget.search.description" = "Lancez instantanément une recherche privée dans Ripul.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Recherche privée";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Lancez instantanément une nouvelle recherche vocale privée dans DuckDuckGo.";
+"lock.screen.widget.voice.description" = "Lancez instantanément une nouvelle recherche vocale privée dans Ripul.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Recherche vocale";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Configurer les raccourcis";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Recherchez rapidement vos mots de passe DuckDuckGo enregistrés.";
+"widget.gallery.passwords.description" = "Recherchez rapidement vos mots de passe Ripul enregistrés.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Rechercher un mot de passe";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Recherche et favoris";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Lancez rapidement une recherche privée dans DuckDuckGo.";
+"widget.gallery.search.description" = "Lancez rapidement une recherche privée dans Ripul.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Rechercher";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Affichez et gérez votre connexion VPN. Nécessite un abonnement DuckDuckGo.";
+"widget.gallery.vpn.description" = "Affichez et gérez votre connexion VPN. Nécessite un abonnement Ripul.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Rechercher";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Rechercher avec DuckDuckGo";
+"widget.search.duckduckgo" = "Rechercher avec Ripul";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Connecte";

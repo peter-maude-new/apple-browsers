@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Atinge butonul plus %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Găsește și selectează DuckDuckGo. Apoi alege un widget.";
+"addWidget.settings.title" = "Găsește și selectează Ripul Browser. Apoi alege un widget.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Atinge o dată pentru a ajunge la site-urile tale preferate.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Sincronizează acum";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "„%@” va putea accesa datele tale DuckDuckGo sincronizate.";
+"alert.sync-new-device.message" = "„%@” va putea accesa datele tale Ripul Browser sincronizate.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Sincronizezi un nou dispozitiv?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Nu se poate actualiza numele dispozitivului.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Deblochează DuckDuckGo.";
+"app.authentication.unlock" = "Deblochează Ripul Browser.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Autentificare";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Activat";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Căutare DuckDuckGo";
+"autocomplete.history.search.duckduckgo" = "Căutare Ripul Browser";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Sugestiile de căutare includ acum site-urile accesate recent. Dezactivează-le din Setări sau șterge-le în orice moment cu ajutorul Fire Button 🔥.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Activat";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Când DuckDuckGo detectează ferestre pop-up în care ți se solicită consimțământul cu privire la modulele cookie pe site-urile pe care le vizitezi, putem încerca să îți setăm automat preferințele privind modulele cookie pentru a minimiza modulele cookie și a maximiza confidențialitatea și, apoi, pentru a închide ferestrele pop-up. Unele site-uri nu oferă o opțiune de gestionare a preferințelor privind modulele cookie, prin urmare putem doar să ascundem ferestrele pop-up precum acestea.";
+"autoconsent.info.header" = "Când Ripul Browser detectează ferestre pop-up în care ți se solicită consimțământul cu privire la modulele cookie pe site-urile pe care le vizitezi, putem încerca să îți setăm automat preferințele privind modulele cookie pentru a minimiza modulele cookie și a maximiza confidențialitatea și, apoi, pentru a închide ferestrele pop-up. Unele site-uri nu oferă o opțiune de gestionare a preferințelor privind modulele cookie, prin urmare putem doar să ascundem ferestrele pop-up precum acestea.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Card salvat";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Cardurile de credit sunt stocate în siguranță pe dispozitivul tău.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Dorești ca DuckDuckGo să îți salveze informațiile cardului?";
+"autofill.creditcard.save-prompt.title" = "Dorești ca Ripul Browser să îți salveze informațiile cardului?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Autentifică-te pentru a completa informațiile despre cardul de credit";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Completarea automată a parolelor a fost activată!";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Folosește parolele salvate în DuckDuckGo în toate aplicațiile de pe dispozitivul tău.";
+"autofill.extension.footer" = "Folosește parolele salvate în Ripul Browser în toate aplicațiile de pe dispozitivul tău.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Completare automată în alte aplicații";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Activează completarea automată în alte aplicații";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Folosește DuckDuckGo pentru a completa în siguranță automat parolele pentru toate aplicațiile tale.";
+"autofill.extension.promo.message" = "Folosește Ripul Browser pentru a completa în siguranță automat parolele pentru toate aplicațiile tale.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Conectează-te rapid la aplicațiile tale fără a completa parole";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Obține browserul pentru desktop";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Deschide DuckDuckGo pe Mac sau Windows";
+"autofill.import.passwords.via.sync.instructions.step1" = "Deschide Ripul Browser pe Mac sau Windows";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Accesează %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Importă din browserul desktop:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Importă parolele în versiunea desktop a browserului DuckDuckGo, apoi sincronizează-le între dispozitive.";
+"autofill.import.passwords.via.sync.subtitle" = "Importă parolele în versiunea desktop a browserului Ripul Browser, apoi sincronizează-le între dispozitive.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Sincronizare cu computerul desktop";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Dezactivează";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Află mai multe](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Sincronizează parolele de pe desktop";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Poți importa parolele salvate dintr-un alt browser în DuckDuckGo.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Poți importa parolele salvate dintr-un alt browser în Ripul Browser.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Nici o parolă nu a fost salvată încă";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Parolele sunt stocate în siguranță pe dispozitivul tău.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Folosiți o parolă puternică de la DuckDuckGo?";
+"autofill.password-generation-prompt.title" = "Folosiți o parolă puternică de la Ripul Browser?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Utilizați o parolă puternică";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Nu, mulțumesc";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Stochează în siguranță parola pe dispozitiv, cu Parole și completare automată DuckDuckGo.";
+"autofill.save-login.security.message" = "Stochează în siguranță parola pe dispozitiv, cu Parole și completare automată Ripul Browser.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Salvezi parola?";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Trimite raportul";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "Sesizările trimise către DuckDuckGo sunt anonime și nu includ numele tău de utilizator, parola sau orice alte informații de identificare personală.\n\nSesizarea include doar URL-ul site-ului și starea unor setări de completare automată.";
+"autofill.settings.report.not.working.confirmation.message" = "Sesizările trimise către Ripul Browser sunt anonime și nu includ numele tău de utilizator, parola sau orice alte informații de identificare personală.\n\nSesizarea include doar URL-ul site-ului și starea unor setări de completare automată.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Raportezi că completarea automată nu funcționează pe %@?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Mulțumim! Sesizarea ta ne va ajuta să îmbunătățim DuckDuckGo pentru toată lumea.";
+"autofill.settings.report.not.working.sent.confirmation" = "Mulțumim! Sesizarea ta ne va ajuta să îmbunătățim Ripul Browser pentru toată lumea.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Raportează anonim că completarea automată nu funcționează pe acest site. Parolele nu sunt niciodată comunicate.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@ pentru a-ți gestiona adresele Duck Address pe acest dispozitiv.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "DuckDuckGo va actualiza această parolă stocată pe dispozitivul tău.";
+"autofill.update-password.message" = "Ripul Browser va actualiza această parolă stocată pe dispozitivul tău.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Actualizează parola";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Descriere necesară";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Sesizarea ta ajută la îmbunătățirea DuckDuckGo pentru toată lumea!";
+"broken.site.report.success.toast" = "Sesizarea ta ajută la îmbunătățirea Ripul Browser pentru toată lumea!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "JSON broker:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Adaugă-mă în rândul tău de jos de pictograme!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Găsește pictograma DuckDuckGo pe ecranul de pornire. Apoi apas-o și trage-o în poziție. Gata!";
+"contextual.onboarding.addToDock.tutorial.message" = "Găsește pictograma Ripul Browser pe ecranul de pornire. Apoi apas-o și trage-o în poziție. Gata!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Este simplu să mă adaugi în rândul de jos de pictograme.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Reține: de fiecare dată când navighezi cu mine, o reclamă terifiantă își pierde aripile.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "Acesta este DuckDuckGo Search! Privat. Rapid. Mai puține reclame.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "Căutările tale DuckDuckGo sunt întotdeauna private.";
+"contextual.onboarding.highlights.try-a-search.message" = "Căutările tale Ripul Browser sunt întotdeauna private.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "rățuște";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Surprinde-mă!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Găsește **DuckDuckGo** în listă, apoi atinge **Control VPN** pentru a-l adăuga.";
+"control.center.vpn.widget.education.paragraph" = "Găsește **Ripul Browser** în listă, apoi atinge **Control VPN** pentru a-l adăuga.";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Glisează în jos din colțul din dreapta sus al ecranului";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Ascunde";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Rapoartele de cădere ajută DuckDuckGo să diagnosticheze problemele și să îmbunătățească produsele noastre. Acestea nu conțin informații de identificare personală.";
+"crash.report.dialog.message" = "Rapoartele de cădere ajută Ripul Browser să diagnosticheze problemele și să îmbunătățească produsele noastre. Acestea nu conțin informații de identificare personală.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Nu trimite niciodată";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Selectează fișierul care conține marcaje. Acesta este de obicei un fișier ZIP sau HTML.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Importă marcaje în DuckDuckGo";
+"data.import.bookmarks.title" = "Importă marcaje în Ripul Browser";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "Nu s-au găsit date acceptate în fișierul zip. Consultă instrucțiunile de export Safari și încearcă din nou.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Selectează fișierul care conține parolele exportate din Safari sau Chrome. Acesta est,e de obicei, un fișier ZIP sau CSV.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Importă parolele în DuckDuckGo";
+"data.import.passwords.title" = "Importă parolele în Ripul Browser";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Semne de carte";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Activat";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "DuckDuckGo blochează automat mai multe instrumente de urmărire. Cu Global Privacy Control (GPC) poți solicita, de asemenea, site-urilor web participante să restricționeze vânzarea sau partajarea datelor tale cu caracter personal cu alte companii.";
+"donotsell.info.headertext" = "Ripul Browser blochează automat mai multe instrumente de urmărire. Cu Global Privacy Control (GPC) poți solicita, de asemenea, site-urilor web participante să restricționeze vânzarea sau partajarea datelor tale cu caracter personal cu alte companii.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Salvează în Descărcări";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Vezi setările";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "Funcțiile AI ale DuckDuckGo sunt private și opționale. Datele tale nu sunt folosite pentru a antrena AI.";
+"duckai.preferences.text.markdown" = "Funcțiile AI ale Ripul Browser sunt private și opționale. Datele tale nu sunt folosite pentru a antrena AI.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Atașează conținutul paginii";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Rezumă această pagină";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Afișează butoanele și linkurile Duck.ai în rezultatele căutării DuckDuckGo.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Afișează butoanele și linkurile Duck.ai în rezultatele căutării Ripul Browser.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Scurtături de căutare";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo pentru iOS";
+"Ripul Browser for iOS" = "Ripul Browser pentru iOS";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "Adaugă abonamentul tău DuckDuckGo pe acest dispozitiv";
+"duckduckgo.subscription.activate.header.title" = "Adaugă abonamentul tău Ripul Browser pe acest dispozitiv";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Folosește o adresă de e-mail pentru a adăuga abonamentul tău la acest dispozitiv.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "Primește răspunsuri la întrebările frecvente sau contactează serviciul de asistență pentru abonamente din paginile noastre de asistență.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Activează abonamentul DuckDuckGo pe desktop pentru a configura Personal Information Removal";
+"duckduckgo.subscription.pir.hero" = "Activează abonamentul Ripul Browser pe desktop pentru a configura Personal Information Removal";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Nu vei mai putea accesa abonamentul tău DuckDuckGo pe acest dispozitiv. Acest lucru nu îți va anula abonamentul, care va rămâne activ pe celelalte dispozitive.";
+"duckduckgo.subscription.remove.from.device.text" = "Nu vei mai putea accesa abonamentul tău Ripul Browser pe acest dispozitiv. Acest lucru nu îți va anula abonamentul, care va rămâne activ pe celelalte dispozitive.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Întotdeauna";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Redă acest videoclip în Duck Player";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Duck Player îți permite să vizionezi YouTube fără reclame țintite în DuckDuckGo, iar ceea ce vizionezi nu îți va influența recomandările.";
+"duckplayer.presentation.modal.body" = "Duck Player îți permite să vizionezi YouTube fără reclame țintite în Ripul Browser, iar ceea ce vizionezi nu îți va influența recomandările.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Am înțeles!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Experimental";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "DuckDuckGo oferă toate elementele de confidențialitate esențiale de care ai nevoie pentru a te proteja în timp ce navighezi pe web.";
+"duckplayer.settings.footer" = "Ripul Browser oferă toate elementele de confidențialitate esențiale de care ai nevoie pentru a te proteja în timp ce navighezi pe web.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Duck Player îți permite să vizionezi YouTube fără reclame țintite în DuckDuckGo, iar ceea ce vizionezi nu îți va influența recomandările.";
+"duckplayer.settings.info-text" = "Duck Player îți permite să vizionezi YouTube fără reclame țintite în Ripul Browser, iar ceea ce vizionezi nu îți va influența recomandările.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Află mai multe";
@@ -1601,10 +1601,10 @@
 "duckplayer.settings.open-videos-in" = "Deschide videoclipurile YouTube în Duck Player";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "Dacă dai click pe videoclipurile de pe YouTube din rezultatele căutării DuckDuckGo, acestea se vor deschide în Duck Player.";
+"duckplayer.settings.search.results.footer" = "Dacă dai click pe videoclipurile de pe YouTube din rezultatele căutării Ripul Browser, acestea se vor deschide în Duck Player.";
 
 /* Label for the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.label" = "Rezultatele căutării pe DuckDuckGo";
+"duckplayer.settings.search.results.label" = "Rezultatele căutării pe Ripul Browser";
 
 /* Message for the alert when changing Duck Player variant */
 "duckplayer.settings.tab.alert.message" = "Închide toate filele pentru ca această setare să intre în vigoare.";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Urmărești în Duck Player!\nAici nu există reclame direcționate.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "Protecția comunicațiilor prin e-mail";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Nu s-a adăugat niciun semn de carte";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Dacă marcajele tale sunt salvate într-un alt browser, \nle poți importa în DuckDuckGo.";
+"empty.bookmarks.subtitle" = "Dacă marcajele tale sunt salvate într-un alt browser, \nle poți importa în Ripul Browser.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Nu s-au găsit potriviri";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Ce funcție de căutare putem adăuga sau îmbunătăți?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "Probleme privind funcția de căutare a DuckDuckGo";
+"feedback.ddgSearch.description" = "Probleme privind funcția de căutare a Ripul Browser";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "Căutarea DuckDuckGo nu este suficient de bună";
+"feedback.ddgSearch.entry" = "Căutarea Ripul Browser nu este suficient de bună";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Căutarea într-o anumită limbă sau regiune";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Trimite";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Contribuie la îmbunătățirea abonamentului DuckDuckGo";
+"feedback.form.title" = "Contribuie la îmbunătățirea abonamentului Ripul Browser";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Trimite linkul de descărcare";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Caută în privat și blochează tehnologiile de urmărire cu browserul pentru desktop DuckDuckGo. Accesează acest link pe computerul tău pentru a descărca astăzi.";
+"get.browser.share-link.message" = "Caută în privat și blochează tehnologiile de urmărire cu browserul pentru desktop Ripul Browser. Accesează acest link pe computerul tău pentru a descărca astăzi.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Obține browserul DuckDuckGo pentru Mac sau Windows";
+"get.browser.share-link.title" = "Obține browserul Ripul Browser pentru Mac sau Windows";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Obține DuckDuckGo pentru Mac sau Windows";
+"get.browser.title" = "Obține Ripul Browser pentru Mac sau Windows";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Adaugă DuckDuckGo pe ecranul de start!";
+"home.row.onboarding.header" = "Adaugă Ripul Browser pe ecranul de start!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Adaugă DuckDuckGo pe rândul de jos de pictograme pentru acces ușor!";
+"home.row.reminder.message" = "Adaugă Ripul Browser pe rândul de jos de pictograme pentru acces ușor!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Pune DuckDuckGo pe pagina de pornire";
+"home.row.reminder.title" = "Pune Ripul Browser pe pagina de pornire";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Caută sau introdu adresa";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Transferă rapid și sigur parolele dintr-un alt browser.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Importă-ți parolele în DuckDuckGo";
+"import.passwords.promo.title" = "Importă-ți parolele în Ripul Browser";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Întreabă în mod privat";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Extensii instalate (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Trebuie să activezi VPN-ul din aplicația DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Trebuie să activezi VPN-ul din aplicația Ripul Browser.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Se încarcă brokerii...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "DuckDuckGo pentru Mac are viteza de care ai nevoie, funcționalitățile de răsfoire pe care ți le dorești și este prevăzută cu cele mai bune caracteristici de bază în privința confidențialității din domeniu.";
+"mac-browser.waitlist.summary" = "Ripul Browser pentru Mac are viteza de care ai nevoie, funcționalitățile de răsfoire pe care ți le dorești și este prevăzută cu cele mai bune caracteristici de bază în privința confidențialității din domeniu.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "DuckDuckGo pentru Mac este pregătită!";
+"mac-waitlist.available.notification.title" = "Ripul Browser pentru Mac este pregătită!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Copiere";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Trimite linkul";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Obține DuckDuckGo pentru Mac!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Obține Ripul Browser pentru Mac!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Cauți versiunea pentru Windows?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Ești gata să răsfoiești în mod privat pe Mac?\n\nVizitează această adresă URL pe dispozitivul tău Mac pentru a descărca:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo pentru Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser pentru Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "Aplicația DuckDuckGo pentru Mac";
+"mac-waitlist.title" = "Aplicația Ripul Browser pentru Mac";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Amânat";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Adăugare widget";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Adaugă widgetul VPN";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "VPN deconectat din cauza expirării abonamentului. Abonează-te la DuckDuckGo pentru a reconecta VPN-ul.";
+"network.protection.entitlement.expired.notification.body" = "VPN deconectat din cauza expirării abonamentului. Abonează-te la Ripul Browser pentru a reconecta VPN-ul.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "DuckDuckGo VPN nu a reușit să se conecteze. Încearcă din nou mai târziu.";
+"network.protection.failure.notification.body" = "Ripul Browser VPN nu a reușit să se conecteze. Încearcă din nou mai târziu.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "Întrebări frecvente despre DuckDuckGo VPN";
+"network.protection.faq.title" = "Întrebări frecvente despre Ripul Browser VPN";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Poți personaliza locația VPN-ului tău, conectându-te la oricare dintre serverele noastre din întreaga lume.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Schimbă-ți locația";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "DuckDuckGo VPN a fost întrerupt. Se încearcă reconectarea acum...";
+"network.protection.interrupted.notification.body" = "Ripul Browser VPN a fost întrerupt. Se încearcă reconectarea acum...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Completează codul de invitație pentru a începe.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Te invităm să încerci DuckDuckGo VPN";
+"network.protection.invite.dialog.title" = "Te invităm să încerci Ripul Browser VPN";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Codul de invitație";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Ai reușit! Acum o utilizezi.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Deschide VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Tot traficul de internet al dispozitivelor este securizat\nprin VPN.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "DuckDuckGo VPN este oprit";
+"network.protection.status.header.title.off" = "Ripul Browser VPN este oprit";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "DuckDuckGo VPN este pornit";
+"network.protection.status.header.title.on" = "Ripul Browser VPN este pornit";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "DuckDuckGo VPN este amânat";
+"network.protection.status.header.title.snoozed" = "Ripul Browser VPN este amânat";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Partajează feedback";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "DuckDuckGo VPN este activat. Locația și activitatea ta online sunt protejate.";
+"network.protection.success.notification.body" = "Ripul Browser VPN este activat. Locația și activitatea ta online sunt protejate.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Dirijarea traficului dispozitivului prin %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Activează Notificările";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Permite ca DuckDuckGo să te înștiințeze dacă conexiunea ta devine mai slabă sau dacă starea VPN-ului se schimbă.";
+"network.protection.turn.on.notifications.section.footer" = "Permite ca Ripul Browser să te înștiințeze dacă conexiunea ta devine mai slabă sau dacă starea VPN-ului se schimbă.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Despre";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Locație preferată";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "DuckDuckGo direcționează interogările DNS prin serverele noastre DNS, astfel încât furnizorul tău de internet să nu poată vedea ce site-uri web vizitezi.";
+"network.protection.vpn.secure.dns.setting.footer" = "Ripul Browser direcționează interogările DNS prin serverele noastre DNS, astfel încât furnizorul tău de internet să nu poată vedea ce site-uri web vizitezi.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "Întrebări frecvente și asistență";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Alege browserul";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "DuckDuckGo are, de asemenea, un %1$@, disponibil cu un %2$@ și %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "Ripul Browser are, de asemenea, un %1$@, disponibil cu un %2$@ și %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "IA avansată și privată";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Care culoare arată cel mai bine pentru mine?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Mecanismele de protecție au fost activate!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Încearcă gratuit!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "DuckDuckGo are și un %1$@, disponibile cu un %2$@.";
+"onboarding.subscription.promo.message" = "Ripul Browser are și un %1$@, disponibile cu un %2$@.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "abonament opțional cu plată";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Adăugare widget";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "Folosirea DuckDuckGo a devenit mai ușoară.";
+"onboarding.widgets.header" = "Folosirea Ripul Browser a devenit mai ușoară.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Poate mai târziu";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Poate mai târziu";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Setează DuckDuckGo ca browser implicit.";
+"onboardingDefaultBrowserTitle" = "Setează Ripul Browser ca browser implicit.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Setare ca browser implicit";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Începe navigarea";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Bine ai venit la DuckDuckGo!";
+"onboardingWelcomeHeader" = "Bine ai venit la Ripul Browser!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Aplicația necesară pentru a deschide acel link nu poate fi găsită";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• diagnosticare agregată a aplicației (de exemplu, coduri de eroare).";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Atingând „Transmite”, ești de acord ca DuckDuckGo să utilizeze informațiile trimise pentru a îmbunătăți aplicația.";
+"ppro.feedback-form.text-5" = "Atingând „Transmite”, ești de acord ca Ripul Browser să utilizeze informațiile trimise pentru a îmbunătăți aplicația.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Feedback";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Măsuri de protecție a confidențialității";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "Logoul DuckDuckGo";
+"privacy.icon.dax" = "Logoul Ripul Browser";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Atinge pentru a deschide ecranul Panou de confidențialitate";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Deschide";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Doriți să părăsiți DuckDuckGo pentru a vizualiza acest conținut?";
+"prompt.custom.url.scheme.prompt" = "Doriți să părăsiți Ripul Browser pentru a vizualiza acest conținut?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Deschizi în altă aplicație?";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Setează adresa URL personalizată pentru chatul cu IA";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "Despre DuckDuckGo";
+"settings.about.ddg" = "Despre Ripul Browser";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Despre";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Adaugă un widget la ecranul de întâmpinare";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Adaugă widgetul VPN DuckDuckGo pe ecranul tău de pornire";
+"settings.add.widget.vpn" = "Adaugă widgetul VPN Ripul Browser pe ecranul tău de pornire";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Bara de adrese";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Dezactivează completarea automată în Email Protection";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "DuckDuckGo pe alte platforme";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Ripul Browser pe alte platforme";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "Abonamentul tău DuckDuckGo a expirat";
+"settings.duckduckgo.subscription.expired.title" = "Abonamentul tău Ripul Browser a expirat";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Blochează tehnologiile de urmărire prin e-mail și ascunde-ți adresa fără a schimba furnizorul de servicii de e-mail.\n[Află mai multe](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Află mai multe";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Lasă DuckDuckGo să gestioneze ferestrele pop-up de solicitare a consimțământului cu privire la modulele cookie";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Lasă Ripul Browser să gestioneze ferestrele pop-up de solicitare a consimțământului cu privire la modulele cookie";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Parole și completare automată";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Gestionează contul";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Mai multe de la DuckDuckGo";
+"settings.more" = "Mai multe de la Ripul Browser";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Mai multe setări de căutare";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "Căutare Confidențială";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "DuckDuckGo Private Search este motorul tău de căutare implicit, astfel încât poți căuta pe web fără a fi urmărit(ă).";
+"settings.private.search.explanation" = "Ripul Browser Private Search este motorul tău de căutare implicit, astfel încât poți căuta pe web fără a fi urmărit(ă).";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Bara de adrese";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Trimite rapoarte de cădere";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Trimite automat rapoarte de cădere către DuckDuckGo.";
+"settings.send.crash.reports.description" = "Trimite automat rapoarte de cădere către Ripul Browser.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Setare ca browser implicit";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Am un abonament";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "Abonament DuckDuckGo";
+"settings.subscription.feedback" = "Abonament Ripul Browser";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Dacă identitatea ta este furată, te vom ajuta să o restabilești.";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Setări pentru abonament";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "Abonament DuckDuckGo";
+"settings.subscription.Section" = "Abonament Ripul Browser";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Abonează-te la DuckDuckGo";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Abonează-te la Ripul Browser";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Asigură-ți rețeaua Wi-Fi și discută în privat cu modele avansate de IA";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Protejează-ți Wi-Fi-ul și identitatea";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Încearcă gratuit";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "Acest lucru ne ajută să îmbunătățim browserul.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Site-ul nu funcționează? Anunță DuckDuckGo.";
+"site.not.working.title" = "Site-ul nu funcționează? Anunță Ripul Browser.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Trimite raportul";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Vezi planurile";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "În browserul DuckDuckGo pentru desktop, accesează %1$@ și dă clic pe %2$@ pentru a începe.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "În browserul Ripul Browser pentru desktop, accesează %1$@ și dă clic pe %2$@ pentru a începe.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Setări > Abonează-te la DuckDuckGo";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Setări > Abonează-te la Ripul Browser";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Am un abonament";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Ești gata.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "Abonament DuckDuckGo";
+"subscription.settings.title" = "Abonament Ripul Browser";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Abonat";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Nu ai un alt dispozitiv?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "Parolele DuckDuckGo nu se transferă cu iCloud, deoarece sunt criptate pe dispozitivul tău. Orice altceva se află deja aici.";
+"sync.recovery.prompt.message" = "Parolele Ripul Browser nu se transferă cu iCloud, deoarece sunt criptate pe dispozitivul tău. Orice altceva se află deja aici.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Sincronizează cu un alt dispozitiv";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Ne pare rău, dar Sincronizarea și copierea de rezervă nu este disponibilă momentan. Încearcă din nou mai târziu.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Ne pare rău, dar Sincronizarea și copierea de rezervă nu mai este disponibilă în această versiune de aplicație. Te rugăm să actualizezi DuckDuckGo la cea mai recentă versiune pentru a continua.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Ne pare rău, dar Sincronizarea și copierea de rezervă nu mai este disponibilă în această versiune de aplicație. Te rugăm să actualizezi Ripul Browser la cea mai recentă versiune pentru a continua.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Închide fila de pornire";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Marchează";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Caută pe DuckDuckGo";
+"voiceover.suggestion.type.search" = "Caută pe Ripul Browser";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Deschide site-ul";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Setări";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Permite accesul la microfon din setările sistemului de operare iOS, pentru ca DuckDuckGo să folosească funcționalitățile vocale.";
+"voiceSearch.alert.no-permission.message" = "Permite accesul la microfon din setările sistemului de operare iOS, pentru ca Ripul Browser să folosească funcționalitățile vocale.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "OK";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Renunță";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Adaugă opțiunea de Căutare vocală privată în bara de adrese.Sunetul nu este stocat sau partajat cu nimeni, inclusiv cu DuckDuckGo.";
+"voiceSearch.footer.note" = "Adaugă opțiunea de Căutare vocală privată în bara de adrese.Sunetul nu este stocat sau partajat cu nimeni, inclusiv cu Ripul Browser.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Componenta audio este prelucrată pe dispozitiv. Nu este stocată sau distribuită nimănui, nici DuckDuckGo.";
+"voiceSearch.footer.note.old" = "Componenta audio este prelucrată pe dispozitiv. Nu este stocată sau distribuită nimănui, nici Ripul Browser.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Renunță";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Înscrie-te";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Abonează-te la DuckDuckGo pentru a reconecta VPN-ul.";
+"vpn.access-revoked.alert.message" = "Abonează-te la Ripul Browser pentru a reconecta VPN-ul.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "VPN-ul s-a deconectat din cauza unui abonament expirat";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Găsește și selectează **DuckDuckGo**, apoi glisează la **VPN** și selectează **Adaugă widget**.";
+"vpn.addWidget.settings.title" = "Găsește și selectează **Ripul Browser**, apoi glisează la **VPN** și selectează **Adaugă widget**.";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "DuckDuckGo VPN este deconectat";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Ripul Browser VPN este deconectat";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Comenzile rapide Siri îți permit să te conectezi la VPN cu o comandă vocală rapidă, cum ar fi „Siri, pornește DuckDuckGo VPN”. Este o modalitate rapidă, fără mâini, de a-ți folosi VPN-ul.";
+"vpn.control-widget.education.screen.description" = "Comenzile rapide Siri îți permit să te conectezi la VPN cu o comandă vocală rapidă, cum ar fi „Siri, pornește Ripul Browser VPN”. Este o modalitate rapidă, fără mâini, de a-ți folosi VPN-ul.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, pornește DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example1" = "Siri, pornește Ripul Browser VPN.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, activează VPN-ul DuckDuckGo.";
+"vpn.control-widget.education.screen.example2" = "Siri, activează VPN-ul Ripul Browser.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, protejează-mi dispozitivul cu DuckDuckGo.";
+"vpn.control-widget.education.screen.example3" = "Siri, protejează-mi dispozitivul cu Ripul Browser.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Controlează VPN-ul DuckDuckGo cu Siri!";
+"vpn.control-widget.education.screen.title" = "Controlează VPN-ul Ripul Browser cu Siri!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "DuckDuckGo VPN este conectat.";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Ripul Browser VPN este conectat.";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Renunță";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Nu pot instala VPN";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Feedbackul tău ne va ajuta să îmbunătățim\nDuckDuckGo VPN.";
+"vpn.feedback-form.sending-confirmation.description" = "Feedbackul tău ne va ajuta să îmbunătățim\nRipul Browser VPN.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Nu am putut trimite feedbackul tău acum, încearcă din nou.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Pe lângă detaliile introduse în acest formular, raportul privind problemele aplicației tale va conține:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Dacă funcțiile specifice DuckDuckGo sunt activate";
+"vpn.feedback-form.text-3" = "• Dacă funcțiile specifice Ripul Browser sunt activate";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• Diagnosticare agregată a aplicației DuckDuckGo";
+"vpn.feedback-form.text-4" = "• Diagnosticare agregată a aplicației Ripul Browser";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Atingând „Transmite”, sunt de acord ca DuckDuckGo să utilizeze informațiile din acest raport în scopul îmbunătățirii funcțiilor aplicației.";
+"vpn.feedback-form.text-5" = "Atingând „Transmite”, sunt de acord ca Ripul Browser să utilizeze informațiile din acest raport în scopul îmbunătățirii funcțiilor aplicației.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Contribuie la îmbunătățirea DuckDuckGo VPN";
+"vpn.feedback-form.title" = "Contribuie la îmbunătățirea Ripul Browser VPN";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Adaugă VPN la Centrul de control";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Instrument de blocare a înșelătoriilor";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "Adresa IPv4";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Personalizat";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (Recomandat)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (Recomandat)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "Server DNS";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Nu, mulțumesc";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Te putem înștiința când este rândul tău, însă notificările sunt momentan dezactivate pentru DuckDuckGo.";
+"waitlist.notification.disabled" = "Te putem înștiința când este rândul tău, însă notificările sunt momentan dezactivate pentru Ripul Browser.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Nu va trebui să comunici informații personale, pentru a te înscrie pe lista de așteptare. Îți vei asigura locul la coadă, folosind o marcă de timp care există numai pe dispozitivul tău, astfel încât să te putem înștiința când ți-a sosit rândul.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Ești gata să începi să navighezi în mod privat folosind Windows?\n\nVizitează această adresă URL pe computerul tău Windows pentru a descărca:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "DuckDuckGo pentru Windows are tot ceea ce îți trebuie pentru a naviga într-un mod mai confidențial – căutare privată, blocarea tehnologiilor de urmărire, criptare forțată și blocarea ferestrelor pop-up cookie, plus alte elemente de protecție de cel mai înalt nivel, în curs de implementare.";
+"windows-waitlist.summary" = "Ripul Browser pentru Windows are tot ceea ce îți trebuie pentru a naviga într-un mod mai confidențial – căutare privată, blocarea tehnologiilor de urmărire, criptare forțată și blocarea ferestrelor pop-up cookie, plus alte elemente de protecție de cel mai înalt nivel, în curs de implementare.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "Aplicația DuckDuckGo pentru Windows";
+"windows-waitlist.title" = "Aplicația Ripul Browser pentru Windows";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Descarcă DuckDuckGo pentru Windows!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Descarcă Ripul Browser pentru Windows!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Semne de carte";

@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Dotknij przycisku ze znakiem plus %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Znajdź i zaznacz **DuckDuckGo**. Następnie wybierz widżet.";
+"addWidget.settings.title" = "Znajdź i zaznacz **Ripul Browser**. Następnie wybierz widżet.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Odwiedzaj swoje ulubione witryny jednym dotknięciem.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Synchronizuj teraz";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "„%@” będzie mieć dostęp do zsynchronizowanych danych DuckDuckGo.";
+"alert.sync-new-device.message" = "„%@” będzie mieć dostęp do zsynchronizowanych danych Ripul Browser.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Synchronizować nowe urządzenie?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Nie można zaktualizować nazwy urządzenia.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Odblokuj DuckDuckGo.";
+"app.authentication.unlock" = "Odblokuj Ripul Browser.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Zaloguj się";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Włączone";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Przeszukaj DuckDuckGo";
+"autocomplete.history.search.duckduckgo" = "Przeszukaj Ripul Browser";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Obecnie sugestie wyszukiwania obejmują ostatnio odwiedzone witryny. Możesz je wyłączyć w ustawieniach lub w każdej chwili wyczyścić za pomocą przycisku 🔥 Fire Button.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Włączone";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Kiedy DuckDuckGo wykrywa wyskakujące okienka z prośbą o zgodę na używanie plików cookie na odwiedzanych przez Ciebie stronach, może spróbować automatycznie ustawić Twoje preferencje dotyczące plików cookie w taki sposób, aby zminimalizować liczbę plików cookie i zmaksymalizować prywatność, a następnie zamknąć wyskakujące okienka. Niektóre witryny nie umożliwiają zarządzania preferencjami dotyczącymi plików cookie, dlatego możemy jedynie ukryć takie wyskakujące okienka.";
+"autoconsent.info.header" = "Kiedy Ripul Browser wykrywa wyskakujące okienka z prośbą o zgodę na używanie plików cookie na odwiedzanych przez Ciebie stronach, może spróbować automatycznie ustawić Twoje preferencje dotyczące plików cookie w taki sposób, aby zminimalizować liczbę plików cookie i zmaksymalizować prywatność, a następnie zamknąć wyskakujące okienka. Niektóre witryny nie umożliwiają zarządzania preferencjami dotyczącymi plików cookie, dlatego możemy jedynie ukryć takie wyskakujące okienka.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Karta zapisana";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Dane kart kredytowych są bezpiecznie przechowywane na Twoim urządzeniu.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Czy chcesz zapisać dane karty w DuckDuckGo?";
+"autofill.creditcard.save-prompt.title" = "Czy chcesz zapisać dane karty w Ripul Browser?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Uwierzytelnij, aby wypełnić dane karty kredytowej";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Automatyczne uzupełnianie haseł zostało aktywowane!";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Używaj haseł zapisanych w DuckDuckGo we wszystkich aplikacjach na swoim urządzeniu.";
+"autofill.extension.footer" = "Używaj haseł zapisanych w Ripul Browser we wszystkich aplikacjach na swoim urządzeniu.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Autouzupełnianie w innych aplikacjach";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Włącz autouzupełnianie w innych aplikacjach";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Używaj DuckDuckGo, aby w bezpieczny sposób automatycznie uzupełniać hasła we wszystkich swoich aplikacjach.";
+"autofill.extension.promo.message" = "Używaj Ripul Browser, aby w bezpieczny sposób automatycznie uzupełniać hasła we wszystkich swoich aplikacjach.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Szybko zaloguj się do swoich aplikacji bez wpisywania haseł";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Pobierz przeglądarkę komputerową";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Otwórz DuckDuckGo na komputerze Mac lub w systemie Windows";
+"autofill.import.passwords.via.sync.instructions.step1" = "Otwórz Ripul Browser na komputerze Mac lub w systemie Windows";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Przejdź do pozycji %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Zaimportuj z przeglądarki komputerowej:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Zaimportuj hasła w komputerowej wersji przeglądarki DuckDuckGo, a następnie zsynchronizuj je na różnych urządzeniach.";
+"autofill.import.passwords.via.sync.subtitle" = "Zaimportuj hasła w komputerowej wersji przeglądarki Ripul Browser, a następnie zsynchronizuj je na różnych urządzeniach.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Synchronizuj z komputerem";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Wyłącz";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Więcej informacji] (DDGQuickLink: //duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Synchronizuj hasła na komputerze";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Możesz importować zapisane hasła z innej przeglądarki do DuckDuckGo.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Możesz importować zapisane hasła z innej przeglądarki do Ripul Browser.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Nie zapisano jeszcze żadnych haseł";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Hasła są bezpiecznie przechowywane na Twoim urządzeniu.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Użyć silnego hasła z DuckDuckGo?";
+"autofill.password-generation-prompt.title" = "Użyć silnego hasła z Ripul Browser?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Użyj silnego hasła";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Nie, dziękuję";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Bezpiecznie przechowuj swoje hasło na urządzeniu dzięki funkcji Hasła i autouzupełnianie DuckDuckGo.";
+"autofill.save-login.security.message" = "Bezpiecznie przechowuj swoje hasło na urządzeniu dzięki funkcji Hasła i autouzupełnianie Ripul Browser.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Zapisać hasło?";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Wyślij raport";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "Zgłoszenia wysyłane do DuckDuckGo są anonimowe i nie zawierają nazwy użytkownika, hasła ani żadnych innych informacji umożliwiających identyfikację.\n\nRaport zawiera tylko adres URL witryny i stan niektórych ustawień autouzupełniania.";
+"autofill.settings.report.not.working.confirmation.message" = "Zgłoszenia wysyłane do Ripul Browser są anonimowe i nie zawierają nazwy użytkownika, hasła ani żadnych innych informacji umożliwiających identyfikację.\n\nRaport zawiera tylko adres URL witryny i stan niektórych ustawień autouzupełniania.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Zgłosić, że autouzupełnianie nie działa na %@?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Dziękujemy! Twoje zgłoszenie pomoże ulepszyć DuckDuckGo u wszystkich użytkowników.";
+"autofill.settings.report.not.working.sent.confirmation" = "Dziękujemy! Twoje zgłoszenie pomoże ulepszyć Ripul Browser u wszystkich użytkowników.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Zgłoś anonimowo, że autouzupełnianie nie działa w tej witrynie. Hasła nigdy nie są udostępniane.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@, aby zarządzać adresami Duck Address na tym urządzeniu.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "DuckDuckGo zaktualizuje to zapisane hasło na Twoim urządzeniu.";
+"autofill.update-password.message" = "Ripul Browser zaktualizuje to zapisane hasło na Twoim urządzeniu.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Aktualizuj hasło";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Wymagany opis";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Twoje zgłoszenie pomoże ulepszyć DuckDuckGo u wszystkich użytkowników!";
+"broken.site.report.success.toast" = "Twoje zgłoszenie pomoże ulepszyć Ripul Browser u wszystkich użytkowników!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Broker JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Dodaj mnie do Docka!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Znajdź ikonę DuckDuckGo na ekranie głównym. Następnie naciśnij i przeciągnij ją w odpowiednie miejsce. To wszystko!";
+"contextual.onboarding.addToDock.tutorial.message" = "Znajdź ikonę Ripul Browser na ekranie głównym. Następnie naciśnij i przeciągnij ją w odpowiednie miejsce. To wszystko!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Dodanie mnie do Docka jest łatwe.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Pamiętaj: za każdym razem, gdy przeglądasz ze mną Internet, jakaś wścibska reklama przestaje działać.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "To DuckDuckGo Search! Prywatna. Szybka. Z mniejszą liczbą reklam.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "Wyszukiwania w DuckDuckGo zawsze są prywatne.";
+"contextual.onboarding.highlights.try-a-search.message" = "Wyszukiwania w Ripul Browser zawsze są prywatne.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "małe kaczuszki";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Zaskocz mnie!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Znajdź **DuckDuckGo** na liście, a następnie dotknij opcji **kontrola VPN**, aby ją dodać";
+"control.center.vpn.widget.education.paragraph" = "Znajdź **Ripul Browser** na liście, a następnie dotknij opcji **kontrola VPN**, aby ją dodać";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Przesuń palcem w dół z prawego górnego rogu ekranu";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Ukryj";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Raporty o awariach pomagają zespołowi DuckDuckGo diagnozować problemy i ulepszać produkty. Nie zawierają żadnych danych osobowych.";
+"crash.report.dialog.message" = "Raporty o awariach pomagają zespołowi Ripul Browser diagnozować problemy i ulepszać produkty. Nie zawierają żadnych danych osobowych.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Nigdy nie wysyłaj";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Wybierz plik zawierający zakładki. Zwykle jest to plik ZIP lub HTML.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Importuj zakładki do DuckDuckGo";
+"data.import.bookmarks.title" = "Importuj zakładki do Ripul Browser";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "W pliku zip nie znaleziono obsługiwanych danych. Zapoznaj się z instrukcjami eksportu Safari i spróbuj ponownie.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Wybierz plik zawierający hasła wyeksportowane z przeglądarki Safari lub Chrome. Zwykle jest to plik ZIP lub CSV.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Importuj hasła do DuckDuckGo";
+"data.import.passwords.title" = "Importuj hasła do Ripul Browser";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Zakładki";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Włączone";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "DuckDuckGo automatycznie blokuje wiele skryptów śledzących. Dzięki Globalnej kontroli prywatności (Global Privacy Control – GPC) możesz również poprosić uczestniczące witryny internetowe o zablokowanie sprzedaży lub udostępniania Twoich danych osobowych innym firmom.";
+"donotsell.info.headertext" = "Ripul Browser automatycznie blokuje wiele skryptów śledzących. Dzięki Globalnej kontroli prywatności (Global Privacy Control – GPC) możesz również poprosić uczestniczące witryny internetowe o zablokowanie sprzedaży lub udostępniania Twoich danych osobowych innym firmom.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Zapisz w Pobranych";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Wyświetl ustawienia";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "Funkcje sztucznej inteligencji DuckDuckGo są prywatne i opcjonalne. Twoje dane nie są używane do trenowania AI.";
+"duckai.preferences.text.markdown" = "Funkcje sztucznej inteligencji Ripul Browser są prywatne i opcjonalne. Twoje dane nie są używane do trenowania AI.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Dołącz zawartość strony";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Podsumuj tę stronę";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Pokaż przyciski i linki Duck.ai w wynikach wyszukiwania DuckDuckGo.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Pokaż przyciski i linki Duck.ai w wynikach wyszukiwania Ripul Browser.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Skróty wyszukiwania";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo dla systemu iOS";
+"Ripul Browser for iOS" = "Ripul Browser dla systemu iOS";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "Dodaj subskrypcję DuckDuckGo do tego urządzenia";
+"duckduckgo.subscription.activate.header.title" = "Dodaj subskrypcję Ripul Browser do tego urządzenia";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Użyj adresu e-mail, aby dodać subskrypcję do tego urządzenia.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "Uzyskaj odpowiedzi na często zadawane pytania lub skontaktuj się z pomocą techniczną ds. subskrypcji na naszych stronach pomocy.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Aktywuj subskrypcję DuckDuckGo na komputerze, aby skonfigurować usługę Personal Information Removal";
+"duckduckgo.subscription.pir.hero" = "Aktywuj subskrypcję Ripul Browser na komputerze, aby skonfigurować usługę Personal Information Removal";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Nie będziesz już mieć dostępu do subskrypcji DuckDuckGo na tym urządzeniu. Nie spowoduje to anulowania Twojej subskrypcji, która pozostanie aktywna na pozostałych urządzeniach.";
+"duckduckgo.subscription.remove.from.device.text" = "Nie będziesz już mieć dostępu do subskrypcji Ripul Browser na tym urządzeniu. Nie spowoduje to anulowania Twojej subskrypcji, która pozostanie aktywna na pozostałych urządzeniach.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Zawsze";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Odtwórz ten film w odtwarzaczu Duck Player";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Duck Player umożliwia oglądanie YouTube bez ukierunkowanych reklam w DuckDuckGo i wpływu oglądanych treści na rekomendacje.";
+"duckplayer.presentation.modal.body" = "Duck Player umożliwia oglądanie YouTube bez ukierunkowanych reklam w Ripul Browser i wpływu oglądanych treści na rekomendacje.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Rozumiem!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Eksperymentalne";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "DuckDuckGo zapewnia wszystkie niezbędne funkcje ochrony prywatności użytkownika podczas przeglądania Internetu.";
+"duckplayer.settings.footer" = "Ripul Browser zapewnia wszystkie niezbędne funkcje ochrony prywatności użytkownika podczas przeglądania Internetu.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Duck Player umożliwia oglądanie YouTube bez ukierunkowanych reklam w DuckDuckGo i wpływu oglądanych treści na rekomendacje.";
+"duckplayer.settings.info-text" = "Duck Player umożliwia oglądanie YouTube bez ukierunkowanych reklam w Ripul Browser i wpływu oglądanych treści na rekomendacje.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Dowiedz się więcej";
@@ -1601,10 +1601,10 @@
 "duckplayer.settings.open-videos-in" = "Otwieraj filmy z YouTube w odtwarzaczu Duck Player";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "Filmy z YouTube kliknięte w wynikach wyszukiwania DuckDuckGo będą się otwierać w odtwarzaczu Duck Player.";
+"duckplayer.settings.search.results.footer" = "Filmy z YouTube kliknięte w wynikach wyszukiwania Ripul Browser będą się otwierać w odtwarzaczu Duck Player.";
 
 /* Label for the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.label" = "Wyniki wyszukiwania DuckDuckGo";
+"duckplayer.settings.search.results.label" = "Wyniki wyszukiwania Ripul Browser";
 
 /* Message for the alert when changing Duck Player variant */
 "duckplayer.settings.tab.alert.message" = "Zamknij wszystkie karty, aby to ustawienie zaczęło obowiązywać.";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Oglądasz w Duck Player!\nNie ma tu reklam ukierunkowanych.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "Ochrona poczty e-mail";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Nie dodano jeszcze żadnych zakładek";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Jeśli zakładki są zapisane w innej przeglądarce, możesz\nzaimportować je do DuckDuckGo.";
+"empty.bookmarks.subtitle" = "Jeśli zakładki są zapisane w innej przeglądarce, możesz\nzaimportować je do Ripul Browser.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Brak pasujących wyników";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Jaką funkcję wyszukiwania powinniśmy dodać lub usprawnić?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "Problemy wyszukiwania za pośrednictwem DuckDuckGo";
+"feedback.ddgSearch.description" = "Problemy wyszukiwania za pośrednictwem Ripul Browser";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "Funkcja wyszukiwania DuckDuckGo nie jest wystarczająco dobra";
+"feedback.ddgSearch.entry" = "Funkcja wyszukiwania Ripul Browser nie jest wystarczająco dobra";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Wyszukiwanie w konkretnym języku bądź regionie";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Prześlij";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Pomóż ulepszyć subskrypcję DuckDuckGo";
+"feedback.form.title" = "Pomóż ulepszyć subskrypcję Ripul Browser";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Udostępnij link pobierania";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Chroń prywatność podczas wyszukiwania i blokuj mechanizmy śledzące za pomocą komputerowej przeglądarki DuckDuckGo. Kliknij ten link na komputerze, aby pobrać ją już dziś.";
+"get.browser.share-link.message" = "Chroń prywatność podczas wyszukiwania i blokuj mechanizmy śledzące za pomocą komputerowej przeglądarki Ripul Browser. Kliknij ten link na komputerze, aby pobrać ją już dziś.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Pobierz przeglądarkę DuckDuckGo dla komputerów Mac lub systemu Windows";
+"get.browser.share-link.title" = "Pobierz przeglądarkę Ripul Browser dla komputerów Mac lub systemu Windows";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Pobierz DuckDuckGo dla komputerów Mac lub systemu Windows";
+"get.browser.title" = "Pobierz Ripul Browser dla komputerów Mac lub systemu Windows";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Dodaj DuckDuckGo do ekranu głównego!";
+"home.row.onboarding.header" = "Dodaj Ripul Browser do ekranu głównego!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Dodaj DuckDuckGo do Docka, aby mieć łatwy dostęp!";
+"home.row.reminder.message" = "Dodaj Ripul Browser do Docka, aby mieć łatwy dostęp!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Zabierz DuckDuckGo do domu";
+"home.row.reminder.title" = "Zabierz Ripul Browser do domu";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Wyszukaj lub wprowadź adres";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Szybko i bezpiecznie przenieś hasła z innej przeglądarki.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Importuj hasła do DuckDuckGo";
+"import.passwords.promo.title" = "Importuj hasła do Ripul Browser";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Zapytaj prywatnie";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Zainstalowane rozszerzenia (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Musisz włączyć VPN w aplikacji DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Musisz włączyć VPN w aplikacji Ripul Browser.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Ładowanie brokerów…";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "Aplikacja DuckDuckGo dla komputerów Mac zapewnia szybkość, której potrzebujesz, i niezbędne funkcje przeglądania. Ponadto jest wyposażona w najlepsze w swojej klasie narzędzia do ochrony prywatności.";
+"mac-browser.waitlist.summary" = "Aplikacja Ripul Browser dla komputerów Mac zapewnia szybkość, której potrzebujesz, i niezbędne funkcje przeglądania. Ponadto jest wyposażona w najlepsze w swojej klasie narzędzia do ochrony prywatności.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "Przeglądarka DuckDuckGo dla komputerów Mac jest gotowa!";
+"mac-waitlist.available.notification.title" = "Przeglądarka Ripul Browser dla komputerów Mac jest gotowa!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Kopiuj";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Udostępnij link";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Pobierz DuckDuckGo dla komputerów Mac!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Pobierz Ripul Browser dla komputerów Mac!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Szukasz wersji dla systemu Windows?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Chcesz rozpocząć prywatne przeglądanie na komputerze Mac?\n\nPrzejdź pod ten adres URL na komputerze Mac, aby pobrać:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo na komputery Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser na komputery Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "Aplikacja DuckDuckGo dla komputerów Mac";
+"mac-waitlist.title" = "Aplikacja Ripul Browser dla komputerów Mac";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Wstrzymano";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Dodaj widżet";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Dodaj widżet VPN";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "Sieć VPN została rozłączona z powodu wygasłej subskrypcji. Subskrybuj DuckDuckGo, aby ponownie połączyć się z siecią VPN.";
+"network.protection.entitlement.expired.notification.body" = "Sieć VPN została rozłączona z powodu wygasłej subskrypcji. Subskrybuj Ripul Browser, aby ponownie połączyć się z siecią VPN.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "Nie udało się nawiązać połączenia DuckDuckGo VPN. Spróbuj ponownie później.";
+"network.protection.failure.notification.body" = "Nie udało się nawiązać połączenia Ripul Browser VPN. Spróbuj ponownie później.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "DuckDuckGo VPN — często zadawane pytania";
+"network.protection.faq.title" = "Ripul Browser VPN — często zadawane pytania";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Możesz dostosować lokalizację sieci VPN, łącząc się z dowolnym z naszych serwerów na całym świecie.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Zmień lokalizację";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "Usługa DuckDuckGo VPN została przerwana. Próba ponownego połączenia...";
+"network.protection.interrupted.notification.body" = "Usługa Ripul Browser VPN została przerwana. Próba ponownego połączenia...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Wprowadź swój kod zaproszenia, aby rozpocząć.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Masz zaproszenie do wypróbowania DuckDuckGo VPN";
+"network.protection.invite.dialog.title" = "Masz zaproszenie do wypróbowania Ripul Browser VPN";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Kod zaproszenia";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Udało się! Dołączono.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Otwórz VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Cały ruch internetowy urządzenia jest zabezpieczony\nprzez VPN.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "Usługa DuckDuckGo VPN jest wyłączona";
+"network.protection.status.header.title.off" = "Usługa Ripul Browser VPN jest wyłączona";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "Usługa DuckDuckGo VPN jest włączona";
+"network.protection.status.header.title.on" = "Usługa Ripul Browser VPN jest włączona";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "Usługa DuckDuckGo VPN jest wstrzymana";
+"network.protection.status.header.title.snoozed" = "Usługa Ripul Browser VPN jest wstrzymana";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Podziel się opinią";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "Usługa DuckDuckGo VPN jest włączona. Twoja lokalizacja i aktywność w Internecie są chronione.";
+"network.protection.success.notification.body" = "Usługa Ripul Browser VPN jest włączona. Twoja lokalizacja i aktywność w Internecie są chronione.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Przekierowanie ruchu urządzenia przez %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Włącz powiadomienia";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Zezwól na powiadomienia DuckDuckGo o zerwaniu połączenia lub zmianie stanu VPN.";
+"network.protection.turn.on.notifications.section.footer" = "Zezwól na powiadomienia Ripul Browser o zerwaniu połączenia lub zmianie stanu VPN.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Informacje";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Preferowana lokalizacja";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "DuckDuckGo kieruje zapytania DNS przez nasze serwery DNS, aby Twój dostawca usług internetowych nie mógł zobaczyć, jakie strony odwiedzasz.";
+"network.protection.vpn.secure.dns.setting.footer" = "Ripul Browser kieruje zapytania DNS przez nasze serwery DNS, aby Twój dostawca usług internetowych nie mógł zobaczyć, jakie strony odwiedzasz.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "Często zadawane pytania i pomoc techniczna";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Wybierz przeglądarkę";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "DuckDuckGo oferuje również %1$@, dostępną wraz z %2$@ i %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "Ripul Browser oferuje również %1$@, dostępną wraz z %2$@ i %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "zaawansowana, prywatna AI";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Który kolor będzie najlepszy?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Ochrona aktywowana!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Wypróbuj bezpłatnie!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "DuckDuckGo ma także bezpieczną sieć %1$@ dostępne w ramach %2$@.";
+"onboarding.subscription.promo.message" = "Ripul Browser ma także bezpieczną sieć %1$@ dostępne w ramach %2$@.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "opcjonalna płatna subskrypcja";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Dodaj widżet";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "Korzystanie z DuckDuckGo właśnie stało się łatwiejsze.";
+"onboarding.widgets.header" = "Korzystanie z Ripul Browser właśnie stało się łatwiejsze.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Może później";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Może później";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Ustaw DuckDuckGo jako domyślną przeglądarkę.";
+"onboardingDefaultBrowserTitle" = "Ustaw Ripul Browser jako domyślną przeglądarkę.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Ustaw jako domyślną przeglądarkę";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Rozpocznij przeglądanie";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Witamy w DuckDuckGo!";
+"onboardingWelcomeHeader" = "Witamy w Ripul Browser!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Nie można znaleźć aplikacji wymaganej do otwarcia tego linku";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• Gromadzenie danych diagnostyki aplikacji (np. kody błędów)";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Dotykając opcji „Prześlij”, wyrażasz zgodę na wykorzystanie przez DuckDuckGo przesłanych informacji w celu ulepszenia aplikacji.";
+"ppro.feedback-form.text-5" = "Dotykając opcji „Prześlij”, wyrażasz zgodę na wykorzystanie przez Ripul Browser przesłanych informacji w celu ulepszenia aplikacji.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Opinie";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Mechanizmy Ochrony Prywatności";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "Logo DuckDuckGo";
+"privacy.icon.dax" = "Logo Ripul Browser";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Dotknij, aby otworzyć ekran panelu prywatności";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Otwórz";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Czy chcesz wyjść z DuckDuckGo, aby wyświetlić tę treść?";
+"prompt.custom.url.scheme.prompt" = "Czy chcesz wyjść z Ripul Browser, aby wyświetlić tę treść?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Otworzyć w innej aplikacji?";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Ustaw niestandardowy URL czatu AI";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "O DuckDuckGo";
+"settings.about.ddg" = "O Ripul Browser";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Informacje";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Dodaj widżet do ekranu głównego";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Dodaj widżet DuckDuckGo VPN do ekranu głównego";
+"settings.add.widget.vpn" = "Dodaj widżet Ripul Browser VPN do ekranu głównego";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Pasek adresu";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Wyłącz autouzupełnianie w funkcji Email Protection";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "DuckDuckGo na innych platformach";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Ripul Browser na innych platformach";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "Twoja subskrypcja DuckDuckGo wygasła";
+"settings.duckduckgo.subscription.expired.title" = "Twoja subskrypcja Ripul Browser wygasła";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Zablokuj mechanizmy śledzące pocztę e-mail i ukryj swój adres bez zmiany dostawcy poczty e-mail.\n[Więcej informacji](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Dowiedz się więcej";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Pozwól DuckDuckGo zarządzać wyskakującymi okienkami ze zgodą na używanie plików cookie";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Pozwól Ripul Browser zarządzać wyskakującymi okienkami ze zgodą na używanie plików cookie";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Hasła i autouzupełnianie";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Zarządzaj kontem";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Więcej możliwości DuckDuckGo";
+"settings.more" = "Więcej możliwości Ripul Browser";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Więcej ustawień wyszukiwania";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "Prywatne Wyszukiwanie";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "DuckDuckGo Private Search to domyślna wyszukiwarka, dzięki której możesz wyszukiwać treści w sieci, unikając śledzenia.";
+"settings.private.search.explanation" = "Ripul Browser Private Search to domyślna wyszukiwarka, dzięki której możesz wyszukiwać treści w sieci, unikając śledzenia.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Pasek adresu";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Wyślij raporty o awariach";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Automatycznie wysyłaj raporty o awariach do DuckDuckGo.";
+"settings.send.crash.reports.description" = "Automatycznie wysyłaj raporty o awariach do Ripul Browser.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Ustaw jako domyślną przeglądarkę";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Mam subskrypcję";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "Subskrypcja DuckDuckGo";
+"settings.subscription.feedback" = "Subskrypcja Ripul Browser";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "W przypadku kradzieży Twojej tożsamości pomożemy Ci ją przywrócić";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Ustawienia subskrypcji";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "Subskrypcja DuckDuckGo";
+"settings.subscription.Section" = "Subskrypcja Ripul Browser";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Subskrybuj DuckDuckGo";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Subskrybuj Ripul Browser";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Zabezpiecz Wi-Fi i czatuj prywatnie z zaawansowanymi modelami AI";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Zabezpiecz swoje Wi-Fi i chroń tożsamość";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Wypróbuj za darmo";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "To pomaga nam ulepszyć przeglądarkę.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Witryna nie działa? Poinformuj DuckDuckGo.";
+"site.not.working.title" = "Witryna nie działa? Poinformuj Ripul Browser.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Prześlij raport";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Wyświetl plany";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "W przeglądarce DuckDuckGo na komputerze wybierz %1$@ i kliknij %2$@, aby rozpocząć.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "W przeglądarce Ripul Browser na komputerze wybierz %1$@ i kliknij %2$@, aby rozpocząć.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Ustawienia > Subskrybuj DuckDuckGo";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Ustawienia > Subskrybuj Ripul Browser";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Mam subskrypcję";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Wszystko gotowe.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "Subskrypcja DuckDuckGo";
+"subscription.settings.title" = "Subskrypcja Ripul Browser";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Subskrypcja";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Nie masz innego urządzenia?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "Hasła DuckDuckGo nie są przesyłane przez iCloud, ponieważ są zaszyfrowane na Twoim urządzeniu. Wszystkie pozostałe dane już tu są.";
+"sync.recovery.prompt.message" = "Hasła Ripul Browser nie są przesyłane przez iCloud, ponieważ są zaszyfrowane na Twoim urządzeniu. Wszystkie pozostałe dane już tu są.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Synchronizuj z innym urządzeniem";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Niestety synchronizacja i kopia zapasowa jest obecnie niedostępna. Spróbuj ponownie później.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Niestety synchronizacja i kopia zapasowa nie są już dostępne w tej wersji aplikacji. Aby kontynuować, zaktualizuj DuckDuckGo do najnowszej wersji.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Niestety synchronizacja i kopia zapasowa nie są już dostępne w tej wersji aplikacji. Aby kontynuować, zaktualizuj Ripul Browser do najnowszej wersji.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Zamknij kartę główną";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Zakładka";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Szukaj w DuckDuckGo";
+"voiceover.suggestion.type.search" = "Szukaj w Ripul Browser";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Otwórz witrynę internetową";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Ustawienia";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Aby korzystać z funkcji głosowych, zezwól na dostęp DuckDuckGo do mikrofonu w ustawieniach systemu iOS.";
+"voiceSearch.alert.no-permission.message" = "Aby korzystać z funkcji głosowych, zezwól na dostęp Ripul Browser do mikrofonu w ustawieniach systemu iOS.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "OK";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Anuluj";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Dodaj opcję prywatnego wyszukiwania głosowego do paska adresu. Dźwięk nie jest przechowywany ani udostępniany żadnym podmiotom, w tym DuckDuckGo.";
+"voiceSearch.footer.note" = "Dodaj opcję prywatnego wyszukiwania głosowego do paska adresu. Dźwięk nie jest przechowywany ani udostępniany żadnym podmiotom, w tym Ripul Browser.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Dźwięk jest przetwarzany na urządzeniu. Dane nie są przechowywane ani udostępniane żadnym podmiotom, w tym DuckDuckGo.";
+"voiceSearch.footer.note.old" = "Dźwięk jest przetwarzany na urządzeniu. Dane nie są przechowywane ani udostępniane żadnym podmiotom, w tym Ripul Browser.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Odrzuć";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Subskrybuj";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Subskrybuj DuckDuckGo, aby ponownie połączyć się z siecią VPN.";
+"vpn.access-revoked.alert.message" = "Subskrybuj Ripul Browser, aby ponownie połączyć się z siecią VPN.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "Sieć VPN została rozłączona z powodu wygasłej subskrypcji";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Znajdź i zaznacz **DuckDuckGo**, a następnie przesuń palcem do **VPN** i wybierz **Dodaj widżet**";
+"vpn.addWidget.settings.title" = "Znajdź i zaznacz **Ripul Browser**, a następnie przesuń palcem do **VPN** i wybierz **Dodaj widżet**";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "Sieć DuckDuckGo VPN jest rozłączona";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Sieć Ripul Browser VPN jest rozłączona";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Skróty Siri umożliwiają łączenie się z siecią VPN za pomocą szybkiej komendy głosowej, np. „Siri, włącz DuckDuckGo VPN”. To szybki sposób korzystania z sieci VPN bez konieczności użycia rąk.";
+"vpn.control-widget.education.screen.description" = "Skróty Siri umożliwiają łączenie się z siecią VPN za pomocą szybkiej komendy głosowej, np. „Siri, włącz Ripul Browser VPN”. To szybki sposób korzystania z sieci VPN bez konieczności użycia rąk.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, uruchom DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example1" = "Siri, uruchom Ripul Browser VPN.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, włącz DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example2" = "Siri, włącz Ripul Browser VPN.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, chroń moje urządzenie przy użyciu DuckDuckGo.";
+"vpn.control-widget.education.screen.example3" = "Siri, chroń moje urządzenie przy użyciu Ripul Browser.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Steruj DuckDuckGo VPN za pomocą Siri!";
+"vpn.control-widget.education.screen.title" = "Steruj Ripul Browser VPN za pomocą Siri!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "Usługa DuckDuckGo VPN jest włączona.";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Usługa Ripul Browser VPN jest włączona.";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Anuluj";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Nie można zainstalować VPN";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Twoja opinia pomoże nam ulepszyć DuckDuckGo VPN.";
+"vpn.feedback-form.sending-confirmation.description" = "Twoja opinia pomoże nam ulepszyć Ripul Browser VPN.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Nie udało się teraz przesłać Twojej opinii, spróbuj ponownie.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Oprócz szczegółów wprowadzonych w tym formularzu zgłoszenie problemu z aplikacją będzie zawierać:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Czy określone funkcje DuckDuckGo są włączone";
+"vpn.feedback-form.text-3" = "• Czy określone funkcje Ripul Browser są włączone";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• Zbiorcze dane diagnostyczne aplikacji DuckDuckGo";
+"vpn.feedback-form.text-4" = "• Zbiorcze dane diagnostyczne aplikacji Ripul Browser";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Dotykając opcji „Prześlij”, zgadzam się na wykorzystanie przez DuckDuckGo informacji zawartych w tym zgłoszeniu w celu ulepszenia funkcji aplikacji.";
+"vpn.feedback-form.text-5" = "Dotykając opcji „Prześlij”, zgadzam się na wykorzystanie przez Ripul Browser informacji zawartych w tym zgłoszeniu w celu ulepszenia funkcji aplikacji.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Pomóż ulepszyć DuckDuckGo VPN";
+"vpn.feedback-form.title" = "Pomóż ulepszyć Ripul Browser VPN";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Dodaj VPN do Centrum Sterowania";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Blokowanie oszustw";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "Adres IPv4";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Niestandardowy";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (zalecane)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (zalecane)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "Serwer DNS";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Nie, dziękuję";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Możemy powiadomić Cię, gdy nadejdzie Twoja kolej, ale powiadomienia są obecnie wyłączone dla DuckDuckGo.";
+"waitlist.notification.disabled" = "Możemy powiadomić Cię, gdy nadejdzie Twoja kolej, ale powiadomienia są obecnie wyłączone dla Ripul Browser.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Nie musisz udostępniać żadnych danych osobowych, aby dołączyć do listy oczekujących. Miejsce w kolejce zostanie zarezerwowane zgodnie z sygnaturą czasową przechowywaną wyłącznie na Twoim urządzeniu, aby umożliwić nam powiadomienie, gdy nadejdzie Twoja kolej.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Chcesz rozpocząć prywatne przeglądanie w systemie Windows?\n\nOdwiedź ten adres na komputerze, aby pobrać:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "DuckDuckGo dla systemu Windows ma wszystko, czego potrzebujesz, aby przeglądać strony internetowe, zachowując większą prywatność – prywatne wyszukiwanie, blokowanie śledzących, wymuszone szyfrowanie i blokowanie wyskakujących okienek z ciasteczkami, a w planach mamy jeszcze więcej najlepszych w swojej klasie zabezpieczeń.";
+"windows-waitlist.summary" = "Ripul Browser dla systemu Windows ma wszystko, czego potrzebujesz, aby przeglądać strony internetowe, zachowując większą prywatność – prywatne wyszukiwanie, blokowanie śledzących, wymuszone szyfrowanie i blokowanie wyskakujących okienek z ciasteczkami, a w planach mamy jeszcze więcej najlepszych w swojej klasie zabezpieczeń.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "Aplikacja DuckDuckGo dla systemu Windows";
+"windows-waitlist.title" = "Aplikacja Ripul Browser dla systemu Windows";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Pobierz DuckDuckGo dla systemu Windows.";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Pobierz Ripul Browser dla systemu Windows.";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Zakładki";

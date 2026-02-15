@@ -1,9 +1,9 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "„DuckDuckGo“";
+"CFBundleDisplayName" = "„Ripul“";
 
 /* Bundle name */
 "CFBundleName" = "AutofillCredentialProvider";
 
 /* Copyright (human-readable) */
-"NSHumanReadableCopyright" = "Copyright © 2024 DuckDuckGo. All rights reserved.";
+"NSHumanReadableCopyright" = "Copyright © 2024 Ripul. All rights reserved.";
 

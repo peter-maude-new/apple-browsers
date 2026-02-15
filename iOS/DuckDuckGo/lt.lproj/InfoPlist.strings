@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "„DuckDuckGo“";
+"CFBundleDisplayName" = "„Ripul“";
 
 /* Bundle name */
-"CFBundleName" = "„DuckDuckGo“";
+"CFBundleName" = "„Ripul“";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Leidžia įkelti nuotraukas ir vaizdo įrašus";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Leidžia bendrinti jūsų vietą";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "Tai būtina, kai naudojamos balsu valdomos funkcijos. „DuckDuckGo“ niekada neįrašinėja to, ką sakote.";
+"NSMicrophoneUsageDescription" = "Tai būtina, kai naudojamos balsu valdomos funkcijos. „Ripul“ niekada neįrašinėja to, ką sakote.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Leidžia įrašyti nuotraukas į jūsų įrenginį";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "Tai būtina, kai naudojama balsu valdoma paieška. „DuckDuckGo“ niekada neįrašinėja to, ką sakote.";
+"NSSpeechRecognitionUsageDescription" = "Tai būtina, kai naudojama balsu valdoma paieška. „Ripul“ niekada neįrašinėja to, ką sakote.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Įklijuoti iš mainų srities";

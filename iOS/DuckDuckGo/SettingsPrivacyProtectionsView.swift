@@ -66,12 +66,6 @@ struct SettingsPrivacyProtectionsView: View {
                                  statusIndicator: StatusIndicatorView(status: viewModel.cookiePopUpProtectionStatus))
             }
 
-            // Email Protection
-            NavigationLink(destination: EmailProtectionView().environmentObject(viewModel)) {
-                SettingsCellView(label: UserText.emailProtection,
-                                 image: Image(uiImage: DesignSystemImages.Color.Size24.emailProtection),
-                                 statusIndicator: StatusIndicatorView(status: viewModel.emailProtectionStatus))
-            }
         }
 
     }

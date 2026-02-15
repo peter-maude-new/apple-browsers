@@ -45,7 +45,8 @@ struct AboutViewText: View {
                 .frame(width: 96, height: 96)
                 .padding(.top)
 
-            Image(.textDuckDuckGo)
+            Text("Ripul Browser")
+                .font(.system(size: 24, weight: .bold))
 
             Text(UserText.aboutProtectionTagline)
                 .daxHeadline()
@@ -57,7 +58,7 @@ struct AboutViewText: View {
                 .foregroundColor(Color(designSystemColor: .lines))
                 .padding()
 
-            Text(verbatim: "Welcome to the Duck Side!")
+            Text(verbatim: "Welcome to Ripul Browser!")
                 .lineLimit(nil)
                 .multilineTextAlignment(.leading)
                 .padding(.horizontal, 32)
@@ -92,7 +93,7 @@ struct AboutViewVersion: View {
     }
 
     var body: some View {
-        Section(header: Text("DuckDuckGo for iOS"), footer: Text(UserText.settingsSendCrashReportsDescription)) {
+        Section(header: Text("Ripul Browser for iOS"), footer: Text(UserText.settingsSendCrashReportsDescription)) {
 #if ((ALPHA || EXPERIMENTAL) && !DEBUG)
             // The commit SHA is only set for release alpha builds, so debug alpha builds won't show it
 

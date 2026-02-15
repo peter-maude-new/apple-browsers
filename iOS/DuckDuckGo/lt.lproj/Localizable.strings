@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Bakstelėkite pliuso mygtuką %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Raskite ir pasirinkite „DuckDuckGo“. Tuomet pasirinkite valdiklį.";
+"addWidget.settings.title" = "Raskite ir pasirinkite „Ripul Browser“. Tuomet pasirinkite valdiklį.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Tik vienas bakstelėjimas – ir jūs jau mėgstamiausiose svetainėse.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Sinchronizuok dabar";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "„%@“ galės pasiekti tavo sinchronizuotus „DuckDuckGo“ duomenis.";
+"alert.sync-new-device.message" = "„%@“ galės pasiekti tavo sinchronizuotus „Ripul Browser“ duomenis.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Sinchronizuoti naują įrenginį?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Nepavyko atnaujinti įrenginio pavadinimo.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Atrakinti „DuckDuckGo“.";
+"app.authentication.unlock" = "Atrakinti „Ripul Browser“.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Prisijungti";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Įjungti";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Ieškoti DuckDuckGo";
+"autocomplete.history.search.duckduckgo" = "Ieškoti Ripul Browser";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Dabar paieškos pasiūlymuose bus rodomos ir neseniai aplankytos svetainės. Išjunkite nustatymuose arba bet kada išvalykite naudodami mygtuką 🔥 „Fire Button“.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Įjungta";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Kai „DuckDuckGo“ jūsų lankomose svetainėse aptinka sutikimo su slapukais iškylančiuosius langus, galime automatiškai nustatyti jūsų slapukų nuostatas, kad sumažintume slapukų skaičių, sustiprintume privatumą ir uždarytume iškylančiuosius langus. Kai kuriose svetainėse nėra galimybės tvarkyti slapukų nuostatas, todėl galime tik paslėpti tokius iškylančiuosius langus.";
+"autoconsent.info.header" = "Kai „Ripul Browser“ jūsų lankomose svetainėse aptinka sutikimo su slapukais iškylančiuosius langus, galime automatiškai nustatyti jūsų slapukų nuostatas, kad sumažintume slapukų skaičių, sustiprintume privatumą ir uždarytume iškylančiuosius langus. Kai kuriose svetainėse nėra galimybės tvarkyti slapukų nuostatas, todėl galime tik paslėpti tokius iškylančiuosius langus.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Kortelė išsaugota";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Kreditinės kortelės saugiai saugomos tavo įrenginyje.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Ar nori, kad „DuckDuckGo“ išsaugotų tavo kortelės informaciją?";
+"autofill.creditcard.save-prompt.title" = "Ar nori, kad „Ripul Browser“ išsaugotų tavo kortelės informaciją?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Autentifikuok, kad užpildytum kredito kortelės informaciją";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Automatinis slaptažodžių pildymas įjungtas!";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Naudokite slaptažodžius, kuriuos išsaugojote „DuckDuckGo“, visose savo įrenginio programėlėse.";
+"autofill.extension.footer" = "Naudokite slaptažodžius, kuriuos išsaugojote „Ripul Browser“, visose savo įrenginio programėlėse.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Automatinis užpildymas kitose programėlėse";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Įjunkite automatinį pildymą kitose programėlėse";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Naudokite „DuckDuckGo“, kad saugiai automatiškai užpildytumėte visų savo programų slaptažodžius.";
+"autofill.extension.promo.message" = "Naudokite „Ripul Browser“, kad saugiai automatiškai užpildytumėte visų savo programų slaptažodžius.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Greitai prisijunkite prie programėlių neįvesdami slaptažodžių";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Gaukite kompiuterio naršyklę";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Atidarykite „DuckDuckGo“ sistemoje „Mac“ arba „Windows“";
+"autofill.import.passwords.via.sync.instructions.step1" = "Atidarykite „Ripul Browser“ sistemoje „Mac“ arba „Windows“";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Eiti į %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Importuoti iš kompiuterio naršyklės:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Importuokite slaptažodžius „DuckDuckGo“ naršyklės versijoje kompiuteriui, tada sinchronizuokite juos visuose įrenginiuose.";
+"autofill.import.passwords.via.sync.subtitle" = "Importuokite slaptažodžius „Ripul Browser“ naršyklės versijoje kompiuteriui, tada sinchronizuokite juos visuose įrenginiuose.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Sinchronizavimas su kompiuteriu";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Išjungti";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Sužinoti daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Sinchronizuoti darbalaukio slaptažodžius";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Galite importuoti išsaugotus slaptažodžius iš kitos naršyklės į „DuckDuckGo“.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Galite importuoti išsaugotus slaptažodžius iš kitos naršyklės į „Ripul Browser“.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Dar nėra išsaugotų slaptažodžių";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Slaptažodžiai saugiai saugomi jūsų įrenginyje.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Naudoti stiprų „DuckDuckGo“ slaptažodį?";
+"autofill.password-generation-prompt.title" = "Naudoti stiprų „Ripul Browser“ slaptažodį?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Naudoti stiprų slaptažodį";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Ne, dėkoju";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Saugiai išsaugokite slaptažodį įrenginyje naudodami „DuckDuckGo“ slaptažodžių ir automatinio pildymo parinktį.";
+"autofill.save-login.security.message" = "Saugiai išsaugokite slaptažodį įrenginyje naudodami „Ripul Browser“ slaptažodžių ir automatinio pildymo parinktį.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Išsaugoti slaptažodį?";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Siųsti ataskaitą";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "„DuckDuckGo“ siunčiami pranešimai yra anoniminiai, juose nėra jūsų naudotojo vardo, slaptažodžio ar kitos jūsų tapatybę identifikuojančios informacijos.\n\nPranešime pateikiamas tik interneto svetainės URL adresas ir kai kurių automatinio užpildymo nustatymų būsena.";
+"autofill.settings.report.not.working.confirmation.message" = "„Ripul Browser“ siunčiami pranešimai yra anoniminiai, juose nėra jūsų naudotojo vardo, slaptažodžio ar kitos jūsų tapatybę identifikuojančios informacijos.\n\nPranešime pateikiamas tik interneto svetainės URL adresas ir kai kurių automatinio užpildymo nustatymų būsena.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Pranešimas apie automatinį užpildymą neveikia svetainėje %@?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Dėkojame! Jūsų pranešimas padės mums tobulinti „DuckDuckGo“ visiems.";
+"autofill.settings.report.not.working.sent.confirmation" = "Dėkojame! Jūsų pranešimas padės mums tobulinti „Ripul Browser“ visiems.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Anonimiškai praneškite apie automatinį užpildymą, kuris neveikia šioje svetainėje. Slaptažodžiai niekada nėra bendrinami.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@, kad galėtumėte valdyti savo „Duck Address“ šiame įrenginyje.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "„DuckDuckGo“ atnaujins šį jūsų įrenginyje išsaugotą slaptažodį.";
+"autofill.update-password.message" = "„Ripul Browser“ atnaujins šį jūsų įrenginyje išsaugotą slaptažodį.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Atnaujinti slaptažodį";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Apibūdinimo tekstas";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Jūsų pateikta informacija padeda tobulinti „DuckDuckGo“ visiems!";
+"broken.site.report.success.toast" = "Jūsų pateikta informacija padeda tobulinti „Ripul Browser“ visiems!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Broker JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Įtraukite mane į savo juostą!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Pagrindiniame ekrane raskite „DuckDuckGo“ piktogramą. Tada paspauskite ir vilkite ją į vietą. Štai ir viskas!";
+"contextual.onboarding.addToDock.tutorial.message" = "Pagrindiniame ekrane raskite „Ripul Browser“ piktogramą. Tada paspauskite ir vilkite ją į vietą. Štai ir viskas!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Įtraukti mane į savo juostą paprasta.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Įsidėmėk: kiekvieną kartą, kai naršai su manimi, bauginantis skelbimas praranda galią.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "Tai – „DuckDuckGo Search“! Privati. Sparti. Mažiau reklamų.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "Jūsų „DuckDuckGo“ paieškos visada yra privačios.";
+"contextual.onboarding.highlights.try-a-search.message" = "Jūsų „Ripul Browser“ paieškos visada yra privačios.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "kūdikių ančiukai";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Nustebink mane!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Sąraše raskite **DuckDuckGo**, tada palieskite **VPN valdymą**, kad jį pridėtumėte.";
+"control.center.vpn.widget.education.paragraph" = "Sąraše raskite **Ripul Browser**, tada palieskite **VPN valdymą**, kad jį pridėtumėte.";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Perbraukite žemyn iš viršutinio dešiniojo ekrano kampo";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Slėpti";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Strigčių ataskaitos padeda „DuckDuckGo“ diagnozuoti problemas ir tobulinti mūsų produktus. Jose nėra jokios asmenį identifikuojančios informacijos.";
+"crash.report.dialog.message" = "Strigčių ataskaitos padeda „Ripul Browser“ diagnozuoti problemas ir tobulinti mūsų produktus. Jose nėra jokios asmenį identifikuojančios informacijos.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Niekada nesiųsti";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Pasirink failą, kuriame yra žymės. Paprastai tai būna ZIP arba HTML failas.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Importuok žymes į „DuckDuckGo“";
+"data.import.bookmarks.title" = "Importuok žymes į „Ripul Browser“";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "Zip faile nerasta palaikomų duomenų. Prašome peržiūrėti „Safari“ eksportavimo instrukcijas ir pabandyti dar kartą.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Pasirink failą, kuriame yra slaptažodžiai, eksportuoti iš „Safari“ arba „Chrome“. Paprastai tai būna ZIP arba CSV failas.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Importuoti slaptažodžius į „DuckDuckGo“";
+"data.import.passwords.title" = "Importuoti slaptažodžius į „Ripul Browser“";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Žymės";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Įjungta";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "„DuckDuckGo“ automatiškai blokuoja daugelį stebėjimo priemonių. Pasirinkę visuotinę privatumo kontrolę (VPK), taip pat galite paprašyti dalyvaujančių svetainių apriboti jūsų asmeninių duomenų prekybą ir bendrinimą su kitomis įmonėmis.";
+"donotsell.info.headertext" = "„Ripul Browser“ automatiškai blokuoja daugelį stebėjimo priemonių. Pasirinkę visuotinę privatumo kontrolę (VPK), taip pat galite paprašyti dalyvaujančių svetainių apriboti jūsų asmeninių duomenų prekybą ir bendrinimą su kitomis įmonėmis.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Išsaugoti Atsisiuntimuose";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Peržiūrėti nustatymus";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "„DuckDuckGo“ DI funkcijos yra privačios ir neprivalomos. Tavo duomenys nenaudojami dirbtinio intelekto mokymui.";
+"duckai.preferences.text.markdown" = "„Ripul Browser“ DI funkcijos yra privačios ir neprivalomos. Tavo duomenys nenaudojami dirbtinio intelekto mokymui.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Pridėkite puslapio turinį";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Apibendrinti šį puslapį";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Rodyti „Duck.ai“ mygtukus ir nuorodas „DuckDuckGo“ paieškos rezultatuose.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Rodyti „Duck.ai“ mygtukus ir nuorodas „Ripul Browser“ paieškos rezultatuose.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Paieškos nuorodos";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "„iOS“ skirta „DuckDuckGo“";
+"Ripul Browser for iOS" = "„iOS“ skirta „Ripul Browser“";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "Pridėkite savo „DuckDuckGo“ prenumeratą prie šio įrenginio";
+"duckduckgo.subscription.activate.header.title" = "Pridėkite savo „Ripul Browser“ prenumeratą prie šio įrenginio";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Norėdami pridėti prenumeratą prie šio įrenginio, naudokite el. pašto adresą.";
@@ -1520,16 +1520,16 @@
 "duckduckgo.subscription.add.to.devices.no.email.footer" = "Pridėkite prenumeratą prie kitų įrenginių per „Apple ID“ arba susiedami el. pašto adresą. **[Sužinokite daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* Footer for section for activating subscription on other devices when email is added */
-"duckduckgo.subscription.add.to.devices.with.email.footer" = "Naudokite šį el. paštą, kad pridėtumėte prenumeratą kituose įrenginiuose „DuckDuckGo“ programėlėje, eikite į „Settings“ (Nustatymai) > „DuckDuckGo Subscription“ (DuckDuckGo prenumerata) > „I Have a Subscription“ (Turiu prenumeratą). **[Sužinokite daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
+"duckduckgo.subscription.add.to.devices.with.email.footer" = "Naudokite šį el. paštą, kad pridėtumėte prenumeratą kituose įrenginiuose „DuckDuckGo“ programėlėje, eikite į „Settings“ (Nustatymai) > „Ripul Browser Subscription“ (DuckDuckGo prenumerata) > „I Have a Subscription“ (Turiu prenumeratą). **[Sužinokite daugiau](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/adding-email/)**";
 
 /* FAQ Description */
 "duckduckgo.subscription.faq.description" = "Gauk atsakymus į dažniausiai užduodamus klausimus arba susisiek su prenumeratos palaikymo tarnyba mūsų pagalbos puslapiuose.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Aktyvuokite „DuckDuckGo“ prenumeratą darbalaukyje, kad nustatytumėte asmeninės informacijos pašalinimą";
+"duckduckgo.subscription.pir.hero" = "Aktyvuokite „Ripul Browser“ prenumeratą darbalaukyje, kad nustatytumėte asmeninės informacijos pašalinimą";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Šiame įrenginyje nebegalėsite pasiekti savo „DuckDuckGo“ prenumeratos. Tai neatšauks jūsų prenumeratos ir ji liks aktyvi kituose įrenginiuose.";
+"duckduckgo.subscription.remove.from.device.text" = "Šiame įrenginyje nebegalėsite pasiekti savo „Ripul Browser“ prenumeratos. Tai neatšauks jūsų prenumeratos ir ji liks aktyvi kituose įrenginiuose.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Visada";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Paleisk šį vaizdo įrašą per „Duck Player“";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "„Duck Player“ leidžia sistemoje „DuckDuckGo“ žiūrėti „YouTube“ be taikomų reklamų, o tai, ką žiūrite, neturės įtakos jūsų rekomendacijoms.";
+"duckplayer.presentation.modal.body" = "„Duck Player“ leidžia sistemoje „Ripul Browser“ žiūrėti „YouTube“ be taikomų reklamų, o tai, ką žiūrite, neturės įtakos jūsų rekomendacijoms.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Supratau!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Eksperimentinis";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "„DuckDuckGo“ suteikia visas pagrindines privatumą užtikrinančias priemones, kurių reikia norint apsisaugoti naršant internete.";
+"duckplayer.settings.footer" = "„Ripul Browser“ suteikia visas pagrindines privatumą užtikrinančias priemones, kurių reikia norint apsisaugoti naršant internete.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "„Duck Player“ leidžia sistemoje „DuckDuckGo“ žiūrėti „YouTube“ be taikomų reklamų, o tai, ką žiūrite, neturės įtakos jūsų rekomendacijoms.";
+"duckplayer.settings.info-text" = "„Duck Player“ leidžia sistemoje „Ripul Browser“ žiūrėti „YouTube“ be taikomų reklamų, o tai, ką žiūrite, neturės įtakos jūsų rekomendacijoms.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Sužinoti daugiau";
@@ -1601,7 +1601,7 @@
 "duckplayer.settings.open-videos-in" = "Atidaryti „YouTube“ vaizdo įrašus „Duck Player“";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "Paspaudus „YouTube“ vaizdo įrašus iš „DuckDuckGo“ paieškos rezultatų, jie bus atidaryti „Duck Player“.";
+"duckplayer.settings.search.results.footer" = "Paspaudus „YouTube“ vaizdo įrašus iš „Ripul Browser“ paieškos rezultatų, jie bus atidaryti „Duck Player“.";
 
 /* Label for the search results toggle in Duck Player settings */
 "duckplayer.settings.search.results.label" = "„DuckDuckGo Search“ paieškos rezultatai";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Tu žiūri „Duck Player“!\nČia nėra tikslinių reklamų.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "El. pašto apsauga";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Žymių dar nepridėta";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Jei žymės yra išsaugotos kitoje naršyklėje,\ngalite jas importuoti į „DuckDuckGo“.";
+"empty.bookmarks.subtitle" = "Jei žymės yra išsaugotos kitoje naršyklėje,\ngalite jas importuoti į „Ripul Browser“.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Atitikmenų nerasta";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Kokią paieškos funkciją galime pridėti arba patobulinti?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "Problemos paieškai naudojant „DuckDuckGo“";
+"feedback.ddgSearch.description" = "Problemos paieškai naudojant „Ripul Browser“";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "„DuckDuckGo“ paieška nepakankamai gera";
+"feedback.ddgSearch.entry" = "„Ripul Browser“ paieška nepakankamai gera";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Paieška konkrečia kalba ar konkrečiame regione";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Pateikti";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Padėk patobulinti „DuckDuckGo“ prenumeratą";
+"feedback.form.title" = "Padėk patobulinti „Ripul Browser“ prenumeratą";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Bendrinti atsisiuntimo nuorodą";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Naršykite privačiai ir blokuokite sekimo priemones naudodami „DuckDuckGo“ naršyklę kompiuteriui. Spustelėkite šią nuorodą kompiuteryje, kad atsisiųstumėte šiandien.";
+"get.browser.share-link.message" = "Naršykite privačiai ir blokuokite sekimo priemones naudodami „Ripul Browser“ naršyklę kompiuteriui. Spustelėkite šią nuorodą kompiuteryje, kad atsisiųstumėte šiandien.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Gaukite „DuckDuckGo“ naršyklę, skirtą „Mac“ arba „Windows“";
+"get.browser.share-link.title" = "Gaukite „Ripul Browser“ naršyklę, skirtą „Mac“ arba „Windows“";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Gaukite „DuckDuckGo“, skirtą „Mac“ arba „Windows“";
+"get.browser.title" = "Gaukite „Ripul Browser“, skirtą „Mac“ arba „Windows“";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Pridėti „DuckDuckGo“ prie pagrindinio ekrano!";
+"home.row.onboarding.header" = "Pridėti „Ripul Browser“ prie pagrindinio ekrano!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Pridėkite „DuckDuckGo“ prie juostos, kad lengvai pasiektumėte!";
+"home.row.reminder.message" = "Pridėkite „Ripul Browser“ prie juostos, kad lengvai pasiektumėte!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Eiti į „DuckDuckGo“ pagrindinį puslapį";
+"home.row.reminder.title" = "Eiti į „Ripul Browser“ pagrindinį puslapį";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Ieškoti arba įvesti adresą";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Greitai ir saugiai perkelk slaptažodžius iš kitos naršyklės.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Importuok slaptažodžius į „DuckDuckGo“";
+"import.passwords.promo.title" = "Importuok slaptažodžius į „Ripul Browser“";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Klauskite privačiai";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Įdiegti plėtiniai (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Reikia įjungti VPN iš „DuckDuckGo“ programėlės.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Reikia įjungti VPN iš „Ripul Browser“ programėlės.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Kraunami brokeriai...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "„Mac“ skirta „DuckDuckGo“ pasižymi jums reikiama sparta, naršymo funkcijomis ir aukščiausios klasės privatumo įrankiais.";
+"mac-browser.waitlist.summary" = "„Mac“ skirta „Ripul Browser“ pasižymi jums reikiama sparta, naršymo funkcijomis ir aukščiausios klasės privatumo įrankiais.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "„DuckDuckGo for Mac“ paruošta!";
+"mac-waitlist.available.notification.title" = "„Ripul Browser for Mac“ paruošta!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Kopijuoti";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Bendrinti nuorodą";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Gaukite „Mac“ skirtą „DuckDuckGo“!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Gaukite „Mac“ skirtą „Ripul Browser“!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Ieškote „Windows“ versijos?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Pasiruošę naršyti privačiai „Mac“?\n\nSpustelėkite šį URL „Mac“ kompiuteryje, kad atsisiųstumėte:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "„Mac“ skirta „DuckDuckGo“";
+"mac-waitlist.share-sheet.title" = "„Mac“ skirta „Ripul Browser“";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "„DuckDuckGo“ programa, skirta „Mac“";
+"mac-waitlist.title" = "„Ripul Browser“ programa, skirta „Mac“";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Pristabdymas";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Pridėti valdiklį";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Pridėti VPN valdiklį";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "VPN atjungtas dėl pasibaigusios prenumeratos. Prenumeruokite „DuckDuckGo“, kad iš naujo prisijungtumėte prie VPN.";
+"network.protection.entitlement.expired.notification.body" = "VPN atjungtas dėl pasibaigusios prenumeratos. Prenumeruokite „Ripul Browser“, kad iš naujo prisijungtumėte prie VPN.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "„DuckDuckGo“ VPN nepavyko prisijungti. Bandykite dar kartą vėliau.";
+"network.protection.failure.notification.body" = "„Ripul Browser“ VPN nepavyko prisijungti. Bandykite dar kartą vėliau.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "„DuckDuckGo“ VPN DUK";
+"network.protection.faq.title" = "„Ripul Browser“ VPN DUK";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Galite pritaikyti savo VPN vietą prisijungdami prie bet kurio mūsų serverio visame pasaulyje.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Keisti savo vietą";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "„DuckDuckGo“ VPN buvo pertrauktas. Dabar bandome prisijungti...";
+"network.protection.interrupted.notification.body" = "„Ripul Browser“ VPN buvo pertrauktas. Dabar bandome prisijungti...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Norėdami pradėti, įveskite kvietimo kodą.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Esate kviečiami išbandyti „DuckDuckGo“ VPN";
+"network.protection.invite.dialog.title" = "Esate kviečiami išbandyti „Ripul Browser“ VPN";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Pakvietimo kodas";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Pavyko! Tu jau čia.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "„DuckDuckGo“";
+"network.protection.notification.title" = "„Ripul Browser“";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Atviras VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Visas įrenginio interneto srautas yra apsaugotas\nnaudojant VPN.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "„DuckDuckGo“ VPN išjungtas";
+"network.protection.status.header.title.off" = "„Ripul Browser“ VPN išjungtas";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "„DuckDuckGo“ VPN įjungtas";
+"network.protection.status.header.title.on" = "„Ripul Browser“ VPN įjungtas";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "„DuckDuckGo“ VPN pristabdyta";
+"network.protection.status.header.title.snoozed" = "„Ripul Browser“ VPN pristabdyta";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Bendrinti atsiliepimą";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "„DuckDuckGo“ VPN įjungtas. Jūsų vieta ir veikla internete yra apsaugota.";
+"network.protection.success.notification.body" = "„Ripul Browser“ VPN įjungtas. Jūsų vieta ir veikla internete yra apsaugota.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Nukreipiamas įrenginio srautas per %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Įjungti pranešimus";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Leiskite „DuckDuckGo“ pranešti, jei nutrūksta ryšys arba pasikeičia VPN būsena.";
+"network.protection.turn.on.notifications.section.footer" = "Leiskite „Ripul Browser“ pranešti, jei nutrūksta ryšys arba pasikeičia VPN būsena.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Apie";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Pageidaujama vieta";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "„DuckDuckGo“ nukreipia DNS užklausas per mūsų DNS serverius, kad tavo interneto tiekėjas negalėtų matyti, kokiose svetainėse lankaisi.";
+"network.protection.vpn.secure.dns.setting.footer" = "„Ripul Browser“ nukreipia DNS užklausas per mūsų DNS serverius, kad tavo interneto tiekėjas negalėtų matyti, kokiose svetainėse lankaisi.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "DUK ir pagalba";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Pasirinkite naršyklę";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "„DuckDuckGo“ taip pat turi %1$@, prieinamą su %2$@ ir %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "„Ripul Browser“ taip pat turi %1$@, prieinamą su %2$@ ir %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "pažangus, privatus dirbtinis intelektas";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Kuri spalva man labiausiai tinka?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Apsaugos priemonės įjungtos!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Išbandyk nemokamai!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "„DuckDuckGo“ taip pat turi saugų %1$@, kurį galima naudoti su %2$@.";
+"onboarding.subscription.promo.message" = "„Ripul Browser“ taip pat turi saugų %1$@, kurį galima naudoti su %2$@.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "pasirenkama mokama prenumerata";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Pridėti valdiklį";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "Naudotis „DuckDuckGo“ tapo dar lengviau.";
+"onboarding.widgets.header" = "Naudotis „Ripul Browser“ tapo dar lengviau.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Galbūt vėliau";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Galbūt vėliau";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Nustatykite „DuckDuckGo“ savo numatytąja naršykle.";
+"onboardingDefaultBrowserTitle" = "Nustatykite „Ripul Browser“ savo numatytąja naršykle.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Nustatyti kaip numatytąją naršyklę";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Pradėti naršyti";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Sveiki atvykę į „DuckDuckGo!“";
+"onboardingWelcomeHeader" = "Sveiki atvykę į „Ripul Browser!“";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Negalima rasti programos, galinčios atidaryti šią nuorodą";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• Apibendrinta programėlės diagnostika (pvz., klaidų kodai)";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Bakstelėdamas „Pateikti“ sutinku, kad „DuckDuckGo“ gali naudoti pateiktą informaciją programėlės funkcijų gerinimo tikslais.";
+"ppro.feedback-form.text-5" = "Bakstelėdamas „Pateikti“ sutinku, kad „Ripul Browser“ gali naudoti pateiktą informaciją programėlės funkcijų gerinimo tikslais.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Atsiliepimai";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Privatumo apsaugos priemonės";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "„DuckDuckGo“ logotipas";
+"privacy.icon.dax" = "„Ripul Browser“ logotipas";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Bakstelėkite, kad atidarytumėte privatumo prietaisų skydelio ekraną";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Atviras";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Ar norite išeiti iš „DuckDuckGo“ ir peržiūrėti šį turinį?";
+"prompt.custom.url.scheme.prompt" = "Ar norite išeiti iš „Ripul Browser“ ir peržiūrėti šį turinį?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Atidaryti kitoje programoje?";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Nustatyti pasirinktinį DI pokalbių URL";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "Apie DuckDuckGo";
+"settings.about.ddg" = "Apie Ripul Browser";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Apie";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Įtraukti valdiklį į pagrindinį ekraną";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Pridėkite „DuckDuckGo“ VPN valdiklį prie pagrindinio ekrano";
+"settings.add.widget.vpn" = "Pridėkite „Ripul Browser“ VPN valdiklį prie pagrindinio ekrano";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Adreso juosta";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Išjungti „Email Protection“ automatinį užpildymą";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "„DuckDuckGo“ kitose platformose";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "„Ripul Browser“ kitose platformose";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "Jūsų „DuckDuckGo“ prenumerata baigėsi";
+"settings.duckduckgo.subscription.expired.title" = "Jūsų „Ripul Browser“ prenumerata baigėsi";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Užblokuokite el. pašto adresų stebėjimo priemones ir paslėpkite savo adresą nekeisdami el. pašto paslaugų teikėjo.\n[Sužinokite daugiau](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Sužinoti daugiau";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Leiskite „DuckDuckGo“ valdyti sutikimo su slapukais iššokančiuosius langus";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Leiskite „Ripul Browser“ valdyti sutikimo su slapukais iššokančiuosius langus";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Slaptažodžiai ir automatinis užpildymas";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Tvarkyti paskyrą";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Daugiau iš „DuckDuckGo“";
+"settings.more" = "Daugiau iš „Ripul Browser“";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Daugiau paieškos nustatymų";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "privati paieška";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "„DuckDuckGo Private Search“ yra jūsų numatytoji paieškos sistema, todėl galite ieškoti žiniatinklyje nesekami.";
+"settings.private.search.explanation" = "„Ripul Browser Private Search“ yra jūsų numatytoji paieškos sistema, todėl galite ieškoti žiniatinklyje nesekami.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Adreso juosta";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Siųsti strigčių ataskaitas";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Automatiškai siųskite strigčių ataskaitas „DuckDuckGo“.";
+"settings.send.crash.reports.description" = "Automatiškai siųskite strigčių ataskaitas „Ripul Browser“.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Nustatyti kaip numatytąją naršyklę";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Turiu prenumeratą";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "„DuckDuckGo“ prenumerata";
+"settings.subscription.feedback" = "„Ripul Browser“ prenumerata";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Jei tavo tapatybė buvo pavogta, padėsime ją atkurti";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Prenumeratos nustatymai";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "„DuckDuckGo“ prenumerata";
+"settings.subscription.Section" = "„Ripul Browser“ prenumerata";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Prenumeruok „DuckDuckGo“";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Prenumeruok „Ripul Browser“";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Apsaugok savo Wi-Fi ir kalbėkis privačiai su pažangiais DI modeliais";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Apsaugok savo Wi-Fi ir tapatybę";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Išbandyk nemokamai";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "Tai padeda mums tobulinti naršyklę.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Svetainė neveikia? Praneškite „DuckDuckGo“.";
+"site.not.working.title" = "Svetainė neveikia? Praneškite „Ripul Browser“.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Pateikti ataskaitą";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Peržiūrėti planus";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "„DuckDuckGo“ naršyklėje, skirtoje darbalaukiui, eikite į %1$@ ir spustelėkite %2$@, kad pradėtumėte.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "„Ripul Browser“ naršyklėje, skirtoje darbalaukiui, eikite į %1$@ ir spustelėkite %2$@, kad pradėtumėte.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Nustatymai > Prenumeruok „DuckDuckGo“";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Nustatymai > Prenumeruok „Ripul Browser“";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Turiu prenumeratą";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Tu pasiruošęs.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "„DuckDuckGo“ prenumerata";
+"subscription.settings.title" = "„Ripul Browser“ prenumerata";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Prenumeruota";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Neturite kito įrenginio?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "„DuckDuckGo“ slaptažodžiai neperkeliami su „iCloud“, nes jie užšifruoti jūsų įrenginyje. Visa kita jau yra čia.";
+"sync.recovery.prompt.message" = "„Ripul Browser“ slaptažodžiai neperkeliami su „iCloud“, nes jie užšifruoti jūsų įrenginyje. Visa kita jau yra čia.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Sinchronizuoti su kitu įrenginiu";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Atsiprašome, bet sinchronizavimas ir atsarginės kopijos kūrimas šiuo metu nepasiekiami. Pabandykite dar kartą vėliau.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Atsiprašome, bet šioje programos versijoje nepasiekiamos sinchronizavimo ir atsarginės kopijos kūrimo funkcijos. Norėdami tęsti, atnaujinkite „DuckDuckGo“ į naujausią versiją.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Atsiprašome, bet šioje programos versijoje nepasiekiamos sinchronizavimo ir atsarginės kopijos kūrimo funkcijos. Norėdami tęsti, atnaujinkite „Ripul Browser“ į naujausią versiją.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Uždaryti pagrindinio puslapio skirtuką";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Žymė";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Ieškoti „DuckDuckGo“";
+"voiceover.suggestion.type.search" = "Ieškoti „Ripul Browser“";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Atidaryti svetainę";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Nustatymai";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Patvirtinkite prieigą prie mikrofono „iOS“ sistemos nustatymuose, kad galėtumėte naudotis „DuckDuckGo“ balsu valdomomis funkcijomis.";
+"voiceSearch.alert.no-permission.message" = "Patvirtinkite prieigą prie mikrofono „iOS“ sistemos nustatymuose, kad galėtumėte naudotis „Ripul Browser“ balsu valdomomis funkcijomis.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "GERAI";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Atšaukti";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Adreso juostoje pridėkite privačios paieškos balsu parinktį. Garso įrašai nesaugomi ir jais su niekuo nesidalijama, įskaitant „DuckDuckGo“.";
+"voiceSearch.footer.note" = "Adreso juostoje pridėkite privačios paieškos balsu parinktį. Garso įrašai nesaugomi ir jais su niekuo nesidalijama, įskaitant „Ripul Browser“.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Garsas apdorojamas įrenginyje. Jis nesaugomas ir su niekuo, įskaitant „DuckDuckGo“, nebendrinamas.";
+"voiceSearch.footer.note.old" = "Garsas apdorojamas įrenginyje. Jis nesaugomas ir su niekuo, įskaitant „Ripul Browser“, nebendrinamas.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Atmesti";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Prenumeruoti";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Prenumeruokite „DuckDuckGo“, kad iš naujo prisijungtumėte prie VPN.";
+"vpn.access-revoked.alert.message" = "Prenumeruokite „Ripul Browser“, kad iš naujo prisijungtumėte prie VPN.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "VPN atjungtas dėl pasibaigusios prenumeratos.";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Raskite ir pasirinkite **DuckDuckGo**, tada perbraukite iki **VPN** ir pasirinkite **Pridėti valdiklį**";
+"vpn.addWidget.settings.title" = "Raskite ir pasirinkite **Ripul Browser**, tada perbraukite iki **VPN** ir pasirinkite **Pridėti valdiklį**";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "„DuckDuckGo“ VPN atjungtas.";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "„Ripul Browser“ VPN atjungtas.";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "„Siri“ spartieji klavišai leidžia prisijungti prie VPN naudojant greitą balso komandą, pvz., „Siri“, įjunk „DuckDuckGo“ VPN. Tai greitas ir patogus būdas naudotis savo VPN be rankų.";
+"vpn.control-widget.education.screen.description" = "„Siri“ spartieji klavišai leidžia prisijungti prie VPN naudojant greitą balso komandą, pvz., „Siri“, įjunk „Ripul Browser“ VPN. Tai greitas ir patogus būdas naudotis savo VPN be rankų.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, paleisk „DuckDuckGo VPN“.";
+"vpn.control-widget.education.screen.example1" = "Siri, paleisk „Ripul Browser VPN“.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, įjunk „DuckDuckGo“ VPN.";
+"vpn.control-widget.education.screen.example2" = "Siri, įjunk „Ripul Browser“ VPN.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, apsaugok mano įrenginį su „DuckDuckGo“.";
+"vpn.control-widget.education.screen.example3" = "Siri, apsaugok mano įrenginį su „Ripul Browser“.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Valdyk „DuckDuckGo“ VPN su „Siri“!";
+"vpn.control-widget.education.screen.title" = "Valdyk „Ripul Browser“ VPN su „Siri“!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "„DuckDuckGo“ VPN yra prijungtas";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "„Ripul Browser“ VPN yra prijungtas";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Atšaukti";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Nepavyksta įdiegti VPN";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Tavo atsiliepimai padės mums tobulinti\n „DuckDuckGo“ VPN.";
+"vpn.feedback-form.sending-confirmation.description" = "Tavo atsiliepimai padės mums tobulinti\n „Ripul Browser“ VPN.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Šiuo metu negalime išsiųsti tavo atsiliepimo, bandyk pabandyti dar kartą.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Be šioje formoje įvestos informacijos, tavo programėlės problemų ataskaitoje bus pateikta:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Ar įjungtos tam tikros „DuckDuckGo“ funkcijos";
+"vpn.feedback-form.text-3" = "• Ar įjungtos tam tikros „Ripul Browser“ funkcijos";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• Apibendrinta „DuckDuckGo“ programėlės diagnostika";
+"vpn.feedback-form.text-4" = "• Apibendrinta „Ripul Browser“ programėlės diagnostika";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Bakstelėdamas „Pateikti“ sutinku, kad „DuckDuckGo“ gali naudoti šioje ataskaitoje pateiktą informaciją programėlės funkcijų gerinimo tikslais.";
+"vpn.feedback-form.text-5" = "Bakstelėdamas „Pateikti“ sutinku, kad „Ripul Browser“ gali naudoti šioje ataskaitoje pateiktą informaciją programėlės funkcijų gerinimo tikslais.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Padėk tobulinti „DuckDuckGo“ VPN";
+"vpn.feedback-form.title" = "Padėk tobulinti „Ripul Browser“ VPN";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Pridėti VPN į valdymo centrą";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Sukčiavimo blokavimo įrankis";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "„DuckDuckGo“";
+"vpn.settings.dns.server.default.value" = "„Ripul Browser“";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "IPv4 adresas";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Pasirinkti kitą";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "„DuckDuckGo“ (rekomenduojama)";
+"vpn.settings.dns.server.option.default" = "„Ripul Browser“ (rekomenduojama)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "DNS serveris";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Ne, dėkoju";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Galime jus informuoti, kai bus jūsų eilė, tačiau šiuo metu pranešimai yra išjungti „DuckDuckGo“.";
+"waitlist.notification.disabled" = "Galime jus informuoti, kai bus jūsų eilė, tačiau šiuo metu pranešimai yra išjungti „Ripul Browser“.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Jums nereikia dalintis savo asmenine informacija, kad prisijungtumėte prie laukimo sąrašo. Užsitikrinsite vietą eilėje laiko žyma, kuri egzistuoja tik jūsų įrenginyje, kad galėtume jus įspėti, kai ateis jūsų eilė.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Pasiruošę pradėti privačiai naršyti „Windows“?\n\nApsilankykite šiame URL savo kompiuteryje, kad atsisiųstumėte:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "„Windows“ skirta „DuckDuckGo“ turi viską, ko reikia norint naršyti dar privačiau – privačią paiešką, stebėjimo priemonių blokavimą, priverstinį šifravimą ir iššokančiųjų slapukų langų blokavimą bei dar daugiau geriausių savo klasėje apsaugos priemonių.";
+"windows-waitlist.summary" = "„Windows“ skirta „Ripul Browser“ turi viską, ko reikia norint naršyti dar privačiau – privačią paiešką, stebėjimo priemonių blokavimą, priverstinį šifravimą ir iššokančiųjų slapukų langų blokavimą bei dar daugiau geriausių savo klasėje apsaugos priemonių.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "„DuckDuckGo“ programa, skirta „Windows“";
+"windows-waitlist.title" = "„Ripul Browser“ programa, skirta „Windows“";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Gaukite „DuckDuckGo“, skirtą „Windows“!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Gaukite „Ripul Browser“, skirtą „Windows“!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Žymės";

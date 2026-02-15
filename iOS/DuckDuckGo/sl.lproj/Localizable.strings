@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Tapnite gumb plus %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Poiščite in izberite **DuckDuckGo**. Nato izberite pripomoček.";
+"addWidget.settings.title" = "Poiščite in izberite **Ripul Browser**. Nato izberite pripomoček.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "En dotik do vaših priljubljenih spletnih mest.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Sinhroniziraj zdaj";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "Naprava »%@« bo lahko dostopala do vaših sinhroniziranih podatkov DuckDuckGo.";
+"alert.sync-new-device.message" = "Naprava »%@« bo lahko dostopala do vaših sinhroniziranih podatkov Ripul Browser.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Želite sinhronizirati novo napravo?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Imena naprave ni bilo mogoče posodobiti.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Odkleni DuckDuckGo.";
+"app.authentication.unlock" = "Odkleni Ripul Browser.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Prijavite se";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Vključeno";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Iščite po DuckDuckGo";
+"autocomplete.history.search.duckduckgo" = "Iščite po Ripul Browser";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Iskalni predlogi zdaj vključujejo vaša nedavno obiskana spletna mesta. Izklopite v nastavitvah ali pa seznam kadar koli počistite z gumbom Fire Button 🔥.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Omogočeno";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "DuckDuckGo na spletnih mestih, ki jih obiščete, zazna pojavna okna s soglasjem za piškotke, zato lahko samodejno nastavimo vaše nastavitve piškotkov, da zmanjšamo uporabo piškotkov in povečamo zasebnost, nato pa pojavna okna zapremo. Nekatera spletna mesta pa ne omogočajo upravljanja nastavitev piškotkov, zato lahko takšna pojavna okna le skrijemo.";
+"autoconsent.info.header" = "Ripul Browser na spletnih mestih, ki jih obiščete, zazna pojavna okna s soglasjem za piškotke, zato lahko samodejno nastavimo vaše nastavitve piškotkov, da zmanjšamo uporabo piškotkov in povečamo zasebnost, nato pa pojavna okna zapremo. Nekatera spletna mesta pa ne omogočajo upravljanja nastavitev piškotkov, zato lahko takšna pojavna okna le skrijemo.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Kartica je shranjena";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Kreditne kartice so varno shranjene v vaši napravi.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Ali želite, da DuckDuckGo shrani podatke vaše kartice?";
+"autofill.creditcard.save-prompt.title" = "Ali želite, da Ripul Browser shrani podatke vaše kartice?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Preverite pristnost za izpolnjevanje podatkov o kreditni kartici";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Samodejno izpolnjevanje gesel je aktivirano.";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Gesla, shranjena v DuckDuckGo, uporabljajte v vseh aplikacijah v napravi.";
+"autofill.extension.footer" = "Gesla, shranjena v Ripul Browser, uporabljajte v vseh aplikacijah v napravi.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Samodejno izpolnjevanje v drugih aplikacijah";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Vklopi samodejno izpolnjevanje v drugih aplikacijah";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Uporabite DuckDuckGo za varno samodejno izpolnjevanje gesel za vse vaše aplikacije.";
+"autofill.extension.promo.message" = "Uporabite Ripul Browser za varno samodejno izpolnjevanje gesel za vse vaše aplikacije.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Hitro se prijavite v aplikacije brez vnašanja gesel";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Namesti namizni brskalnik";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Odprite DuckDuckGo v sistemu Mac ali Windows";
+"autofill.import.passwords.via.sync.instructions.step1" = "Odprite Ripul Browser v sistemu Mac ali Windows";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Odprite %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Uvoz iz namiznega brskalnika:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "V namizni različici brskalnika DuckDuckGo uvozite gesla in jih nato sinhronizirajte med napravami.";
+"autofill.import.passwords.via.sync.subtitle" = "V namizni različici brskalnika Ripul Browser uvozite gesla in jih nato sinhronizirajte med napravami.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Sinhronizacija z namizjem";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Onemogoči";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Več o tem](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Sinhroniziraj gesla za namizje";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Shranjena gesla lahko uvozite iz drugega brskalnika v DuckDuckGo.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Shranjena gesla lahko uvozite iz drugega brskalnika v Ripul Browser.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Nobeno geslo še ni shranjeno";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Gesla so varno shranjena v vaši napravi.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Želite uporabiti močno geslo od DuckDuckGo?";
+"autofill.password-generation-prompt.title" = "Želite uporabiti močno geslo od Ripul Browser?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Uporabi močno geslo";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Ne, hvala";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "S funkcijo DuckDuckGo Passwords & Autofill varno shranite geslo v napravo.";
+"autofill.save-login.security.message" = "S funkcijo Ripul Browser Passwords & Autofill varno shranite geslo v napravo.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Želite shraniti geslo?";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Pošljite poročilo";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "Poročila, poslana DuckDuckGo, so anonimna in ne vključujejo vašega uporabniškega imena, gesla ali drugih osebnih podatkov, ki omogočajo individualno prepoznavanje.\n\nPoročilo vključuje samo URL spletnega mesta in stanje nekaterih nastavitev samodejnega izpolnjevanja.";
+"autofill.settings.report.not.working.confirmation.message" = "Poročila, poslana Ripul Browser, so anonimna in ne vključujejo vašega uporabniškega imena, gesla ali drugih osebnih podatkov, ki omogočajo individualno prepoznavanje.\n\nPoročilo vključuje samo URL spletnega mesta in stanje nekaterih nastavitev samodejnega izpolnjevanja.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Poročilo o samodejnem izpolnjevanju ne deluje na spletnem mestu %@?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Hvala! Vaše poročilo nam bo pomagalo izboljšati DuckDuckGo za vse.";
+"autofill.settings.report.not.working.sent.confirmation" = "Hvala! Vaše poročilo nam bo pomagalo izboljšati Ripul Browser za vse.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Anonimno prijavite, da samodejno izpolnjevanje ne deluje na tem spletnem mestu. Gesla niso nikoli deljena.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@ za upravljanje naslovov Duck Address v tej napravi.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "DuckDuckGo bo posodobil to shranjeno geslo v vaši napravi.";
+"autofill.update-password.message" = "Ripul Browser bo posodobil to shranjeno geslo v vaši napravi.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Posodobitev gesla";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Zahtevan opis";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Vaše poročilo pripomore k temu, da lahko DuckDuckGo postane boljši za vse!";
+"broken.site.report.success.toast" = "Vaše poročilo pripomore k temu, da lahko Ripul Browser postane boljši za vse!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Posrednik v formatu JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Dodajte me na svoj domači zaslon!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Poiščite ikono DuckDuckGo na domačem zaslonu. Nato jo pritisnite in povlecite na svoje mesto. To je to!";
+"contextual.onboarding.addToDock.tutorial.message" = "Poiščite ikono Ripul Browser na domačem zaslonu. Nato jo pritisnite in povlecite na svoje mesto. To je to!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Na svoj domači zaslon me lahko dodate povsem preprosto";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Ne pozabi: vsakič, ko brskate z mano, grozljiv oglas izgubi krila.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "To je iskanje DuckDuckGo Search! Zasebno. Hitro. Z manj oglasi.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "Vaša iskanja v DuckDuckGo so vedno zasebna.";
+"contextual.onboarding.highlights.try-a-search.message" = "Vaša iskanja v Ripul Browser so vedno zasebna.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "račke";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Preseneti me!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Poiščite **DuckDuckGo** na seznamu, nato tapnite **Nadzor VPN**, da ga dodate.";
+"control.center.vpn.widget.education.paragraph" = "Poiščite **Ripul Browser** na seznamu, nato tapnite **Nadzor VPN**, da ga dodate.";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Podrsnite navzdol iz zgornjega desnega kota zaslona.";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Skrij se";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Poročila o zrušitvah pomagajo DuckDuckGo pri diagnosticiranju težav in izboljševanju naših izdelkov. Ne vsebujejo nobenih osebnih podatkov.";
+"crash.report.dialog.message" = "Poročila o zrušitvah pomagajo Ripul Browser pri diagnosticiranju težav in izboljševanju naših izdelkov. Ne vsebujejo nobenih osebnih podatkov.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Nikoli ne pošilji";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Izberite datoteko, ki vsebuje zaznamke. To je običajno datoteka ZIP ali HTML.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Uvozite zaznamke v DuckDuckGo";
+"data.import.bookmarks.title" = "Uvozite zaznamke v Ripul Browser";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "V datoteki ZIP ni najdenih podprtih podatkov. Preglejte navodila za izvoz iz Safarija in poskusite znova.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Izberite datoteko z gesli, izvoženimi iz Safarija ali Chroma. To je običajno datoteka ZIP ali CSV.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Uvoz gesel v DuckDuckGo";
+"data.import.passwords.title" = "Uvoz gesel v Ripul Browser";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Zaznamki";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Omogočeno";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "DuckDuckGo samodejno blokira številne sledilce. Z globalnim nadzorom zasebnosti (GPC) lahko tudi od sodelujočih spletnih mest zahtevate, da omejijo prodajo ali skupno rabo vaših osebnih podatkov z drugimi podjetji.";
+"donotsell.info.headertext" = "Ripul Browser samodejno blokira številne sledilce. Z globalnim nadzorom zasebnosti (GPC) lahko tudi od sodelujočih spletnih mest zahtevate, da omejijo prodajo ali skupno rabo vaših osebnih podatkov z drugimi podjetji.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Shrani med prenose";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Prikaži nastavitve";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "Funkcije umetne inteligence DuckDuckGo so zasebne in neobvezne. Vaši podatki se ne uporabljajo za usposabljanje umetne inteligence.";
+"duckai.preferences.text.markdown" = "Funkcije umetne inteligence Ripul Browser so zasebne in neobvezne. Vaši podatki se ne uporabljajo za usposabljanje umetne inteligence.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Priloži vsebino strani";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Povzemi to stran";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Prikaži gumbe in povezave Duck.ai v rezultatih iskanja DuckDuckGo.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Prikaži gumbe in povezave Duck.ai v rezultatih iskanja Ripul Browser.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Bližnjice iskanja";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo za iOS";
+"Ripul Browser for iOS" = "Ripul Browser za iOS";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "V to napravo dodajte svojo naročnino DuckDuckGo";
+"duckduckgo.subscription.activate.header.title" = "V to napravo dodajte svojo naročnino Ripul Browser";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Uporabite e-poštni naslov, da dodate naročnino v to napravo.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "Poiščite odgovore na pogosta vprašanja ali se obrnite na podporo pri naročnini na naših straneh za pomoč.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Aktivirajte naročnino na DuckDuckGo na namizju, da nastavite Personal Information Removal";
+"duckduckgo.subscription.pir.hero" = "Aktivirajte naročnino na Ripul Browser na namizju, da nastavite Personal Information Removal";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "V tej napravi ne boste mogli več dostopati do naročnine DuckDuckGo. S tem ne boste preklicali naročnine, ki bo ostala aktivna v drugih napravah.";
+"duckduckgo.subscription.remove.from.device.text" = "V tej napravi ne boste mogli več dostopati do naročnine Ripul Browser. S tem ne boste preklicali naročnine, ki bo ostala aktivna v drugih napravah.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Vedno";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Predvajaj ta videoposnetek v predvajalniku Duck Player";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Predvajalnik Duck Player vam s pomočjo DuckDuckGo omogoča gledanje YouTuba brez ciljanih oglasov, kar gledate pa ne bo vplivalo na vaša priporočila.";
+"duckplayer.presentation.modal.body" = "Predvajalnik Duck Player vam s pomočjo Ripul Browser omogoča gledanje YouTuba brez ciljanih oglasov, kar gledate pa ne bo vplivalo na vaša priporočila.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Razumem!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Poskusno";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "DuckDuckGo zagotavlja vse bistvene elemente zasebnosti, ki jih potrebujete, da se zaščitite med brskanjem po spletu.";
+"duckplayer.settings.footer" = "Ripul Browser zagotavlja vse bistvene elemente zasebnosti, ki jih potrebujete, da se zaščitite med brskanjem po spletu.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Predvajalnik Duck Player vam s pomočjo DuckDuckGo omogoča gledanje YouTuba brez ciljanih oglasov, kar gledate pa ne bo vplivalo na vaša priporočila.";
+"duckplayer.settings.info-text" = "Predvajalnik Duck Player vam s pomočjo Ripul Browser omogoča gledanje YouTuba brez ciljanih oglasov, kar gledate pa ne bo vplivalo na vaša priporočila.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Več";
@@ -1601,10 +1601,10 @@
 "duckplayer.settings.open-videos-in" = "Videoposnetke v YouTubu odpri s predvajalnikom Duck Player";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "Če v rezultatih iskanja v DuckDuckGo kliknete videoposnetke v YouTubu, se ti odprejo v predvajalniku Duck Player.";
+"duckplayer.settings.search.results.footer" = "Če v rezultatih iskanja v Ripul Browser kliknete videoposnetke v YouTubu, se ti odprejo v predvajalniku Duck Player.";
 
 /* Label for the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.label" = "Rezultati iskanja v DuckDuckGo";
+"duckplayer.settings.search.results.label" = "Rezultati iskanja v Ripul Browser";
 
 /* Message for the alert when changing Duck Player variant */
 "duckplayer.settings.tab.alert.message" = "Da bo ta nastavitev začela veljati, zaprite vse zavihke.";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Gledate v predvajalniku Duck Player!\nTukaj ni ciljanih oglasov.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "Zaščita e-pošte";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Zaznamki še niso dodani";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Če so zaznamki shranjeni v drugem brskalniku, jih lahko\nuvozite v DuckDuckGo.";
+"empty.bookmarks.subtitle" = "Če so zaznamki shranjeni v drugem brskalniku, jih lahko\nuvozite v Ripul Browser.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Ni zadetkov";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Katero funkcijo iskanja lahko dodamo ali izboljšamo?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "Težave z iskanjem DuckDuckGo";
+"feedback.ddgSearch.description" = "Težave z iskanjem Ripul Browser";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "Iskanje DuckDuckGo ni dovolj dobro";
+"feedback.ddgSearch.entry" = "Iskanje Ripul Browser ni dovolj dobro";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Iskanje v določenem jeziku ali regiji";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Potrdi";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Pomagajte izboljšati naročnino DuckDuckGo";
+"feedback.form.title" = "Pomagajte izboljšati naročnino Ripul Browser";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Deli povezavo za prenos";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Zasebno brskajte in blokirajte sledilnike z namiznim brskalnikom DuckDuckGo. Za prenos obiščite to povezavo v računalniku.";
+"get.browser.share-link.message" = "Zasebno brskajte in blokirajte sledilnike z namiznim brskalnikom Ripul Browser. Za prenos obiščite to povezavo v računalniku.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Prenesite brskalnik DuckDuckGo za računalnike Mac ali Windows";
+"get.browser.share-link.title" = "Prenesite brskalnik Ripul Browser za računalnike Mac ali Windows";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Prenesite DuckDuckGo za računalnike Mac ali Windows";
+"get.browser.title" = "Prenesite Ripul Browser za računalnike Mac ali Windows";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Dodaj DuckDuckGo na domači zaslon!";
+"home.row.onboarding.header" = "Dodaj Ripul Browser na domači zaslon!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Dodaj DuckDuckGo na domači zaslon za enostaven dostop!";
+"home.row.reminder.message" = "Dodaj Ripul Browser na domači zaslon za enostaven dostop!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Dodaj DuckDuckGo na domači zaslon";
+"home.row.reminder.title" = "Dodaj Ripul Browser na domači zaslon";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Poišči ali vnesi naslov";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Hitro in varno prenesite gesla iz drugega brskalnika.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Uvozite gesla v DuckDuckGo";
+"import.passwords.promo.title" = "Uvozite gesla v Ripul Browser";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Vprašaj zasebno";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Nameščene razširitve (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "VPN morate omogočiti v aplikaciji DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "VPN morate omogočiti v aplikaciji Ripul Browser.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Nalaganje posrednikov ...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "DuckDuckGo za računalnike Mac zagotavlja hitrost, ki jo potrebujete, in funkcije brskanja, ki jih pričakujete, ter je opremljen z našimi ključnimi funkcijami zasebnosti, ki so najboljše v tem razredu.";
+"mac-browser.waitlist.summary" = "Ripul Browser za računalnike Mac zagotavlja hitrost, ki jo potrebujete, in funkcije brskanja, ki jih pričakujete, ter je opremljen z našimi ključnimi funkcijami zasebnosti, ki so najboljše v tem razredu.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "DuckDuckGo za računalnike Mac je na voljo!";
+"mac-waitlist.available.notification.title" = "Ripul Browser za računalnike Mac je na voljo!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Kopiraj";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Daj povezavo v skupno rabo";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Prenesite DuckDuckGo za računalnike Mac!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Prenesite Ripul Browser za računalnike Mac!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Iščete različico za računalnike Windows?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Ste pripravljeni na zasebno brskanje v računalniku Mac? \n\nZa prenos obiščite ta naslov URL v računalniku Mac:\n https://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo za računalnike Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser za računalnike Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "Aplikacija DuckDuckGo za računalnike Mac";
+"mac-waitlist.title" = "Aplikacija Ripul Browser za računalnike Mac";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Dremež";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "VPN DuckDuckGo";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "VPN Ripul Browser";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Dodaj gradnik";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Dodajte pripomoček VPN";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "VPN je prekinjen zaradi potekle naročnine. Naročite se na DuckDuckGo, da znova povežete VPN.";
+"network.protection.entitlement.expired.notification.body" = "VPN je prekinjen zaradi potekle naročnine. Naročite se na Ripul Browser, da znova povežete VPN.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "DuckDuckGo VPN se ni mogel povezati. Poskusite znova pozneje.";
+"network.protection.failure.notification.body" = "Ripul Browser VPN se ni mogel povezati. Poskusite znova pozneje.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "Pogosta vprašanja o omrežju VPN DuckDuckGo";
+"network.protection.faq.title" = "Pogosta vprašanja o omrežju VPN Ripul Browser";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Svojo lokacijo VPN lahko prilagodite tako, da se povežete s katerim koli od naših strežnikov po vsem svetu.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Spremenite svojo lokacijo";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "DuckDuckGo VPN je bil prekinjen. Poskušam se znova povezati zdaj ...";
+"network.protection.interrupted.notification.body" = "Ripul Browser VPN je bil prekinjen. Poskušam se znova povezati zdaj ...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Za začetek vnesite kodo povabila.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Vabimo vas, da preizkusite omrežje VPN DuckDuckGo";
+"network.protection.invite.dialog.title" = "Vabimo vas, da preizkusite omrežje VPN Ripul Browser";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Koda povabila";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Uspelo je! Vključeni ste.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Odpri VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Ves internetni promet v napravi je zaščiten\nprek omrežja VPN.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "Omrežje VPN DuckDuckGo je izklopljeno";
+"network.protection.status.header.title.off" = "Omrežje VPN Ripul Browser je izklopljeno";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "Omrežje VPN DuckDuckGo je vklopljeno";
+"network.protection.status.header.title.on" = "Omrežje VPN Ripul Browser je vklopljeno";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "Omrežje VPN DuckDuckGo je preloženo";
+"network.protection.status.header.title.snoozed" = "Omrežje VPN Ripul Browser je preloženo";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Deli povratne informacije";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "Omrežje VPN DuckDuckGo je vklopljeno. Vaša lokacija in spletna dejavnost sta zaščiteni.";
+"network.protection.success.notification.body" = "Omrežje VPN Ripul Browser je vklopljeno. Vaša lokacija in spletna dejavnost sta zaščiteni.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Usmerjanje prometa naprave prek kraja %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Vključite obvestila";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Dovolite, da vas DuckDuckGo obvesti o prekinitvi povezave ali spremembi stanja VPN.";
+"network.protection.turn.on.notifications.section.footer" = "Dovolite, da vas Ripul Browser obvesti o prekinitvi povezave ali spremembi stanja VPN.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Več o";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Prednostna lokacija";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "DuckDuckGo usmerja poizvedbe DNS prek naših strežnikov DNS, da vaš ponudnik interneta ne more videti, katere spletne strani obiskujete.";
+"network.protection.vpn.secure.dns.setting.footer" = "Ripul Browser usmerja poizvedbe DNS prek naših strežnikov DNS, da vaš ponudnik interneta ne more videti, katere spletne strani obiskujete.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "Pogosta vprašanja in podpora";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Izberite brskalnik";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "DuckDuckGo je na voljo tudi z %1$@, ki vključuje omrežje %2$@ in %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "Ripul Browser je na voljo tudi z %1$@, ki vključuje omrežje %2$@ in %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "napredno, zasebno umetno inteligenco";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Katera barva mi najbolje pristaja?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Zaščite so aktivirane!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Preizkusite brezplačno!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "DuckDuckGo ima tudi varen %1$@, ki so na voljo z %2$@.";
+"onboarding.subscription.promo.message" = "Ripul Browser ima tudi varen %1$@, ki so na voljo z %2$@.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "neobvezno plačljivo naročnino";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Dodaj gradnik";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "Uporaba DuckDuckGo je ravnokar postala še preprostejša.";
+"onboarding.widgets.header" = "Uporaba Ripul Browser je ravnokar postala še preprostejša.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Mogoče kasneje";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Mogoče kasneje";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Nastavite DuckDuckGo kot privzet brskalnik.";
+"onboardingDefaultBrowserTitle" = "Nastavite Ripul Browser kot privzet brskalnik.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Nastavite za privzeti brskalnik";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Začni brskanje";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Dobrodošli v aplikaciji DuckDuckGo!";
+"onboardingWelcomeHeader" = "Dobrodošli v aplikaciji Ripul Browser!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Aplikacije, ki je potrebna za odpiranje te povezave, ni mogoče najti";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• zbiranje diagnostike aplikacij (npr. kode napak).";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Z dotikom možnosti »Pošlji« se strinjate, da lahko DuckDuckGo uporabi poslane informacije za izboljšanje aplikacije.";
+"ppro.feedback-form.text-5" = "Z dotikom možnosti »Pošlji« se strinjate, da lahko Ripul Browser uporabi poslane informacije za izboljšanje aplikacije.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Povratne informacije";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Zaščita zasebnosti";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "Logotip DuckDuckGo";
+"privacy.icon.dax" = "Logotip Ripul Browser";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Dotaknite se, da odprete zaslon z nadzorno ploščo zasebnosti";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Odpri";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Želite zapustiti DuckDuckGo in si ogledati to vsebino?";
+"prompt.custom.url.scheme.prompt" = "Želite zapustiti Ripul Browser in si ogledati to vsebino?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Odpri v drugi aplikaciji?";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Nastavi URL za klepet UI po meri";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "O DuckDuckGo";
+"settings.about.ddg" = "O Ripul Browser";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Več o";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Dodajte pripomoček na domači zaslon";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Dodajte pripomoček DuckDuckGo VPN na začetni zaslon";
+"settings.add.widget.vpn" = "Dodajte pripomoček Ripul Browser VPN na začetni zaslon";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Naslovna vrstica";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Onemogoči samodejno izpolnjevanje pri funkciji Email Protection";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "DuckDuckGo na drugih platformah";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Ripul Browser na drugih platformah";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "Vaša naročnina na DuckDuckGo je potekla";
+"settings.duckduckgo.subscription.expired.title" = "Vaša naročnina na Ripul Browser je potekla";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Blokirajte sledilnike e-pošte in skrijte svoj naslov, ne da bi vam bilo treba zamenjati ponudnika e-pošte.\n[Več o tem](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Več";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Naj DuckDuckGo upravlja pojavna okna s soglasjem za piškotke";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Naj Ripul Browser upravlja pojavna okna s soglasjem za piškotke";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Gesla in samodejno izpolnjevanje";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Upravljanje računa";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Več od iskalnika DuckDuckGo";
+"settings.more" = "Več od iskalnika Ripul Browser";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Več nastavitev iskanja";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "zasebno iskanje";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "DuckDuckGo Private Search je vaš privzeti iskalnik, zato lahko po spletu iščete, ne da bi vam kdo sledil.";
+"settings.private.search.explanation" = "Ripul Browser Private Search je vaš privzeti iskalnik, zato lahko po spletu iščete, ne da bi vam kdo sledil.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Naslovna vrstica";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Pošljite poročila o zrušitvah";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Poročila o zrušitvi samodejno pošljite DuckDuckGo.";
+"settings.send.crash.reports.description" = "Poročila o zrušitvi samodejno pošljite Ripul Browser.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Nastavite za privzeti brskalnik";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Imam naročnino";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "Naročnina DuckDuckGo";
+"settings.subscription.feedback" = "Naročnina Ripul Browser";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Če vam ukradejo identiteto, vam jo bomo pomagali povrniti.";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Nastavitve naročnine";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "Naročnina DuckDuckGo";
+"settings.subscription.Section" = "Naročnina Ripul Browser";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Naročite se na DuckDuckGo";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Naročite se na Ripul Browser";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Zagotovite varnost omrežja Wi-Fi in se zasebno pogovarjajte z naprednimi modeli umetne inteligence";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Zagotovite varnost omrežja Wi-Fi in zaščitite identiteto";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Poskusite brezplačno";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "To nam pomaga izboljšati brskalnik.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Stran ne deluje? Sporočite DuckDuckGo.";
+"site.not.working.title" = "Stran ne deluje? Sporočite Ripul Browser.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Pošlji poročilo";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Oglejte si načrte";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "V brskalniku DuckDuckGo za namizje pojdite na %1$@ in kliknite %2$@, da začnete.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "V brskalniku Ripul Browser za namizje pojdite na %1$@ in kliknite %2$@, da začnete.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Nastavitve > Naročite se na DuckDuckGo";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Nastavitve > Naročite se na Ripul Browser";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Imam naročnino";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Vse je pripravljeno.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "Naročnina DuckDuckGo";
+"subscription.settings.title" = "Naročnina Ripul Browser";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Naročeni";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Ali nimate druge naprave?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "Gesla DuckDuckGo se ne prenesejo s storitvijo iCloud, ker so šifrirana v vaši napravi. Vse ostalo je že tukaj.";
+"sync.recovery.prompt.message" = "Gesla Ripul Browser se ne prenesejo s storitvijo iCloud, ker so šifrirana v vaši napravi. Vse ostalo je že tukaj.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Sinhronizacija z drugo napravo";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Sinhronizacija in varnostno kopiranje žal trenutno nista na voljo. Poskusite znova pozneje.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Sinhronizacija in varnostno kopiranje v tej različici aplikacije žal nista več na voljo. Za nadaljevanje DuckDuckGo posodobite na najnovejšo različico.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Sinhronizacija in varnostno kopiranje v tej različici aplikacije žal nista več na voljo. Za nadaljevanje Ripul Browser posodobite na najnovejšo različico.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Zapri zavihek Domov";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Zaznamek";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Iskanje v DuckDuckGo";
+"voiceover.suggestion.type.search" = "Iskanje v Ripul Browser";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Odpri spletno mesto";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Nastavitve";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Dovolite dostop do mikrofona v nastavitvah sistema iOS, da boste lahko v brskalniku DuckDuckGo uporabljali glasovne funkcije.";
+"voiceSearch.alert.no-permission.message" = "Dovolite dostop do mikrofona v nastavitvah sistema iOS, da boste lahko v brskalniku Ripul Browser uporabljali glasovne funkcije.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "V REDU";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Prekliči";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Dodajte možnost zasebnega glasovnega iskanja v naslovno vrstico. Zvok ni shranjen ali posredovan nikomur niti DuckDuckGo.";
+"voiceSearch.footer.note" = "Dodajte možnost zasebnega glasovnega iskanja v naslovno vrstico. Zvok ni shranjen ali posredovan nikomur niti Ripul Browser.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Zvok bo obdelan v napravi. Zvok ne bo shranjen in ne bo deljen z drugimi, niti z brskalnikom DuckDuckGo.";
+"voiceSearch.footer.note.old" = "Zvok bo obdelan v napravi. Zvok ne bo shranjen in ne bo deljen z drugimi, niti z brskalnikom Ripul Browser.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Opusti";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Naročite se";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Naročite se na DuckDuckGo, da znova povežete VPN.";
+"vpn.access-revoked.alert.message" = "Naročite se na Ripul Browser, da znova povežete VPN.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "VPN je prekinjen zaradi potekle naročnine.";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Poiščite in izberite **DuckDuckGo**, nato povlecite do **VPN** in izberite **Dodaj pripomoček**.";
+"vpn.addWidget.settings.title" = "Poiščite in izberite **Ripul Browser**, nato povlecite do **VPN** in izberite **Dodaj pripomoček**.";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "Omrežje VPN DuckDuckGo ni povezano";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Omrežje VPN Ripul Browser ni povezano";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Z bližnjicami Siri lahko vzpostavite povezavo z omrežjem VPN s hitrim glasovnim ukazom, kot je »Siri, vklopi DuckDuckGo VPN«. To je hiter in prostoročen način za uporabo omrežja VPN.";
+"vpn.control-widget.education.screen.description" = "Z bližnjicami Siri lahko vzpostavite povezavo z omrežjem VPN s hitrim glasovnim ukazom, kot je »Siri, vklopi Ripul Browser VPN«. To je hiter in prostoročen način za uporabo omrežja VPN.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, zaženi DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example1" = "Siri, zaženi Ripul Browser VPN.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, omogoči DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example2" = "Siri, omogoči Ripul Browser VPN.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, zaščiti mojo napravo z DuckDuckGo.";
+"vpn.control-widget.education.screen.example3" = "Siri, zaščiti mojo napravo z Ripul Browser.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Upravljajte DuckDuckGo VPN s Siri!";
+"vpn.control-widget.education.screen.title" = "Upravljajte Ripul Browser VPN s Siri!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "Omrežje DuckDuckGo VPN je povezano";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Omrežje Ripul Browser VPN je povezano";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Prekliči";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Ni mogoče namestiti VPN";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Vaše povratne informacije nam bodo pomagale izboljšati\nDuckDuckGo VPN.";
+"vpn.feedback-form.sending-confirmation.description" = "Vaše povratne informacije nam bodo pomagale izboljšati\nRipul Browser VPN.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Trenutno ne moremo poslati vaših povratnih informacij, poskusite znova.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Poleg podrobnosti, vnesenih v ta obrazec, bo poročilo o težavi z aplikacijo vsebovalo tudi naslednje:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• ali so omogočene specifične funkcije DuckDuckGo,";
+"vpn.feedback-form.text-3" = "• ali so omogočene specifične funkcije Ripul Browser,";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• zbiranje diagnostike aplikacije DuckDuckGo.";
+"vpn.feedback-form.text-4" = "• zbiranje diagnostike aplikacije Ripul Browser.";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Z dotikom možnosti »Pošlji« se strinjam, da lahko DuckDuckGo podatke iz tega poročila uporabi za namene izboljšanja funkcij aplikacije.";
+"vpn.feedback-form.text-5" = "Z dotikom možnosti »Pošlji« se strinjam, da lahko Ripul Browser podatke iz tega poročila uporabi za namene izboljšanja funkcij aplikacije.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Pomagajte izboljšati DuckDuckGo VPN";
+"vpn.feedback-form.title" = "Pomagajte izboljšati Ripul Browser VPN";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Dodajte VPN v nadzorno središče";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Preprečevanje prevar";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "Naslov IPv4";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Druga";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (priporočeno)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (priporočeno)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "Strežnik DNS";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Ne, hvala";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Lahko vas obvestimo, ko boste na vrsti, toda obvestila za DuckDuckGo so trenutno onemogočena.";
+"waitlist.notification.disabled" = "Lahko vas obvestimo, ko boste na vrsti, toda obvestila za Ripul Browser so trenutno onemogočena.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Za pridružitev čakalnemu seznamu vam ne bo treba posredovati nobenih osebnih podatkov. Svoje mesto si boste zagotovili v skladu s časovnim žigom, ki obstaja samo v vaši napravi, tako da vas lahko obvestimo, ko boste na vrsti.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Ste pripravljeni začeti zasebno brskati v sistemu Windows?\n\nZa prenos v računalniku s sistemom Windows obiščite ta naslov URL:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "DuckDuckGo za sistem Windows ima vse, kar potrebujete za zasebnejše brskanje – zasebno iskanje, blokiranje sledenja, prisilno šifriranje in blokiranje pojavnih oken s piškotki ter še več najboljših zaščit v svojem razredu.";
+"windows-waitlist.summary" = "Ripul Browser za sistem Windows ima vse, kar potrebujete za zasebnejše brskanje – zasebno iskanje, blokiranje sledenja, prisilno šifriranje in blokiranje pojavnih oken s piškotki ter še več najboljših zaščit v svojem razredu.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "Aplikacija DuckDuckGo za sistem Windows";
+"windows-waitlist.title" = "Aplikacija Ripul Browser za sistem Windows";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Pridobite DuckDuckGo za Windows!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Pridobite Ripul Browser za Windows!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Zaznamki";

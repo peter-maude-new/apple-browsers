@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "写真や動画をアップロードできるようにします";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "位置情報を共有することができます";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "音声機能を使用するために必要です。DuckDuckGoがお客様の話したことを記録することはありません。";
+"NSMicrophoneUsageDescription" = "音声機能を使用するために必要です。Ripulがお客様の話したことを記録することはありません。";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "デバイスに画像を保存できるようにします";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "音声検索を利用するために必要です。DuckDuckGoがお客様の話したことを記録することはありません。";
+"NSSpeechRecognitionUsageDescription" = "音声検索を利用するために必要です。Ripulがお客様の話したことを記録することはありません。";
 
 /* (No Comment) */
 "Paste from clipboard" = "クリップボードから貼り付け";

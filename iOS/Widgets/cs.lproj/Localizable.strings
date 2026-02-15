@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Musíš povolit VPN v aplikaci DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Musíš povolit VPN v aplikaci Ripul.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Rychle zahaj nový chat s umělou inteligencí pomocí Duck.ai";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Oblíbené";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Okamžitě vymaže historii prohlížení a spustí nové soukromé vyhledávání v DuckDuckGo.";
+"lock.screen.widget.fire.description" = "Okamžitě vymaže historii prohlížení a spustí nové soukromé vyhledávání v Ripul.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Rychle prohledej svá hesla uložená na DuckDuckGo.";
+"lock.screen.widget.passwords.description" = "Rychle prohledej svá hesla uložená na Ripul.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Prohledat hesla";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Okamžitě spustí soukromé vyhledávání v DuckDuckGo.";
+"lock.screen.widget.search.description" = "Okamžitě spustí soukromé vyhledávání v Ripul.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Soukromé vyhledávání";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Okamžitě spustí nové soukromé hlasové vyhledávání v DuckDuckGo.";
+"lock.screen.widget.voice.description" = "Okamžitě spustí nové soukromé hlasové vyhledávání v Ripul.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Hlasové vyhledávání";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Konfigurace klávesových zkratek";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Rychle hledej svá hesla uložená v DuckDuckGo.";
+"widget.gallery.passwords.description" = "Rychle hledej svá hesla uložená v Ripul.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Prohledat hesla";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Vyhledávání a oblíbené položky";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Rychle spusťte soukromé vyhledávání v DuckDuckGo.";
+"widget.gallery.search.description" = "Rychle spusťte soukromé vyhledávání v Ripul.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Hledat";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Zobrazení a správa připojení VPN. Vyžaduje předplatné DuckDuckGo.";
+"widget.gallery.vpn.description" = "Zobrazení a správa připojení VPN. Vyžaduje předplatné Ripul.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Hledat";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Vyhledat prostřednictvím DuckDuckGo";
+"widget.search.duckduckgo" = "Vyhledat prostřednictvím Ripul";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Připojit";

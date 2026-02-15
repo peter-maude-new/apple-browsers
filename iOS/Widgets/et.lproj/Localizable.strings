@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Peate lubama VPN-i rakenduses DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Peate lubama VPN-i rakenduses Ripul.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Alustage kiiresti uut AI-vestlust Duck.ai-s.";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Lemmikud";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Kustuta hetkega oma sirvimisajalugu ja alusta uut privaatset otsingut DuckDuckGos.";
+"lock.screen.widget.fire.description" = "Kustuta hetkega oma sirvimisajalugu ja alusta uut privaatset otsingut Ripuls.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Otsi kiiresti oma salvestatud DuckDuckGo paroole.";
+"lock.screen.widget.passwords.description" = "Otsi kiiresti oma salvestatud Ripul paroole.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Otsi paroole";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Alusta hetkega DuckDuckGos privaatset otsingut.";
+"lock.screen.widget.search.description" = "Alusta hetkega Ripuls privaatset otsingut.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Privaatne otsing";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Alusta hetkega DuckDuckGos uut privaatset häälotsingut.";
+"lock.screen.widget.voice.description" = "Alusta hetkega Ripuls uut privaatset häälotsingut.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Häälotsing";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Konfigureeri otseteed";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Otsi kiiresti oma salvestatud DuckDuckGo paroole.";
+"widget.gallery.passwords.description" = "Otsi kiiresti oma salvestatud Ripul paroole.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Otsi paroole";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Otsing ja lemmikud";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Käivita kiiresti privaatne otsing brauseris DuckDuckGos.";
+"widget.gallery.search.description" = "Käivita kiiresti privaatne otsing brauseris Ripuls.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Otsi";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Vaata ja halda oma VPN-ühendust. Nõuab DuckDuckGo tellimust.";
+"widget.gallery.vpn.description" = "Vaata ja halda oma VPN-ühendust. Nõuab Ripul tellimust.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Otsi";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Otsi DuckDuckGo'st";
+"widget.search.duckduckgo" = "Otsi Ripul'st";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Ühenda";

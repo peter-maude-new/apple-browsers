@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Πρέπει να ενεργοποιήσετε το VPN από την εφαρμογή DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Πρέπει να ενεργοποιήσετε το VPN από την εφαρμογή Ripul.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Αρχίστε γρήγορα μια νέα συνομιλία τεχνητής νοημοσύνης στο Duck.ai";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Αγαπημένα";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Διαγράψτε άμεσα το ιστορικό περιήγησής σας και αρχίστε μια νέα ιδιωτική αναζήτηση στο DuckDuckGo.";
+"lock.screen.widget.fire.description" = "Διαγράψτε άμεσα το ιστορικό περιήγησής σας και αρχίστε μια νέα ιδιωτική αναζήτηση στο Ripul.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Αναζητήστε γρήγορα τους αποθηκευμένους κωδικούς πρόσβασής σας στο DuckDuckGo.";
+"lock.screen.widget.passwords.description" = "Αναζητήστε γρήγορα τους αποθηκευμένους κωδικούς πρόσβασής σας στο Ripul.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Αναζήτηση κωδικών πρόσβασης";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Αρχίστε αμέσως μια ιδιωτική αναζήτηση στο DuckDuckGo.";
+"lock.screen.widget.search.description" = "Αρχίστε αμέσως μια ιδιωτική αναζήτηση στο Ripul.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "ιδιωτική αναζήτηση";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Αρχίστε αμέσως μια νέα ιδιωτική φωνητική αναζήτηση στο DuckDuckGo.";
+"lock.screen.widget.voice.description" = "Αρχίστε αμέσως μια νέα ιδιωτική φωνητική αναζήτηση στο Ripul.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Φωνητική αναζήτηση";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Διαμόρφωση συντομεύσεων";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Αναζητήστε γρήγορα τους αποθηκευμένους κωδικούς πρόσβασής σας στο DuckDuckGo.";
+"widget.gallery.passwords.description" = "Αναζητήστε γρήγορα τους αποθηκευμένους κωδικούς πρόσβασής σας στο Ripul.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Αναζήτηση κωδικών πρόσβασης";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Αναζήτηση και Αγαπημένα";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Ξεκινήστε γρήγορα μια ιδιωτική αναζήτηση στο DuckDuckGo.";
+"widget.gallery.search.description" = "Ξεκινήστε γρήγορα μια ιδιωτική αναζήτηση στο Ripul.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Αναζήτηση";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Προβολή και διαχείριση της σύνδεσής σας VPN. Απαιτείται συνδρομή DuckDuckGo.";
+"widget.gallery.vpn.description" = "Προβολή και διαχείριση της σύνδεσής σας VPN. Απαιτείται συνδρομή Ripul.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Αναζήτηση";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Αναζήτηση DuckDuckGo";
+"widget.search.duckduckgo" = "Αναζήτηση Ripul";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Σύνδεση";

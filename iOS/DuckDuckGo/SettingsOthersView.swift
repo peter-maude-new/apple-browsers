@@ -92,12 +92,6 @@ struct SettingsOthersView: View {
                                  isButton: true)
             }
 
-            // DuckDuckGo on Other Platforms
-            SettingsCellView(label: UserText.duckduckgoOnOtherPlatforms,
-                             image: Image(uiImage: DesignSystemImages.Color.Size24.downloads),
-                             action: { viewModel.openOtherPlatforms() },
-                             webLinkIndicator: true,
-                             isButton: true)
         }
     }
 

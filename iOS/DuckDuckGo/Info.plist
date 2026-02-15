@@ -170,11 +170,11 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allows you to share your location</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This is required to use voice features. DuckDuckGo never records what you say.</string>
+	<string>This is required to use voice features. Ripul Browser never records what you say.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Allows you to save images to your device</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This is required to use voice search. DuckDuckGo never records what you say.</string>
+	<string>This is required to use voice search. Ripul Browser never records what you say.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>ConfigurationIntent</string>
@@ -235,8 +235,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSAdvertisingAttributionReportEndpoint</key>
-	<string>https://duckduckgo.com</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>OSLogPreferences</key>

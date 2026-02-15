@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Tev ir jāiespējo VPN DuckDuckGo lietotnē.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Tev ir jāiespējo VPN Ripul lietotnē.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Ātri uzsāc jaunu MI tērzēšanu vietnē Duck.ai";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Izlase";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Nekavējoties dzēs savu pārlūkošanas vēsturi un sāc jaunu privātu meklēšanu pakalpojumā DuckDuckGo.";
+"lock.screen.widget.fire.description" = "Nekavējoties dzēs savu pārlūkošanas vēsturi un sāc jaunu privātu meklēšanu pakalpojumā Ripul.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Ātri meklē savas saglabātās DuckDuckGo paroles.";
+"lock.screen.widget.passwords.description" = "Ātri meklē savas saglabātās Ripul paroles.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Meklēt paroles";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Nekavējoties sāc privātu meklēšanu pakalpojumā DuckDuckGo.";
+"lock.screen.widget.search.description" = "Nekavējoties sāc privātu meklēšanu pakalpojumā Ripul.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Privāta meklēšana";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Nekavējoties sāc jaunu privātu balss meklēšanu pakalpojumā DuckDuckGo.";
+"lock.screen.widget.voice.description" = "Nekavējoties sāc jaunu privātu balss meklēšanu pakalpojumā Ripul.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Balss meklēšana";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Konfigurēt saīsnes";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Ātri meklē savas saglabātās DuckDuckGo paroles.";
+"widget.gallery.passwords.description" = "Ātri meklē savas saglabātās Ripul paroles.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Meklēt paroles";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Meklēšana un izlase";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Ātri sāc privātu meklēšanu vietnē DuckDuckGo.";
+"widget.gallery.search.description" = "Ātri sāc privātu meklēšanu vietnē Ripul.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Meklēt";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Skati un pārvaldi savu VPN savienojumu. Nepieciešams DuckDuckGo abonements.";
+"widget.gallery.vpn.description" = "Skati un pārvaldi savu VPN savienojumu. Nepieciešams Ripul abonements.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Meklēt";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Meklēt DuckDuckGo";
+"widget.search.duckduckgo" = "Meklēt Ripul";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Savienot";

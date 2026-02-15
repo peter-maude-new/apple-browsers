@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Sinun on aktivoitava VPN DuckDuckGo-sovelluksessa.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Sinun on aktivoitava VPN Ripul-sovelluksessa.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Aloita nopeasti uusi tekoälykeskustelu Duck.ai:ssa";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Suosikit";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Poista välittömästi selaushistoriasi ja aloita uusi yksityinen haku DuckDuckGossa.";
+"lock.screen.widget.fire.description" = "Poista välittömästi selaushistoriasi ja aloita uusi yksityinen haku Ripulssa.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire-painike";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Hae nopeasti DuckDuckGohon tallennettuja salasanojasi.";
+"lock.screen.widget.passwords.description" = "Hae nopeasti Ripulhon tallennettuja salasanojasi.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Etsi salasanoja";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Aloita välittömästi yksityinen haku DuckDuckGossa.";
+"lock.screen.widget.search.description" = "Aloita välittömästi yksityinen haku Ripulssa.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Yksityinen haku";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Aloita välittömästi uusi yksityinen äänihaku DuckDuckGossa.";
+"lock.screen.widget.voice.description" = "Aloita välittömästi uusi yksityinen äänihaku Ripulssa.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Äänihaku";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Määritä pikavalinnat";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Hae nopeasti DuckDuckGohon tallennettuja salasanojasi.";
+"widget.gallery.passwords.description" = "Hae nopeasti Ripulhon tallennettuja salasanojasi.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Etsi salasanoja";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Haku ja suosikit";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Tee yksityinen haku DuckDuckGo:ssa nopeasti.";
+"widget.gallery.search.description" = "Tee yksityinen haku Ripul:ssa nopeasti.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Etsi";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Tarkastele ja hallinnoi VPN-yhteyttäsi. Vaatii DuckDuckGo-tilauksen.";
+"widget.gallery.vpn.description" = "Tarkastele ja hallinnoi VPN-yhteyttäsi. Vaatii Ripul-tilauksen.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Etsi";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Hae DuckDuckGo:sta";
+"widget.search.duckduckgo" = "Hae Ripul:sta";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Yhdistä";

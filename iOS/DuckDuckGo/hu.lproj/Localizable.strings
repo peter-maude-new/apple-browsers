@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Koppints a plusz %@ gombra.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Keresd meg és jelöld ki a **DuckDuckGo** elemet. Ezután válassz ki egy widgetet.";
+"addWidget.settings.title" = "Keresd meg és jelöld ki a **Ripul Browser** elemet. Ezután válassz ki egy widgetet.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Egyetlen koppintással nyisd meg kedvenc oldalaidat.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Szinkronizálás";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "A(z) „%@” hozzáférhet a szinkronizált DuckDuckGo-adataidhoz.";
+"alert.sync-new-device.message" = "A(z) „%@” hozzáférhet a szinkronizált Ripul Browser-adataidhoz.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Új eszköz szinkronizálása?";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Nem sikerült frissíteni az eszköz nevét.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Oldd fel a DuckDuckGo-t.";
+"app.authentication.unlock" = "Oldd fel a Ripul Browser-t.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Bejelentkezés";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Be";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "DuckDuckGo keresés";
+"autocomplete.history.search.duckduckgo" = "Ripul Browser keresés";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "A keresési javaslatok között már a legutóbb meglátogatott webhelyek is szerepelnek. A Beállítások alatt kikapcsolhatod, vagy bármikor törölheted a 🔥 Tűz gombbal.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Engedélyezve";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Amikor a DuckDuckGo a meglátogatott webhelyeken sütik elfogadására szolgáló felugró ablakokat észlel, a sütik minimalizálása és az adatvédelem maximalizálása érdekében automatikusan megpróbálhatjuk megadni a sütikre vonatkozó beállításaidat, és bezárhatjuk a felugró ablakokat. Egyes webhelyek nem adnak lehetőséget a sütikre vonatkozó beállítások kezelésére, így csak az ilyen felugró ablakokat tudjuk elrejteni.";
+"autoconsent.info.header" = "Amikor a Ripul Browser a meglátogatott webhelyeken sütik elfogadására szolgáló felugró ablakokat észlel, a sütik minimalizálása és az adatvédelem maximalizálása érdekében automatikusan megpróbálhatjuk megadni a sütikre vonatkozó beállításaidat, és bezárhatjuk a felugró ablakokat. Egyes webhelyek nem adnak lehetőséget a sütikre vonatkozó beállítások kezelésére, így csak az ilyen felugró ablakokat tudjuk elrejteni.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Kártya mentve";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "A hitelkártyaadatok biztonságosan kerülnek eltárolásra az eszközödön.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "A DuckDuckGo mentse a kártyaadatokat?";
+"autofill.creditcard.save-prompt.title" = "A Ripul Browser mentse a kártyaadatokat?";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Jelentkezz be a bankkártyaadatok kitöltéséhez";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Kapcsold be a más alkalmazásokban történő automatikus kitöltést";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "A DuckDuckGo használatával a jelszavak minden alkalmazásban biztonságosan és automatikusan kitölthetők.";
+"autofill.extension.promo.message" = "A Ripul Browser használatával a jelszavak minden alkalmazásban biztonságosan és automatikusan kitölthetők.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Jelentkezz be gyorsan az alkalmazásaidba jelszavak beírása nélkül";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Asztali böngésző letöltése";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Nyisd meg Mac vagy Windows rendszeren a DuckDuckGo böngészőt";
+"autofill.import.passwords.via.sync.instructions.step1" = "Nyisd meg Mac vagy Windows rendszeren a Ripul Browser böngészőt";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Lépj a %1$@ > %2$@ menüpontra";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Importálás az asztali böngészőből:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Importálj jelszavakat a DuckDuckGo böngésző asztali verziójába, majd szinkronizáld őket az eszközök között.";
+"autofill.import.passwords.via.sync.subtitle" = "Importálj jelszavakat a Ripul Browser böngésző asztali verziójába, majd szinkronizáld őket az eszközök között.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Szinkronizálás asztali böngészővel";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Letilt";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[További információk](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Asztali jelszavak szinkronizálása";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Importálhatod a mentett jelszavaidat egy másik böngészőből a DuckDuckGo böngészőjébe.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Importálhatod a mentett jelszavaidat egy másik böngészőből a Ripul Browser böngészőjébe.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Még nincsenek mentett jelszavak";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "A jelszavakat az eszközöd biztonságosan tárolja.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "A DuckDuckGo által kínált erős jelszót kívánsz használni?";
+"autofill.password-generation-prompt.title" = "A Ripul Browser által kínált erős jelszót kívánsz használni?";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Erős jelszó használata";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Nem, köszönöm";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Tárold biztonságosan a jelszavaidat az eszközödön a DuckDuckGo Jelszavak és automatikus kitöltés funkciójával.";
+"autofill.save-login.security.message" = "Tárold biztonságosan a jelszavaidat az eszközödön a Ripul Browser Jelszavak és automatikus kitöltés funkciójával.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Mented a jelszót?";
@@ -893,7 +893,7 @@
 "autofill.settings.report.not.working.confirmation.title" = "Jelented, hogy az automatikus kitöltés nem működik a megnyitni kívánt %@ webhelyen?";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Köszönjük! A jelentésed segít nekünk abban, hogy a DuckDuckGo mindenki számára jobb élményt nyújthasson.";
+"autofill.settings.report.not.working.sent.confirmation" = "Köszönjük! A jelentésed segít nekünk abban, hogy a Ripul Browser mindenki számára jobb élményt nyújthasson.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Jelentsd névtelenül, hogy az automatikus kitöltés nem működik ezen a webhelyen. Jelszavak megosztására soha nem kerül sor.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@ a Duck-címek kezeléséhez ezen az eszközön.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "A DuckDuckGo frissíti az eszközödön ezt a tárolt jelszót.";
+"autofill.update-password.message" = "A Ripul Browser frissíti az eszközödön ezt a tárolt jelszót.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Jelszó frissítése";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Leírás szükséges";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "A jelentésed segít nekünk abban, hogy a DuckDuckGo mindenki számára jobb élményt nyújthasson!";
+"broken.site.report.success.toast" = "A jelentésed segít nekünk abban, hogy a Ripul Browser mindenki számára jobb élményt nyújthasson!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Bróker JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Adj hozzá a Dockhoz!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Keresd meg a DuckDuckGo ikont a kezdőképernyőn. Ezután az ikont nyomva tartva húzd a helyére. Ennyi az egész!";
+"contextual.onboarding.addToDock.tutorial.message" = "Keresd meg a Ripul Browser ikont a kezdőképernyőn. Ezután az ikont nyomva tartva húzd a helyére. Ennyi az egész!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Egyszerűen hozzáadhatsz a Dockhoz.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Ne feledd: minden alkalommal, amikor velem böngészel, egy undok hirdetés elveszíti az erejét.";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "Ez a DuckDuckGo Search! Privát. Gyors. Kevesebb hirdetés.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "A DuckDuckGo-kereséseid mindig privátak maradnak.";
+"contextual.onboarding.highlights.try-a-search.message" = "A Ripul Browser-kereséseid mindig privátak maradnak.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "kiskacsák";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Lepj meg!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Keresd meg a listában a **DuckDuckGo** elemet, majd koppints a **VPN-vezérlés** lehetőségre, hogy hozzáadd";
+"control.center.vpn.widget.education.paragraph" = "Keresd meg a listában a **Ripul Browser** elemet, majd koppints a **VPN-vezérlés** lehetőségre, hogy hozzáadd";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Húzd lefelé az ujjad a képernyő jobb felső sarkából";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Elrejtés";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "A hibajelentések segítséget nyújtanak ahhoz, hogy a DuckDuckGo diagnosztizálhassa a problémákat, és tökéletesíthesse termékeit. A jelentések nem tartalmaznak személyes azonosításra alkalmas adatokat.";
+"crash.report.dialog.message" = "A hibajelentések segítséget nyújtanak ahhoz, hogy a Ripul Browser diagnosztizálhassa a problémákat, és tökéletesíthesse termékeit. A jelentések nem tartalmaznak személyes azonosításra alkalmas adatokat.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Soha ne küldjön";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Engedélyezve";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "A DuckDuckGo számos nyomkövetőt automatikusan blokkol. A Global Privacy Control (GPC, Globális Adatvédelmi Ellenőrzés) segítségével arra is megkérheted a részt vevő webhelyeket, hogy korlátozzák személyes adataid eladását vagy megosztását más vállalatokkal.";
+"donotsell.info.headertext" = "A Ripul Browser számos nyomkövetőt automatikusan blokkol. A Global Privacy Control (GPC, Globális Adatvédelmi Ellenőrzés) segítségével arra is megkérheted a részt vevő webhelyeket, hogy korlátozzák személyes adataid eladását vagy megosztását más vállalatokkal.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Mentés a Letöltések közé";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Megjelenítési beállítások";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "A DuckDuckGo AI-funkciói privátak és opcionálisak. Az adataidat nem használjuk fel az AI tanítására.";
+"duckai.preferences.text.markdown" = "A Ripul Browser AI-funkciói privátak és opcionálisak. Az adataidat nem használjuk fel az AI tanítására.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Oldal tartalmának csatolása";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Oldal összefoglalása";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Duck.ai-gombok és -linkek megjelenítése a DuckDuckGo keresési eredményeiben.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Duck.ai-gombok és -linkek megjelenítése a Ripul Browser keresési eredményeiben.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Keresési gyorsparancsok";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo iOS verzió";
+"Ripul Browser for iOS" = "Ripul Browser iOS verzió";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "DuckDuckGo-előfizetésed hozzáadása ehhez az eszközhöz";
+"duckduckgo.subscription.activate.header.title" = "Ripul Browser-előfizetésed hozzáadása ehhez az eszközhöz";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "E-mail-cím használatával add hozzá az előfizetésedet ehhez az eszközhöz.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "A súgóoldalainkon választ kaphatsz a gyakran ismételt kérdésekre, vagy felveheted a kapcsolatot az előfizetési támogatást nyújtó ügyfélszolgálattal.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "A DuckDuckGo-előfizetés aktiválása asztali számítógépen a Personal Information Removal beállításához";
+"duckduckgo.subscription.pir.hero" = "A Ripul Browser-előfizetés aktiválása asztali számítógépen a Personal Information Removal beállításához";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Ezen az eszközön többé nem férhetsz hozzá a DuckDuckGo-előfizetésedhez. Ez nem szünteti meg az előfizetésedet, amely a többi eszközödön aktív marad.";
+"duckduckgo.subscription.remove.from.device.text" = "Ezen az eszközön többé nem férhetsz hozzá a Ripul Browser-előfizetésedhez. Ez nem szünteti meg az előfizetésedet, amely a többi eszközödön aktív marad.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Mindig";
@@ -1601,10 +1601,10 @@
 "duckplayer.settings.open-videos-in" = "YouTube-videók megnyitása a Duck Playerrel";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "A DuckDuckGo keresési eredményeiben található YouTube-videókra kattintva azok a Duck Playerben nyílnak meg.";
+"duckplayer.settings.search.results.footer" = "A Ripul Browser keresési eredményeiben található YouTube-videókra kattintva azok a Duck Playerben nyílnak meg.";
 
 /* Label for the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.label" = "DuckDuckGo keresési eredmények";
+"duckplayer.settings.search.results.label" = "Ripul Browser keresési eredmények";
 
 /* Message for the alert when changing Duck Player variant */
 "duckplayer.settings.tab.alert.message" = "A módosítás érvénybe léptetéséhez zárd be az összes lapot.";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "A Duck Playerben nézed!\nItt nincsenek célzott hirdetések.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "E-mail védelem";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Még nincsenek könyvjelzők hozzáadva";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Ha a könyvjelzőid egy másik böngészőben vannak mentve,\nimportálhatod azokat a DuckDuckGo alkalmazásba.";
+"empty.bookmarks.subtitle" = "Ha a könyvjelzőid egy másik böngészőben vannak mentve,\nimportálhatod azokat a Ripul Browser alkalmazásba.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Nincs találat";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Melyik keresési funkciót vezessük be vagy javítsuk?";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "DuckDuckGo keresési problémák";
+"feedback.ddgSearch.description" = "Ripul Browser keresési problémák";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "A DuckDuckGo keresés nem elég jó";
+"feedback.ddgSearch.entry" = "A Ripul Browser keresés nem elég jó";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Keresés egy adott nyelven vagy régióban";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Elküldés";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Segíts javítani a DuckDuckGo-előfizetést";
+"feedback.form.title" = "Segíts javítani a Ripul Browser-előfizetést";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Letöltési link megosztása";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Keress privát módon, és blokkold a nyomkövetőket a DuckDuckGo asztali böngészőjével. A letöltéshez nyisd meg ezt a linket a számítógépen.";
+"get.browser.share-link.message" = "Keress privát módon, és blokkold a nyomkövetőket a Ripul Browser asztali böngészőjével. A letöltéshez nyisd meg ezt a linket a számítógépen.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Mac vagy Windows verziójú DuckDuckGo böngésző letöltése";
+"get.browser.share-link.title" = "Mac vagy Windows verziójú Ripul Browser böngésző letöltése";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Mac vagy Windows verziójú DuckDuckGo letöltése";
+"get.browser.title" = "Mac vagy Windows verziójú Ripul Browser letöltése";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Add hozzá a DuckDuckGo-t a kezdőképernyődhöz!";
+"home.row.onboarding.header" = "Add hozzá a Ripul Browser-t a kezdőképernyődhöz!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "A könnyű hozzáférés érdekében add hozzá a dokkodhoz a DuckDuckGo-t!";
+"home.row.reminder.message" = "A könnyű hozzáférés érdekében add hozzá a dokkodhoz a Ripul Browser-t!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Vidd haza a DuckDuckGo-t";
+"home.row.reminder.title" = "Vidd haza a Ripul Browser-t";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Keresés vagy cím megadása";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Telepített bővítmények (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "A DuckDuckGo alkalmazásban engedélyezned kell a VPN-t.";
+"intent.vpn.needs.to.be.enabled.from.app" = "A Ripul Browser alkalmazásban engedélyezned kell a VPN-t.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Brókerek betöltése…";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "A DuckDuckGo Mac verziója gyors, böngészési funkciókban gazdag, és kategóriája legjobb adatvédelmi megoldásait kínálja.";
+"mac-browser.waitlist.summary" = "A Ripul Browser Mac verziója gyors, böngészési funkciókban gazdag, és kategóriája legjobb adatvédelmi megoldásait kínálja.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "Elkészült a DuckDuckGo Maces verziója!";
+"mac-waitlist.available.notification.title" = "Elkészült a Ripul Browser Maces verziója!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Másolás";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Link megosztása";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Töltsd le a DuckDuckGo Mac verzióját!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Töltsd le a Ripul Browser Mac verzióját!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "A Windowsra készült verziót keresed?";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Készen állsz a privát böngészésre a Macen?\n\nA letöltéshez látogass el erre az URL-címre a Macen:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo Mac verzió";
+"mac-waitlist.share-sheet.title" = "Ripul Browser Mac verzió";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "DuckDuckGo alkalmazás Machez";
+"mac-waitlist.title" = "Ripul Browser alkalmazás Machez";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Szundi";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Minialkalmazás hozzáadása";
@@ -2351,10 +2351,10 @@
 "network.protection.entitlement.expired.notification.body" = "A VPN-kapcsolat megszakadt, mert lejárt az előfizetésed. Fizess elő a DuckDuckGóra, hogy újra csatlakozhass a VPN-hez.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "A DuckDuckGo VPN nem tudott csatlakozni. Próbálkozz újra később.";
+"network.protection.failure.notification.body" = "A Ripul Browser VPN nem tudott csatlakozni. Próbálkozz újra később.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "DuckDuckGo VPN – gyakori kérdések";
+"network.protection.faq.title" = "Ripul Browser VPN – gyakori kérdések";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Megválaszthatod a VPN szerinti tartózkodási helyedet, ha csatlakozol bármely, a világ különböző pontjain lévő szerverünkhöz.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Tartózkodási hely módosítása";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "A DuckDuckGo VPN-kapcsolat megszakadt. Újracsatlakozási kísérlet folyamatban…";
+"network.protection.interrupted.notification.body" = "A Ripul Browser VPN-kapcsolat megszakadt. Újracsatlakozási kísérlet folyamatban…";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "A kezdéshez írd be a meghívókódodat.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Meghívót kaptál a DuckDuckGo VPN kipróbálására";
+"network.protection.invite.dialog.title" = "Meghívót kaptál a Ripul Browser VPN kipróbálására";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Meghívókód";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Sikeres belépés.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "VPN megnyitása";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "A VPN védi az összes eszköz\ninternetes forgalmát.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "A DuckDuckGo VPN ki van kapcsolva";
+"network.protection.status.header.title.off" = "A Ripul Browser VPN ki van kapcsolva";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "A DuckDuckGo VPN be van kapcsolva";
+"network.protection.status.header.title.on" = "A Ripul Browser VPN be van kapcsolva";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "A DuckDuckGo VPN szüneteltetve van";
+"network.protection.status.header.title.snoozed" = "A Ripul Browser VPN szüneteltetve van";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Visszajelzés megosztása";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "A DuckDuckGo VPN be van kapcsolva. A tartózkodási helyed és az online tevékenységed védelme aktív.";
+"network.protection.success.notification.body" = "A Ripul Browser VPN be van kapcsolva. A tartózkodási helyed és az online tevékenységed védelme aktív.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Az eszköz forgalmának átirányítási helyszíne: %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Értesítések bekapcsolása";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Engedélyezd, hogy a DuckDuckGo értesítsen, ha a kapcsolat megszakad vagy a VPN állapota megváltozik.";
+"network.protection.turn.on.notifications.section.footer" = "Engedélyezd, hogy a Ripul Browser értesítsen, ha a kapcsolat megszakad vagy a VPN állapota megváltozik.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Rólunk";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Preferált helyszín";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "A DuckDuckGo a saját DNS-kiszolgálóin keresztül irányítja át a DNS-lekérdezéseket, így az internetszolgáltatód nem láthatja, hogy milyen webhelyeket látogatsz meg.";
+"network.protection.vpn.secure.dns.setting.footer" = "A Ripul Browser a saját DNS-kiszolgálóin keresztül irányítja át a DNS-lekérdezéseket, így az internetszolgáltatód nem láthatja, hogy milyen webhelyeket látogatsz meg.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "GYIK és segítségnyújtás";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Böngésző kiválasztása";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "A DuckDuckGo kínálatában %1$@ is szerepel, amelyhez %2$@ és %3$@ tartozik.";
+"onboarding.duckduckgo.subscription.promo.message" = "A Ripul Browser kínálatában %1$@ is szerepel, amelyhez %2$@ és %3$@ tartozik.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "fejlett, privát AI";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Melyik szín áll nekem a legjobban?";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Védelem aktiválva!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Próbáld ki ingyen!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "A DuckDuckGo kínálatában %2$@ mellett igénybe vehető biztonságos %1$@ is szerepel.";
+"onboarding.subscription.promo.message" = "A Ripul Browser kínálatában %2$@ mellett igénybe vehető biztonságos %1$@ is szerepel.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "opcionális előfizetés";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Minialkalmazás hozzáadása";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "A DuckDuckGo használata még könnyebb lett.";
+"onboarding.widgets.header" = "A Ripul Browser használata még könnyebb lett.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Talán később";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Böngészés indítása";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Üdvözlünk a DuckDuckGo-ban!";
+"onboardingWelcomeHeader" = "Üdvözlünk a Ripul Browser-ban!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "A link megnyitásához szükséges alkalmazás nem található.";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• Összesített alkalmazásdiagnosztika (pl. hibakódok)";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Az „Elküldés” gombra koppintva elfogadod, hogy a DuckDuckGo felhasználhatja a megadott információkat az alkalmazás fejlesztése céljából.";
+"ppro.feedback-form.text-5" = "Az „Elküldés” gombra koppintva elfogadod, hogy a Ripul Browser felhasználhatja a megadott információkat az alkalmazás fejlesztése céljából.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Visszajelzés";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Adatvédelem";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "DuckDuckGo logó";
+"privacy.icon.dax" = "Ripul Browser logó";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Koppints ide az Adatvédelmi műszerfal képernyőjének megnyitásához";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Megnyitás";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Szeretnél kilépni a DuckDuckGo programból a tartalom megtekintéséhez?";
+"prompt.custom.url.scheme.prompt" = "Szeretnél kilépni a Ripul Browser programból a tartalom megtekintéséhez?";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Megnyitás másik alkalmazásban?";
@@ -3064,7 +3064,7 @@
 /* Settings cell for About DDG */
 "settings.about.ddg" = "A DuckDuckGóról";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Rólunk";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Minialkalmazás hozzáadása a kezdőképernyőhöz";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Add hozzá a DuckDuckGo VPN widgetet a főképernyőhöz";
+"settings.add.widget.vpn" = "Add hozzá a Ripul Browser VPN widgetet a főképernyőhöz";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Címsor";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Email Protection automatikus kitöltésének letiltása";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "DuckDuckGo más platformokhoz";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Ripul Browser más platformokhoz";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "A DuckDuckGo-előfizetésed lejárt";
+"settings.duckduckgo.subscription.expired.title" = "A Ripul Browser-előfizetésed lejárt";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Tiltsd le az e-mail-nyomkövetőket, és rejtsd el a címedet anélkül, hogy e-mail-szolgáltatót váltanál.\n[További információ](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "További részletek";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "A DuckDuckGo kezelheti a sütik elfogadására szolgáló felugró ablakokat";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "A Ripul Browser kezelheti a sütik elfogadására szolgáló felugró ablakokat";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Jelszavak és automatikus kitöltés";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Fiók kezelése";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Továbbiak a DuckDuckGo-tól";
+"settings.more" = "Továbbiak a Ripul Browser-tól";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "További keresési beállítások";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "privát keresés";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "A DuckDuckGo Private Search az alapértelmezett keresőmotor, így nyomon követés nélkül kereshetsz az interneten.";
+"settings.private.search.explanation" = "A Ripul Browser Private Search az alapértelmezett keresőmotor, így nyomon követés nélkül kereshetsz az interneten.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Címsor";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Hibajelentések küldése";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Hibajelentések automatikus küldése a DuckDuckGo részére.";
+"settings.send.crash.reports.description" = "Hibajelentések automatikus küldése a Ripul Browser részére.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Beállítás alapértelmezett böngészőként";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Van előfizetésem";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "DuckDuckGo-előfizetés";
+"settings.subscription.feedback" = "Ripul Browser-előfizetés";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Ha ellopták a személyazonosságod, segítünk helyreállítani";
@@ -3464,9 +3464,9 @@
 "settings.subscription.manage" = "Előfizetési beállítások";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "DuckDuckGo-előfizetés";
+"settings.subscription.Section" = "Ripul Browser-előfizetés";
 
-/* Subscribe to DuckDuckGo button text */
+/* Subscribe to Ripul Browser button text */
 "settings.subscription.subscribe.button" = "Feliratkozás a DuckDuckGóra";
 
 /* Call to action title for Privacy Pro settings */
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "A Wi-Fi biztonságossá tétele, és a személyazonosság védelme";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Ingyenes próba";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "Ez segít minket a böngésző tökéletesítésében.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Nem működik a webhely? Jelezd a DuckDuckGo felé.";
+"site.not.working.title" = "Nem működik a webhely? Jelezd a Ripul Browser felé.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Jelentés beküldése";
@@ -3766,10 +3766,10 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Csomagok megtekintése";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "A kezdéshez a DuckDuckGo böngésző asztali verziójában lépj a %1$@ menüpontra, és kattints a %2$@ lehetőségre.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "A kezdéshez a Ripul Browser böngésző asztali verziójában lépj a %1$@ menüpontra, és kattints a %2$@ lehetőségre.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
 "subscription.pir.heroTextLocation" = "Beállítások > Előfizetés a DuckDuckGóra";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Minden készen áll.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "DuckDuckGo-előfizetés";
+"subscription.settings.title" = "Ripul Browser-előfizetés";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Előfizetve";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Nincs másik eszközöd?";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "A DuckDuckGo-jelszavak nem kerülnek át az új eszközödre az iCloudon keresztül, mert titkosítva vannak az eszközödön. Minden más már itt van.";
+"sync.recovery.prompt.message" = "A Ripul Browser-jelszavak nem kerülnek át az új eszközödre az iCloudon keresztül, mert titkosítva vannak az eszközödön. Minden más már itt van.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Szinkronizálás másik eszközzel";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "A szinkronizálás és biztonsági mentés jelenleg sajnos nem érhető el. Próbálkozz újra később.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "A szinkronizálás és biztonsági mentés az alkalmazás ezen verziójában már nem érhető el. A folytatáshoz frissíts a DuckDuckGo a legújabb verziójára.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "A szinkronizálás és biztonsági mentés az alkalmazás ezen verziójában már nem érhető el. A folytatáshoz frissíts a Ripul Browser a legújabb verziójára.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Kezdőlap bezárása";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Beállítások";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "A beszédhangfunkciók használatához az iOS rendszerbeállításaiban engedélyezd a DuckDuckGo számára a Mikrofon-hozzáférést.";
+"voiceSearch.alert.no-permission.message" = "A beszédhangfunkciók használatához az iOS rendszerbeállításaiban engedélyezd a Ripul Browser számára a Mikrofon-hozzáférést.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "OK";
@@ -4133,28 +4133,28 @@
 "vpn.access-revoked.alert.title" = "A VPN megszakadt, mert lejárt az előfizetésed";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Keresd meg, és jelöld ki a **DuckDuckGo** elemet, majd húzd az ujjad a **VPN** elemre, és válaszd a **Widget hozzáadása** lehetőséget";
+"vpn.addWidget.settings.title" = "Keresd meg, és jelöld ki a **Ripul Browser** elemet, majd húzd az ujjad a **VPN** elemre, és válaszd a **Widget hozzáadása** lehetőséget";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "A DuckDuckGo VPN kapcsolata megszakítva";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "A Ripul Browser VPN kapcsolata megszakítva";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "A Siri-parancsok lehetővé teszik, hogy gyors hangparanccsal csatlakozz a VPN-hez, például a „Siri, turn on DuckDuckGo VPN” („Siri, kapcsold be a DuckDuckGo VPN alkalmazást”) utasítás kimondásával. Ez egy gyors, kézhasználat nélküli módja a VPN működtetésének.";
+"vpn.control-widget.education.screen.description" = "A Siri-parancsok lehetővé teszik, hogy gyors hangparanccsal csatlakozz a VPN-hez, például a „Siri, turn on Ripul Browser VPN” („Siri, kapcsold be a Ripul Browser VPN alkalmazást”) utasítás kimondásával. Ez egy gyors, kézhasználat nélküli módja a VPN működtetésének.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, start DuckDuckGo VPN. (Siri, indítsd el a DuckDuckGo VPN alkalmazást.)";
+"vpn.control-widget.education.screen.example1" = "Siri, start Ripul Browser VPN. (Siri, indítsd el a Ripul Browser VPN alkalmazást.)";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, enable DuckDuckGo VPN. (Siri, engedélyezd a DuckDuckGo VPN alkalmazást.)";
+"vpn.control-widget.education.screen.example2" = "Siri, enable Ripul Browser VPN. (Siri, engedélyezd a Ripul Browser VPN alkalmazást.)";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, protect my device with DuckDuckGo. (Siri, védd meg a készülékemet a DuckDuckGo használatával.)";
+"vpn.control-widget.education.screen.example3" = "Siri, protect my device with Ripul Browser. (Siri, védd meg a készülékemet a Ripul Browser használatával.)";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Vezéreld a DuckDuckGo VPN-t a Siri segítségével!";
+"vpn.control-widget.education.screen.title" = "Vezéreld a Ripul Browser VPN-t a Siri segítségével!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "A DuckDuckGo VPN csatlakoztatva van";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "A Ripul Browser VPN csatlakoztatva van";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Mégsem";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Nem sikerült telepíteni a VPN-t";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "A visszajelzésed segít bennünket a DuckDuckGo VPN fejlesztésében.";
+"vpn.feedback-form.sending-confirmation.description" = "A visszajelzésed segít bennünket a Ripul Browser VPN fejlesztésében.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Jelenleg nem sikerült beküldeni a visszajelzését, próbálkozz újra.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Az űrlapon megadott adatokon kívül az alkalmazás problémáiról szóló jelentés a következőket is tartalmazza:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Engedélyezve vannak-e bizonyos DuckDuckGo-funkciók";
+"vpn.feedback-form.text-3" = "• Engedélyezve vannak-e bizonyos Ripul Browser-funkciók";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• Összesített DuckDuckGo alkalmazásdiagnosztika";
+"vpn.feedback-form.text-4" = "• Összesített Ripul Browser alkalmazásdiagnosztika";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "A „Beküldés” gombra koppintva elfogadom, hogy a DuckDuckGo az alkalmazás funkcióinak javítása céljából felhasználhatja a jelentésben szereplő adatokat.";
+"vpn.feedback-form.text-5" = "A „Beküldés” gombra koppintva elfogadom, hogy a Ripul Browser az alkalmazás funkcióinak javítása céljából felhasználhatja a jelentésben szereplő adatokat.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Segíts javítani a DuckDuckGo VPN-t";
+"vpn.feedback-form.title" = "Segíts javítani a Ripul Browser VPN-t";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "VPN hozzáadása a Vezérlőközponthoz";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Csalásblokkoló";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "IPv4-cím";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Egyéni";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (ajánlott)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (ajánlott)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "DNS-kiszolgáló";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Nem, köszönöm";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Értesíthetünk, ha sorra kerülsz, de a DuckDuckGo értesítései jelenleg le vannak tiltva.";
+"waitlist.notification.disabled" = "Értesíthetünk, ha sorra kerülsz, de a Ripul Browser értesítései jelenleg le vannak tiltva.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Nem kell megosztanod a személyes adataid a várólistához való csatlakozáshoz. A sorban elfoglalt helyedet egy olyan időbélyegző igazolja, amely kizárólag az eszközödön található meg, így értesíteni tudunk, amikor sorra kerülsz.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Készen állsz a privát böngészésre a Windowson?\n\nSzámítógépen látogass el erre a címre a letöltéshez:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "A windowsos DuckDuckGo tartalmazza mindazt, ami a privát böngészéshez szükséges – támogatja a privát keresést, a nyomkövetők blokkolását, a kényszerített titkosítást és a felugró sütiablakok blokkolását, valamint további, a kategóriájában legjobb védelmet nyújtó megoldásokat kínál.";
+"windows-waitlist.summary" = "A windowsos Ripul Browser tartalmazza mindazt, ami a privát böngészéshez szükséges – támogatja a privát keresést, a nyomkövetők blokkolását, a kényszerített titkosítást és a felugró sütiablakok blokkolását, valamint további, a kategóriájában legjobb védelmet nyújtó megoldásokat kínál.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "DuckDuckGo alkalmazás Windowshoz";
+"windows-waitlist.title" = "Ripul Browser alkalmazás Windowshoz";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Töltsd le a DuckDuckGo Windows verzióját!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Töltsd le a Ripul Browser Windows verzióját!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Könyvjelzők";

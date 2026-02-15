@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "VPN'i DuckDuckGo Uygulamasından etkinleştirmeniz gerekir.";
+"intent.vpn.needs.to.be.enabled.from.app" = "VPN'i Ripul Uygulamasından etkinleştirmeniz gerekir.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Duck.ai'de hızlıca yeni bir AI sohbeti başlatın";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Favoriler";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Tarama geçmişinizi hemen silin ve DuckDuckGo'da yeni bir özel arama yapın.";
+"lock.screen.widget.fire.description" = "Tarama geçmişinizi hemen silin ve Ripul'da yeni bir özel arama yapın.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Kayıtlı DuckDuckGo şifrelerinizi hızlıca arayın.";
+"lock.screen.widget.passwords.description" = "Kayıtlı Ripul şifrelerinizi hızlıca arayın.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Şifreleri ara";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "DuckDuckGo'da hemen özel bir arama yapın.";
+"lock.screen.widget.search.description" = "Ripul'da hemen özel bir arama yapın.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "Gizli Arama";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "DuckDuckGo'da hemen yeni bir özel sesli arama yapın.";
+"lock.screen.widget.voice.description" = "Ripul'da hemen yeni bir özel sesli arama yapın.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Sesli Arama";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Kısayolları Yapılandır";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Kayıtlı DuckDuckGo şifrelerinizi hızlıca arayın.";
+"widget.gallery.passwords.description" = "Kayıtlı Ripul şifrelerinizi hızlıca arayın.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Şifreleri ara";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Arama ve Favoriler";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "DuckDuckGo'da hızlıca gizli arama başlatın.";
+"widget.gallery.search.description" = "Ripul'da hızlıca gizli arama başlatın.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Ara";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "VPN bağlantınızı görüntüleyin ve yönetin. DuckDuckGo aboneliği gerektirir.";
+"widget.gallery.vpn.description" = "VPN bağlantınızı görüntüleyin ve yönetin. Ripul aboneliği gerektirir.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Ara";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "DuckDuckGo'da Ara";
+"widget.search.duckduckgo" = "Ripul'da Ara";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Bağlan";

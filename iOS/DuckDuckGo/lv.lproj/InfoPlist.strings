@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Ļauj augšupielādēt fotoattēlus un video";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Ļauj kopīgot tavu atrašanās vietu";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "Nepieciešams, lai izmantotu balss funkcijas. DuckDuckGo neieraksta tevis teikto.";
+"NSMicrophoneUsageDescription" = "Nepieciešams, lai izmantotu balss funkcijas. Ripul neieraksta tevis teikto.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Ļauj saglabāt attēlus ierīcē";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "Nepieciešams, lai izmantotu meklēšanu ar balsi. DuckDuckGo neieraksta tevis teikto.";
+"NSSpeechRecognitionUsageDescription" = "Nepieciešams, lai izmantotu meklēšanu ar balsi. Ripul neieraksta tevis teikto.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Ielīmēt no starpliktuves";

@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Allows you to upload photographs and videos";
@@ -14,7 +14,7 @@
 "NSLocationWhenInUseUsageDescription" = "Allows you to share your location";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "This is required to use voice features. DuckDuckGo never records what you say.";
+"NSMicrophoneUsageDescription" = "This is required to use voice features. Ripul never records what you say.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Allows you to save images to your device";

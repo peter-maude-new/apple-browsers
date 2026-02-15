@@ -42,13 +42,11 @@ struct SettingsMainSettingsView: View {
     static let viewBuilder = SettingsViewBuilder()
 
     let settingsArrangement: [SettingsEntry] = [
-        SettingsEntry(label: UserText.settingsAiFeatures, build: Self.viewBuilder.buildAIFeatures),
         SettingsEntry(label: UserText.settingsAppearanceSection, build: Self.viewBuilder.buildAppearence),
         SettingsEntry(label: UserText.settingsSync, build: Self.viewBuilder.buildSyncEntry),
         SettingsEntry(label: UserText.settingsLogins, build: Self.viewBuilder.buildPasswords),
         SettingsEntry(label: UserText.accessibility, build: Self.viewBuilder.buildAccessibility),
         SettingsEntry(label: UserText.dataClearing, build: Self.viewBuilder.buildDataClearing),
-        SettingsEntry(label: UserText.duckPlayerFeatureName, build: Self.viewBuilder.buildDuckPlayer),
     ].sorted(by: { $0.label.localizedCaseInsensitiveCompare($1.label) == .orderedAscending })
 
     var body: some View {

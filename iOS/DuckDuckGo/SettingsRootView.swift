@@ -62,9 +62,6 @@ struct SettingsRootView: View {
             }
         }
 
-        NavigationLink(destination: navigationDestinationView(for: .subscriptionFlow(redirectURLComponents: currentRedirectURLComponents)),
-                       isActive: $isShowingSubscribeFlow) { EmptyView() }
-
         List {
             if #available(iOS 18.2, *) {
                 if viewModel.shouldShowSetAsDefaultBrowser || viewModel.shouldShowImportPasswords {
@@ -73,8 +70,6 @@ struct SettingsRootView: View {
                 }
             }
             SettingsPrivacyProtectionsView()
-                .listRowBackground(Color(designSystemColor: .surface))
-            SettingsSubscriptionView().environmentObject(subscriptionNavigationCoordinator)
                 .listRowBackground(Color(designSystemColor: .surface))
             SettingsMainSettingsView()
                 .listRowBackground(Color(designSystemColor: .surface))
@@ -137,12 +132,6 @@ struct SettingsRootView: View {
                 shouldDisplayDeepLinkSheet = false
                 shouldDisplayDeepLinkPush = false
             }
-        }
-        .onReceive(subscriptionNavigationCoordinator.$shouldPushSubscriptionWebView) { shouldPush in
-            currentRedirectURLComponents = subscriptionNavigationCoordinator.redirectURLComponents ?? settingSubscriptionRedirectURLComponents
-            // Clear params for next navigation
-            subscriptionNavigationCoordinator.redirectURLComponents = nil
-            isShowingSubscribeFlow = shouldPush
         }
     }
 
@@ -219,42 +208,28 @@ struct SettingsRootView: View {
     @ViewBuilder func navigationDestinationView(for target: SettingsViewModel.SettingsDeepLinkSection) -> some View {
         switch target {
         case .dbp:
-            if viewModel.isPIREnabled, let vcProvider = viewModel.dataBrokerProtectionViewControllerProvider {
-                DataBrokerProtectionViewControllerRepresentation(dbpViewControllerProvider: vcProvider)
-                    .edgesIgnoringSafeArea(.bottom)
-            } else {
-                SubscriptionPIRMoveToDesktopView()
-            }
+            EmptyView()
         case .itr:
-            let model = SubscriptionITPViewModel(subscriptionManager: AppDependencyProvider.shared.subscriptionManager,
-                                                 userScriptsDependencies: viewModel.userScriptsDependencies,
-                                                 isInternalUser: AppDependencyProvider.shared.internalUserDecider.isInternalUser,
-                                                 featureFlagger: viewModel.featureFlagger)
-            SubscriptionITPView(viewModel: model)
+            EmptyView()
         case let .subscriptionFlow(redirectURLComponents):
-            subscriptionFlowNavigationDestination(redirectURLComponents: redirectURLComponents)
-                .environmentObject(subscriptionNavigationCoordinator)
+            EmptyView()
         case let .subscriptionPlanChangeFlow(redirectURLComponents):
-            subscriptionPlanChangeFlowNavigationDestination(redirectURLComponents: redirectURLComponents)
-                .environmentObject(subscriptionNavigationCoordinator)
+            let _ = redirectURLComponents // silence unused warning
+            EmptyView()
         case .restoreFlow:
-            emailFlowNavigationDestination()
+            EmptyView()
         case .duckPlayer:
-            SettingsDuckPlayerView().environmentObject(viewModel)
+            EmptyView()
         case .netP:
-            NetworkProtectionRootView()
+            EmptyView()
         case .aiChat:
-            SettingsAIFeaturesView().environmentObject(viewModel)
+            EmptyView()
         case .privateSearch:
             PrivateSearchView().environmentObject(viewModel)
         case .appearance, .customizeAddressBarButton, .customizeToolbarButton:
             SettingsAppearanceView().environmentObject(viewModel)
         case .subscriptionSettings:
-            if let configuration = subscriptionSettingsConfiguration() {
-                let model = SubscriptionSettingsViewModel(userScriptsDependencies: viewModel.userScriptsDependencies)
-                SubscriptionSettingsViewV2(configuration: configuration, viewModel: model, settingsViewModel: viewModel)
-                    .environmentObject(subscriptionNavigationCoordinator)
-            }
+            EmptyView()
         }
     }
 }

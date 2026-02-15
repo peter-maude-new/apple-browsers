@@ -1,12 +1,29 @@
 {
   "images" : [
     {
-      "filename" : "Hiker.pdf",
-      "idiom" : "iphone"
+      "filename" : "logo.png",
+      "idiom" : "iphone",
+      "scale" : "1x"
     },
     {
-      "filename" : "HikerLarge.pdf",
-      "idiom" : "ipad"
+      "filename" : "logo@2x.png",
+      "idiom" : "iphone",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "logo@3x.png",
+      "idiom" : "iphone",
+      "scale" : "3x"
+    },
+    {
+      "filename" : "logo_ipad.png",
+      "idiom" : "ipad",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "logo_ipad@2x.png",
+      "idiom" : "ipad",
+      "scale" : "2x"
     }
   ],
   "info" : {

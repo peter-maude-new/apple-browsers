@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Omogućuje ti prijenos fotografija i videozapisa";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Omogućuje ti dijeljenje lokacije";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "To je potrebno za korištenje glasovnih funkcija. DuckDuckGo nikad ne snima ono što govorite.";
+"NSMicrophoneUsageDescription" = "To je potrebno za korištenje glasovnih funkcija. Ripul nikad ne snima ono što govorite.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Omogućuje ti spremanje slika na uređaj";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "To je potrebno za korištenje glasovnih funkcija. DuckDuckGo nikad ne snima ono što govorite.";
+"NSSpeechRecognitionUsageDescription" = "To je potrebno za korištenje glasovnih funkcija. Ripul nikad ne snima ono što govorite.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Zalijepi iz međuspremnika";

@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Umožňuje vám nahrávať fotografie a videá";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Umožňuje vám zdieľať vašu polohu";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "Toto sa požaduje na používanie hlasových funkcií. DuckDuckGo nikdy nenahráva, čo hovoríte.";
+"NSMicrophoneUsageDescription" = "Toto sa požaduje na používanie hlasových funkcií. Ripul nikdy nenahráva, čo hovoríte.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Umožňuje vám ukladať obrázky do vášho zariadenia";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "Toto sa vyžaduje na použitie hlasového vyhľadávania. DuckDuckGo nikdy nenahráva, čo hovoríte.";
+"NSSpeechRecognitionUsageDescription" = "Toto sa vyžaduje na použitie hlasového vyhľadávania. Ripul nikdy nenahráva, čo hovoríte.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Prilepiť zo schránky";

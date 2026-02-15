@@ -194,7 +194,7 @@
 "addWidget.settings.secondParagraph.%@" = "Πατήστε το κουμπί συν %@.";
 
 /* No comment provided by engineer. */
-"addWidget.settings.title" = "Εύρεση και επιλογή του **DuckDuckGo**. Έπειτα, επιλέξτε τη μικροεφαρμογή.";
+"addWidget.settings.title" = "Εύρεση και επιλογή του **Ripul Browser**. Έπειτα, επιλέξτε τη μικροεφαρμογή.";
 
 /* No comment provided by engineer. */
 "addWidget.title" = "Ένα μόνο πάτημα προς τους αγαπημένους ιστότοπούς σας.";
@@ -245,7 +245,7 @@
 "alert.sync-new-device.button" = "Συγχρόνισε τώρα";
 
 /* Asks the user if they would like to sync with a new device */
-"alert.sync-new-device.message" = "Το «%@» θα μπορεί να έχει πρόσβαση στα συγχρονισμένα δεδομένα σας στο DuckDuckGo.";
+"alert.sync-new-device.message" = "Το «%@» θα μπορεί να έχει πρόσβαση στα συγχρονισμένα δεδομένα σας στο Ripul Browser.";
 
 /* Asks the user if they would like to sync with a new device */
 "alert.sync-new-device.title" = "Συγχρονισμός νέας συσκευής;";
@@ -317,7 +317,7 @@
 "alert.unable-to-update-device-name-description" = "Δεν είναι δυνατή η ενημέρωση του ονόματος της συσκευής.";
 
 /* Shown on authentication screen */
-"app.authentication.unlock" = "Ξεκλείδωμα DuckDuckGo.";
+"app.authentication.unlock" = "Ξεκλείδωμα Ripul Browser.";
 
 /* Authentication Alert Sign In Button */
 "auth.alert.login.button" = "Είσοδος";
@@ -344,7 +344,7 @@
 "autoclear.on" = "Ενεργό";
 
 /* Subtitle for search history items */
-"autocomplete.history.search.duckduckgo" = "Αναζήτηση DuckDuckGo";
+"autocomplete.history.search.duckduckgo" = "Αναζήτηση Ripul Browser";
 
 /* The message text shown in suggestions */
 "autocomplete.history.warning.message" = "Οι προτάσεις αναζήτησης περιλαμβάνουν πλέον τους ιστότοπους που επισκεφθήκατε πρόσφατα. Απενεργοποιήστε τη λειτουργία από τις Ρυθμίσεις ή καταργήστε την οποιαδήποτε στιγμή με το κουμπί 🔥 Fire Button.";
@@ -362,7 +362,7 @@
 "autoconsent.enabled" = "Ενεργοποιήθηκε";
 
 /* No comment provided by engineer. */
-"autoconsent.info.header" = "Όταν το DuckDuckGo εντοπίζει αναδυόμενα παράθυρα συναίνεσης για cookies σε ιστότοπους που επισκέπτεστε, μπορούμε να προσπαθήσουμε να ρυθμίσουμε αυτόματα τις προτιμήσεις σας για τα cookies ώστε να ελαχιστοποιήσετε τα cookies και να μεγιστοποιήσετε το απόρρητο. Έπειτα μπορείτε να κλείσετε τα αναδυόμενα παράθυρα. Ορισμένοι ιστότοποι δεν παρέχουν επιλογή για διαχείριση των προτιμήσεων cookies, οπότε μπορούμε μόνο να αποκρύψουμε αναδυόμενα παράθυρα όπως αυτά.";
+"autoconsent.info.header" = "Όταν το Ripul Browser εντοπίζει αναδυόμενα παράθυρα συναίνεσης για cookies σε ιστότοπους που επισκέπτεστε, μπορούμε να προσπαθήσουμε να ρυθμίσουμε αυτόματα τις προτιμήσεις σας για τα cookies ώστε να ελαχιστοποιήσετε τα cookies και να μεγιστοποιήσετε το απόρρητο. Έπειτα μπορείτε να κλείσετε τα αναδυόμενα παράθυρα. Ορισμένοι ιστότοποι δεν παρέχουν επιλογή για διαχείριση των προτιμήσεων cookies, οπότε μπορούμε μόνο να αποκρύψουμε αναδυόμενα παράθυρα όπως αυτά.";
 
 /* Message displayed after saving an autofill credit card */
 "autofill.creditcard-saved.toast" = "Η κάρτα αποθηκεύτηκε";
@@ -464,7 +464,7 @@
 "autofill.creditcard.save-prompt.subtitle" = "Οι πιστωτικές κάρτες αποθηκεύονται με ασφάλεια στη συσκευή σας.";
 
 /* Title for prompt asking the user if they wish to save their credit card details */
-"autofill.creditcard.save-prompt.title" = "Θέλετε να αποθηκεύσει το DuckDuckGo τα στοιχεία της κάρτας σας;";
+"autofill.creditcard.save-prompt.title" = "Θέλετε να αποθηκεύσει το Ripul Browser τα στοιχεία της κάρτας σας;";
 
 /* Authentication message shown when asking the user if they wish to autofill a saved credit card */
 "autofill.creditcard.use-saved-prompt.authentication" = "Επαλήθευση ταυτότητας για συμπλήρωση στοιχείων πιστωτικής κάρτας";
@@ -503,7 +503,7 @@
 "autofill.extension.activation.title" = "Η Αυτόματη συμπλήρωση κωδικών πρόσβασης ενεργοποιήθηκε!";
 
 /* Footer text describing what enabling the autofill extension does */
-"autofill.extension.footer" = "Χρησιμοποιήστε τους κωδικούς πρόσβασης που έχετε αποθηκεύσει στο DuckDuckGo σε όλες τις εφαρμογές της συσκευής σας.";
+"autofill.extension.footer" = "Χρησιμοποιήστε τους κωδικούς πρόσβασης που έχετε αποθηκεύσει στο Ripul Browser σε όλες τις εφαρμογές της συσκευής σας.";
 
 /* Header text shown when the autofill extension is disabled */
 "autofill.extension.header.disabled" = "Αυτόματη συμπλήρωση σε άλλες εφαρμογές";
@@ -518,7 +518,7 @@
 "autofill.extension.promo.button.title" = "Ενεργοποίηση της αυτόματης συμπλήρωσης σε άλλες εφαρμογές";
 
 /* Message for the Autofill extension promotion */
-"autofill.extension.promo.message" = "Χρησιμοποιήστε το DuckDuckGo για ασφαλή αυτόματη συμπλήρωση κωδικών πρόσβασης για όλες τις εφαρμογές σας.";
+"autofill.extension.promo.message" = "Χρησιμοποιήστε το Ripul Browser για ασφαλή αυτόματη συμπλήρωση κωδικών πρόσβασης για όλες τις εφαρμογές σας.";
 
 /* Title for the Autofill extension promotion */
 "autofill.extension.promo.title" = "Συνδεθείτε γρήγορα στις εφαρμογές σας χωρίς να πληκτρολογείτε κωδικούς πρόσβασης";
@@ -551,7 +551,7 @@
 "autofill.import.passwords.via.sync.get-browser-button" = "Αποκτήστε το πρόγραμμα περιήγησης για υπολογιστές";
 
 /* Step 1 for instructions to import passwords */
-"autofill.import.passwords.via.sync.instructions.step1" = "Ανοίξτε το DuckDuckGo σε Mac ή Windows";
+"autofill.import.passwords.via.sync.instructions.step1" = "Ανοίξτε το Ripul Browser σε Mac ή Windows";
 
 /* Step 2 for instructions to import passwords. This reads as 'Go to Settings > Passwords' */
 "autofill.import.passwords.via.sync.instructions.step2" = "Μεταβείτε στις επιλογές %1$@ > %2$@";
@@ -575,7 +575,7 @@
 "autofill.import.passwords.via.sync.instructions.title" = "Εισαγωγή από το πρόγραμμα περιήγησης για υπολογιστές:";
 
 /* Subtitle for screen to import passwords */
-"autofill.import.passwords.via.sync.subtitle" = "Εισαγάγετε κωδικούς πρόσβασης στην έκδοση του προγράμματος περιήγησης DuckDuckGo για υπολογιστές και έπειτα συγχρονίστε τους σε όλες τις συσκευές.";
+"autofill.import.passwords.via.sync.subtitle" = "Εισαγάγετε κωδικούς πρόσβασης στην έκδοση του προγράμματος περιήγησης Ripul Browser για υπολογιστές και έπειτα συγχρονίστε τους σε όλες τις συσκευές.";
 
 /* Button label to sync passwords with desktop browser */
 "autofill.import.passwords.via.sync.sync-button" = "Συγχρονισμός με υπολογιστή";
@@ -586,7 +586,7 @@
 /* Disable action for alert when asking the user if they want to keep using autofill */
 "autofill.keep-enabled.alert.disable" = "Απενεργοποίηση";
 
-/* A link that takes the user to the DuckDuckGo help pages explaining password managers */
+/* A link that takes the user to the Ripul Browser help pages explaining password managers */
 "autofill.learn.more.link.title" = "[Μάθετε περισσότερα](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/sync-and-backup/password-manager-security/)";
 
 /* Button displayed after saving/updating an autofill login that takes the user to the saved login */
@@ -686,7 +686,7 @@
 "autofill.logins.empty-view.import-via-sync.button.title" = "Συγχρονισμός κωδικών πρόσβασης υπολογιστών";
 
 /* Subtitle for view displayed when no autofill passwords have been saved */
-"autofill.logins.empty-view.subtitle.first.paragraph" = "Μπορείτε να εισαγάγετε αποθηκευμένους κωδικούς πρόσβασης από άλλο πρόγραμμα περιήγησης στο DuckDuckGo.";
+"autofill.logins.empty-view.subtitle.first.paragraph" = "Μπορείτε να εισαγάγετε αποθηκευμένους κωδικούς πρόσβασης από άλλο πρόγραμμα περιήγησης στο Ripul Browser.";
 
 /* Title for view displayed when autofill has no items */
 "autofill.logins.empty-view.title" = "Δεν έχουν αποθηκευτεί ακόμα κωδικοί πρόσβασης";
@@ -815,7 +815,7 @@
 "autofill.password-generation-prompt.subtitle" = "Οι κωδικοί πρόσβασης αποθηκεύονται με ασφάλεια στη συσκευή σας.";
 
 /* Title for prompt to use suggested strong password for creating a login */
-"autofill.password-generation-prompt.title" = "Χρησιμοποιείτε ισχυρό κωδικό πρόσβασης από το DuckDuckGo;";
+"autofill.password-generation-prompt.title" = "Χρησιμοποιείτε ισχυρό κωδικό πρόσβασης από το Ripul Browser;";
 
 /* Button title choosing to use the suggested generated password for creating a login */
 "autofill.password-generation-prompt.use-generated-password.cta" = "Χρησιμοποιήστε ισχυρό κωδικό πρόσβασης";
@@ -863,7 +863,7 @@
 "autofill.save-login.no-thanks.CTA" = "Όχι, ευχαριστώ";
 
 /* Message displayed on modal asking for the user to save the login for the first time */
-"autofill.save-login.security.message" = "Αποθηκεύστε με ασφάλεια τον κωδικό πρόσβασής σας στη συσκευή με τη λειτουργία DuckDuckGo κωδικοί πρόσβασης και αυτόματη συμπλήρωση.";
+"autofill.save-login.security.message" = "Αποθηκεύστε με ασφάλεια τον κωδικό πρόσβασής σας στη συσκευή με τη λειτουργία Ripul Browser κωδικοί πρόσβασης και αυτόματη συμπλήρωση.";
 
 /* Title displayed on modal asking for the user to save the login */
 "autofill.save-login.title" = "Αποθήκευση κωδικού πρόσβασης;";
@@ -887,13 +887,13 @@
 "autofill.settings.report.not.working.confirmation.button" = "Αποστολή Αναφοράς";
 
 /* Message for the confirmation prompt when reporting autofill is not working for a website */
-"autofill.settings.report.not.working.confirmation.message" = "Οι αναφορές που αποστέλλονται στο DuckDuckGo είναι ανώνυμες και δεν περιλαμβάνουν το όνομα χρήστη, τον κωδικό πρόσβασής σας ή οποιαδήποτε άλλη πληροφορία που μπορεί να σας ταυτοποιήσει.\n\nΗ αναφορά περιλαμβάνει μόνο τη διεύθυνση URL του ιστότοπου και την κατάσταση ορισμένων ρυθμίσεων αυτόματης συμπλήρωσης.";
+"autofill.settings.report.not.working.confirmation.message" = "Οι αναφορές που αποστέλλονται στο Ripul Browser είναι ανώνυμες και δεν περιλαμβάνουν το όνομα χρήστη, τον κωδικό πρόσβασής σας ή οποιαδήποτε άλλη πληροφορία που μπορεί να σας ταυτοποιήσει.\n\nΗ αναφορά περιλαμβάνει μόνο τη διεύθυνση URL του ιστότοπου και την κατάσταση ορισμένων ρυθμίσεων αυτόματης συμπλήρωσης.";
 
 /* Title for the confirmation prompt when reporting autofill is not working for a website */
 "autofill.settings.report.not.working.confirmation.title" = "Θέλετε να αναφέρετε ότι η αυτόματη συμπλήρωση δεν λειτουργεί στο %@;";
 
 /* Message shown to user when they submit a report that autofill is not working for a website */
-"autofill.settings.report.not.working.sent.confirmation" = "Σε ευχαριστούμε! Η αναφορά σας θα μας βοηθήσει ώστε να γίνει το DuckDuckGo καλύτερο για όλους.";
+"autofill.settings.report.not.working.sent.confirmation" = "Σε ευχαριστούμε! Η αναφορά σας θα μας βοηθήσει ώστε να γίνει το Ripul Browser καλύτερο για όλους.";
 
 /* Subtitle for the row to report that autofill is not working on a site in autofill settings */
 "autofill.settings.report.not.working.subtitle" = "Αναφέρετε ανώνυμα ότι η αυτόματη συμπλήρωση δεν λειτουργεί σε αυτόν τον ιστότοπο. Οι κωδικοί πρόσβασης δεν κοινοποιούνται ποτέ.";
@@ -914,7 +914,7 @@
 "autofill.signin.to.manage" = "%@ για διαχείριση των διευθύνσεών σας Duck Address σε αυτήν τη συσκευή.";
 
 /* Message displayed on modal asking for the user to update the password */
-"autofill.update-password.message" = "Το DuckDuckGo θα ενημερώσει αυτόν τον αποθηκευμένο κωδικό πρόσβασης στη συσκευή σας.";
+"autofill.update-password.message" = "Το Ripul Browser θα ενημερώσει αυτόν τον αποθηκευμένο κωδικό πρόσβασης στη συσκευή σας.";
 
 /* Confirm CTA displayed on modal asking for the user to update the password */
 "autofill.update-password.save.CTA" = "Ενημέρωση κωδικού πρόσβασης";
@@ -1043,7 +1043,7 @@
 "broken.site.report.missing.description.alert.title" = "Κείμενο περιγραφής";
 
 /* Message that appears after submitting report */
-"broken.site.report.success.toast" = "Η αναφορά σας βοηθάει ώστε να γίνει το DuckDuckGo καλύτερο για όλους!";
+"broken.site.report.success.toast" = "Η αναφορά σας βοηθάει ώστε να γίνει το Ripul Browser καλύτερο για όλους!";
 
 /* No comment provided by engineer. */
 "Broker JSON:" = "Διαμεσολαβητής JSON:";
@@ -1103,7 +1103,7 @@
 "contextual.onboarding.addToDock.promo.title" = "Προσθέστε με στο Dock σας!";
 
 /* The message of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
-"contextual.onboarding.addToDock.tutorial.message" = "Βρείτε το εικονίδιο DuckDuckGo στην Αρχική οθόνη σας. Στη συνέχεια, πατήστε και μεταφέρετέ το στη θέση του. Αυτό είναι!";
+"contextual.onboarding.addToDock.tutorial.message" = "Βρείτε το εικονίδιο Ripul Browser στην Αρχική οθόνη σας. Στη συνέχεια, πατήστε και μεταφέρετέ το στη θέση του. Αυτό είναι!";
 
 /* The title of the onboarding dialog popup that explains how to add the DDG browser icon to the dock. */
 "contextual.onboarding.addToDock.tutorial.title" = "Η προσθήκη μου στο Dock σας είναι εύκολη.";
@@ -1126,11 +1126,11 @@
 /* Message of the last screen of the onboarding to the browser app. */
 "contextual.onboarding.highlights.final-screen.message" = "Να θυμάστε: κάθε φορά που περιηγείστε μαζί μου, μια ανατριχιαστική διαφήμιση χάνει τη δύναμή της!";
 
-/* After the user performs their first search using the browser, this dialog explains the advantages of using DuckDuckGo */
+/* After the user performs their first search using the browser, this dialog explains the advantages of using Ripul Browser */
 "contextual.onboarding.highlights.first-search-done.message" = "Αυτό είναι το DuckDuckGo Search! Ιδιωτικά. Γρήγορα. Λιγότερες διαφημίσεις.";
 
 /* Message of a popover on the browser that invites the user to try a search explaining that their searches are private */
-"contextual.onboarding.highlights.try-a-search.message" = "Οι αναζητήσεις σας στο DuckDuckGo είναι πάντα ιδιωτικές.";
+"contextual.onboarding.highlights.try-a-search.message" = "Οι αναζητήσεις σας στο Ripul Browser είναι πάντα ιδιωτικές.";
 
 /* Browser Search query for baby ducklings */
 "contextual.onboarding.highlights.try-search.surprise-me" = "παπάκια";
@@ -1166,7 +1166,7 @@
 "contextual.onboarding.try-search.surprise-me-title" = "Κάνε μου έκπληξη!";
 
 /* Fourth paragraph of the Control Center VPN Widget Education screen */
-"control.center.vpn.widget.education.paragraph" = "Βρείτε το **DuckDuckGo** στη λίστα και έπειτα πατήστε **Έλεγχος VPN** για να το προσθέσετε";
+"control.center.vpn.widget.education.paragraph" = "Βρείτε το **Ripul Browser** στη λίστα και έπειτα πατήστε **Έλεγχος VPN** για να το προσθέσετε";
 
 /* First paragraph of the Control Center Widget Education screen */
 "control.center.widget.education.paragraph.1" = "Σύρε προς τα κάτω από την άνω δεξιά γωνία της οθόνης";
@@ -1184,7 +1184,7 @@
 "crash.report.dialog.hide.details" = "Απόκρυψη";
 
 /* Crash Report dialog message */
-"crash.report.dialog.message" = "Οι αναφορές σφαλμάτων βοηθούν το DuckDuckGo να πραγματοποιεί διάγνωση προβλημάτων και να βελτιώνει τα προϊόντα μας. Δεν περιέχουν προσωπικά στοιχεία ταυτοποίησης.";
+"crash.report.dialog.message" = "Οι αναφορές σφαλμάτων βοηθούν το Ripul Browser να πραγματοποιεί διάγνωση προβλημάτων και να βελτιώνει τα προϊόντα μας. Δεν περιέχουν προσωπικά στοιχεία ταυτοποίησης.";
 
 /* Crash Report never send button title */
 "crash.report.dialog.never.send" = "Να μην αποστέλλεται ποτέ";
@@ -1223,7 +1223,7 @@
 "data.import.bookmarks.subtitle" = "Επίλεξε το αρχείο που περιέχει σελιδοδείκτες. Αυτό είναι συνήθως ένα αρχείο ZIP ή HTML.";
 
 /* Title for screen to import bookmarks */
-"data.import.bookmarks.title" = "Εισαγωγή σελιδοδεικτών στο DuckDuckGo";
+"data.import.bookmarks.title" = "Εισαγωγή σελιδοδεικτών στο Ripul Browser";
 
 /* Error message displayed when no supported data is found in the zip file */
 "data.import.failed.no-data-in-zip-error-message" = "Δεν βρέθηκαν υποστηριζόμενα δεδομένα στο συμπιεσμένο αρχείο. Ελέγξτε τις οδηγίες εξαγωγής του Safari και προσπαθήστε ξανά.";
@@ -1280,7 +1280,7 @@
 "data.import.passwords.subtitle" = "Επίλεξε το αρχείο που περιέχει κωδικούς πρόσβασης που εξάγονται από το Safari ή το Chrome. Αυτό είναι συνήθως ένα αρχείο ZIP ή CSV.";
 
 /* Title for screen to import passwords */
-"data.import.passwords.title" = "Εισαγωγή κωδικών πρόσβασης στο DuckDuckGo";
+"data.import.passwords.title" = "Εισαγωγή κωδικών πρόσβασης στο Ripul Browser";
 
 /* Data import summary of how many bookmarks were successfully imported. */
 "data.import.summary.bookmarks.success" = "Σελιδοδείκτες";
@@ -1382,7 +1382,7 @@
 "donotsell.enabled" = "Ενεργοποιήθηκε";
 
 /* No comment provided by engineer. */
-"donotsell.info.headertext" = "Το DuckDuckGo αποκλείει αυτόματα πολλές εφαρμογές παρακολούθησης. Με τον Παγκόσμιο έλεγχο απορρήτου (GPC), μπορείτε επίσης να ζητήσετε από τους ιστότοπους που συμμετέχουν να περιορίσουν την πώληση ή την κοινοποίηση των προσωπικών δεδομένων σας σε άλλες εταιρείες.";
+"donotsell.info.headertext" = "Το Ripul Browser αποκλείει αυτόματα πολλές εφαρμογές παρακολούθησης. Με τον Παγκόσμιο έλεγχο απορρήτου (GPC), μπορείτε επίσης να ζητήσετε από τους ιστότοπους που συμμετέχουν να περιορίσουν την πώληση ή την κοινοποίηση των προσωπικών δεδομένων σας σε άλλες εταιρείες.";
 
 /* Alert action for starting a file dowload */
 "downloads.alert.action.save-to-downloads" = "Αποθήκευση στις λήψεις";
@@ -1466,7 +1466,7 @@
 "duckai.contextual.onboarding.viewSettings" = "Προβολή ρυθμίσεων";
 
 /* AI features settings explanation */
-"duckai.preferences.text.markdown" = "Οι λειτουργίες τεχνητής νοημοσύνης του DuckDuckGo είναι ιδιωτικές και προαιρετικές. Τα δεδομένα σας δεν χρησιμοποιούνται για εκπαίδευση της τεχνητής νοημοσύνης.";
+"duckai.preferences.text.markdown" = "Οι λειτουργίες τεχνητής νοημοσύνης του Ripul Browser είναι ιδιωτικές και προαιρετικές. Τα δεδομένα σας δεν χρησιμοποιούνται για εκπαίδευση της τεχνητής νοημοσύνης.";
 
 /* Title for the attach page content quick action chip in Duck.ai contextual sheet */
 "duckai.quick.action.attach" = "Επισύναψη περιεχομένου σελίδας";
@@ -1475,7 +1475,7 @@
 "duckai.quick.action.summarize" = "Συνοψίστε αυτήν τη σελίδα";
 
 /* Description text explaining what the 'Ask Follow-up Questions' toggle does */
-"duckai.settings.allowFollowUpQuestions.section.description" = "Εμφάνιση κουμπιών και συνδέσμων του Duck.ai στα αποτελέσματα αναζήτησης του DuckDuckGo.";
+"duckai.settings.allowFollowUpQuestions.section.description" = "Εμφάνιση κουμπιών και συνδέσμων του Duck.ai στα αποτελέσματα αναζήτησης του Ripul Browser.";
 
 /* Title for section that groups settings related to search results */
 "duckai.settings.allowFollowUpQuestions.section.title" = "Συντομεύσεις αναζήτησης";
@@ -1505,10 +1505,10 @@
 "duckai.settings.title" = "Duck.ai";
 
 /* No comment provided by engineer. */
-"DuckDuckGo for iOS" = "DuckDuckGo για iOS";
+"Ripul Browser for iOS" = "Ripul Browser για iOS";
 
 /* Header title for the subscription activation view */
-"duckduckgo.subscription.activate.header.title" = "Προσθέστε τη συνδρομή DuckDuckGo σε αυτήν τη συσκευή";
+"duckduckgo.subscription.activate.header.title" = "Προσθέστε τη συνδρομή Ripul Browser σε αυτήν τη συσκευή";
 
 /* Description for adding subscription via email address */
 "duckduckgo.subscription.activate.via.email.description" = "Χρησιμοποιήστε μια διεύθυνση email για να προσθέσετε τη συνδρομή σας σε αυτήν τη συσκευή.";
@@ -1526,10 +1526,10 @@
 "duckduckgo.subscription.faq.description" = "Πάρτε απαντήσεις σε συχνές ερωτήσεις ή επικοινωνήστε με την υποστήριξη συνδρομών από τις σελίδες βοήθειας που διαθέτουμε.";
 
 /* Hero Text for Personal information removal */
-"duckduckgo.subscription.pir.hero" = "Ενεργοποιήστε τη συνδρομή DuckDuckGo στον υπολογιστή για να ρυθμίσετε το Personal Information Removal";
+"duckduckgo.subscription.pir.hero" = "Ενεργοποιήστε τη συνδρομή Ripul Browser στον υπολογιστή για να ρυθμίσετε το Personal Information Removal";
 
 /* Remove from device confirmation dialog text */
-"duckduckgo.subscription.remove.from.device.text" = "Δεν θα μπορείτε πλέον να έχετε πρόσβαση στη συνδρομή DuckDuckGo σε αυτήν τη συσκευή. Αυτό δεν θα ακυρώσει τη συνδρομή σας και θα παραμείνει ενεργή στις υπόλοιπες συσκευές σας.";
+"duckduckgo.subscription.remove.from.device.text" = "Δεν θα μπορείτε πλέον να έχετε πρόσβαση στη συνδρομή Ripul Browser σε αυτήν τη συσκευή. Αυτό δεν θα ακυρώσει τη συνδρομή σας και θα παραμείνει ενεργή στις υπόλοιπες συσκευές σας.";
 
 /* Text displayed when DuckPlayer is always enabled */
 "duckPlayer.alwaysEnabled.label" = "Πάντα";
@@ -1562,7 +1562,7 @@
 "duckplayer.play.in.duck.player" = "Αναπαραγωγή αυτού του βίντεο στο Duck Player";
 
 /* Body text for the modal feature explanation */
-"duckplayer.presentation.modal.body" = "Το Duck Player σάς επιτρέπει να παρακολουθείτε YouTube χωρίς στοχευμένες διαφημίσεις στο DuckDuckGo, ενώ το περιεχόμενο που παρακολουθείτε δεν θα επηρεάσει τις συστάσεις που θα λαμβάνετε.";
+"duckplayer.presentation.modal.body" = "Το Duck Player σάς επιτρέπει να παρακολουθείτε YouTube χωρίς στοχευμένες διαφημίσεις στο Ripul Browser, ενώ το περιεχόμενο που παρακολουθείτε δεν θα επηρεάσει τις συστάσεις που θα λαμβάνετε.";
 
 /* Button that will dismiss the modal */
 "duckplayer.presentation.modal.dismiss-button" = "Το κατάλαβα!";
@@ -1586,10 +1586,10 @@
 "duckplayer.settings.experimental.label" = "Πειραματικό";
 
 /* Footer label in the settings screen for Duck Player */
-"duckplayer.settings.footer" = "Το DuckDuckGo παρέχει όλα τα Privacy Essentials που χρειάζεστε για να προστατευτείτε καθώς περιηγείστε στον ιστό.";
+"duckplayer.settings.footer" = "Το Ripul Browser παρέχει όλα τα Privacy Essentials που χρειάζεστε για να προστατευτείτε καθώς περιηγείστε στον ιστό.";
 
 /* Text explaining what Duck Player is in the settings screen. */
-"duckplayer.settings.info-text" = "Το Duck Player σάς επιτρέπει να παρακολουθείτε YouTube χωρίς στοχευμένες διαφημίσεις στο DuckDuckGo, ενώ το περιεχόμενο που παρακολουθείτε δεν θα επηρεάσει τις συστάσεις που θα λαμβάνετε.";
+"duckplayer.settings.info-text" = "Το Duck Player σάς επιτρέπει να παρακολουθείτε YouTube χωρίς στοχευμένες διαφημίσεις στο Ripul Browser, ενώ το περιεχόμενο που παρακολουθείτε δεν θα επηρεάσει τις συστάσεις που θα λαμβάνετε.";
 
 /* Button that takes the user to learn more about Duck Player. */
 "duckplayer.settings.learn-more" = "Μάθετε περισσότερα";
@@ -1601,7 +1601,7 @@
 "duckplayer.settings.open-videos-in" = "Ανοίξτε τα βίντεο του YouTube στο Duck Player";
 
 /* Footer text explaining the search results toggle in Duck Player settings */
-"duckplayer.settings.search.results.footer" = "Κάνοντας κλικ σε βίντεο του YouTube από τα αποτελέσματα αναζήτησης του DuckDuckGo, θα ανοίγουν στο Duck Player.";
+"duckplayer.settings.search.results.footer" = "Κάνοντας κλικ σε βίντεο του YouTube από τα αποτελέσματα αναζήτησης του Ripul Browser, θα ανοίγουν στο Duck Player.";
 
 /* Label for the search results toggle in Duck Player settings */
 "duckplayer.settings.search.results.label" = "Αποτελέσματα DuckDuckGo Search";
@@ -1654,7 +1654,7 @@
 /* Title for Duck Player welcome message highlighting privacy benefits */
 "duckplayer.welcome.message.text" = "Παρακολουθείτε στο Duck Player!\nΚαμία στοχευμένη διαφήμιση εδώ.";
 
-/* Email protection service offered by DuckDuckGo */
+/* Email protection service offered by Ripul Browser */
 "email-protection" = "Προστασία email";
 
 /* Cancel option for the email alias alert */
@@ -1724,7 +1724,7 @@
 "empty.bookmarks" = "Δεν προστέθηκαν σελιδοδείκτες ακόμα";
 
 /* Empty list state placeholder subtitle */
-"empty.bookmarks.subtitle" = "Εάν οι σελιδοδείκτες σας είναι αποθηκευμένοι σε άλλο πρόγραμμα περιήγησης, \nμπορείτε να τους εισάγετε στο DuckDuckGo.";
+"empty.bookmarks.subtitle" = "Εάν οι σελιδοδείκτες σας είναι αποθηκευμένοι σε άλλο πρόγραμμα περιήγησης, \nμπορείτε να τους εισάγετε στο Ripul Browser.";
 
 /* Empty search placeholder on bookmarks search */
 "empty.search" = "Δεν βρέθηκαν αντιστοιχίες";
@@ -1868,10 +1868,10 @@
 "feedback.ddgSearch.caption" = "Ποια δυνατότητα αναζήτησης μπορούμε να προσθέσουμε ή να βελτιώσουμε;";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.description" = "Προβλήματα αναζήτησης DuckDuckGo";
+"feedback.ddgSearch.description" = "Προβλήματα αναζήτησης Ripul Browser";
 
 /* No comment provided by engineer. */
-"feedback.ddgSearch.entry" = "Η αναζήτηση DuckDuckGo δεν είναι αρκετά καλή";
+"feedback.ddgSearch.entry" = "Η αναζήτηση Ripul Browser δεν είναι αρκετά καλή";
 
 /* No comment provided by engineer. */
 "feedback.ddgSearch.languageOrRegion" = "Αναζήτηση σε μια συγκεκριμένη γλώσσα ή περιοχή";
@@ -1895,7 +1895,7 @@
 "feedback.form.submit" = "Υποβολή";
 
 /* Title of the feedback form */
-"feedback.form.title" = "Βοηθήστε μας να βελτιώσουμε τη συνδρομή DuckDuckGo";
+"feedback.form.title" = "Βοηθήστε μας να βελτιώσουμε τη συνδρομή Ripul Browser";
 
 /* Category for Duck.ai feedback */
 "feedback.general.category.ai-chat" = "Duck.ai";
@@ -2090,22 +2090,22 @@
 "get.browser.share-link" = "Κοινή χρήση συνδέσμου λήψης";
 
 /* Message displayed in the share action when sharing via email */
-"get.browser.share-link.message" = "Αναζητήστε ιδιωτικά και αποκλείστε εφαρμογές παρακολούθησης με το πρόγραμμα περιήγησης DuckDuckGo για υπολογιστές. Επισκεφτείτε αυτόν τον σύνδεσμο στον υπολογιστή σας για να πραγματοποιήσετε λήψη σήμερα.";
+"get.browser.share-link.message" = "Αναζητήστε ιδιωτικά και αποκλείστε εφαρμογές παρακολούθησης με το πρόγραμμα περιήγησης Ripul Browser για υπολογιστές. Επισκεφτείτε αυτόν τον σύνδεσμο στον υπολογιστή σας για να πραγματοποιήσετε λήψη σήμερα.";
 
 /* Title displayed in the share action */
-"get.browser.share-link.title" = "Αποκτήστε το πρόγραμμα περιήγησης DuckDuckGo για Mac ή Windows";
+"get.browser.share-link.title" = "Αποκτήστε το πρόγραμμα περιήγησης Ripul Browser για Mac ή Windows";
 
 /* Title for the get desktop browser feature */
-"get.browser.title" = "Αποκτήστε το DuckDuckGo για Mac ή Windows";
+"get.browser.title" = "Αποκτήστε το Ripul Browser για Mac ή Windows";
 
 /* No comment provided by engineer. */
-"home.row.onboarding.header" = "Προσθήκη του DuckDuckGo στην αρχική οθόνη σας!";
+"home.row.onboarding.header" = "Προσθήκη του Ripul Browser στην αρχική οθόνη σας!";
 
 /* No comment provided by engineer. */
-"home.row.reminder.message" = "Προσθήκη του DuckDuckGo στο Dock σας για εύκολη πρόσβαση!";
+"home.row.reminder.message" = "Προσθήκη του Ripul Browser στο Dock σας για εύκολη πρόσβαση!";
 
 /* Home is this context is the bottom home row (dock) */
-"home.row.reminder.title" = "Προσθήκη του DuckDuckGo στην αρχική οθόνη";
+"home.row.reminder.title" = "Προσθήκη του Ripul Browser στην αρχική οθόνη";
 
 /* This describes empty tab */
 "homeTab.searchAndFavorites" = "Αναζήτηση ή εισαγωγή διεύθυνσης";
@@ -2126,7 +2126,7 @@
 "import.passwords.promo.message" = "Μεταφέρετε γρήγορα και με ασφάλεια τους κωδικούς πρόσβασής σας από άλλο πρόγραμμα περιήγησης.";
 
 /* Title for the Import Passwords Promotion banner */
-"import.passwords.promo.title" = "Εισαγάγετε τους κωδικούς πρόσβασής σας στο DuckDuckGo";
+"import.passwords.promo.title" = "Εισαγάγετε τους κωδικούς πρόσβασής σας στο Ripul Browser";
 
 /* Placeholder text for the duck.ai input field */
 "input.field.placeholder.duckai" = "Ρωτήστε ιδιωτικά";
@@ -2138,7 +2138,7 @@
 "Installed Extensions (%@)" = "Εγκατεστημένες επεκτάσεις (%@)";
 
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "Πρέπει να ενεργοποιήσετε το VPN από την εφαρμογή DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "Πρέπει να ενεργοποιήσετε το VPN από την εφαρμογή Ripul Browser.";
 
 /* OK title for invite screen alert dismissal button */
 "invite.alert.ok.button" = "OK";
@@ -2222,10 +2222,10 @@
 "Loading brokers..." = "Φόρτωση διαμεσολαβητών...";
 
 /* Summary text for the macOS browser waitlist */
-"mac-browser.waitlist.summary" = "Το DuckDuckGo για Mac έχει την ταχύτητα που χρειάζεστε, τις λειτουργίες περιήγησης που αναμένετε και περιλαμβάνει τις καλύτερες δυνατότητες απορρήτου στην κατηγορία μας.";
+"mac-browser.waitlist.summary" = "Το Ripul Browser για Mac έχει την ταχύτητα που χρειάζεστε, τις λειτουργίες περιήγησης που αναμένετε και περιλαμβάνει τις καλύτερες δυνατότητες απορρήτου στην κατηγορία μας.";
 
 /* Title for the macOS waitlist notification */
-"mac-waitlist.available.notification.title" = "Το DuckDuckGo για Mac είναι έτοιμο!";
+"mac-waitlist.available.notification.title" = "Το Ripul Browser για Mac είναι έτοιμο!";
 
 /* Title for the copy action */
 "mac-waitlist.copy" = "Αντιγραφή";
@@ -2240,7 +2240,7 @@
 "mac-waitlist.join-waitlist-screen.share-link" = "Κοινή χρήση συνδέσμου";
 
 /* Title for the Join Waitlist screen */
-"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Αποκτήστε το DuckDuckGo για Mac!";
+"mac-waitlist.join-waitlist-screen.try-duckduckgo-for-mac" = "Αποκτήστε το Ripul Browser για Mac!";
 
 /* Title for the macOS waitlist button redirecting to Windows waitlist */
 "mac-waitlist.join-waitlist-screen.windows-waitlist" = "Αναζητάτε την έκδοση των Windows;";
@@ -2252,10 +2252,10 @@
 "mac-waitlist.share-sheet.message" = "Έτοιμοι να αρχίσετε μια ιδιωτική περιήγηση σε Mac; \n\nΕπισκεφτείτε αυτήν τη διεύθυνση URL στον Mac σας για να κάνετε λήψη:\nhttps://duckduckgo.com/mac";
 
 /* Title for the share sheet entry */
-"mac-waitlist.share-sheet.title" = "DuckDuckGo για Mac";
+"mac-waitlist.share-sheet.title" = "Ripul Browser για Mac";
 
 /* Title for the Mac Waitlist feature */
-"mac-waitlist.title" = "Εφαρμογή DuckDuckGo για Mac";
+"mac-waitlist.title" = "Εφαρμογή Ripul Browser για Mac";
 
 /* No comment provided by engineer. */
 "Maestro Launch Arguments:" = "Maestro Launch Arguments:";
@@ -2335,8 +2335,8 @@
 /* String indicating NetP is snoozing when viewed from the settings screen */
 "netP.cell.snoozing" = "Αναβολή";
 
-/* Title for the DuckDuckGo VPN feature */
-"netP.title" = "DuckDuckGo VPN";
+/* Title for the Ripul Browser VPN feature */
+"netP.title" = "Ripul Browser VPN";
 
 /* Button title for tooltip about adding VPN widget */
 "network.protection.addwidget.tip.action" = "Προσθήκη γραφικού στοιχείου";
@@ -2348,13 +2348,13 @@
 "network.protection.addwidget.tip.title" = "Προσθήκη μικροεφαρμογής VPN";
 
 /* The body of the notification when Privacy Pro subscription expired */
-"network.protection.entitlement.expired.notification.body" = "Το VPN αποσυνδέθηκε λόγω λήξης της συνδρομής. Εγγραφείτε στο DuckDuckGo για να συνδέσετε εκ νέου το VPN.";
+"network.protection.entitlement.expired.notification.body" = "Το VPN αποσυνδέθηκε λόγω λήξης της συνδρομής. Εγγραφείτε στο Ripul Browser για να συνδέσετε εκ νέου το VPN.";
 
 /* The body of the notification shown when VPN fails to reconnect */
-"network.protection.failure.notification.body" = "Η σύνδεση του DuckDuckGo VPN απέτυχε. Ξαναδοκιμάστε αργότερα.";
+"network.protection.failure.notification.body" = "Η σύνδεση του Ripul Browser VPN απέτυχε. Ξαναδοκιμάστε αργότερα.";
 
 /* Title for the VPN FAQ screen. */
-"network.protection.faq.title" = "Συχνές ερωτήσεις DuckDuckGo VPN";
+"network.protection.faq.title" = "Συχνές ερωτήσεις Ripul Browser VPN";
 
 /* Message for tooltip about geoswitching */
 "network.protection.geoswitching.tip.message" = "Μπορείτε να προσαρμόσετε την τοποθεσία VPN σας μέσω σύνδεσης σε οποιονδήποτε από τους διακομιστές μας παγκοσμίως.";
@@ -2363,13 +2363,13 @@
 "network.protection.geoswitching.tip.title" = "Αλλαγή της τοποθεσίας σας";
 
 /* The body of the notification shown when VPN connection is interrupted */
-"network.protection.interrupted.notification.body" = "Το DuckDuckGo VPN διακόπηκε. Γίνεται προσπάθεια επανασύνδεσης τώρα...";
+"network.protection.interrupted.notification.body" = "Το Ripul Browser VPN διακόπηκε. Γίνεται προσπάθεια επανασύνδεσης τώρα...";
 
 /* Message for the network protection invite dialog */
 "network.protection.invite.dialog.message" = "Εισαγάγετε τον κωδικό πρόσκλησής σου για να αρχίσετε.";
 
 /* Title for the network protection invite screen */
-"network.protection.invite.dialog.title" = "Έχετε προσκληθεί να δοκιμάσετε το DuckDuckGo VPN";
+"network.protection.invite.dialog.title" = "Έχετε προσκληθεί να δοκιμάσετε το Ripul Browser VPN";
 
 /* Prompt for the network protection invite code text field */
 "network.protection.invite.field.prompt" = "Κωδικός πρόσκλησης";
@@ -2381,7 +2381,7 @@
 "network.protection.invite.success.title" = "Τέλεια! Τα καταφέρατε.";
 
 /* The title of the notifications shown from VPN */
-"network.protection.notification.title" = "DuckDuckGo";
+"network.protection.notification.title" = "Ripul Browser";
 
 /* Title text for an iOS quick action that opens VPN settings */
 "network.protection.quick-action.open-vpn" = "Ανοικτό VPN";
@@ -2417,13 +2417,13 @@
 "network.protection.status.header.message.on" = "Όλη η επισκεψιμότητα στο διαδίκτυο από τη συσκευή διασφαλίζεται\n μέσω του VPN.";
 
 /* Header title label text for the status view when VPN is disconnected */
-"network.protection.status.header.title.off" = "Το DuckDuckGo VPN είναι απενεργοποιημένο";
+"network.protection.status.header.title.off" = "Το Ripul Browser VPN είναι απενεργοποιημένο";
 
 /* Header title label text for the status view when VPN is connected */
-"network.protection.status.header.title.on" = "Το DuckDuckGo VPN είναι ενεργοποιημένο";
+"network.protection.status.header.title.on" = "Το Ripul Browser VPN είναι ενεργοποιημένο";
 
 /* Header title label text for the status view when VPN is snoozing */
-"network.protection.status.header.title.snoozed" = "Το DuckDuckGo VPN βρίσκεται σε κατάσταση αναστολής λειτουργίας";
+"network.protection.status.header.title.snoozed" = "Το Ripul Browser VPN βρίσκεται σε κατάσταση αναστολής λειτουργίας";
 
 /* The status view 'Share Feedback' button which is shown inline on the status view after the temporary free use footer text */
 "network.protection.status.menu.share.feedback" = "Κοινοποίηση σχολίου";
@@ -2465,7 +2465,7 @@
 "network.protection.status.view.title" = "VPN";
 
 /* The body of the notification shown when VPN reconnects successfully */
-"network.protection.success.notification.body" = "Το DuckDuckGo VPN είναι ενεργοποιημένο. Η τοποθεσία και η διαδικτυακή δραστηριότητά σας προστατεύονται.";
+"network.protection.success.notification.body" = "Το Ripul Browser VPN είναι ενεργοποιημένο. Η τοποθεσία και η διαδικτυακή δραστηριότητά σας προστατεύονται.";
 
 /* The body of the notification shown when VPN connects successfully with the city + state/country as formatted parameter */
 "network.protection.success.notification.subtitle.including.serverLocation" = "Δρομολόγηση κυκλοφορίας της συσκευής μέσω %@.";
@@ -2477,7 +2477,7 @@
 "network.protection.turn.on.notifications.button.title" = "Ενεργοποίηση ειδοποιήσεων";
 
 /* Footer text under the button to link to the iOS app settings and enable notifications app-wide. */
-"network.protection.turn.on.notifications.section.footer" = "Επιτρέψτε στο DuckDuckGo να σας ειδοποιεί εάν η ισχύς της σύνδεσή σας μειωθεί ή αλλάξει η κατάσταση του VPN.";
+"network.protection.turn.on.notifications.section.footer" = "Επιτρέψτε στο Ripul Browser να σας ειδοποιεί εάν η ισχύς της σύνδεσή σας μειωθεί ή αλλάξει η κατάσταση του VPN.";
 
 /* Title of the About section in the VPN status screen */
 "network.protection.vpn.about" = "Σχετικά";
@@ -2540,7 +2540,7 @@
 "network.protection.vpn.preferred.location.title" = "Προτιμώμενη τοποθεσία";
 
 /* Footer text for the DNS server setting item. */
-"network.protection.vpn.secure.dns.setting.footer" = "Το DuckDuckGo δρομολογεί τα ερωτήματα DNS μέσω των διακομιστών DNS μας, ώστε ο πάροχος διαδικτύου σας να μην μπορεί να δει ποιους ιστότοπους επισκέπτεστε.";
+"network.protection.vpn.secure.dns.setting.footer" = "Το Ripul Browser δρομολογεί τα ερωτήματα DNS μέσω των διακομιστών DNS μας, ώστε ο πάροχος διαδικτύου σας να μην μπορεί να δει ποιους ιστότοπους επισκέπτεστε.";
 
 /* Title for the FAQ row in the VPN status screen. */
 "network.protection.vpn.settings.faq" = "Συχνές ερωτήσεις και υποστήριξη";
@@ -2624,7 +2624,7 @@
 "onboarding.browsers.cta" = "Επιλέξτε το πρόγραμμα περιήγησής σας";
 
 /* Full message with placeholders: %1$@ will be replaced with 'optional paid subscription' (bold), %2$@ will be replaced with 'VPN' (bold), %2$@ will be replaced with advanced, private AI (bold). */
-"onboarding.duckduckgo.subscription.promo.message" = "Το DuckDuckGo διαθέτει επίσης μια %1$@, διαθέσιμη με %2$@ και %3$@.";
+"onboarding.duckduckgo.subscription.promo.message" = "Το Ripul Browser διαθέτει επίσης μια %1$@, διαθέσιμη με %2$@ και %3$@.";
 
 /* Bold text 'advanced, private AI'. This will replace the second placeholder (%3$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.duckduckgo.subscription.promo.message.advanced-private-ai-bold" = "προηγμένη, ιδιωτική τεχνητή νοημοσύνη";
@@ -2665,7 +2665,7 @@
 /* The title of the onboarding dialog popup to select the preferred App icon. */
 "onboarding.highlights.appIconSelection.title" = "Ποιο χρώμα μου ταιριάζει καλύτερα;";
 
-/* The title of the dialog to show the privacy features that DuckDuckGo offers */
+/* The title of the dialog to show the privacy features that Ripul Browser offers */
 "onboarding.highlights.browsers.title" = "Η προστασία ενεργοποιήθηκε!";
 
 /* The title of the fire button CTA to skip erasing the data. */
@@ -2720,7 +2720,7 @@
 "onboarding.subscription.promo.buttons.tryItForFree" = "Δοκιμάστε το δωρεάν!";
 
 /* Full message with placeholders: %1$@ will be replaced with 'VPN + 2 more premium protections' (bold), %2$@ will be replaced with 'optional paid subscription' (bold). */
-"onboarding.subscription.promo.message" = "Το DuckDuckGo έχει επίσης ένα ασφαλές %1$@, διαθέσιμο με μια %2$@.";
+"onboarding.subscription.promo.message" = "Το Ripul Browser έχει επίσης ένα ασφαλές %1$@, διαθέσιμο με μια %2$@.";
 
 /* Bold text 'paid Privacy Pro subscription'. This will replace the second placeholder (%2$@) in the following string - onboarding.subscription.promo.message. */
 "onboarding.subscription.promo.message.optional-subscription-bold" = "προαιρετική επί πληρωμή συνδρομή";
@@ -2732,7 +2732,7 @@
 "onboarding.widgets.continueButton" = "Προσθήκη γραφικού στοιχείου";
 
 /* No comment provided by engineer. */
-"onboarding.widgets.header" = "Η χρήση του DuckDuckGo μόλις έγινε πιο εύκολη.";
+"onboarding.widgets.header" = "Η χρήση του Ripul Browser μόλις έγινε πιο εύκολη.";
 
 /* No comment provided by engineer. */
 "onboarding.widgets.skipButton" = "Ισως αργότερα";
@@ -2744,7 +2744,7 @@
 "onboardingDefaultBrowserMaybeLater" = "Ισως αργότερα";
 
 /* No comment provided by engineer. */
-"onboardingDefaultBrowserTitle" = "Ορίστε το DuckDuckGo ως το προεπιλεγμένο πρόγραμμα περιήγησής σας.";
+"onboardingDefaultBrowserTitle" = "Ορίστε το Ripul Browser ως το προεπιλεγμένο πρόγραμμα περιήγησής σας.";
 
 /* No comment provided by engineer. */
 "onboardingSetAsDefaultBrowser" = "Ορισμός ως προεπιλεγμένο πρόγραμμα περιήγησης";
@@ -2756,7 +2756,7 @@
 "onboardingStartBrowsing" = "Έναρξη περιήγησης";
 
 /* No comment provided by engineer. */
-"onboardingWelcomeHeader" = "Καλώς ορίσατε στον DuckDuckGo!";
+"onboardingWelcomeHeader" = "Καλώς ορίσατε στον Ripul Browser!";
 
 /* ’Link’ is link on a website */
 "open.externally.failed" = "Δεν είναι δυνατή η εύρεση της εφαρμογής που απαιτείται για άνοιγμα αυτού του συνδέσμου";
@@ -2834,7 +2834,7 @@
 "ppro.feedback-form.text-4" = "• Συγκεντρωτικά διαγνωστικά εφαρμογών (π.χ. κωδικοί σφαλμάτων)";
 
 /* Text for the body of the PPro feedback form */
-"ppro.feedback-form.text-5" = "Πατώντας «Υποβολή» συμφωνείτε ότι το DuckDuckGo μπορεί να χρησιμοποιήσει τις πληροφορίες που υποβάλλονται για βελτίωση της εφαρμογής.";
+"ppro.feedback-form.text-5" = "Πατώντας «Υποβολή» συμφωνείτε ότι το Ripul Browser μπορεί να χρησιμοποιήσει τις πληροφορίες που υποβάλλονται για βελτίωση της εφαρμογής.";
 
 /* Title for the text box in the Privacy Pro feedback form */
 "ppro.feedback-form.text-box.title" = "Σχόλια";
@@ -2948,7 +2948,7 @@
 "Privacy Protections" = "Προστασία προσωπικών δεδομένων";
 
 /* Privacy Icon accessibility title */
-"privacy.icon.dax" = "Λογότυπο DuckDuckGo";
+"privacy.icon.dax" = "Λογότυπο Ripul Browser";
 
 /* Privacy Icon accessibility hint */
 "privacy.icon.hint" = "Πατήστε για να ανοίξετε την οθόνη Πίνακας εργαλείων ιδιωτικότητας";
@@ -2966,7 +2966,7 @@
 "prompt.custom.url.scheme.open" = "Άνοιγμα";
 
 /* No comment provided by engineer. */
-"prompt.custom.url.scheme.prompt" = "Θα θέλατε να επιτρέψετε στο DuckDuckGo να προβάλει αυτό το περιεχόμενο;";
+"prompt.custom.url.scheme.prompt" = "Θα θέλατε να επιτρέψετε στο Ripul Browser να προβάλει αυτό το περιεχόμενο;";
 
 /* Alert title */
 "prompt.custom.url.scheme.title" = "Άνοιγμα σε άλλη εφαρμογή;";
@@ -3062,9 +3062,9 @@
 "Set Custom AI Chat URL" = "Ρύθμιση προσαρμοσμένης διεύθυνσης URL για το AI Chat";
 
 /* Settings cell for About DDG */
-"settings.about.ddg" = "Σχετικά με το DuckDuckGo";
+"settings.about.ddg" = "Σχετικά με το Ripul Browser";
 
-/* Settings section title for About DuckDuckGo */
+/* Settings section title for About Ripul Browser */
 "settings.about.section" = "Σχετικά";
 
 /* About page subscription sentence: rebranding + AI chat */
@@ -3086,7 +3086,7 @@
 "settings.add.widget" = "Προσθήκη μικροεφαρμογής στην Αρχική οθόνη";
 
 /* Title for the settings VPN subsection where the user can learn how to add the VPN to their home screen */
-"settings.add.widget.vpn" = "Προσθέστε τη μικροεφαρμογή VPN DuckDuckGo στην αρχική οθόνη σας";
+"settings.add.widget.vpn" = "Προσθέστε τη μικροεφαρμογή VPN Ripul Browser στην αρχική οθόνη σας";
 
 /* Name of the settings subsection related to the address bar */
 "settings.address.bar" = "Γραμμή διευθύνσεων";
@@ -3286,11 +3286,11 @@
 /* Label of a button disabling email protection */
 "settings.disable.email.protection.autofill" = "Απενεργοποίηση αυτόματης συμπλήρωσης Email Protection";
 
-/* Settings cell to link users to other products by DuckDuckGo */
-"settings.duckduckgo.on.other.platforms" = "Το DuckDuckGo σε άλλες πλατφόρμες";
+/* Settings cell to link users to other products by Ripul Browser */
+"settings.duckduckgo.on.other.platforms" = "Το Ripul Browser σε άλλες πλατφόρμες";
 
 /* Subscription expired tittle message */
-"settings.duckduckgo.subscription.expired.title" = "Η συνδρομή σας στο DuckDuckGo έληξε";
+"settings.duckduckgo.subscription.expired.title" = "Η συνδρομή σας στο Ripul Browser έληξε";
 
 /* Explanation in Settings how the email protection feature works */
 "settings.email.protection.explanation" = "Αποκλείστε εφαρμογές παρακολούθησης email και αποκρύψτε τη διεύθυνσή σας, χωρίς να αλλάξετε πάροχο email.\n[Μάθετε περισσότερα](ddgQuickLink://duckduckgo.com/duckduckgo-help-pages/email-protection/what-is-duckduckgo-email-protection/)";
@@ -3353,7 +3353,7 @@
 "settings.learn.more" = "Μάθετε περισσότερα";
 
 /* Switch button label. */
-"settings.let.duckduckgo.manage.cookie.consent.popups" = "Επιτρέψτε στο DuckDuckGo να διαχειρίζεται τα αναδυόμενα παράθυρα συναίνεσης για cookies";
+"settings.let.duckduckgo.manage.cookie.consent.popups" = "Επιτρέψτε στο Ripul Browser να διαχειρίζεται τα αναδυόμενα παράθυρα συναίνεσης για cookies";
 
 /* Settings screen cell text for passwords */
 "settings.logins" = "Κωδικοί πρόσβασης και Αυτόματη συμπλήρωση";
@@ -3365,7 +3365,7 @@
 "settings.manage.account" = "Διαχείριση λογαριασμού";
 
 /* Settings title for the 'More' section */
-"settings.more" = "Περισσότερα από το DuckDuckGo";
+"settings.more" = "Περισσότερα από το Ripul Browser";
 
 /* Button navigating to other settings related to search */
 "settings.more.search.settings" = "Περισσότερες ρυθμίσεις αναζήτησης";
@@ -3395,7 +3395,7 @@
 "settings.private.search" = "ιδιωτική αναζήτηση";
 
 /* Explanation in Settings how the private search feature works */
-"settings.private.search.explanation" = "Το DuckDuckGo Private Search αποτελεί την προεπιλεγμένη μηχανή αναζήτησης, ώστε να μπορείτε να πραγματοποιείτε αναζήτηση στο διαδίκτυο χωρίς να σας παρακολουθούν.";
+"settings.private.search.explanation" = "Το Ripul Browser Private Search αποτελεί την προεπιλεγμένη μηχανή αναζήτησης, ώστε να μπορείτε να πραγματοποιείτε αναζήτηση στο διαδίκτυο χωρίς να σας παρακολουθούν.";
 
 /* Settings screen option to set refresh button in the address bar */
 "settings.refreshButton.position.addressBar" = "Γραμμή διευθύνσεων";
@@ -3413,7 +3413,7 @@
 "settings.send.crash.reports" = "Αποστολή αναφορών σφαλμάτων";
 
 /* Explanation of Send Crash Reports settings option */
-"settings.send.crash.reports.description" = "Αυτόματη αποστολή αναφορών σφάλματος στο DuckDuckGo.";
+"settings.send.crash.reports.description" = "Αυτόματη αποστολή αναφορών σφάλματος στο Ripul Browser.";
 
 /* The name of Settings category in Complete Your Setup related to configuration of the default browser */
 "settings.set.default.browser" = "Ορισμός ως προεπιλεγμένο πρόγραμμα περιήγησης";
@@ -3452,7 +3452,7 @@
 "settings.subscription.existing.subscription" = "Έχω συνδρομή";
 
 /* Settings cell for Subscription Feedback */
-"settings.subscription.feedback" = "Συνδρομή DuckDuckGo";
+"settings.subscription.feedback" = "Συνδρομή Ripul Browser";
 
 /* Identity theft restoration cell subtitle for privacy pro */
 "settings.subscription.ITR.subtitle" = "Αν κλαπεί η ταυτότητά σας, θα σας βοηθήσουμε να την αποκαταστήσετε";
@@ -3464,10 +3464,10 @@
 "settings.subscription.manage" = "Ρυθμίσεις συνδρομής";
 
 /* Product name for the subscription bundle */
-"settings.subscription.Section" = "Συνδρομή DuckDuckGo";
+"settings.subscription.Section" = "Συνδρομή Ripul Browser";
 
-/* Subscribe to DuckDuckGo button text */
-"settings.subscription.subscribe.button" = "Εγγραφείτε στο DuckDuckGo";
+/* Subscribe to Ripul Browser button text */
+"settings.subscription.subscribe.button" = "Εγγραφείτε στο Ripul Browser";
 
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title" = "Ασφαλίστε το Wi-Fi σας και συνομιλήστε ιδιωτικά με προηγμένα μοντέλα τεχνητής νοημοσύνης";
@@ -3475,7 +3475,7 @@
 /* Call to action title for Privacy Pro settings */
 "settings.subscription.subscribe.title.no.ai.chat" = "Ασφαλίστε το Wi-Fi σας και προστατέψτε την ταυτότητά σας";
 
-/* Try DuckDuckGo Subscription Free button text */
+/* Try Ripul Browser Subscription Free button text */
 "settings.subscription.try.free.button" = "Δοκιμάστε το δωρεάν";
 
 /* VPN cell title for privacy pro */
@@ -3608,7 +3608,7 @@
 "site.not.working.subtitle" = "Αυτό μας βοηθά να βελτιώνουμε το πρόγραμμα περιήγησης.";
 
 /* Prompt asking user to send report to us if we suspect site may be broken */
-"site.not.working.title" = "Ο ιστότοπος δεν λειτουργεί; Ενημερώστε σχετικά το DuckDuckGo.";
+"site.not.working.title" = "Ο ιστότοπος δεν λειτουργεί; Ενημερώστε σχετικά το Ripul Browser.";
 
 /* Report a Broken Site screen confirmation button */
 "siteFeedback.buttonText" = "Υποβολή αναφοράς";
@@ -3766,11 +3766,11 @@
 /* View plans button text */
 "subscription.notFound.view.plans" = "Προβολή προγραμμάτων";
 
-/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to DuckDuckGo>, and the second, the menu entry. i.e. <I have a Subscription> */
-"subscription.pir.heroText" = "Στο πρόγραμμα περιήγησης DuckDuckGo για επιτραπέζιους υπολογιστές, μεταβείτε στο %1$@ και κάντε κλικ στο %2$@ για να αρχίσετε.";
+/* Description on how to use Personal information removal in desktop. The first placeholder references a location in the Desktop application. <i.e: Settings > Subscribe to Ripul Browser>, and the second, the menu entry. i.e. <I have a Subscription> */
+"subscription.pir.heroText" = "Στο πρόγραμμα περιήγησης Ripul Browser για επιτραπέζιους υπολογιστές, μεταβείτε στο %1$@ και κάντε κλικ στο %2$@ για να αρχίσετε.";
 
-/* Settings references a menu in the Desktop app, Subscribe to DuckDuckGo, references our product name */
-"subscription.pir.heroTextLocation" = "Ρυθμίσεις > Εγγραφείτε στο DuckDuckGo";
+/* Settings references a menu in the Desktop app, Subscribe to Ripul Browser, references our product name */
+"subscription.pir.heroTextLocation" = "Ρυθμίσεις > Εγγραφείτε στο Ripul Browser";
 
 /* Menu item for enabling Personal Information Removal on Desktop */
 "subscription.pir.heroTextMenyEntry" = "Έχω συνδρομή";
@@ -3830,7 +3830,7 @@
 "subscription.restore.success.alert.title" = "Είστε πανέτοιμοι.";
 
 /* Navigation bar Title for subscriptions */
-"subscription.settings.title" = "Συνδρομή DuckDuckGo";
+"subscription.settings.title" = "Συνδρομή Ripul Browser";
 
 /* Subtitle in header when subscribed */
 "subscription.subscribed" = "Έχει γίνει εγγραφή";
@@ -3953,7 +3953,7 @@
 "sync.recovery.prompt.continue.button" = "Δεν έχετε άλλη συσκευή;";
 
 /* Message for the sync recovery prompt */
-"sync.recovery.prompt.message" = "Οι κωδικοί πρόσβασης του DuckDuckGo δεν μεταφέρονται με το iCloud επειδή είναι κρυπτογραφημένοι στη συσκευή σας. Όλα τα υπόλοιπα είναι ήδη εδώ.";
+"sync.recovery.prompt.message" = "Οι κωδικοί πρόσβασης του Ripul Browser δεν μεταφέρονται με το iCloud επειδή είναι κρυπτογραφημένοι στη συσκευή σας. Όλα τα υπόλοιπα είναι ήδη εδώ.";
 
 /* Button title to sync with another device */
 "sync.recovery.prompt.sync.button" = "Συγχρονισμός με άλλη συσκευή";
@@ -3986,7 +3986,7 @@
 "sync.warning.data.syncing.disabled" = "Δυστυχώς, η λειτουργία Συγχρονισμός και δημιουργία αντιγράφων ασφαλείας δεν είναι διαθέσιμη προς το παρόν. Ξαναδοκιμάστε αργότερα.";
 
 /* Data syncing unavailable warning message */
-"sync.warning.data.syncing.disabled.upgrade.required" = "Δυστυχώς, η λειτουργία Συγχρονισμός και δημιουργία αντιγράφων ασφαλείας δεν είναι διαθέσιμη πλέον σε αυτήν την έκδοση της εφαρμογής. Ενημερώστε το DuckDuckGo στην πιο πρόσφατη έκδοση για να συνεχίσετε.";
+"sync.warning.data.syncing.disabled.upgrade.required" = "Δυστυχώς, η λειτουργία Συγχρονισμός και δημιουργία αντιγράφων ασφαλείας δεν είναι διαθέσιμη πλέον σε αυτήν την έκδοση της εφαρμογής. Ενημερώστε το Ripul Browser στην πιο πρόσφατη έκδοση για να συνεχίσετε.";
 
 /* Accessibility label on remove button */
 "tab.close.home" = "Κλείσιμο αρχικής καρτέλας";
@@ -4094,7 +4094,7 @@
 "voiceover.suggestion.type.bookmark" = "Σελιδοδείκτης";
 
 /* Search for suggestion action accessibility title */
-"voiceover.suggestion.type.search" = "Αναζήτηση στο DuckDuckGo";
+"voiceover.suggestion.type.search" = "Αναζήτηση στο Ripul Browser";
 
 /* Open suggested website action accessibility title */
 "voiceover.suggestion.type.website" = "Άνοιγμα ιστότοπου";
@@ -4103,7 +4103,7 @@
 "voiceSearch.alert.no-permission.action.settings" = "Ρυθμίσεις";
 
 /* Message for alert warning the user about missing microphone permission */
-"voiceSearch.alert.no-permission.message" = "Επιτρέψτε πρόσβαση στο Μικρόφωνο από τις Ρυθμίσεις συστήματος iOS για να κάνει το DuckDuckGo χρήση των φωνητικών λειτουργιών.";
+"voiceSearch.alert.no-permission.message" = "Επιτρέψτε πρόσβαση στο Μικρόφωνο από τις Ρυθμίσεις συστήματος iOS για να κάνει το Ripul Browser χρήση των φωνητικών λειτουργιών.";
 
 /* OK button alert warning the user about missing microphone permission */
 "voiceSearch.alert.no-permission.ok" = "Εντάξει";
@@ -4115,10 +4115,10 @@
 "voiceSearch.cancel" = "Ακύρωση";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note" = "Προσθήκη της επιλογής Ιδιωτική φωνητική αναζήτηση στη γραμμή διευθύνσεων. Ο ήχος δεν αποθηκεύεται ούτε κοινοποιείται σε οποιονδήποτε, συμπεριλαμβανομένου του DuckDuckGo.";
+"voiceSearch.footer.note" = "Προσθήκη της επιλογής Ιδιωτική φωνητική αναζήτηση στη γραμμή διευθύνσεων. Ο ήχος δεν αποθηκεύεται ούτε κοινοποιείται σε οποιονδήποτε, συμπεριλαμβανομένου του Ripul Browser.";
 
 /* Voice-search footer note with on-device privacy warning */
-"voiceSearch.footer.note.old" = "Η επεξεργασία του ήχου πραγματοποιείται στη συσκευή. Δεν αποθηκεύεται ούτε κοινοποιείται σε οποιονδήποτε, συμπεριλαμβανομένου του DuckDuckGo.";
+"voiceSearch.footer.note.old" = "Η επεξεργασία του ήχου πραγματοποιείται στη συσκευή. Δεν αποθηκεύεται ούτε κοινοποιείται σε οποιονδήποτε, συμπεριλαμβανομένου του Ripul Browser.";
 
 /* Cancel action for the alert when the subscription expires */
 "vpn.access-revoked.alert.action.cancel" = "Απόρριψη";
@@ -4127,34 +4127,34 @@
 "vpn.access-revoked.alert.action.subscribe" = "Εγγραφείτε";
 
 /* Alert message for the alert when the Privacy Pro subscription expiress */
-"vpn.access-revoked.alert.message" = "Εγγραφείτε στο DuckDuckGo για να συνδέσετε εκ νέου το VPN.";
+"vpn.access-revoked.alert.message" = "Εγγραφείτε στο Ripul Browser για να συνδέσετε εκ νέου το VPN.";
 
 /* Alert title for the alert when the Privacy Pro subscription expires */
 "vpn.access-revoked.alert.title" = "Το VPN αποσυνδέθηκε λόγω λήξης της συνδρομής";
 
 /* Title for the VPN widget onboarding screen */
-"vpn.addWidget.settings.title" = "Βρείτε και επιλέξτε το **DuckDuckGo**, έπειτα σύρετε προς το **VPN** και επιλέξτε **Προσθήκη μικροεφαρμογής**";
+"vpn.addWidget.settings.title" = "Βρείτε και επιλέξτε το **Ripul Browser**, έπειτα σύρετε προς το **VPN** και επιλέξτε **Προσθήκη μικροεφαρμογής**";
 
-/* Message for success when running the intent to disable the DuckDuckGo VPN */
-"vpn.control-widget.disable.vpn.intent.success" = "Το DuckDuckGo VPN είναι αποσυνδεδεμένο";
+/* Message for success when running the intent to disable the Ripul Browser VPN */
+"vpn.control-widget.disable.vpn.intent.success" = "Το Ripul Browser VPN είναι αποσυνδεδεμένο";
 
 /* No comment provided by engineer. */
-"vpn.control-widget.education.screen.description" = "Οι συντομεύσεις Siri σάς επιτρέπουν να συνδεθείτε στο VPN με μια γρήγορη φωνητική εντολή, όπως «Siri, ενεργοποίησε το DuckDuckGo VPN». Είναι ένας γρήγορος τρόπος, χωρίς χρήση χεριών, για να χρησιμοποιείτε το VPN.";
+"vpn.control-widget.education.screen.description" = "Οι συντομεύσεις Siri σάς επιτρέπουν να συνδεθείτε στο VPN με μια γρήγορη φωνητική εντολή, όπως «Siri, ενεργοποίησε το Ripul Browser VPN». Είναι ένας γρήγορος τρόπος, χωρίς χρήση χεριών, για να χρησιμοποιείτε το VPN.";
 
 /* Siri commands education screen: example 1 */
-"vpn.control-widget.education.screen.example1" = "Siri, ξεκίνα το DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example1" = "Siri, ξεκίνα το Ripul Browser VPN.";
 
 /* Siri commands education screen: example 2 */
-"vpn.control-widget.education.screen.example2" = "Siri, ενεργοποίησε το DuckDuckGo VPN.";
+"vpn.control-widget.education.screen.example2" = "Siri, ενεργοποίησε το Ripul Browser VPN.";
 
 /* Siri commands education screen: example 3 */
-"vpn.control-widget.education.screen.example3" = "Siri, προστάτευσε τη συσκευή μου με το DuckDuckGo.";
+"vpn.control-widget.education.screen.example3" = "Siri, προστάτευσε τη συσκευή μου με το Ripul Browser.";
 
 /* Title for the VPN Control Widget education screen title */
-"vpn.control-widget.education.screen.title" = "Έλεγχος του DuckDuckGo VPN μέσω Siri!";
+"vpn.control-widget.education.screen.title" = "Έλεγχος του Ripul Browser VPN μέσω Siri!";
 
-/* Message for success when running the intent to enable the DuckDuckGo VPN */
-"vpn.control-widget.enable.vpn.intent.success" = "Το DuckDuckGo VPN είναι συνδεδεμένο";
+/* Message for success when running the intent to enable the Ripul Browser VPN */
+"vpn.control-widget.enable.vpn.intent.success" = "Το Ripul Browser VPN είναι συνδεδεμένο";
 
 /* Title for the Cancel button of the VPN feedback form */
 "vpn.feedback-form.button.cancel" = "Ακύρωση";
@@ -4196,7 +4196,7 @@
 "vpn.feedback-form.category.unable-to-install" = "Δεν είναι δυνατή η εγκατάσταση του VPN";
 
 /* Title for the feedback sent view description of the VPN feedback form */
-"vpn.feedback-form.sending-confirmation.description" = "Τα σχόλιά σου θα μας βοηθήσουν να βελτιώσουμε το\n DuckDuckGo VPN.";
+"vpn.feedback-form.sending-confirmation.description" = "Τα σχόλιά σου θα μας βοηθήσουν να βελτιώσουμε το\n Ripul Browser VPN.";
 
 /* Title for the feedback sending error text of the VPN feedback form */
 "vpn.feedback-form.sending-confirmation.error" = "Δεν μπορέσαμε να στείλουμε τα σχόλιά σας αυτήν τη στιγμή, προσπάθησε ξανά.";
@@ -4214,16 +4214,16 @@
 "vpn.feedback-form.text-2" = "Εκτός από τα στοιχεία που καταχωρήσατε στη φόρμα αυτή, η αναφορά προβλήματος της εφαρμογής σας θα περιέχει:";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-3" = "• Εάν είναι ενεργοποιημένες συγκεκριμένες λειτουργίες του DuckDuckGo";
+"vpn.feedback-form.text-3" = "• Εάν είναι ενεργοποιημένες συγκεκριμένες λειτουργίες του Ripul Browser";
 
 /* Bullet text for the body of the VPN feedback form */
-"vpn.feedback-form.text-4" = "• Συγκεντρωτικά διαγνωστικά εφαρμογών DuckDuckGo";
+"vpn.feedback-form.text-4" = "• Συγκεντρωτικά διαγνωστικά εφαρμογών Ripul Browser";
 
 /* Text for the body of the VPN feedback form */
-"vpn.feedback-form.text-5" = "Πατώντας «Υποβολή» συμφωνώ ότι το DuckDuckGo μπορεί να χρησιμοποιήσει τις πληροφορίες της αναφοράς αυτής για σκοπούς βελτίωσης των λειτουργιών της εφαρμογής.";
+"vpn.feedback-form.text-5" = "Πατώντας «Υποβολή» συμφωνώ ότι το Ripul Browser μπορεί να χρησιμοποιήσει τις πληροφορίες της αναφοράς αυτής για σκοπούς βελτίωσης των λειτουργιών της εφαρμογής.";
 
 /* Title for each screen of the VPN feedback form */
-"vpn.feedback-form.title" = "Βοηθήστε μας να βελτιώσουμε το DuckDuckGo VPN";
+"vpn.feedback-form.title" = "Βοηθήστε μας να βελτιώσουμε το Ripul Browser VPN";
 
 /* VPN settings screen cell text for adding the VPN widget to the control center */
 "vpn.settings.add.control-center.widget" = "Προσθήκη VPN στο Κέντρο ελέγχου";
@@ -4253,7 +4253,7 @@
 "vpn.settings.dns.server.content.blocking.title" = "Πρόγραμμα αποκλεισμού απάτης";
 
 /* Default value for the DNS Server row on the VPN Settings screen */
-"vpn.settings.dns.server.default.value" = "DuckDuckGo";
+"vpn.settings.dns.server.default.value" = "Ripul Browser";
 
 /* Title for the IPv4 Address setting */
 "vpn.settings.dns.server.ipv4.title" = "Διεύθυνση IPv4";
@@ -4262,7 +4262,7 @@
 "vpn.settings.dns.server.option.custom" = "Προσαρμογή";
 
 /* Recommended option for the DNS Server setting */
-"vpn.settings.dns.server.option.default" = "DuckDuckGo (Συνιστάται)";
+"vpn.settings.dns.server.option.default" = "Ripul Browser (Συνιστάται)";
 
 /* Title for the DNS Server setting screen */
 "vpn.settings.dns.server.screen.title" = "Διακομιστής DNS";
@@ -4307,7 +4307,7 @@
 "waitlist.joined.no-notification.no-thanks" = "Όχι, ευχαριστώ";
 
 /* Text used for the Notifications Disabled state */
-"waitlist.notification.disabled" = "Μπορούμε να σας ειδοποιήσουμε όταν έρθει η σειρά σας, ωστόσο οι ειδοποιήσεις είναι προς το παρόν απενεργοποιημένες για το DuckDuckGo.";
+"waitlist.notification.disabled" = "Μπορούμε να σας ειδοποιήσουμε όταν έρθει η σειρά σας, ωστόσο οι ειδοποιήσεις είναι προς το παρόν απενεργοποιημένες για το Ripul Browser.";
 
 /* Privacy disclaimer for the Waitlist feature */
 "waitlist.privacy-disclaimer" = "Δεν θα χρειαστεί να κοινοποιήσετε προσωπικά στοιχεία για εγγραφή στη λίστα αναμονής. Θα εξασφαλίσετε τη θέση σας στη λίστα αναμονής βάσει χρονικής σήμανσης που υπάρχει αποκλειστικά στη συσκευή σας, ώστε να μπορούμε να σας ειδοποιήσουμε μόλις έρθει η σειρά σας.";
@@ -4403,13 +4403,13 @@
 "windows-waitlist.share-sheet.message" = "Είστε έτοιμοι να αρχίσετε μια ιδιωτική περιήγηση σε Windows;\n\nΕπισκεφθείτε αυτήν τη διεύθυνση URL στον υπολογιστή σας για να πραγματοποιήσετε λήψη:\nhttps://duckduckgo.com/windows";
 
 /* Summary text for the Windows browser waitlist */
-"windows-waitlist.summary" = "Το DuckDuckGo για Windows έχει ό,τι χρειάζεστε για να περιηγηθείτε με περισσότερη ιδιωτικότητα — ιδιωτική αναζήτηση, αποκλεισμός εφαρμογών παρακολούθησης, αναγκαστική κρυπτογράφηση και αποκλεισμός αναδυόμενων παραθύρων για cookie, ενώ έρχονται σύντομα και περισσότερες κορυφαίες προστασίες στην κατηγορία τους.";
+"windows-waitlist.summary" = "Το Ripul Browser για Windows έχει ό,τι χρειάζεστε για να περιηγηθείτε με περισσότερη ιδιωτικότητα — ιδιωτική αναζήτηση, αποκλεισμός εφαρμογών παρακολούθησης, αναγκαστική κρυπτογράφηση και αποκλεισμός αναδυόμενων παραθύρων για cookie, ενώ έρχονται σύντομα και περισσότερες κορυφαίες προστασίες στην κατηγορία τους.";
 
 /* Title for the Windows Waitlist feature */
-"windows-waitlist.title" = "Εφαρμογή DuckDuckGo για Windows";
+"windows-waitlist.title" = "Εφαρμογή Ripul Browser για Windows";
 
 /* Title for the Windows browser download link page */
-"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Αποκτήστε το DuckDuckGo για Windows!";
+"windows-waitlist.waitlist-download-screen.try-duckduckgo-for-windows" = "Αποκτήστε το Ripul Browser για Windows!";
 
 /* Option to select to import bookmarks */
 "zip.content.import.type.bookmarks" = "Σελιδοδείκτες";

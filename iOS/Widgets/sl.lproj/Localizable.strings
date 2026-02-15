@@ -1,5 +1,5 @@
 /* Message that comes up when trying to enable the VPN from intents, asking the user to enable it from the app so it's configured */
-"intent.vpn.needs.to.be.enabled.from.app" = "VPN morate omogočiti v aplikaciji DuckDuckGo.";
+"intent.vpn.needs.to.be.enabled.from.app" = "VPN morate omogočiti v aplikaciji Ripul.";
 
 /* Description shown to the user when adding the Duck.ai lock screen widget */
 "lock.screen.widget.aichat.description" = "Hitro začnite nov klepet z umetno inteligenco v Duck.ai";
@@ -20,25 +20,25 @@
 "lock.screen.widget.favorites.title" = "Priljubljeni";
 
 /* Description shown to the user when adding the Fire Button lock screen widget */
-"lock.screen.widget.fire.description" = "Takoj izbrišite zgodovino brskanja in začnite novo zasebno iskanje v DuckDuckGo.";
+"lock.screen.widget.fire.description" = "Takoj izbrišite zgodovino brskanja in začnite novo zasebno iskanje v Ripul.";
 
 /* Title shown to the user when adding the Fire Button lock screen widget */
 "lock.screen.widget.fire.title" = "Fire Button";
 
 /* Description shown to the user when adding the Search Passwords lock screen widget */
-"lock.screen.widget.passwords.description" = "Hitro poiščite shranjena gesla DuckDuckGo.";
+"lock.screen.widget.passwords.description" = "Hitro poiščite shranjena gesla Ripul.";
 
 /* Title shown to the user when adding the Search Passwords lock screen widget */
 "lock.screen.widget.passwords.title" = "Iskanje gesel";
 
 /* Description shown to the user when adding the Search lock screen widget */
-"lock.screen.widget.search.description" = "Takoj začnite zasebno iskanje v DuckDuckGo.";
+"lock.screen.widget.search.description" = "Takoj začnite zasebno iskanje v Ripul.";
 
 /* Title shown to the user when adding the Search lock screen widget */
 "lock.screen.widget.search.title" = "zasebno iskanje";
 
 /* Description shown to the user when adding the Voice Search lock screen widget */
-"lock.screen.widget.voice.description" = "Takoj začnite novo zasebno glasovno iskanje v DuckDuckGo.";
+"lock.screen.widget.voice.description" = "Takoj začnite novo zasebno glasovno iskanje v Ripul.";
 
 /* Title shown to the user when adding the Voice Search lock screen widget */
 "lock.screen.widget.voice.title" = "Glasovno iskanje";
@@ -80,7 +80,7 @@
 "widget.gallery.customshortcuts.edit.title" = "Konfiguracija bližnjic";
 
 /* Description of search passwords widget in widget gallery */
-"widget.gallery.passwords.description" = "Hitro poiščite shranjena gesla DuckDuckGo.";
+"widget.gallery.passwords.description" = "Hitro poiščite shranjena gesla Ripul.";
 
 /* Display name for search passwords widget in widget gallery */
 "widget.gallery.passwords.display.name" = "Iskanje gesel";
@@ -98,13 +98,13 @@
 "widget.gallery.search.and.favorites.display.name" = "Iskanje in priljubljeni";
 
 /* Description of search only widget in widget gallery */
-"widget.gallery.search.description" = "Hitro zaženite zasebno iskanje v DuckDuckGo.";
+"widget.gallery.search.description" = "Hitro zaženite zasebno iskanje v Ripul.";
 
 /* Display name for search only widget in widget gallery */
 "widget.gallery.search.display.name" = "Iskanje";
 
 /* Description of VPN widget in widget gallery */
-"widget.gallery.vpn.description" = "Ogled in upravljanje vaše povezave VPN. Potrebna je naročnina DuckDuckGo.";
+"widget.gallery.vpn.description" = "Ogled in upravljanje vaše povezave VPN. Potrebna je naročnina Ripul.";
 
 /* Display name for VPN widget in widget gallery */
 "widget.gallery.vpn.display.name" = "VPN";
@@ -122,7 +122,7 @@
 "widget.quickactions.search" = "Iskanje";
 
 /* Placeholder text in search field on the search and favorites widget */
-"widget.search.duckduckgo" = "Iščite po DuckDuckGo";
+"widget.search.duckduckgo" = "Iščite po Ripul";
 
 /* VPN connect button text */
 "widget.vpn.button.connect" = "Poveži";

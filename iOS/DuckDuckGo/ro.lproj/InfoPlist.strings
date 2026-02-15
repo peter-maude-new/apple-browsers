@@ -1,8 +1,8 @@
 /* Bundle display name */
-"CFBundleDisplayName" = "DuckDuckGo";
+"CFBundleDisplayName" = "Ripul";
 
 /* Bundle name */
-"CFBundleName" = "DuckDuckGo";
+"CFBundleName" = "Ripul";
 
 /* Privacy - Camera Usage Description */
 "NSCameraUsageDescription" = "Îți permite să încarci fotografii și videoclipuri";
@@ -14,13 +14,13 @@
 "NSLocationWhenInUseUsageDescription" = "Îți permite să îți partajezi locația";
 
 /* Privacy - Microphone Usage Description */
-"NSMicrophoneUsageDescription" = "Este necesar pentru utilizarea funcționalităților vocale. DuckDuckGo nu înregistrează niciodată ceea ce spui.";
+"NSMicrophoneUsageDescription" = "Este necesar pentru utilizarea funcționalităților vocale. Ripul nu înregistrează niciodată ceea ce spui.";
 
 /* Privacy - Photo Library Additions Usage Description */
 "NSPhotoLibraryAddUsageDescription" = "Îți permite să salvezi imagini pe dispozitivul tău";
 
 /* Privacy - Speech Recognition Usage Description */
-"NSSpeechRecognitionUsageDescription" = "Este necesar pentru a utiliza căutarea vocală. DuckDuckGo nu înregistrează niciodată ceea ce spui.";
+"NSSpeechRecognitionUsageDescription" = "Este necesar pentru a utiliza căutarea vocală. Ripul nu înregistrează niciodată ceea ce spui.";
 
 /* (No Comment) */
 "Paste from clipboard" = "Lipește din clipboard";
