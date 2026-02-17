@@ -712,22 +712,9 @@ class MainViewController: UIViewController {
     }
     
     func startOnboardingFlowIfNotSeenBefore() {
-        // Check if we override onboarding flag and show/hide onboarding accordingly
-        // If onboarding is not overridden, show onboarding only if users have not seen it.
-        let showOnboarding: Bool
-        switch LaunchOptionsHandler().onboardingStatus {
-        case .notOverridden:
-            showOnboarding = !tutorialSettings.hasSeenOnboarding
-        case let .overridden(.developer(isOnboardingCompleted)):
-            showOnboarding = !isOnboardingCompleted
-        case let .overridden(.uiTests(isOnboardingCompleted)):
-            // Set onboarding settings so state is persisted across app re-launches during UI Tests
-            tutorialSettings.hasSeenOnboarding = isOnboardingCompleted
-            showOnboarding = !tutorialSettings.hasSeenOnboarding
-        }
-
-        guard showOnboarding else { return }
-        segueToDaxOnboarding()
+        // Onboarding disabled for Ripul Browser
+        tutorialSettings.hasSeenOnboarding = true
+        return
     }
 
     func presentSyncRecoveryPromptIfNeeded() {

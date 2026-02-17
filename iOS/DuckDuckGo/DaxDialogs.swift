@@ -290,10 +290,8 @@ final class DaxDialogs: NewTabDialogSpecProvider, ContextualOnboardingLogic, Con
     }
 
     var isEnabled: Bool {
-        if launchOptionsHandler.onboardingStatus.isOverriddenCompleted {
-            return false
-        }
-        return !settings.isDismissed
+        // Contextual onboarding disabled for Ripul Browser
+        return false
     }
 
     var isShowingFireDialog: Bool {

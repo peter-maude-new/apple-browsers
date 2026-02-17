@@ -104,7 +104,8 @@ final class AIChatSettings: AIChatSettingsProvider {
     }
 
     var isAIChatEnabled: Bool {
-        keyValueStore.bool(.isAIChatEnabledKey, defaultValue: .isAIChatEnabledDefaultValue)
+        // Duck.ai / AI Chat disabled for Ripul Browser
+        return false
     }
 
     var isAIChatBrowsingMenuUserSettingsEnabled: Bool {
