@@ -84,7 +84,22 @@ final class AppDependencyProvider: DependencyProvider {
     let configurationManager: ConfigurationManager
     let configurationStore = ConfigurationStore()
 
-    let pageRefreshMonitor = PageRefreshMonitor(onDidDetectRefreshPattern: PageRefreshMonitor.onDidDetectRefreshPattern)
+    let pageRefreshMonitor = PageRefreshMonitor(onDidDetectRefreshPattern: { numberOfRefreshes in
+        let tdsEtag = AppDependencyProvider.shared.configurationStore.loadEtag(for: .trackerDataSet) ?? ""
+        switch numberOfRefreshes {
+        case 2:
+            SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh2X, etag: tdsEtag, fireDebugExperiment: { parameters in
+                UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
+            })
+        case 3:
+            Pixel.fire(pixel: .pageRefreshThreeTimesWithin20Seconds)
+            SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh3X, etag: tdsEtag, fireDebugExperiment: { parameters in
+                UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
+            })
+        default:
+            return
+        }
+    })
 
     // Subscription
     var subscriptionManager: any SubscriptionManager

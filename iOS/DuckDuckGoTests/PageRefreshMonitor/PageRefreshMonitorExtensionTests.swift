@@ -40,25 +40,25 @@ final class PageRefreshMonitorExtensionTests: XCTestCase {
     }
 
     func test_OnDidDetectRefreshPattern_WithValue1_FireExperimentFuncNotCalled() throws {
-        PageRefreshMonitor.onDidDetectRefreshPattern(1)
+        appRefreshPatternHandler(1)
 
         XCTAssertNil(captureMetric)
     }
 
     func test_OnDidDetectRefreshPattern_WithValue2_ExpectedFireExperimentFuncCalled() throws {
-        PageRefreshMonitor.onDidDetectRefreshPattern(2)
+        appRefreshPatternHandler(2)
 
         XCTAssertEqual(captureMetric, "2XRefresh")
     }
 
     func test_OnDidDetectRefreshPattern_WithValue3_ExpectedFireExperimentFuncCalled() throws {
-        PageRefreshMonitor.onDidDetectRefreshPattern(3)
+        appRefreshPatternHandler(3)
 
         XCTAssertEqual(captureMetric, "3XRefresh")
     }
 
     func test_OnDidDetectRefreshPattern_WithValue4_FireExperimentFuncNotCalled() throws {
-        PageRefreshMonitor.onDidDetectRefreshPattern(4)
+        appRefreshPatternHandler(4)
 
         XCTAssertNil(captureMetric)
     }

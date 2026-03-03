@@ -4,7 +4,7 @@ import UserScript
 
 public class RipulAgentUserScript: NSObject, UserScript {
 
-    static let siteKey = "pk_live_fzx7qpbr1w4615zb48buf6ys"
+    static let siteKey = "pk_live_4w3sb5vg9kci3l5i2fey8zyt"
     static let iframeUrl = "https://demo.ripul.io/app"
     static let iframeOrigin = "https://demo.ripul.io"
     static let validationUrl = "https://llm-proxy.ripul.io/v1/site-key/validate"

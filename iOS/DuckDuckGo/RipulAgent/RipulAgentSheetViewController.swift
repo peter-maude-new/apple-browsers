@@ -1,7 +1,9 @@
 import UIKit
+import SwiftUI
+import PhotosUI
 import WebKit
 import ObjectiveC
-import DesignResourcesKitIcons
+import RipulAgent
 
 @MainActor
 protocol RipulAgentSheetViewControllerDelegate: AnyObject {
@@ -13,15 +15,13 @@ protocol RipulAgentSheetViewControllerDelegate: AnyObject {
 final class RipulAgentSheetViewController: UIViewController {
 
     private enum Constants {
-        static let headerHeight: CGFloat = 44
-        static let headerHorizontalPadding: CGFloat = 16
-        static let headerButtonSize: CGFloat = 44
         static let sheetCornerRadius: CGFloat = 24
+        static let closeButtonSize: CGFloat = 32
+        static let closeButtonPadding: CGFloat = 12
+        static let nativeChatInputHeight: Int = 56
     }
 
     weak var delegate: RipulAgentSheetViewControllerDelegate?
-
-    private let agentURL: URL
 
     /// The page's WKWebView — used to execute DOM methods natively.
     weak var pageWebView: WKWebView?
@@ -29,38 +29,28 @@ final class RipulAgentSheetViewController: UIViewController {
     /// Whether the bridge has been successfully initialized on the page.
     private var bridgeInitialized = false
 
+    /// The SDK bridge for handling standard web ↔ native communication.
+    private let bridge = AgentBridge()
+
+    // MARK: - Chat Input State
+
+    private var chatMessage = ""
+    private var imageAttachments: [NativeImageAttachment] = []
+    /// Type-erased storage for [PhotosPickerItem] (iOS 16+).
+    private var selectedPhotosStorage: Any = []
+
     // MARK: - UI
-
-    private lazy var headerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Ripul Agent"
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
 
     private lazy var closeButton: UIButton = {
         let button = UIButton(type: .system)
         let image = UIImage(systemName: "xmark.circle.fill")
         button.setImage(image, for: .normal)
-        button.tintColor = .secondaryLabel
+        button.tintColor = UIColor.white.withAlphaComponent(0.7)
+        let config = UIImage.SymbolConfiguration(pointSize: 22)
+        button.setPreferredSymbolConfiguration(config, forImageIn: .normal)
         button.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    }()
-
-    private lazy var separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .separator
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
     }()
 
     private lazy var webView: WKWebView = {
@@ -68,15 +58,17 @@ final class RipulAgentSheetViewController: UIViewController {
         config.allowsInlineMediaPlayback = true
         config.websiteDataStore = .nonPersistent()
 
-        // Inject the native bridge script at document start so it's available
-        // before the agent app's FrameMCPBridge initializes.
-        if let bridgeJS = Self.loadBundleJS("RipulNativeBridgeScript") {
-            let script = WKUserScript(source: bridgeJS, injectionTime: .atDocumentStart, forMainFrameOnly: true)
-            config.userContentController.addUserScript(script)
-        }
+        // Inject the SDK's bridge script at document start
+        let script = WKUserScript(
+            source: AgentWebView.bridgeJavaScript,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        )
+        config.userContentController.addUserScript(script)
 
-        // Register the sheet-side message handler for FrameMCPBridge -> native relay
-        config.userContentController.add(self, name: "ripulBridge")
+        // Register message handlers matching the SDK's bridge script
+        config.userContentController.add(self, name: "agentBridge")
+        config.userContentController.add(self, name: "agentLog")
 
         let wv = WKWebView(frame: .zero, configuration: config)
         wv.isOpaque = false
@@ -94,16 +86,33 @@ final class RipulAgentSheetViewController: UIViewController {
         return indicator
     }()
 
+    private var chatInputHostingController: UIViewController?
+    private var webViewBottomConstraint: NSLayoutConstraint?
+
     // MARK: - Init
 
-    init(agentURL: URL, pageWebView: WKWebView? = nil) {
-        self.agentURL = agentURL
+    init(configuration: AgentConfiguration, pageWebView: WKWebView? = nil) {
+        self.agentConfiguration = configuration
         self.pageWebView = pageWebView
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .pageSheet
+
+        // Configure bridge with DOM capabilities for the browser
+        bridge.extraCapabilities = [
+            "dom": true,
+            "elementPicker": true,
+        ]
+    }
+
+    /// Legacy init for backward compatibility with callers that pass a URL.
+    convenience init(agentURL: URL, pageWebView: WKWebView? = nil) {
+        let config = AgentConfiguration(baseURL: agentURL)
+        self.init(configuration: config, pageWebView: pageWebView)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    private let agentConfiguration: AgentConfiguration
 
     // MARK: - Lifecycle
 
@@ -113,13 +122,17 @@ final class RipulAgentSheetViewController: UIViewController {
         setupUI()
         configureSheetPresentation()
         loadingIndicator.startAnimating()
-        webView.load(URLRequest(url: agentURL))
+
+        // Attach bridge to webview
+        bridge.attach(to: webView)
+
+        // Load the agent URL
+        let url = agentConfiguration.embeddedURL
+        webView.load(URLRequest(url: url))
     }
 
     /// Injects embed.js and initializes the agent framework on the page WKWebView.
-    /// Called lazily when the first dom:request arrives. Since embed.js is injected
-    /// on-demand (not via WKUserScript on every page), the timing is fully controlled
-    /// — no retry loop needed.
+    /// Called lazily when the first dom:request arrives.
     private func ensureFrameworkOnPage() async -> Bool {
         if bridgeInitialized { return true }
 
@@ -131,12 +144,10 @@ final class RipulAgentSheetViewController: UIViewController {
         }
 
         do {
-            // Step 1: Inject embed.js to define the AgentFramework global.
-            try await pageWV.callAsyncJavaScript(
+            _ = try await pageWV.callAsyncJavaScript(
                 embedJS, arguments: [:], in: nil, contentWorld: .page
             )
 
-            // Step 2: Call AgentFramework.init() to create the bridge + DomAdapter.
             let value = try await pageWV.callAsyncJavaScript(
                 initJS, arguments: [:], in: nil, contentWorld: .page
             )
@@ -170,40 +181,96 @@ final class RipulAgentSheetViewController: UIViewController {
     // MARK: - Layout
 
     private func setupUI() {
-        view.addSubview(headerView)
-        headerView.addSubview(titleLabel)
-        headerView.addSubview(closeButton)
-        view.addSubview(separatorView)
         view.addSubview(webView)
         view.addSubview(loadingIndicator)
+        view.addSubview(closeButton)
+
+        let webBottom = webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        webViewBottomConstraint = webBottom
 
         NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: Constants.headerHeight),
-
-            titleLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: Constants.headerHorizontalPadding),
-
-            closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            closeButton.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -Constants.headerHorizontalPadding),
-            closeButton.widthAnchor.constraint(equalToConstant: Constants.headerButtonSize),
-            closeButton.heightAnchor.constraint(equalToConstant: Constants.headerButtonSize),
-
-            separatorView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
-
-            webView.topAnchor.constraint(equalTo: separatorView.bottomAnchor),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            webBottom,
 
             loadingIndicator.centerXAnchor.constraint(equalTo: webView.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: webView.centerYAnchor),
+
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.closeButtonPadding),
+            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.closeButtonPadding),
+            closeButton.widthAnchor.constraint(equalToConstant: Constants.closeButtonSize),
+            closeButton.heightAnchor.constraint(equalToConstant: Constants.closeButtonSize),
         ])
+
+        setupNativeChatInput()
+    }
+
+    @available(iOS 16.0, *)
+    private func createChatInputView() -> some View {
+        NativeChatInput(
+            text: Binding(
+                get: { [weak self] in self?.chatMessage ?? "" },
+                set: { [weak self] in self?.chatMessage = $0 }
+            ),
+            imageAttachments: Binding(
+                get: { [weak self] in self?.imageAttachments ?? [] },
+                set: { [weak self] in self?.imageAttachments = $0 }
+            ),
+            selectedPhotos: Binding(
+                get: { [weak self] in (self?.selectedPhotosStorage as? [PhotosPickerItem]) ?? [] },
+                set: { [weak self] in self?.selectedPhotosStorage = $0 }
+            ),
+            onSubmit: { [weak self] in self?.submitMessage() },
+            onNewChat: { [weak self] in self?.startNewChat() }
+        )
+    }
+
+    private func setupNativeChatInput() {
+        guard #available(iOS 16.0, *) else { return }
+
+        let inputView = createChatInputView()
+        let hostingController = UIHostingController(rootView: AnyView(inputView))
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        hostingController.didMove(toParent: self)
+
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
+
+        // Update web view bottom to sit above the chat input
+        webViewBottomConstraint?.isActive = false
+        webViewBottomConstraint = webView.bottomAnchor.constraint(equalTo: hostingController.view.topAnchor)
+        webViewBottomConstraint?.isActive = true
+
+        chatInputHostingController = hostingController
+    }
+
+    // MARK: - Chat Actions
+
+    private func submitMessage() {
+        let message = chatMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !message.isEmpty || !imageAttachments.isEmpty else { return }
+
+        let images = imageAttachments
+        chatMessage = ""
+        imageAttachments = []
+        selectedPhotosStorage = [] as [Any]
+
+        Task {
+            let imgDicts: [[String: String]]? = images.isEmpty ? nil : images.map { $0.toDictionary() }
+            await bridge.submitMessage(message, imageAttachments: imgDicts)
+        }
+    }
+
+    private func startNewChat() {
+        bridge.startNewChat()
     }
 
     // MARK: - Actions
@@ -220,20 +287,9 @@ final class RipulAgentSheetViewController: UIViewController {
         return try? String(contentsOfFile: path)
     }
 
-    /// Escapes a string for safe embedding inside a JS single-quoted string literal.
-    private func jsEscape(_ string: String) -> String {
-        return string
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "'", with: "\\'")
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\r", with: "\\r")
-    }
-
     // MARK: - Native DOM Dispatch
 
-    /// The DOM dispatcher JS, loaded once from bundle. Runs as a callAsyncJavaScript
-    /// function body — receives `method` and `args` as named parameters.
-    /// callAsyncJavaScript bypasses CSP, so executeCode/evaluate work on strict sites.
+    /// The DOM dispatcher JS, loaded once from bundle.
     private static let domDispatcherJS: String = {
         guard let js = loadBundleJS("RipulDomDispatcher") else {
             NSLog("[RipulBridge] ERROR: Could not load RipulDomDispatcher.js from bundle")
@@ -243,8 +299,6 @@ final class RipulAgentSheetViewController: UIViewController {
     }()
 
     /// Dispatches any dom:request to the page's WKWebView using callAsyncJavaScript.
-    /// The dispatcher JS implements all IDomAdapter methods (querySelector, click,
-    /// getInteractiveElements, executeCode, pickElement, etc.) in one place.
     private func dispatchDomRequest(method: String, args: [Any], requestId: String) {
         guard let pageWV = pageWebView else {
             NSLog("[RipulBridge:dom] ERROR: No page webview (requestId: \(requestId), method: \(method))")
@@ -255,7 +309,6 @@ final class RipulAgentSheetViewController: UIViewController {
         Task { [weak self] in
             guard let self = self else { return }
 
-            // Lazy init: ensure bridge is created on the page before dispatching.
             if !self.bridgeInitialized {
                 _ = await self.ensureFrameworkOnPage()
             }
@@ -269,7 +322,6 @@ final class RipulAgentSheetViewController: UIViewController {
                 )
                 let jsonSafe = Self.makeJSONSerializable(value)
 
-                // Check for soft errors returned by the dispatcher (instead of throwing)
                 if let dict = jsonSafe as? [String: Any], dict["__dispatchError"] as? Bool == true {
                     let msg = dict["message"] as? String ?? "Unknown dispatch error"
                     NSLog("[RipulBridge:dom] Error (\(method)): \(msg)")
@@ -286,8 +338,6 @@ final class RipulAgentSheetViewController: UIViewController {
     }
 
     /// Dispatches an elementPicker:start to the framework's HostMCPBridge on the page.
-    /// The bridge has the full-featured picker (highlight, tooltip, touch/mobile support).
-    /// The JS patches the bridge's sendMessage to intercept the response.
     private func dispatchElementPicker(requestId: String, options: [String: Any]?) {
         guard let pageWV = pageWebView else {
             sendBridgeMessage(type: "agent-framework:elementPicker:cancelled", extra: ["requestId": requestId])
@@ -297,7 +347,6 @@ final class RipulAgentSheetViewController: UIViewController {
         Task { [weak self] in
             guard let self = self else { return }
 
-            // Ensure the bridge is initialized on the page before picking.
             if !self.bridgeInitialized {
                 _ = await self.ensureFrameworkOnPage()
             }
@@ -315,7 +364,6 @@ final class RipulAgentSheetViewController: UIViewController {
                     return
                 }
 
-                // The JS returns the full bridge message (type + requestId + result/cancelled).
                 if let msgType = result["type"] as? String,
                    msgType == "agent-framework:elementPicker:result",
                    let pickerResult = result["result"] {
@@ -337,9 +385,7 @@ final class RipulAgentSheetViewController: UIViewController {
         }
     }
 
-    /// Element picker JS — routes to the framework's HostMCPBridge handler.
-    /// Loaded once from bundle. Runs as a callAsyncJavaScript function body
-    /// with named parameters: requestId, options.
+    /// Element picker JS — loaded once from bundle.
     private static let elementPickerJS: String = {
         guard let js = loadBundleJS("RipulElementPicker") else {
             return "return { cancelled: true };"
@@ -349,18 +395,12 @@ final class RipulAgentSheetViewController: UIViewController {
 
     // MARK: - executeCode CSP Bypass
 
-    /// Runs executeCode via callAsyncJavaScript (treats code as function body, bypasses CSP).
-    /// Only used for executeCode — all other DOM methods go through the generic proxy.
     private func executeCodeNatively(code: String, requestId: String) {
         guard let pageWV = pageWebView else {
             sendDomResponse(requestId: requestId, success: false, error: "No page webview available")
             return
         }
 
-        // Embed the code directly into the callAsyncJavaScript body.
-        // callAsyncJavaScript treats its string as a function body and bypasses CSP,
-        // but new Function() / eval() INSIDE that body are still blocked by CSP.
-        // By making the code part of the body itself, it all runs under the CSP bypass.
         let wrappedCode = """
         var __logs = [];
         var __origLog = console.log, __origWarn = console.warn, __origErr = console.error;
@@ -403,7 +443,7 @@ final class RipulAgentSheetViewController: UIViewController {
         return String(describing: value)
     }
 
-    /// Sends an agent-framework:dom:response back to the sheet's FrameMCPBridge.
+    /// Sends an agent-framework:dom:response back to the sheet's web view.
     private func sendDomResponse(requestId: String, success: Bool, data: Any? = nil, error: String? = nil) {
         var response: [String: Any] = [
             "type": "agent-framework:dom:response",
@@ -432,7 +472,7 @@ final class RipulAgentSheetViewController: UIViewController {
         sendToSheet(response)
     }
 
-    /// Sends a generic bridge message back to the sheet's FrameMCPBridge.
+    /// Sends a generic bridge message back to the sheet's web view.
     private func sendBridgeMessage(type: String, extra: [String: Any] = [:]) {
         var msg: [String: Any] = [
             "type": type,
@@ -443,15 +483,16 @@ final class RipulAgentSheetViewController: UIViewController {
         sendToSheet(msg)
     }
 
-    /// Serializes a dictionary to JSON and delivers it to the sheet's __ripulReceiveFromNative.
+    /// Serializes a dictionary to JSON and delivers it to the sheet's __agentBridgeReceive.
+    /// Passes the JSON as a JS object literal (matching the SDK's AgentBridge.send format).
     private func sendToSheet(_ message: [String: Any]) {
         guard let data = try? JSONSerialization.data(withJSONObject: message),
               let json = String(data: data, encoding: .utf8) else {
             NSLog("[RipulBridge] Failed to serialize message to sheet")
             return
         }
-        let escaped = jsEscape(json)
-        webView.evaluateJavaScript("window.__ripulReceiveFromNative('\(escaped)')") { _, error in
+        let js = "window.__agentBridgeReceive(\(json))"
+        webView.evaluateJavaScript(js) { _, error in
             if let error = error {
                 NSLog("[RipulBridge] Error delivering to sheet: \(error.localizedDescription)")
             }
@@ -491,58 +532,32 @@ extension RipulAgentSheetViewController: WKScriptMessageHandler {
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        guard message.name == "ripulBridge",
-              let body = message.body as? String else { return }
+        // Console log forwarding
+        if message.name == "agentLog" {
+            if let logMessage = message.body as? String {
+                bridge.handleConsoleLog(logMessage)
+            }
+            return
+        }
 
-        guard let data = body.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            NSLog("[RipulBridge] Failed to parse message JSON")
+        guard message.name == "agentBridge" else { return }
+
+        // The SDK bridge script posts the JS object directly (structured clone),
+        // so message.body is a dictionary.
+        guard let json = message.body as? [String: Any] else {
+            NSLog("[RipulBridge] Failed to parse message body")
             return
         }
 
         let type = json["type"] as? String ?? "(no type)"
         let method = json["method"] as? String
 
-        if type == "agent-framework:handshake" {
-            sendBridgeMessage(type: "agent-framework:handshake:ack", extra: [
-                "capabilities": [
-                    "mcp": true,
-                    "dom": true,
-                    "storage": false,
-                    "elementPicker": true,
-                ],
-                "hostOrigin": "native",
-            ])
-            return
-        }
-
-        // Widget control: close/minimize and restore
-        if type == "agent-framework:widget:minimize" {
-            delegate?.ripulAgentSheetViewControllerDidRequestDismiss(self)
-            return
-        }
-        if type == "agent-framework:widget:restore" {
-            delegate?.ripulAgentSheetViewControllerDidRequestRestore(self)
-            return
-        }
-
-        // Element picker: dispatch natively on the page
-        if type == "agent-framework:elementPicker:start",
-           let requestId = json["requestId"] as? String {
-            let options = json["options"] as? [String: Any]
-            dispatchElementPicker(requestId: requestId, options: options)
-            return
-        }
-
-        // DOM requests: most go through the generic proxy (HostMCPBridge on the page).
-        // executeCode is intercepted here and run via callAsyncJavaScript to bypass CSP.
+        // Browser-specific: handle DOM requests before passing to bridge
         if type == "agent-framework:dom:request",
            let method = method,
            let requestId = json["requestId"] as? String {
             let args = json["args"] as? [Any] ?? []
 
-            // executeCode needs CSP bypass — callAsyncJavaScript treats code as a
-            // function body, bypassing script-src restrictions.
             if method == "executeCode", args.count > 1, let code = args[1] as? String {
                 executeCodeNatively(code: code, requestId: requestId)
                 return
@@ -552,7 +567,29 @@ extension RipulAgentSheetViewController: WKScriptMessageHandler {
             return
         }
 
-        // Anything else: silently ignore (host:info, theme:ready, mcp:discover, etc.)
+        // Browser-specific: handle element picker
+        if type == "agent-framework:elementPicker:start",
+           let requestId = json["requestId"] as? String {
+            let options = json["options"] as? [String: Any]
+            dispatchElementPicker(requestId: requestId, options: options)
+            return
+        }
+
+        // Browser-specific: widget minimize/restore -> delegate
+        if type == "agent-framework:widget:minimize" {
+            delegate?.ripulAgentSheetViewControllerDidRequestDismiss(self)
+            // Also let bridge track the state
+            bridge.handleMessage(json)
+            return
+        }
+        if type == "agent-framework:widget:restore" {
+            delegate?.ripulAgentSheetViewControllerDidRequestRestore(self)
+            bridge.handleMessage(json)
+            return
+        }
+
+        // All other messages: delegate to AgentBridge
+        bridge.handleMessage(json)
     }
 }
 
@@ -563,55 +600,6 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         loadingIndicator.stopAnimating()
         removeInputAccessoryView()
-        injectViewportOverrides()
-    }
-
-    private func injectViewportOverrides() {
-        let bottomInset = Int(view.safeAreaInsets.bottom)
-
-        let js = """
-        (function() {
-            var meta = document.querySelector('meta[name="viewport"]');
-            if (!meta) {
-                meta = document.createElement('meta');
-                meta.name = 'viewport';
-                document.head.appendChild(meta);
-            }
-            meta.setAttribute('content',
-                'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
-
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(m) {
-                    if (m.type === 'attributes' && m.attributeName === 'content') {
-                        var c = meta.getAttribute('content') || '';
-                        if (!c.includes('maximum-scale=1')) {
-                            meta.setAttribute('content',
-                                'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
-                        }
-                    }
-                });
-            });
-            observer.observe(meta, { attributes: true });
-
-            function disableAutofill() {
-                document.querySelectorAll('input, textarea, select, form').forEach(function(el) {
-                    el.setAttribute('autocomplete', 'off');
-                    el.setAttribute('autocorrect', 'off');
-                    el.setAttribute('autocapitalize', 'off');
-                    el.setAttribute('spellcheck', 'false');
-                });
-            }
-            disableAutofill();
-            new MutationObserver(function() { disableAutofill(); })
-                .observe(document.body, { childList: true, subtree: true });
-
-            var inset = \(bottomInset);
-            if (inset > 0) {
-                document.body.style.paddingBottom = inset + 'px';
-            }
-        })();
-        """
-        webView.evaluateJavaScript(js)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -625,7 +613,7 @@ extension RipulAgentSheetViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         guard let url = navigationAction.request.url else { return .allow }
 
-        if url.host == URL(string: RipulAgentUserScript.iframeOrigin)?.host {
+        if url.host == agentConfiguration.baseURL.host {
             return .allow
         }
 

@@ -44,6 +44,7 @@ import NetworkExtension
 import DesignResourcesKit
 import DesignResourcesKitIcons
 import Configuration
+import RipulAgent
 import PixelKit
 import SystemSettingsPiPTutorial
 import DataBrokerProtection_iOS
@@ -759,12 +760,21 @@ class MainViewController: UIViewController {
         Task {
             let validation = await RipulAgentUserScript.validateSiteKeyAsync()
 
-            guard let url = RipulAgentUserScript.buildAgentPanelURL(
+            let config = AgentConfiguration(
+                baseURL: AgentConfiguration.defaultBaseURL,
+                path: "/popup",
+                siteKey: RipulAgentUserScript.siteKey,
                 sessionToken: validation.token,
-                siteKeyConfig: validation.config
-            ) else { return }
+                theme: traitCollection.userInterfaceStyle == .dark ? .dark : .light,
+                hideHeader: true,
+                hideChatInput: true,
+                nativeChatInputHeight: 56
+            )
+            // Pass validated config JSON if available
+            var mutableConfig = config
+            mutableConfig.siteKeyConfig = validation.config
 
-            let sheet = RipulAgentSheetViewController(agentURL: url)
+            let sheet = RipulAgentSheetViewController(configuration: mutableConfig)
             sheet.delegate = self
             self.ripulAgentSheet = sheet
             // Trigger viewDidLoad which starts loading the agent app webview.
@@ -791,12 +801,20 @@ class MainViewController: UIViewController {
         Task {
             let validation = await RipulAgentUserScript.validateSiteKeyAsync()
 
-            guard let url = RipulAgentUserScript.buildAgentPanelURL(
+            let config = AgentConfiguration(
+                baseURL: AgentConfiguration.defaultBaseURL,
+                path: "/popup",
+                siteKey: RipulAgentUserScript.siteKey,
                 sessionToken: validation.token,
-                siteKeyConfig: validation.config
-            ) else { return }
+                theme: traitCollection.userInterfaceStyle == .dark ? .dark : .light,
+                hideHeader: true,
+                hideChatInput: true,
+                nativeChatInputHeight: 56
+            )
+            var mutableConfig = config
+            mutableConfig.siteKeyConfig = validation.config
 
-            let sheet = RipulAgentSheetViewController(agentURL: url, pageWebView: self.currentTab?.webView)
+            let sheet = RipulAgentSheetViewController(configuration: mutableConfig, pageWebView: self.currentTab?.webView)
             sheet.delegate = self
             self.ripulAgentSheet = sheet
             self.present(sheet, animated: true)

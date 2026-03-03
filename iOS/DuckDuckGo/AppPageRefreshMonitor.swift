@@ -24,23 +24,19 @@ import PixelExperimentKit
 import Configuration
 import PixelKit
 
-extension PageRefreshMonitor {
-
-    static let onDidDetectRefreshPattern: (NumberOfRefreshes) -> Void = { numberOfRefreshes in
-        let tdsEtag = AppDependencyProvider.shared.configurationStore.loadEtag(for: .trackerDataSet) ?? ""
-        switch numberOfRefreshes {
-        case 2:
-            SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh2X, etag: tdsEtag, fireDebugExperiment: { parameters in
-                UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
-            })
-        case 3:
-            Pixel.fire(pixel: .pageRefreshThreeTimesWithin20Seconds)
-            SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh3X, etag: tdsEtag, fireDebugExperiment: { parameters in
-                UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
-            })
-        default:
-            return
-        }
+func appRefreshPatternHandler(_ numberOfRefreshes: PageRefreshMonitor.NumberOfRefreshes) {
+    let tdsEtag = AppDependencyProvider.shared.configurationStore.loadEtag(for: .trackerDataSet) ?? ""
+    switch numberOfRefreshes {
+    case 2:
+        SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh2X, etag: tdsEtag, fireDebugExperiment: { parameters in
+            UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
+        })
+    case 3:
+        Pixel.fire(pixel: .pageRefreshThreeTimesWithin20Seconds)
+        SiteBreakageExperimentMetrics.fireTDSExperimentMetric(metricType: .refresh3X, etag: tdsEtag, fireDebugExperiment: { parameters in
+            UniquePixel.fire(pixel: .debugBreakageExperiment, withAdditionalParameters: parameters)
+        })
+    default:
+        return
     }
-
 }
