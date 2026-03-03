@@ -10409,7 +10409,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0202566F298818B200E694E7 /* Build configuration list for PBXNativeTarget "PacketTunnelProvider" */;
 			buildPhases = (
-				E58C40AB60D94E29BD1DACE1 /* Compile Code Assets */,
 				0202565E298818B100E694E7 /* Sources */,
 				0202565F298818B100E694E7 /* Frameworks */,
 				02025660298818B100E694E7 /* Resources */,
@@ -11189,25 +11188,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E58C40AB60D94E29BD1DACE1 /* Compile Code Assets */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			alwaysOutOfDate = 1;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile Code Assets";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			shellPath = /bin/sh;
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A1ECAD1}\"";
-			showEnvVarsInLog = 0;			
-		};
 		0A991F5B239418D100AA1F64 /* Prevent Version Override */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
